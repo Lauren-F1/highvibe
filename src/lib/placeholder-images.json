@@ -1,3 +1,70 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "yoga-beach",
+      "description": "A group of people doing yoga on a serene beach at sunrise.",
+      "imageUrl": "https://images.unsplash.com/photo-1591228127791-8e2eaef098d3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx5b2dhJTIwYmVhY2h8ZW58MHx8fHwxNzcwMDcwMDIxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "yoga beach"
+    },
+    {
+      "id": "meditation-forest",
+      "description": "A person meditating in a lush, green forest with sunlight filtering through the trees.",
+      "imageUrl": "https://images.unsplash.com/photo-1693298122617-59b9a569e5cd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxtZWRpdGF0aW9uJTIwZm9yZXN0fGVufDB8fHx8MTc3MDA3MDAyMXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "meditation forest"
+    },
+    {
+      "id": "mountain-hike",
+      "description": "A hiker looking out over a vast mountain range.",
+      "imageUrl": "https://images.unsplash.com/photo-1613075019881-f475574c236a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxtb3VudGFpbiUyMGxhbmRzY2FwZXxlbnwwfHx8fDE3NzAwMDgzODJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "mountain landscape"
+    },
+    {
+      "id": "cozy-cabin",
+      "description": "The warm and inviting interior of a rustic cabin with a fireplace.",
+      "imageUrl": "https://images.unsplash.com/photo-1487695652027-48e475bfa86f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxjYWJpbiUyMGludGVyaW9yfGVufDB8fHx8MTc3MDAyMzQ1OHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "cabin interior"
+    },
+    {
+      "id": "healthy-food-chef",
+      "description": "A chef artfully plating a colorful, healthy meal.",
+      "imageUrl": "https://images.unsplash.com/photo-1606756790138-261d2b21cd75?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxoZWFsdGh5JTIwZm9vZHxlbnwwfHx8fDE3NzAwMDkwNDR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "healthy food"
+    },
+    {
+      "id": "spa-massage",
+      "description": "A person receiving a relaxing massage at a spa.",
+      "imageUrl": "https://images.unsplash.com/photo-1639162906614-0603b0ae95fd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxzcGElMjBtYXNzYWdlfGVufDB8fHx8MTc3MDA1MDU1NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "spa massage"
+    },
+    {
+      "id": "modern-event-space",
+      "description": "A bright and modern event space with large windows, suitable for a retreat.",
+      "imageUrl": "https://images.unsplash.com/photo-1497366754035-f200968a6e72?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxldmVudCUyMHNwYWNlfGVufDB8fHx8MTc3MDA3MDAyMXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "event space"
+    },
+    {
+      "id": "friendly-host-portrait",
+      "description": "A welcoming portrait of a retreat host.",
+      "imageUrl": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHx3b21hbiUyMHBvcnRyYWl0fGVufDB8fHx8MTc3MDAxODk3OXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman portrait"
+    },
+    {
+      "id": "serene-lake",
+      "description": "A calm lake reflecting the sky, with a wooden dock.",
+      "imageUrl": "https://images.unsplash.com/photo-1586891032469-a82530e3a490?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxzZXJlbmUlMjBsYWtlfGVufDB8fHx8MTc3MDA1MDU4NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "serene lake"
+    },
+    {
+      "id": "vendor-pottery",
+      "description": "A vendor teaching a pottery class.",
+      "imageUrl": "https://images.unsplash.com/photo-1595351298020-038700609878?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxwb3R0ZXJ5JTIwY2xhc3N8ZW58MHx8fHwxNzcwMDcwMDIxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "pottery class"
+    },
+    {
+      "id": "space-owner-villa",
+      "description": "A luxurious villa with a pool, owned by a space owner.",
+      "imageUrl": "https://images.unsplash.com/photo-1613977257365-aaae5a9817ff?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxsdXh1cnklMjB2aWxsYXxlbnwwfHx8fDE3NzAwNzAwMjF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "luxury villa"
+    }
+  ]
 }
