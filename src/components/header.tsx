@@ -11,8 +11,8 @@ export function Header() {
             <Image
               src="/logo.svg"
               alt="High Vibe Retreats"
-              width={140}
-              height={50}
+              width={168}
+              height={60}
               priority
             />
           </Link>
