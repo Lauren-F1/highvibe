@@ -41,7 +41,7 @@ export default function HomePageClient() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full max-w-6xl">
         <RoleCard
           href="/seeker"
-          icon={<SeekerIcon className="w-32 h-32 text-primary" />}
+          icon={<SeekerIcon className="w-36 h-36 text-primary" />}
           title="I'm a Seeker"
           description="Discover curated retreats and immersive experiences, from wellness and leadership to creative, cultural, and transformational journeys around the globe."
         />
