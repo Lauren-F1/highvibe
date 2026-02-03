@@ -20,6 +20,9 @@ export function Header() {
             <Link href="/seeker" className="transition-colors hover:text-foreground/80 text-foreground/60">
               Explore
             </Link>
+            <Link href="/guide" className="transition-colors hover:text-foreground/80 text-foreground/60">
+              For Guides
+            </Link>
             <Link href="/host" className="transition-colors hover:text-foreground/80 text-foreground/60">
               For Hosts
             </Link>

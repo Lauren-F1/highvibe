@@ -1,21 +1,25 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { PlusCircle, MoreHorizontal } from 'lucide-react';
 import { VendorCard } from '@/components/vendor-card';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { Badge } from '@/components/ui/badge';
+import { placeholderImages } from '@/lib/placeholder-images';
+import { PlusCircle } from 'lucide-react';
+import Image from 'next/image';
 
-const yourRetreats = [
-  { id: '1', name: 'Sunrise Yoga in Bali', status: 'Published', bookings: 12, income: 4800 },
-  { id: '2', name: 'Silent Meditation in Kyoto', status: 'Draft', bookings: 0, income: 0 },
-  { id: '3', name: 'Andes Hiking Adventure', status: 'Published', bookings: 8, income: 9600 },
-];
+const sampleSpace = {
+  name: 'The Glass House',
+  location: 'Topanga, California',
+  capacity: 'Up to 25 guests',
+  image: placeholderImages[6]
+}
 
-const featuredVendors = [
-  { id: '1', name: 'Elena Ray', service: 'Catering & Nutrition', rating: 4.9, reviewCount: 88, avatar: PlaceHolderImages[7] },
-  { id: '2', name: 'Sam Kolder', service: 'Photography & Videography', rating: 5.0, reviewCount: 120, avatar: PlaceHolderImages[9]},
-];
+const sampleProfile = {
+  id: '1',
+  name: 'Juniper Holdings',
+  service: 'Luxury Villas & Estates',
+  rating: 4.9,
+  reviewCount: 42,
+  avatar: placeholderImages[10]
+}
 
 export default function HostPage() {
   return (
@@ -23,46 +27,36 @@ export default function HostPage() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div>
           <h1 className="font-headline text-4xl md:text-5xl font-bold">Host Dashboard</h1>
-          <p className="text-muted-foreground mt-2 text-lg">Manage your retreats and connect with service providers.</p>
+          <p className="text-muted-foreground mt-2 text-lg">Manage your spaces and offer them to retreat guides.</p>
         </div>
         <Button size="lg" className="mt-4 md:mt-0">
           <PlusCircle className="mr-2 h-5 w-5" />
-          Create New Retreat
+          Add New Space
         </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          <Card>
+          <Card className="overflow-hidden">
             <CardHeader>
-              <CardTitle>Your Listings</CardTitle>
-              <CardDescription>An overview of your current retreat listings.</CardDescription>
+              <CardTitle>Listing Preview</CardTitle>
+              <CardDescription>This is how guides will see your space.</CardDescription>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Retreat</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Bookings</TableHead>
-                    <TableHead className="text-right">Total Income</TableHead>
-                    <TableHead className="w-[50px]"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {yourRetreats.map((retreat) => (
-                    <TableRow key={retreat.id}>
-                      <TableCell className="font-medium">{retreat.name}</TableCell>
-                      <TableCell>
-                        <Badge variant={retreat.status === 'Published' ? 'default' : 'secondary'}>{retreat.status}</Badge>
-                      </TableCell>
-                      <TableCell className="text-right">{retreat.bookings}</TableCell>
-                      <TableCell className="text-right">${retreat.income.toLocaleString()}</TableCell>
-                      <TableCell><Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4"/></Button></TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <div className="relative aspect-video w-full rounded-lg overflow-hidden">
+                 <Image
+                    src={sampleSpace.image.imageUrl}
+                    alt={sampleSpace.image.description}
+                    data-ai-hint={sampleSpace.image.imageHint}
+                    fill
+                    className="object-cover"
+                  />
+              </div>
+              <div className="mt-4">
+                <h3 className="font-headline text-2xl">{sampleSpace.name}</h3>
+                <p className="text-muted-foreground">{sampleSpace.location}</p>
+                <p className="mt-2 text-sm">{sampleSpace.capacity}</p>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -70,14 +64,11 @@ export default function HostPage() {
         <div>
           <Card>
             <CardHeader>
-              <CardTitle>Connect with Vendors</CardTitle>
-              <CardDescription>Find services for your next retreat.</CardDescription>
+              <CardTitle>Your Host Profile</CardTitle>
+              <CardDescription>Your identity as a host.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {featuredVendors.map((vendor) => (
-                <VendorCard key={vendor.id} vendor={vendor} />
-              ))}
-               <Button variant="outline" className="w-full">View All Vendors</Button>
+            <CardContent>
+              <VendorCard vendor={sampleProfile} />
             </CardContent>
           </Card>
         </div>

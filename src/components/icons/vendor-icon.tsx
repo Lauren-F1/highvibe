@@ -1,14 +1,20 @@
-"use client";
 import type { SVGProps } from 'react';
 
-/**
- * To use your own SVG, open your vendor.svg file in a text editor, copy the <svg> element,
- * and paste it here, replacing the existing <svg> element.
- * Make sure to add {...props} to the <svg> element to pass down styles.
- */
 export function VendorIcon(props: SVGProps<SVGSVGElement>) {
-  // This is a placeholder icon.
   return (
- <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" width="2000" zoomAndPan="magnify" viewBox="0 0 1500 1499.999933" height="2000" preserveAspectRatio="xMidYMid" version="1.0" {...props}><defs><clipPath id="1af812910d"><path d="M 63.691406 58 L 70 58 L 70 1442 L 63.691406 1442 Z M 63.691406 58 " clipRule="nonzero"/></clipPath><clipPath id="a3a9186b92"><path d="M 1430 58 L 1436.191406 58 L 1436.191406 1442 L 1430 1442 Z M 1430 58 " clipRule="nonzero"/></clipPath><clipPath id="b6f1a278be"><path d="M 63.691406 55.882812 L 1436.191406 55.882812 L 1436.191406 62 L 63.691406 62 Z M 63.691406 55.882812 " clipRule="nonzero"/></clipPath><clipPath id="3a17aefba3"><path d="M 63.691406 332 L 1436.191406 332 L 1436.191406 339 L 63.691406 339 Z M 63.691406 332 " clipRule="nonzero"/></clipPath><clipPath id="f30ea30b75"><path d="M 63.691406 608 L 1436.191406 608 L 1436.191406 615 L 63.691406 615 Z M 63.691406 608 " clipRule="nonzero"/></clipPath><clipPath id="9c93b9f87c"><path d="M 63.691406 885 L 1436.191406 885 L 1436.191406 892 L 63.691406 892 Z M 63.691406 885 " clipRule="nonzero"/></clipPath><clipPath id="7992f8e93d"><path d="M 63.691406 1161 L 1436.191406 1161 L 1436.191406 1168 L 63.691406 1168 Z M 63.691406 1161 " clipRule="nonzero"/></clipPath><clipPath id="a9e2a669af"><path d="M 63.691406 1438 L 1436.191406 1438 L 1436.191406 1444.132812 L 63.691406 1444.132812 Z M 63.691406 1438 " clipRule="nonzero"/></clipPath></defs><rect x="-150" width="1800" fill="#ffffff" y="-149.999993" height="1799.99992" fillOpacity="1"/><rect x="-150" width="1800" fill="#ffffff" y="-149.999993" height="1799.99992" fillOpacity="1"/><g clipPath="url(#1af812910d)"><path fill="currentColor" d="M 63.769531 58.707031 L 69.414062 58.707031 L 69.414062 1441.285156 L 63.769531 1441.285156 Z M 63.769531 58.707031 " fillOpacity="1" clipRule="nonzero"/></g><path fill="currentColor" d="M 337.148438 58.707031 L 342.792969 58.707031 L 342.792969 1441.285156 L 337.148438 1441.285156 Z M 337.148438 58.707031 " fillOpacity="1" clipRule="nonzero"/><path fill="currentColor" d="M 610.527344 58.707031 L 616.171875 58.707031 L 616.171875 1441.285156 L 610.527344 1441.285156 Z M 610.527344 58.707031 " fillOpacity="1" clipRule="nonzero"/><path fill="currentColor" d="M 883.828125 58.707031 L 889.472656 58.707031 L 889.472656 1441.285156 L 883.828125 1441.285156 Z M 883.828125 58.707031 " fillOpacity="1" clipRule="nonzero"/><path fill="currentColor" d="M 1157.207031 58.707031 L 1162.851562 58.707031 L 1162.851562 1441.285156 L 1157.207031 1441.285156 Z M 1157.207031 58.707031 " fillOpacity="1" clipRule="nonzero"/><g clipPath="url(#a3a9186b92)"><path fill="currentColor" d="M 1430.585938 58.707031 L 1436.230469 58.707031 L 1436.230469 1441.285156 L 1430.585938 1441.285156 Z M 1430.585938 58.707031 " fillOpacity="1" clipRule="nonzero"/></g><g clipPath="url(#b6f1a278be)"><path fill="currentColor" d="M 63.847656 55.882812 L 1436.230469 55.882812 L 1436.230469 61.527344 L 63.847656 61.527344 Z M 63.847656 55.882812 " fillOpacity="1" clipRule="nonzero"/></g><g clipPath="url(#3a17aefba3)"><path fill="currentColor" d="M 63.847656 332.398438 L 1436.230469 332.398438 L 1436.230469 338.042969 L 63.847656 338.042969 Z M 63.847656 332.398438 " fillOpacity="1" clipRule="nonzero"/></g><g clipPath="url(#f30ea30b75)"><path fill="currentColor" d="M 63.847656 608.914062 L 1436.230469 608.914062 L 1436.230469 614.5625 L 63.847656 614.5625 Z M 63.847656 608.914062 " fillOpacity="1" clipRule="nonzero"/></g><g clipPath="url(#9c93b9f87c)"><path fill="currentColor" d="M 63.847656 885.429688 L 1436.230469 885.429688 L 1436.230469 891.078125 L 63.847656 891.078125 Z M 63.847656 885.429688 " fillOpacity="1" clipRule="nonzero"/></g><g clipPath="url(#7992f8e93d)"><path fill="currentColor" d="M 63.847656 1161.945312 L 1436.191406 1161.945312 L 1436.191406 1167.59375 L 63.847656 1167.59375 Z M 63.847656 1161.945312 " fillOpacity="1" clipRule="nonzero"/></g><g clipPath="url(#a9e2a669af)"><path fill="currentColor" d="M 63.847656 1438.460938 L 1436.191406 1438.460938 L 1436.191406 1444.109375 L 63.847656 1444.109375 Z M 63.847656 1438.460938 " fillOpacity="1" clipRule="nonzero"/></g></svg>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+    </svg>
   );
 }
