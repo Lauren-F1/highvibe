@@ -24,25 +24,25 @@ export default function RoleSelectionPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full max-w-6xl">
         <RoleCard
           href="/seeker"
-          icon={<SeekerIcon className="w-10 h-10 text-primary" />}
+          icon={<SeekerIcon className="w-16 h-16 text-primary" />}
           title="I'm a Seeker"
           description="Discover unique retreats and experiences tailored to you."
         />
         <RoleCard
           href="/host"
-          icon={<HostIcon className="w-10 h-10 text-primary" />}
+          icon={<HostIcon className="w-16 h-16 text-primary" />}
           title="I'm a Host"
           description="List your retreat, connect with vendors, and manage bookings."
         />
         <RoleCard
           href="/vendor"
-          icon={<VendorIcon className="w-10 h-10 text-primary" />}
+          icon={<VendorIcon className="w-16 h-16 text-primary" />}
           title="I'm a Vendor"
           description="Offer your services to retreat hosts and grow your business."
         />
         <RoleCard
           href="/space-owner"
-          icon={<SpaceOwnerIcon className="w-10 h-10 text-primary" />}
+          icon={<SpaceOwnerIcon className="w-16 h-16 text-primary" />}
           title="I'm a Space Owner"
           description="List your property for retreats and events to a global audience."
         />
