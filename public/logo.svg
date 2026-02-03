@@ -1,6 +1,25 @@
 <svg width="600" height="215" viewBox="0 0 600 215" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="600" height="215" rx="10" fill="hsl(var(--secondary))"/>
-  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Playfair Display, serif" font-size="40" fill="hsl(var(--primary))">
-    High Vibe Retreats
-  </text>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400&amp;family=Playfair+Display:wght@700&amp;display=swap');
+    .headline { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 60px; fill: hsl(0, 0%, 3.9%); letter-spacing: 0.05em; }
+    .sub-headline { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 36px; fill: hsl(0, 0%, 45.1%); letter-spacing: 0.25em; }
+    .tagline { font-family: 'Lato', sans-serif; font-weight: 400; font-size: 16px; fill: hsl(0, 84.2%, 60.2%); letter-spacing: 0.3em; text-transform: uppercase;}
+  </style>
+  
+  <g transform="translate(0, -10)">
+      <g stroke="hsl(39, 20%, 88%)" stroke-width="4" fill="none">
+        <path d="M260 120 C 260 60, 340 60, 340 120" stroke-linecap="round" />
+        <path d="M268 120 C 268 68, 332 68, 332 120" stroke-linecap="round" />
+        <path d="M276 120 C 276 76, 324 76, 324 120" stroke-linecap="round" />
+        <path d="M284 120 C 284 84, 316 84, 316 120" stroke-linecap="round" />
+        <path d="M292 120 C 292 92, 308 92, 308 120" stroke-linecap="round" />
+      </g>
+    
+      <text x="240" y="110" text-anchor="end" class="headline">HIGH</text>
+      <text x="360" y="110" text-anchor="start" class="headline">VIBE</text>
+    
+      <text x="300" y="160" text-anchor="middle" class="sub-headline">RETREATS</text>
+      
+      <text x="300" y="190" text-anchor="middle" class="tagline">Experiences For The Soul</text>
+  </g>
 </svg>
