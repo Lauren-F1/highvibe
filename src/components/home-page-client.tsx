@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -40,27 +39,27 @@ export default function HomePageClient() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full max-w-6xl">
-       <RoleCard
+        <RoleCard
           href="/seeker"
-          icon={<SeekerIcon className="w-24 h-24 text-primary" />}
+          icon={<SeekerIcon className="w-32 h-32 text-primary" />}
           title="I'm a Seeker"
           description="Discover curated retreats and immersive experiences, from wellness and leadership to creative, cultural, and transformational journeys around the globe."
         />
         <RoleCard
           href="/guide"
-          icon={<HostIcon className="w-24 h-24 text-primary" />}
+          icon={<HostIcon className="w-32 h-32 text-primary" />}
           title="I'm a Guide"
           description="Design and lead meaningful retreat experiences. Connect with aligned seekers, collaborate with trusted vendors, and bring your vision to life."
         />
         <RoleCard
           href="/vendor"
-          icon={<VendorIcon className="w-24 h-24 text-primary" />}
+          icon={<VendorIcon className="w-32 h-32 text-primary" />}
           title="I'm a Vendor"
           description="Offer the elements that make retreats unforgettable, from private chefs and musicians to transportation, photography, wellness, and bespoke experiences."
         />
         <RoleCard
           href="/host"
-          icon={<SpaceOwnerIcon className="w-24 h-24 text-primary" />}
+          icon={<SpaceOwnerIcon className="w-32 h-32 text-primary" />}
           title="I'm a Host"
           description="List your property as a retreat destination. Attract guides seeking beautifully designed, professionally managed spaces for retreats, gatherings, and intimate events."
         />

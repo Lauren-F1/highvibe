@@ -21,7 +21,7 @@ export default function VendorPage() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div>
           <h1 className="font-headline text-4xl md:text-5xl font-bold">Grow Your Business</h1>
-          <p className="text-muted-foreground mt-2 text-lg">Offer your services to a global network of retreat guides.</p>
+          <p className="text-muted-foreground mt-2 text-lg">Offer the elements that make retreats unforgettable, from private chefs and musicians to transportation, photography, wellness, and bespoke experiences.</p>
         </div>
         <Button size="lg" className="mt-4 md:mt-0">
           <PlusCircle className="mr-2 h-5 w-5" />
