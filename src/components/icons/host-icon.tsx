@@ -4,18 +4,13 @@ import type { SVGProps } from 'react';
 export function HostIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
-      viewBox="0 0 100 100"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="5"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 1500 1500"
       {...props}
     >
-      {/* Outer ring */}
-      <circle cx="50" cy="50" r="45" />
-
-      {/* Two inner overlapping rings */}
-      <circle cx="38" cy="50" r="22" />
-      <circle cx="62" cy="50" r="22" />
+      <circle cx="742.81" cy="505.85" r="494.6" fill="none" stroke="currentColor" strokeWidth="15"/>
+      <circle cx="497.36" cy="979.98" r="494.6" fill="none" stroke="currentColor" strokeWidth="15"/>
+      <circle cx="988.26" cy="979.98" r="494.6" fill="none" stroke="currentColor" strokeWidth="15"/>
     </svg>
   );
 }
