@@ -10,7 +10,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Lato', 'sans-serif'],
+        body: ['Droid Serif', 'serif'],
         headline: ['Playfair Display', 'serif'],
         code: ['monospace'],
       },
