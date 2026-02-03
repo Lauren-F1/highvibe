@@ -1,9 +1,11 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Building, Briefcase } from 'lucide-react';
 import type { SVGProps } from 'react';
 import Image from 'next/image';
 import { SeekerIcon } from '@/components/icons/seeker-icon';
+import { HostIcon } from '@/components/icons/host-icon';
+import { VendorIcon } from '@/components/icons/vendor-icon';
+import { SpaceOwnerIcon } from '@/components/icons/space-owner-icon';
 
 export default function RoleSelectionPage() {
   return (
@@ -28,19 +30,19 @@ export default function RoleSelectionPage() {
         />
         <RoleCard
           href="/host"
-          icon={<Users className="w-10 h-10 text-primary" />}
+          icon={<HostIcon className="w-10 h-10 text-primary" />}
           title="I'm a Host"
           description="List your retreat, connect with vendors, and manage bookings."
         />
         <RoleCard
           href="/vendor"
-          icon={<Briefcase className="w-10 h-10 text-primary" />}
+          icon={<VendorIcon className="w-10 h-10 text-primary" />}
           title="I'm a Vendor"
           description="Offer your services to retreat hosts and grow your business."
         />
         <RoleCard
           href="/space-owner"
-          icon={<Building className="w-10 h-10 text-primary" />}
+          icon={<SpaceOwnerIcon className="w-10 h-10 text-primary" />}
           title="I'm a Space Owner"
           description="List your property for retreats and events to a global audience."
         />
