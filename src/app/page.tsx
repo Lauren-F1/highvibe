@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mountain, Users, Building, Briefcase } from 'lucide-react';
+import { Users, Building, Briefcase } from 'lucide-react';
 import type { SVGProps } from 'react';
 import Image from 'next/image';
+import { SeekerIcon } from '@/components/icons/seeker-icon';
 
 export default function RoleSelectionPage() {
   return (
@@ -21,7 +22,7 @@ export default function RoleSelectionPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full max-w-6xl">
         <RoleCard
           href="/seeker"
-          icon={<Mountain className="w-10 h-10 text-primary" />}
+          icon={<SeekerIcon className="w-10 h-10 text-primary" />}
           title="I'm a Seeker"
           description="Discover unique retreats and experiences tailored to you."
         />
