@@ -1,4 +1,6 @@
+
 "use client";
+
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Logo } from '@/components/icons/logo';
@@ -40,27 +42,27 @@ export default function HomePageClient() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full max-w-6xl">
        <RoleCard
           href="/seeker"
-          icon={<SeekerIcon className="w-40 h-40 text-primary" />}
+          icon={<SeekerIcon className="w-24 h-24 text-primary" />}
           title="I'm a Seeker"
-          description="Discover unique retreats and experiences tailored to you."
+          description="Discover curated retreats and immersive experiences, from wellness and leadership to creative, cultural, and transformational journeys around the globe."
         />
         <RoleCard
           href="/guide"
-          icon={<HostIcon className="w-40 h-40 text-primary" />}
+          icon={<HostIcon className="w-24 h-24 text-primary" />}
           title="I'm a Guide"
-          description="List your retreat, connect with vendors, and manage bookings."
+          description="Design and lead meaningful retreat experiences. Connect with aligned seekers, collaborate with trusted vendors, and bring your vision to life."
         />
         <RoleCard
           href="/vendor"
-          icon={<VendorIcon className="w-40 h-40 text-primary" />}
+          icon={<VendorIcon className="w-24 h-24 text-primary" />}
           title="I'm a Vendor"
-          description="Offer your services to retreat hosts and grow your business."
+          description="Offer the elements that make retreats unforgettable, from private chefs and musicians to transportation, photography, wellness, and bespoke experiences."
         />
         <RoleCard
           href="/host"
-          icon={<SpaceOwnerIcon className="w-40 h-40 text-primary" />}
+          icon={<SpaceOwnerIcon className="w-24 h-24 text-primary" />}
           title="I'm a Host"
-          description="List your property for retreats and events to a global audience."
+          description="List your property as a retreat destination. Attract guides seeking beautifully designed, professionally managed spaces for retreats, gatherings, and intimate events."
         />
       </div>
     </main>
