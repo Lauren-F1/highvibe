@@ -2,17 +2,20 @@ import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mountain, Users, Building, Briefcase } from 'lucide-react';
 import type { SVGProps } from 'react';
+import Image from 'next/image';
 
 export default function RoleSelectionPage() {
   return (
     <main className="flex min-h-screen w-full flex-col items-center justify-center bg-background p-4 sm:p-6 md:p-8">
       <div className="text-center mb-12">
-        <h1 className="font-headline text-5xl md:text-7xl font-bold tracking-tight text-foreground">
-          High Vibe Retreats
-        </h1>
-        <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-          Find your next escape. Or create one.
-        </p>
+        <Image
+          src="/logo.png"
+          alt="High Vibe Retreats Logo"
+          width={600}
+          height={215}
+          className="mx-auto"
+          priority
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full max-w-6xl">

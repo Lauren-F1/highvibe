@@ -1,12 +1,18 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export function Footer() {
   return (
     <footer className="bg-secondary text-secondary-foreground">
       <div className="container mx-auto px-6 py-8">
         <div className="flex flex-col items-center justify-between sm:flex-row">
-          <Link href="/" className="font-headline text-2xl font-bold text-foreground">
-            High Vibe Retreats
+          <Link href="/">
+            <Image
+              src="/logo.png"
+              alt="High Vibe Retreats"
+              width={140}
+              height={50}
+            />
           </Link>
           <p className="mt-4 text-sm text-muted-foreground sm:mt-0">
             © {new Date().getFullYear()} High Vibe Retreats Inc. All rights reserved.
