@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components'
-import { Logo } from '@/components/icons/logo'; // Corrected import
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
+import { Logo } from '@/components/icons/logo'; 
 import { SeekerIcon } from '@/components/icons/seeker-icon';
 import { HostIcon } from '@/components/icons/host-icon';
 import { VendorIcon } from '@/components/icons/vendor-icon';
