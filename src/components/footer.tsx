@@ -6,10 +6,10 @@ export function Footer() {
       <div className="container mx-auto px-6 py-8">
         <div className="flex flex-col items-center justify-between sm:flex-row">
           <Link href="/" className="font-headline text-2xl font-bold text-foreground">
-            RETREAT
+            High Vibe Retreats
           </Link>
           <p className="mt-4 text-sm text-muted-foreground sm:mt-0">
-            © {new Date().getFullYear()} RETREAT Inc. All rights reserved.
+            © {new Date().getFullYear()} High Vibe Retreats Inc. All rights reserved.
           </p>
           <div className="mt-4 flex space-x-6 sm:mt-0">
             <Link href="#" className="text-sm text-muted-foreground hover:text-foreground">

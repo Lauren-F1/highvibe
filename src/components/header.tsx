@@ -7,7 +7,7 @@ export function Header() {
       <div className="container flex h-16 items-center">
         <div className="mr-auto flex items-center">
           <Link href="/" className="mr-6 font-headline text-2xl font-bold">
-            RETREAT
+            High Vibe Retreats
           </Link>
           <nav className="hidden items-center space-x-6 text-sm font-medium md:flex">
             <Link href="/seeker" className="transition-colors hover:text-foreground/80 text-foreground/60">

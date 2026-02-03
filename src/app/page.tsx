@@ -8,7 +8,7 @@ export default function RoleSelectionPage() {
     <main className="flex min-h-screen w-full flex-col items-center justify-center bg-background p-4 sm:p-6 md:p-8">
       <div className="text-center mb-12">
         <h1 className="font-headline text-5xl md:text-7xl font-bold tracking-tight text-foreground">
-          RETREAT
+          High Vibe Retreats
         </h1>
         <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
           Find your next escape. Or create one.

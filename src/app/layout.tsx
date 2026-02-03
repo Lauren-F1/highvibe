@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'RETREAT',
+  title: 'High Vibe Retreats',
   description: 'Find your next escape. Or create one.',
 };
 
