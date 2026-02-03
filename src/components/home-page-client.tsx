@@ -30,7 +30,7 @@ interface RoleCardProps {
   description: string;
 }
 
-export default function HomePage() {
+export default function HomePageClient() {
   return (
     <main className="flex min-h-screen w-full flex-col items-center justify-center bg-background p-4 sm:p-6 md:p-8">
       <div className="text-center mb-12">
@@ -38,7 +38,7 @@ export default function HomePage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full max-w-6xl">
-        <RoleCard
+       <RoleCard
           href="/seeker"
           icon={<SeekerIcon className="w-40 h-40 text-primary" />}
           title="I'm a Seeker"

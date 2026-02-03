@@ -1,9 +1,12 @@
 import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 
+const inter = Inter({ subsets: ['latin'] });
+
 export const metadata: Metadata = {
-  title: 'High Vibe Retreats',
+  title: 'Retreat and Relax',
   description: 'Find your next escape. Or create one.',
 };
 
@@ -14,15 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="antialiased">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Droid+Serif:wght@400;700&family=Playfair+Display:wght@700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body className="font-body">
+      <body className={inter.className}>
         {children}
         <Toaster />
       </body>

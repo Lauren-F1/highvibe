@@ -1,7 +1,9 @@
+"use client";
+
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { VendorCard } from '@/components/vendor-card';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { placeholderImages } from '@/lib/placeholder-images';
 import { PlusCircle } from 'lucide-react';
 import Image from 'next/image';
 
@@ -9,7 +11,7 @@ const sampleSpace = {
   name: 'The Glass House',
   location: 'Topanga, California',
   capacity: 'Up to 25 guests',
-  image: PlaceHolderImages[6]
+  image: placeholderImages[6]
 }
 
 const sampleProfile = {
@@ -18,7 +20,7 @@ const sampleProfile = {
   service: 'Luxury Villas & Estates',
   rating: 4.9,
   reviewCount: 42,
-  avatar: PlaceHolderImages[10]
+  avatar: placeholderImages[10]
 }
 
 export default function SpaceOwnerPage() {
