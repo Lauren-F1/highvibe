@@ -9,7 +9,7 @@ export function Header() {
         <div className="mr-auto flex items-center">
           <Link href="/" className="mr-6">
             <Image
-              src="/logo.png"
+              src="/logo.svg"
               alt="High Vibe Retreats"
               width={140}
               height={50}

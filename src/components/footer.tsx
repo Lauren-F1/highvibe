@@ -8,7 +8,7 @@ export function Footer() {
         <div className="flex flex-col items-center justify-between sm:flex-row">
           <Link href="/">
             <Image
-              src="/logo.png"
+              src="/logo.svg"
               alt="High Vibe Retreats"
               width={140}
               height={50}

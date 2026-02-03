@@ -9,7 +9,7 @@ export default function RoleSelectionPage() {
     <main className="flex min-h-screen w-full flex-col items-center justify-center bg-background p-4 sm:p-6 md:p-8">
       <div className="text-center mb-12">
         <Image
-          src="/logo.png"
+          src="/logo.svg"
           alt="High Vibe Retreats Logo"
           width={600}
           height={215}
