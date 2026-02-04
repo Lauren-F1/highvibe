@@ -44,7 +44,7 @@ export function RetreatCard({ retreat, isLux = false }: RetreatCardProps) {
                     alt="LUX Approved"
                     width={28}
                     height={28}
-                    className="absolute right-3 top-3 z-10 h-5 w-auto opacity-80 md:h-7"
+                    className="absolute bottom-3 left-3 z-10 h-4 w-auto md:h-5"
                   />
                 )}
             </div>
