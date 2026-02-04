@@ -36,7 +36,7 @@ export default function SeekerPage() {
           <div className="absolute inset-0 bg-black/20" />
           <div className="relative text-white px-4">
             <h1 className="font-headline text-4xl md:text-6xl font-bold [text-shadow:0_2px_4px_rgba(0,0,0,0.5)]">Find Your Next Experience</h1>
-            <p className="text-slate-100 mt-2 text-xl md:text-2xl max-w-3xl mx-auto font-body [text-shadow:0_2px_4px_rgba(0,0,0,0.5)]">
+            <p className="text-slate-100 mt-2 text-lg md:text-xl max-w-3xl mx-auto font-body [text-shadow:0_2px_4px_rgba(0,0,0,0.5)]">
               Curated retreats for those who choose curiosity, connection, and living well.
             </p>
           </div>
