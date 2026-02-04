@@ -53,7 +53,7 @@ export default function HomePageClient() {
         />
         <RoleCard
           href="/vendor"
-          icon={<div className="h-64 flex items-center justify-center"><VendorIcon className="w-36 h-36 text-primary" /></div>}
+          icon={<div className="h-64 flex items-center justify-center"><VendorIcon className="w-48 h-48 text-primary" /></div>}
           title="I'm a Vendor"
           description="Offer the elements that make retreats unforgettable, from private chefs and musicians to transportation, photography, wellness, and bespoke experiences."
         />
