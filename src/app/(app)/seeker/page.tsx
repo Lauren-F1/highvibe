@@ -21,24 +21,22 @@ export default function SeekerPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
-      <div className="text-center mb-8">
-        <h1 className="font-headline text-4xl md:text-5xl font-bold">Find Your Next Experience</h1>
-        <p className="text-muted-foreground mt-2 text-lg max-w-3xl mx-auto font-body">
-          Curated retreats for those who choose curiosity, connection, and living well.
-        </p>
-      </div>
-
       {heroImage && (
-        <div className="mb-8 w-full">
-          <div className="relative aspect-[3/1] w-full rounded-lg overflow-hidden">
-            <Image
-              src={heroImage.imageUrl}
-              alt={heroImage.description}
-              data-ai-hint={heroImage.imageHint}
-              fill
-              className="object-cover"
-              priority
-            />
+        <div className="relative mb-8 w-full aspect-[21/9] rounded-lg overflow-hidden flex items-center justify-center text-center">
+          <Image
+            src={heroImage.imageUrl}
+            alt={heroImage.description}
+            data-ai-hint={heroImage.imageHint}
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-black/20" />
+          <div className="relative text-white px-4">
+            <h1 className="font-headline text-4xl md:text-5xl font-bold">Find Your Next Experience</h1>
+            <p className="text-slate-100 mt-2 text-lg max-w-3xl mx-auto font-body">
+              Curated retreats for those who choose curiosity, connection, and living well.
+            </p>
           </div>
         </div>
       )}
