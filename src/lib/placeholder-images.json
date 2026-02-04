@@ -75,8 +75,8 @@
     {
       "id": "seeker-hero-panoramic",
       "description": "An infinity pool at a luxury resort overlooking a lush, tropical valley at sunset.",
-      "imageUrl": "/new-image.jpg",
-      "imageHint": "resort pool"
+      "imageUrl": "/lux jungle.png",
+      "imageHint": "jungle"
     }
   ]
 }
