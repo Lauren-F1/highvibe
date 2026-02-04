@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RetreatCard } from '@/components/retreat-card';
 import { placeholderImages } from '@/lib/placeholder-images';
+import Image from 'next/image';
 
 const retreats = [
   { id: '1', title: 'Serene Yoga Escape', description: 'Find your inner peace with daily yoga and meditation sessions.', location: 'Bali, Indonesia', price: 400, rating: 4.8, image: placeholderImages[0] },
@@ -16,14 +17,31 @@ const retreats = [
 ];
 
 export default function SeekerPage() {
+  const heroImage = placeholderImages.find(p => p.id === 'seeker-hero-panoramic');
+
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
-      <div className="text-center mb-12">
+      <div className="text-center mb-8">
         <h1 className="font-headline text-4xl md:text-5xl font-bold">Find Your Next Experience</h1>
         <p className="text-muted-foreground mt-2 text-lg max-w-3xl mx-auto font-body">
           Curated retreats for those who choose curiosity, connection, and living well.
         </p>
       </div>
+
+      {heroImage && (
+        <div className="mb-8 w-full">
+          <div className="relative aspect-[3/1] w-full rounded-lg overflow-hidden">
+            <Image
+              src={heroImage.imageUrl}
+              alt={heroImage.description}
+              data-ai-hint={heroImage.imageHint}
+              fill
+              className="object-cover"
+              priority
+            />
+          </div>
+        </div>
+      )}
 
       <Card className="mb-8 p-4 md:p-6 bg-secondary">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
