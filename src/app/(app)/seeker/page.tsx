@@ -74,7 +74,7 @@ export default function SeekerPage() {
               </SelectContent>
             </Select>
           </div>
-          <Button size="lg" className="w-full">Search Retreats</Button>
+          <Button size="lg" className="w-full">Find Experiences</Button>
         </div>
       </Card>
 
