@@ -10,12 +10,12 @@ import { placeholderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 
 const retreats = [
-  { id: '1', title: 'Serene Yoga Escape', description: 'A grounding escape for body and mind, designed for deep rest and quiet clarity.', location: 'Bali, Indonesia', price: 400, rating: 4.8, image: placeholderImages[0] },
-  { id: '2', title: 'Forest Bathing & Mindfulness', description: 'An invitation to slow down and awaken your senses in the heart of nature.', location: 'Kyoto, Japan', price: 550, rating: 4.9, image: placeholderImages[1] },
-  { id: '3', title: 'Andean Peaks Adventure', description: 'For those who crave altitude, challenge, and unforgettable landscapes.', location: 'Cusco, Peru', price: 1200, rating: 5.0, image: placeholderImages[2] },
-  { id: '4', title: 'Cozy Writer\'s Retreat', description: 'A quiet sanctuary for the creative soul, where your next story awaits.', location: 'Vermont, USA', price: 350, rating: 4.7, image: placeholderImages[3] },
-  { id: '5', title: 'Gourmet Wellness Journey', description: 'A culinary journey to nourish and delight, celebrating vibrant, wholesome food.', location: 'Tuscany, Italy', price: 750, rating: 4.9, image: placeholderImages[4] },
-  { id: '6', title: 'Ultimate Spa & Relaxation', description: 'Your permission to completely unwind. A week of pure indulgence and restorative care.', location: 'Phuket, Thailand', price: 600, rating: 4.8, image: placeholderImages[5] },
+  { id: '1', title: 'Serene Yoga Escape', description: 'A grounding escape designed for deep rest, clarity, and reconnection.', location: 'Bali, Indonesia', price: 400, rating: 4.8, image: placeholderImages[0] },
+  { id: '2', title: 'Forest Bathing & Mindfulness', description: 'An invitation to slow down, awaken your senses, and find presence in the heart of nature.', location: 'Kyoto, Japan', price: 550, rating: 4.9, image: placeholderImages[1] },
+  { id: '3', title: 'Andean Peaks Adventure', description: 'For those who crave altitude and challenge, this is an ascent into unforgettable landscapes.', location: 'Cusco, Peru', price: 1200, rating: 5.0, image: placeholderImages[2] },
+  { id: '4', title: 'Cozy Writer\'s Retreat', description: 'A quiet sanctuary designed for the creative soul, where inspiration flows and your next story awaits.', location: 'Vermont, USA', price: 350, rating: 4.7, image: placeholderImages[3] },
+  { id: '5', title: 'Gourmet Wellness Journey', description: 'A culinary journey to nourish and delight, designed to celebrate vibrant, wholesome food and mindful eating.', location: 'Tuscany, Italy', price: 750, rating: 4.9, image: placeholderImages[4] },
+  { id: '6', title: 'Ultimate Spa & Relaxation', description: 'Your permission to completely unwind. A week of pure indulgence and restorative care designed for total rejuvenation.', location: 'Phuket, Thailand', price: 600, rating: 4.8, image: placeholderImages[5] },
 ];
 
 export default function SeekerPage() {
