@@ -21,6 +21,7 @@ const retreats = [
 ];
 
 const experienceTypes = [
+  { value: 'all-experiences', label: 'All Experiences' },
   { value: 'wellness-healing', label: 'Wellness & Healing' },
   { value: 'yoga-meditation', label: 'Yoga & Meditation' },
   { value: 'personal-growth-self-development', label: 'Personal Growth & Self-Development' },
@@ -111,7 +112,7 @@ export default function SeekerPage() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="intent" className="text-base font-semibold font-body tracking-wide">Intent (What are you seeking?)</Label>
+            <Label htmlFor="intent" className="text-base font-semibold font-body tracking-wide">What Are You Seeking?</Label>
             <Select>
               <SelectTrigger id="intent">
                 <SelectValue placeholder="Select an intent" />
