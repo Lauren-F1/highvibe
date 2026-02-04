@@ -48,9 +48,9 @@ export function RetreatCard({ retreat, isLux = false }: RetreatCardProps) {
             <Image
               src="/lux.png"
               alt="LUX Approved"
-              width={40}
-              height={40}
-              className="h-8 w-auto"
+              width={46}
+              height={46}
+              className="h-9 w-auto"
             />
           )}
         </div>
