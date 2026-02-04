@@ -81,6 +81,7 @@ export default function SeekerPage() {
                 <SelectItem value="adventure-aliveness">Adventure & Aliveness</SelectItem>
                 <SelectItem value="creativity">Creativity</SelectItem>
                 <SelectItem value="spiritual-exploration">Spiritual Exploration</SelectItem>
+                <SelectItem value="transformation">Transformation</SelectItem>
               </SelectContent>
             </Select>
           </div>
