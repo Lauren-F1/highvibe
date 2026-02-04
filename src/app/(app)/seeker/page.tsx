@@ -42,9 +42,9 @@ export default function SeekerPage() {
       )}
 
       <Card className="mb-8 p-4 md:p-6 bg-secondary">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 items-end">
           <div className="space-y-2">
-            <Label htmlFor="type">Explore Retreats</Label>
+            <Label htmlFor="type">Experience Type</Label>
             <Select>
               <SelectTrigger id="type">
                 <SelectValue placeholder="All Types" />
@@ -58,14 +58,28 @@ export default function SeekerPage() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="location">Location</Label>
-            <Input id="location" placeholder="e.g., Bali, Indonesia" />
+            <Label htmlFor="intent">Intent</Label>
+            <Select>
+              <SelectTrigger id="intent">
+                <SelectValue placeholder="All Intents" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="restore">Restore</SelectItem>
+                <SelectItem value="expand">Expand</SelectItem>
+                <SelectItem value="create">Create</SelectItem>
+                <SelectItem value="reset">Reset</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="price">Max Price</Label>
+            <Label htmlFor="location">Location</Label>
+            <Input id="location" placeholder="Where do you want to go?" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="price">Investment Range</Label>
             <Select>
               <SelectTrigger id="price">
-                <SelectValue placeholder="Any Price" />
+                <SelectValue placeholder="Any Range" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="500">$500</SelectItem>
@@ -74,7 +88,7 @@ export default function SeekerPage() {
               </SelectContent>
             </Select>
           </div>
-          <Button size="lg" className="w-full">Find Experiences</Button>
+          <Button size="lg" className="w-full">Explore Experiences</Button>
         </div>
       </Card>
 
