@@ -47,7 +47,7 @@ export default function HomePageClient() {
         />
         <RoleCard
           href="/guide"
-          icon={<div className="h-56 flex items-center justify-center"><HostIcon className="w-36 h-36 text-primary" /></div>}
+          icon={<div className="h-56 flex items-center justify-center"><HostIcon className="w-48 h-48 text-primary" /></div>}
           title="I'm a Guide"
           description="Design and lead meaningful retreat experiences. Connect with aligned seekers, collaborate with trusted vendors, and bring your vision to life."
         />
