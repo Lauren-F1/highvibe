@@ -15,9 +15,10 @@ interface RetreatCardProps {
     rating: number;
     image: ImagePlaceholder;
   };
+  isLux?: boolean;
 }
 
-export function RetreatCard({ retreat }: RetreatCardProps) {
+export function RetreatCard({ retreat, isLux = false }: RetreatCardProps) {
   return (
     <Card className="w-full overflow-hidden transition-shadow duration-300 hover:shadow-xl hover:shadow-primary/20">
       <CardContent className="p-4">
@@ -37,6 +38,15 @@ export function RetreatCard({ retreat }: RetreatCardProps) {
                     fill
                     className="object-cover rounded-md"
                 />
+                {isLux && (
+                  <Image
+                    src="/lux.png"
+                    alt="LUX Approved"
+                    width={28}
+                    height={28}
+                    className="absolute right-3 top-3 z-10 h-5 w-auto opacity-80 md:h-7"
+                  />
+                )}
             </div>
         </div>
         <p className="text-base leading-relaxed line-clamp-2 font-body mb-4">{retreat.description}</p>

@@ -73,6 +73,7 @@ export default function SeekerPage() {
   const heroImage = placeholderImages.find(p => p.id === 'seeker-hero-panoramic');
   const [selectedContinent, setSelectedContinent] = useState('');
   const [selectedRegion, setSelectedRegion] = useState('');
+  const mostExpensiveRetreatId = retreats.reduce((prev, current) => (prev.price > current.price) ? prev : current).id;
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -183,7 +184,7 @@ export default function SeekerPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {retreats.map((retreat) => (
-          <RetreatCard key={retreat.id} retreat={retreat} />
+          <RetreatCard key={retreat.id} retreat={retreat} isLux={retreat.id === mostExpensiveRetreatId} />
         ))}
       </div>
     </div>
