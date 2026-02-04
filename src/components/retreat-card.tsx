@@ -23,7 +23,7 @@ export function RetreatCard({ retreat }: RetreatCardProps) {
       <CardContent className="p-4">
         <div className="flex justify-between items-start gap-4 mb-4">
             <div className="flex-1">
-                <CardTitle className="font-headline text-xl mb-2">{retreat.title}</CardTitle>
+                <CardTitle className="font-headline text-2xl mb-2">{retreat.title}</CardTitle>
                 <CardDescription className="flex items-center text-muted-foreground">
                     <MapPin className="mr-2 h-4 w-4" />
                     {retreat.location}
@@ -39,7 +39,7 @@ export function RetreatCard({ retreat }: RetreatCardProps) {
                 />
             </div>
         </div>
-        <p className="text-sm line-clamp-2 font-body mb-4">{retreat.description}</p>
+        <p className="text-base leading-relaxed line-clamp-2 font-body mb-4">{retreat.description}</p>
       </CardContent>
       <CardFooter className="flex justify-end items-center p-4 pt-0">
         <div className="text-lg font-bold text-foreground">
