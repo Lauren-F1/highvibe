@@ -20,7 +20,7 @@ interface RetreatCardProps {
 
 export function RetreatCard({ retreat }: RetreatCardProps) {
   return (
-    <Card className="w-full overflow-hidden transition-shadow duration-300 hover:shadow-xl">
+    <Card className="w-full overflow-hidden transition-shadow duration-300 hover:shadow-xl hover:shadow-primary/20">
       <CardHeader className="p-0">
         <div className="aspect-w-4 aspect-h-3 relative">
           <Image

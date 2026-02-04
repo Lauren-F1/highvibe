@@ -13,7 +13,7 @@ import { placeholderImages } from '@/lib/placeholder-images';
 function RoleCard({ href, icon, title, description }: RoleCardProps) {
   return (
     <Link href={href} className="group">
-      <Card className="h-full w-full transition-all duration-300 ease-in-out hover:shadow-xl hover:border-primary">
+      <Card className="h-full w-full transition-all duration-300 ease-in-out hover:shadow-xl hover:border-primary hover:shadow-primary/20">
         <CardHeader className="items-center text-center p-6">
           {icon}
           <CardTitle className="font-headline text-3xl mt-4">{title}</CardTitle>
