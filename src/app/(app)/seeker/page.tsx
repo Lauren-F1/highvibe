@@ -20,6 +20,20 @@ const retreats = [
   { id: '6', title: 'Ultimate Spa & Relaxation', description: 'Your permission to completely unwind. A week of pure indulgence and restorative care designed for total rejuvenation.', location: 'Phuket, Thailand', price: 600, rating: 4.8, image: placeholderImages[5] },
 ];
 
+const experienceTypes = [
+  { value: 'wellness-healing', label: 'Wellness & Healing' },
+  { value: 'yoga-meditation', label: 'Yoga & Meditation' },
+  { value: 'personal-growth-self-development', label: 'Personal Growth & Self-Development' },
+  { value: 'spirituality-consciousness', label: 'Spirituality & Consciousness' },
+  { value: 'plant-medicine-ceremony', label: 'Plant Medicine & Ceremony' },
+  { value: 'relationships-connection', label: 'Relationships & Connection' },
+  { value: 'leadership-professional-development', label: 'Leadership & Professional Development' },
+  { value: 'adventure-exploration', label: 'Adventure & Exploration' },
+  { value: 'creativity-expression', label: 'Creativity & Expression' },
+  { value: 'nature-immersion', label: 'Nature Immersion' },
+  { value: 'somatic-body-based-work', label: 'Somatic & Body-Based Work' },
+];
+
 const continents = [
     { value: 'anywhere', label: 'Anywhere' },
     { value: 'africa', label: 'Africa' },
@@ -51,7 +65,7 @@ export default function SeekerPage() {
     <div className="container mx-auto px-4 py-8 md:py-12">
       {heroImage && (
         <div className="relative mb-8 w-full aspect-[21/9] rounded-lg overflow-hidden flex items-center justify-center text-center">
-           <div className="absolute inset-0 bg-gray-900/30 z-10"></div>
+           <div className="absolute inset-0 bg-black/30 z-10"></div>
           <Image
             src={heroImage.imageUrl}
             alt={heroImage.description}
@@ -70,30 +84,22 @@ export default function SeekerPage() {
       )}
 
       <Card className="mb-8 p-4 md:p-6 bg-secondary">
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-8 gap-4 items-end">
+        <div className={cn('grid grid-cols-1 md:grid-cols-3 gap-4 items-end', selectedContinent && selectedContinent !== 'anywhere' ? 'lg:grid-cols-6' : 'lg:grid-cols-5')}>
           <div className="space-y-2">
-            <Label htmlFor="type" className="text-base">Experience Type</Label>
+            <Label htmlFor="type" className="text-base font-semibold font-body tracking-wide">Experience Type</Label>
             <Select>
               <SelectTrigger id="type">
                 <SelectValue placeholder="All Experiences" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="wellness-healing">Wellness & Healing</SelectItem>
-                <SelectItem value="meditation-mindfulness">Meditation & Mindfulness</SelectItem>
-                <SelectItem value="yoga-movement">Yoga & Movement</SelectItem>
-                <SelectItem value="personal-growth">Personal Growth</SelectItem>
-                <SelectItem value="guided-plant-medicine">Guided Plant Medicine</SelectItem>
-                <SelectItem value="spirituality-consciousness">Spirituality & Consciousness</SelectItem>
-                <SelectItem value="adventure-exploration">Adventure & Exploration</SelectItem>
-                <SelectItem value="nature-immersion">Nature & Immersion</SelectItem>
-                <SelectItem value="creativity">Creativity</SelectItem>
-                <SelectItem value="relationships">Relationships</SelectItem>
-                <SelectItem value="leadership">Leadership</SelectItem>
+                {experienceTypes.map(type => (
+                  <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="intent" className="text-base">Intent (What are you seeking?)</Label>
+            <Label htmlFor="intent" className="text-base font-semibold font-body tracking-wide">Intent (What are you seeking?)</Label>
             <Select>
               <SelectTrigger id="intent">
                 <SelectValue placeholder="Select an intent" />
@@ -113,7 +119,7 @@ export default function SeekerPage() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="destination" className="text-base">Destination</Label>
+            <Label htmlFor="destination" className="text-base font-semibold font-body tracking-wide">Destination</Label>
             <Select onValueChange={(value) => {
               setSelectedContinent(value);
               setSelectedRegion('');
@@ -130,7 +136,7 @@ export default function SeekerPage() {
           </div>
           {selectedContinent && selectedContinent !== 'anywhere' && (
             <div className="space-y-2">
-              <Label htmlFor="region" className="text-base">Region / Country</Label>
+              <Label htmlFor="region" className="text-base font-semibold font-body tracking-wide">Region / Country</Label>
               <Select onValueChange={setSelectedRegion} value={selectedRegion}>
                 <SelectTrigger id="region">
                   <SelectValue placeholder="Select a country or region" />
@@ -144,7 +150,7 @@ export default function SeekerPage() {
             </div>
           )}
           <div className="space-y-2">
-            <Label htmlFor="price" className="text-base">Investment Range</Label>
+            <Label htmlFor="price" className="text-base font-semibold font-body tracking-wide">Investment Range</Label>
             <Select>
               <SelectTrigger id="price">
                 <SelectValue placeholder="Any Range" />
@@ -156,11 +162,7 @@ export default function SeekerPage() {
               </SelectContent>
             </Select>
           </div>
-          <Button size="lg" className={cn("w-full text-base tracking-wider", 
-            selectedContinent && selectedContinent !== 'anywhere' 
-            ? 'md:col-span-3 lg:col-span-4' 
-            : 'md:col-span-2 lg:col-span-5'
-          )}>Explore Experiences</Button>
+          <Button size="lg" className="w-full text-base tracking-wider">Explore Experiences</Button>
         </div>
       </Card>
 
