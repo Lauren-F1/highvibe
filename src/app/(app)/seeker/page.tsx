@@ -55,6 +55,18 @@ const destinations = {
   'middle-east': ['Jordan', 'Oman', 'United Arab Emirates', 'Turkey', 'Israel', 'Lebanon'],
 };
 
+const investmentRanges = [
+  { value: "any", label: "Any Range" },
+  { value: "under-500", label: "Under $500" },
+  { value: "500-1000", label: "$500–$1,000" },
+  { value: "1000-3000", label: "$1,000–$3,000" },
+  { value: "3000-7500", label: "$3,000–$7,500" },
+  { value: "7500-15000", label: "$7,500–$15,000" },
+  { value: "15000-30000", label: "$15,000–$30,000" },
+  { value: "30000-50000", label: "$30,000–$50,000" },
+  { value: "50000-100000", label: "$50,000–$100,000" },
+  { value: "over-100000", label: "$100,000+" },
+];
 
 export default function SeekerPage() {
   const heroImage = placeholderImages.find(p => p.id === 'seeker-hero-panoramic');
@@ -156,9 +168,9 @@ export default function SeekerPage() {
                 <SelectValue placeholder="Any Range" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="500">$500</SelectItem>
-                <SelectItem value="1000">$1000</SelectItem>
-                <SelectItem value="2000">$2000</SelectItem>
+                {investmentRanges.map((range) => (
+                  <SelectItem key={range.value} value={range.value}>{range.label}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
