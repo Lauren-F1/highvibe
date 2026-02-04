@@ -34,7 +34,7 @@ export default function SeekerPage() {
             priority
           />
           <div className="relative text-white px-4">
-            <h1 className="font-headline text-4xl md:text-6xl font-bold [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">Find Your Next Experience</h1>
+            <h1 className="font-headline text-4xl md:text-6xl font-bold [text-shadow:0_4px_12px_rgba(0,0,0,0.8)]">Find Your Next Experience</h1>
             <p className="text-slate-100 mt-2 text-xl md:text-2xl max-w-3xl mx-auto font-body [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">
               Curated retreats for those who choose curiosity, connection, and living well.
             </p>
@@ -66,19 +66,21 @@ export default function SeekerPage() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="intent" className="text-base">Intent</Label>
+            <Label htmlFor="intent" className="text-base">Intent (What are you seeking?)</Label>
             <Select>
               <SelectTrigger id="intent">
-                <SelectValue placeholder="Any Intent" />
+                <SelectValue placeholder="Select an intent" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="restore">Restore</SelectItem>
-                <SelectItem value="expand">Expand</SelectItem>
-                <SelectItem value="create">Create</SelectItem>
-                <SelectItem value="reset">Reset</SelectItem>
-                <SelectItem value="learn">Learn</SelectItem>
-                <SelectItem value="professional-development">Professional Development</SelectItem>
-                <SelectItem value="relax">Relax</SelectItem>
+                <SelectItem value="rest-reset">Rest & Reset</SelectItem>
+                <SelectItem value="healing-integration">Healing & Integration</SelectItem>
+                <SelectItem value="personal-growth">Personal Growth</SelectItem>
+                <SelectItem value="connection-relationships">Connection & Relationships</SelectItem>
+                <SelectItem value="leadership-professional-growth">Leadership & Professional Growth</SelectItem>
+                <SelectItem value="purpose-meaning">Purpose & Meaning</SelectItem>
+                <SelectItem value="adventure-aliveness">Adventure & Aliveness</SelectItem>
+                <SelectItem value="creativity">Creativity</SelectItem>
+                <SelectItem value="spiritual-exploration">Spiritual Exploration</SelectItem>
               </SelectContent>
             </Select>
           </div>
