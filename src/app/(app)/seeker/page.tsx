@@ -44,7 +44,7 @@ export default function SeekerPage() {
       <Card className="mb-8 p-4 md:p-6 bg-secondary">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
           <div className="space-y-2">
-            <Label htmlFor="type">Retreat Type</Label>
+            <Label htmlFor="type">Explore Retreats</Label>
             <Select>
               <SelectTrigger id="type">
                 <SelectValue placeholder="All Types" />
