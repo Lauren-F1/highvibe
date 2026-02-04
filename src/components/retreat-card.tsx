@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardTitle } from '@/components/ui/card';
 import { Star, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { ImagePlaceholder } from '@/lib/placeholder-images';
@@ -21,24 +21,26 @@ interface RetreatCardProps {
 export function RetreatCard({ retreat }: RetreatCardProps) {
   return (
     <Card className="w-full overflow-hidden transition-shadow duration-300 hover:shadow-xl hover:shadow-primary/20">
-      <CardHeader className="p-0">
-        <div className="aspect-w-4 aspect-h-3 relative">
-          <Image
-            src={retreat.image.imageUrl}
-            alt={retreat.image.description}
-            data-ai-hint={retreat.image.imageHint}
-            fill
-            className="object-cover"
-          />
-        </div>
-      </CardHeader>
       <CardContent className="p-4">
-        <CardTitle className="font-headline text-xl mb-2">{retreat.title}</CardTitle>
-        <CardDescription className="flex items-center text-muted-foreground mb-4">
-          <MapPin className="mr-2 h-4 w-4" />
-          {retreat.location}
-        </CardDescription>
-        <p className="text-sm line-clamp-2 font-body">{retreat.description}</p>
+        <div className="flex justify-between items-start gap-4 mb-4">
+            <div className="flex-1">
+                <CardTitle className="font-headline text-xl mb-2">{retreat.title}</CardTitle>
+                <CardDescription className="flex items-center text-muted-foreground">
+                    <MapPin className="mr-2 h-4 w-4" />
+                    {retreat.location}
+                </CardDescription>
+            </div>
+            <div className="relative w-20 h-20 shrink-0">
+                 <Image
+                    src={retreat.image.imageUrl}
+                    alt={retreat.image.description}
+                    data-ai-hint={retreat.image.imageHint}
+                    fill
+                    className="object-cover rounded-md"
+                />
+            </div>
+        </div>
+        <p className="text-sm line-clamp-2 font-body mb-4">{retreat.description}</p>
       </CardContent>
       <CardFooter className="flex justify-between items-center p-4 pt-0">
         <div className="flex items-center">
