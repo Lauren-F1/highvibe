@@ -44,7 +44,7 @@ export default function SeekerPage() {
       )}
 
       <Card className="mb-8 p-4 md:p-6 bg-secondary">
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 items-end">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-8 gap-4 items-end">
           <div className="space-y-2">
             <Label htmlFor="type" className="text-base">Experience Type</Label>
             <Select>
@@ -93,7 +93,7 @@ export default function SeekerPage() {
               </SelectContent>
             </Select>
           </div>
-          <Button size="lg" className="w-full lg:col-span-2 text-base">Explore Experiences</Button>
+          <Button size="lg" className="w-full md:col-span-2 lg:col-span-4 text-base tracking-wider">Explore Experiences</Button>
         </div>
       </Card>
 
