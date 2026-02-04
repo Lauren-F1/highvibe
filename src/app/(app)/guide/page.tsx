@@ -23,7 +23,7 @@ export default function GuidePage() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div>
           <h1 className="font-headline text-4xl md:text-5xl font-bold">Guide Dashboard</h1>
-          <p className="text-muted-foreground mt-2 text-lg">Manage your retreats and connect with service providers.</p>
+          <p className="text-muted-foreground mt-2 text-lg font-body">Manage your retreats and connect with service providers.</p>
         </div>
         <Button size="lg" className="mt-4 md:mt-0">
           <PlusCircle className="mr-2 h-5 w-5" />

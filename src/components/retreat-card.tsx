@@ -38,7 +38,7 @@ export function RetreatCard({ retreat }: RetreatCardProps) {
           <MapPin className="mr-2 h-4 w-4" />
           {retreat.location}
         </CardDescription>
-        <p className="text-sm line-clamp-2">{retreat.description}</p>
+        <p className="text-sm line-clamp-2 font-body">{retreat.description}</p>
       </CardContent>
       <CardFooter className="flex justify-between items-center p-4 pt-0">
         <div className="flex items-center">

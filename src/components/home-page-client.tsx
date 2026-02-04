@@ -17,7 +17,7 @@ function RoleCard({ href, icon, title, description }: RoleCardProps) {
           <CardTitle className="font-headline text-3xl mt-4">{title}</CardTitle>
         </CardHeader>
         <CardContent className="text-center p-6 pt-0">
-          <CardDescription className="text-lg font-body">{description}</CardDescription>
+          <CardDescription className="text-lg">{description}</CardDescription>
         </CardContent>
       </Card>
     </Link>
@@ -41,7 +41,7 @@ export default function HomePageClient() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full max-w-7xl">
         <RoleCard
           href="/seeker"
-          icon={<SeekerIcon className="w-44 h-44 text-primary" />}
+          icon={<SeekerIcon className="w-48 h-48 text-primary" />}
           title="I'm a Seeker"
           description="Discover curated retreats and immersive experiences, from wellness and leadership to creative, cultural, and transformational journeys around the globe."
         />

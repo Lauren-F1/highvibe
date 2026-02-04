@@ -20,7 +20,7 @@ export default function SeekerPage() {
     <div className="container mx-auto px-4 py-8 md:py-12">
       <div className="text-center mb-12">
         <h1 className="font-headline text-4xl md:text-5xl font-bold">Find Your Perfect Retreat</h1>
-        <p className="text-muted-foreground mt-2 text-lg max-w-3xl mx-auto">
+        <p className="text-muted-foreground mt-2 text-lg max-w-3xl mx-auto font-body">
           Explore our curated collection of life-changing retreats from around the world.
         </p>
       </div>
