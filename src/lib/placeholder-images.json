@@ -69,7 +69,7 @@
     {
       "id": "resort-hero",
       "description": "A beautiful resort view to be displayed on the homepage.",
-      "imageUrl": "https://images.unsplash.com/photo-1689729739836-7fcc2c84d788?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxyZXNvcnQlMjB2aWV3fGVufDB8fHx8MTc3MDE0Nzg5M3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "/resort image.png",
       "imageHint": "resort view"
     }
   ]
