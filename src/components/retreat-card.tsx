@@ -38,20 +38,22 @@ export function RetreatCard({ retreat, isLux = false }: RetreatCardProps) {
                     fill
                     className="object-cover rounded-md"
                 />
-                {isLux && (
-                  <Image
-                    src="/lux.png"
-                    alt="LUX Approved"
-                    width={28}
-                    height={28}
-                    className="absolute bottom-3 left-3 z-10 h-4 w-auto md:h-5"
-                  />
-                )}
             </div>
         </div>
         <p className="text-base leading-relaxed line-clamp-2 font-body mb-4">{retreat.description}</p>
       </CardContent>
-      <CardFooter className="flex justify-end items-center p-4 pt-0">
+      <CardFooter className="flex justify-between items-center p-4 pt-0">
+        <div>
+          {isLux && (
+            <Image
+              src="/lux.png"
+              alt="LUX Approved"
+              width={40}
+              height={40}
+              className="h-8 w-auto"
+            />
+          )}
+        </div>
         <div className="text-right">
           <div className="text-lg font-bold text-foreground">
             From ${retreat.price}
