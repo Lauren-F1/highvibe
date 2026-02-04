@@ -69,13 +69,13 @@
     {
       "id": "resort-hero",
       "description": "A beautiful resort view to be displayed on the homepage.",
-      "imageUrl": "/resort image.png",
+      "imageUrl": "/resort-image.png",
       "imageHint": "resort view"
     },
     {
       "id": "seeker-hero-panoramic",
       "description": "An infinity pool at a luxury resort overlooking a lush, tropical valley at sunset.",
-      "imageUrl": "/lux jungle.png",
+      "imageUrl": "/lux-jungle.png",
       "imageHint": "jungle"
     }
   ]
