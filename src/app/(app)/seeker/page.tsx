@@ -68,6 +68,9 @@ export default function SeekerPage() {
                 <SelectItem value="expand">Expand</SelectItem>
                 <SelectItem value="create">Create</SelectItem>
                 <SelectItem value="reset">Reset</SelectItem>
+                <SelectItem value="learn">Learn</SelectItem>
+                <SelectItem value="professional-development">Professional Development</SelectItem>
+                <SelectItem value="relax">Relax</SelectItem>
               </SelectContent>
             </Select>
           </div>
