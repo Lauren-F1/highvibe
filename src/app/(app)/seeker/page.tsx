@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RetreatCard } from '@/components/retreat-card';
 import { placeholderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
+import { useState } from 'react';
+import { cn } from '@/lib/utils';
 
 const retreats = [
   { id: '1', title: 'Serene Yoga Escape', description: 'A grounding escape designed for deep rest, clarity, and reconnection.', location: 'Bali, Indonesia', price: 400, rating: 4.8, image: placeholderImages[0] },
@@ -18,13 +20,38 @@ const retreats = [
   { id: '6', title: 'Ultimate Spa & Relaxation', description: 'Your permission to completely unwind. A week of pure indulgence and restorative care designed for total rejuvenation.', location: 'Phuket, Thailand', price: 600, rating: 4.8, image: placeholderImages[5] },
 ];
 
+const continents = [
+    { value: 'anywhere', label: 'Anywhere' },
+    { value: 'africa', label: 'Africa' },
+    { value: 'asia', label: 'Asia' },
+    { value: 'europe', label: 'Europe' },
+    { value: 'north-america', label: 'North America' },
+    { value: 'south-america', label: 'South America' },
+    { value: 'oceania', label: 'Oceania' },
+    { value: 'middle-east', label: 'Middle East' },
+];
+
+const destinations = {
+  africa: ['Morocco', 'South Africa', 'Kenya', 'Tanzania', 'Egypt', 'Namibia', 'Rwanda', 'Seychelles'],
+  asia: ['Bali, Indonesia', 'Thailand', 'Japan', 'India', 'Nepal', 'Sri Lanka', 'Vietnam', 'Cambodia', 'Philippines', 'Bhutan'],
+  europe: ['Italy', 'France', 'Portugal', 'Spain', 'Greece', 'Switzerland', 'Austria', 'Iceland', 'Croatia', 'United Kingdom'],
+  'north-america': ['California, USA', 'Utah, USA', 'Arizona, USA', 'Colorado, USA', 'Vermont, USA', 'British Columbia, Canada', 'Baja California, Mexico', 'Costa Rica'],
+  'south-america': ['Peru', 'Colombia', 'Brazil', 'Argentina', 'Chile', 'Ecuador', 'Patagonia (Region)'],
+  oceania: ['New Zealand', 'Australia', 'Fiji', 'Tahiti (French Polynesia)', 'Hawaii, USA'],
+  'middle-east': ['Jordan', 'Oman', 'United Arab Emirates', 'Turkey', 'Israel', 'Lebanon'],
+};
+
+
 export default function SeekerPage() {
   const heroImage = placeholderImages.find(p => p.id === 'seeker-hero-panoramic');
+  const [selectedContinent, setSelectedContinent] = useState('');
+  const [selectedRegion, setSelectedRegion] = useState('');
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
       {heroImage && (
         <div className="relative mb-8 w-full aspect-[21/9] rounded-lg overflow-hidden flex items-center justify-center text-center">
+           <div className="absolute inset-0 bg-gray-900/30 z-10"></div>
           <Image
             src={heroImage.imageUrl}
             alt={heroImage.description}
@@ -33,7 +60,7 @@ export default function SeekerPage() {
             className="object-cover"
             priority
           />
-          <div className="relative text-white px-4">
+          <div className="relative text-white px-4 z-20">
             <h1 className="font-headline text-4xl md:text-6xl font-bold [text-shadow:0_4px_12px_rgba(0,0,0,0.8)]">Find Your Next Experience</h1>
             <p className="text-slate-100 mt-2 text-xl md:text-2xl max-w-3xl mx-auto font-body [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">
               Curated retreats for those who choose curiosity, connection, and living well.
@@ -86,23 +113,36 @@ export default function SeekerPage() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="location" className="text-base">Location (Where do you want to go?)</Label>
-            <Select>
-              <SelectTrigger id="location">
-                <SelectValue placeholder="Anywhere" />
+            <Label htmlFor="destination" className="text-base">Destination</Label>
+            <Select onValueChange={(value) => {
+              setSelectedContinent(value);
+              setSelectedRegion('');
+            }}>
+              <SelectTrigger id="destination">
+                <SelectValue placeholder="Anywhere in the world" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="anywhere">Anywhere</SelectItem>
-                <SelectItem value="africa">Africa</SelectItem>
-                <SelectItem value="asia">Asia</SelectItem>
-                <SelectItem value="europe">Europe</SelectItem>
-                <SelectItem value="north-america">North America</SelectItem>
-                <SelectItem value="south-america">South America</SelectItem>
-                <SelectItem value="oceania">Oceania</SelectItem>
-                <SelectItem value="middle-east">Middle East</SelectItem>
+                {continents.map(continent => (
+                  <SelectItem key={continent.value} value={continent.value}>{continent.label}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
+          {selectedContinent && selectedContinent !== 'anywhere' && (
+            <div className="space-y-2">
+              <Label htmlFor="region" className="text-base">Region / Country</Label>
+              <Select onValueChange={setSelectedRegion} value={selectedRegion}>
+                <SelectTrigger id="region">
+                  <SelectValue placeholder="Select a country or region" />
+                </SelectTrigger>
+                <SelectContent>
+                  {(destinations[selectedContinent as keyof typeof destinations] || []).map(region => (
+                    <SelectItem key={region} value={region}>{region}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="price" className="text-base">Investment Range</Label>
             <Select>
@@ -116,7 +156,11 @@ export default function SeekerPage() {
               </SelectContent>
             </Select>
           </div>
-          <Button size="lg" className="w-full md:col-span-2 lg:col-span-4 text-base tracking-wider">Explore Experiences</Button>
+          <Button size="lg" className={cn("w-full text-base tracking-wider", 
+            selectedContinent && selectedContinent !== 'anywhere' 
+            ? 'md:col-span-3 lg:col-span-4' 
+            : 'md:col-span-2 lg:col-span-5'
+          )}>Explore Experiences</Button>
         </div>
       </Card>
 
