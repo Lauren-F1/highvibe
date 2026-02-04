@@ -42,9 +42,12 @@ export function RetreatCard({ retreat }: RetreatCardProps) {
         <p className="text-base leading-relaxed line-clamp-2 font-body mb-4">{retreat.description}</p>
       </CardContent>
       <CardFooter className="flex justify-end items-center p-4 pt-0">
-        <div className="text-lg font-bold text-foreground">
-          From ${retreat.price}
-          <span className="text-sm font-normal text-muted-foreground"> per night</span>
+        <div className="text-right">
+          <div className="text-lg font-bold text-foreground">
+            From ${retreat.price}
+            <span className="text-sm font-normal text-muted-foreground"> / night</span>
+          </div>
+          <p className="text-xs text-muted-foreground">Curated experience</p>
         </div>
       </CardFooter>
     </Card>
