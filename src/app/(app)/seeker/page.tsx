@@ -35,8 +35,8 @@ export default function SeekerPage() {
           />
           <div className="absolute inset-0 bg-black/20" />
           <div className="relative text-white px-4">
-            <h1 className="font-headline text-4xl md:text-5xl font-bold [text-shadow:0_2px_4px_rgba(0,0,0,0.5)]">Find Your Next Experience</h1>
-            <p className="text-slate-100 mt-2 text-xl max-w-3xl mx-auto font-body [text-shadow:0_2px_4px_rgba(0,0,0,0.5)]">
+            <h1 className="font-headline text-4xl md:text-6xl font-bold [text-shadow:0_2px_4px_rgba(0,0,0,0.5)]">Find Your Next Experience</h1>
+            <p className="text-slate-100 mt-2 text-xl md:text-2xl max-w-3xl mx-auto font-body [text-shadow:0_2px_4px_rgba(0,0,0,0.5)]">
               Curated retreats for those who choose curiosity, connection, and living well.
             </p>
           </div>
@@ -44,9 +44,9 @@ export default function SeekerPage() {
       )}
 
       <Card className="mb-8 p-4 md:p-6 bg-secondary">
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 items-end">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 items-end">
           <div className="space-y-2">
-            <Label htmlFor="type">Experience Type</Label>
+            <Label htmlFor="type" className="text-base">Experience Type</Label>
             <Select>
               <SelectTrigger id="type">
                 <SelectValue placeholder="All Experiences" />
@@ -60,7 +60,7 @@ export default function SeekerPage() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="intent">Intent</Label>
+            <Label htmlFor="intent" className="text-base">Intent</Label>
             <Select>
               <SelectTrigger id="intent">
                 <SelectValue placeholder="Any Intent" />
@@ -77,11 +77,11 @@ export default function SeekerPage() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="location">Location</Label>
+            <Label htmlFor="location" className="text-base">Location</Label>
             <Input id="location" placeholder="Where do you want to go?" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="price">Investment Range</Label>
+            <Label htmlFor="price" className="text-base">Investment Range</Label>
             <Select>
               <SelectTrigger id="price">
                 <SelectValue placeholder="Any Range" />
@@ -93,7 +93,7 @@ export default function SeekerPage() {
               </SelectContent>
             </Select>
           </div>
-          <Button size="lg" className="w-full">Explore Experiences</Button>
+          <Button size="lg" className="w-full lg:col-span-2 text-base">Explore Experiences</Button>
         </div>
       </Card>
 
