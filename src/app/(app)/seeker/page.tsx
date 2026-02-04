@@ -21,7 +21,7 @@ export default function SeekerPage() {
       <div className="text-center mb-12">
         <h1 className="font-headline text-4xl md:text-5xl font-bold">Find Your Next Experience</h1>
         <p className="text-muted-foreground mt-2 text-lg max-w-3xl mx-auto font-body">
-          Explore our curated collection of life-changing retreats from around the world.
+          Curated retreats for those who choose curiosity, connection, and living well.
         </p>
       </div>
 
