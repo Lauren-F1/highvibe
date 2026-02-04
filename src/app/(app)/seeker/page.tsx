@@ -86,8 +86,22 @@ export default function SeekerPage() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="location" className="text-base">Location</Label>
-            <Input id="location" placeholder="Where do you want to go?" />
+            <Label htmlFor="location" className="text-base">Location (Where do you want to go?)</Label>
+            <Select>
+              <SelectTrigger id="location">
+                <SelectValue placeholder="Anywhere" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="anywhere">Anywhere</SelectItem>
+                <SelectItem value="africa">Africa</SelectItem>
+                <SelectItem value="asia">Asia</SelectItem>
+                <SelectItem value="europe">Europe</SelectItem>
+                <SelectItem value="north-america">North America</SelectItem>
+                <SelectItem value="south-america">South America</SelectItem>
+                <SelectItem value="oceania">Oceania</SelectItem>
+                <SelectItem value="middle-east">Middle East</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="price" className="text-base">Investment Range</Label>
