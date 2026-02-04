@@ -74,9 +74,9 @@
     },
     {
       "id": "seeker-hero-panoramic",
-      "description": "A panoramic view of a luxurious and serene resort pool area.",
-      "imageUrl": "https://images.unsplash.com/photo-1561501900-3701fa6a0864?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxsdXh1cnklMjByZXNvcnR8ZW58MHx8fHwxNzcwMTM4ODU3fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "luxury resort"
+      "description": "An infinity pool at a luxury resort overlooking a lush, tropical valley at sunset.",
+      "imageUrl": "https://images.unsplash.com/photo-1540541338287-41700207dee6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxyZXNvcnQlMjBwb29sfGVufDB8fHx8MTcyMTEwMDgwMHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "resort pool"
     }
   ]
 }
