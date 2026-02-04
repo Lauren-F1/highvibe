@@ -34,8 +34,8 @@ export default function SeekerPage() {
             priority
           />
           <div className="relative text-white px-4">
-            <h1 className="font-headline text-4xl md:text-6xl font-bold [text-shadow:0_2px_4px_rgba(0,0,0,0.7)]">Find Your Next Experience</h1>
-            <p className="text-slate-100 mt-2 text-xl md:text-2xl max-w-3xl mx-auto font-body [text-shadow:0_2px_4px_rgba(0,0,0,0.7)]">
+            <h1 className="font-headline text-4xl md:text-6xl font-bold [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">Find Your Next Experience</h1>
+            <p className="text-slate-100 mt-2 text-xl md:text-2xl max-w-3xl mx-auto font-body [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">
               Curated retreats for those who choose curiosity, connection, and living well.
             </p>
           </div>
@@ -51,10 +51,17 @@ export default function SeekerPage() {
                 <SelectValue placeholder="All Experiences" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="yoga">Yoga</SelectItem>
-                <SelectItem value="meditation">Meditation</SelectItem>
-                <SelectItem value="adventure">Adventure</SelectItem>
-                <SelectItem value="wellness">Wellness</SelectItem>
+                <SelectItem value="wellness-healing">Wellness & Healing</SelectItem>
+                <SelectItem value="meditation-mindfulness">Meditation & Mindfulness</SelectItem>
+                <SelectItem value="yoga-movement">Yoga & Movement</SelectItem>
+                <SelectItem value="personal-growth">Personal Growth</SelectItem>
+                <SelectItem value="guided-plant-medicine">Guided Plant Medicine</SelectItem>
+                <SelectItem value="spirituality-consciousness">Spirituality & Consciousness</SelectItem>
+                <SelectItem value="adventure-exploration">Adventure & Exploration</SelectItem>
+                <SelectItem value="nature-immersion">Nature & Immersion</SelectItem>
+                <SelectItem value="creativity">Creativity</SelectItem>
+                <SelectItem value="relationships">Relationships</SelectItem>
+                <SelectItem value="leadership">Leadership</SelectItem>
               </SelectContent>
             </Select>
           </div>
