@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -47,7 +49,7 @@ export default function SeekerPage() {
             <Label htmlFor="type">Experience Type</Label>
             <Select>
               <SelectTrigger id="type">
-                <SelectValue placeholder="All Types" />
+                <SelectValue placeholder="All Experiences" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="yoga">Yoga</SelectItem>
@@ -61,7 +63,7 @@ export default function SeekerPage() {
             <Label htmlFor="intent">Intent</Label>
             <Select>
               <SelectTrigger id="intent">
-                <SelectValue placeholder="All Intents" />
+                <SelectValue placeholder="Any Intent" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="restore">Restore</SelectItem>
