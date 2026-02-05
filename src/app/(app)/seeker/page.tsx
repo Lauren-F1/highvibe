@@ -21,19 +21,19 @@ const retreats = [
 ];
 
 const experienceTypes = [
-  { value: 'all-experiences', label: 'All Experiences' },
-  { value: 'rest-reset', label: 'Rest & Reset'},
-  { value: 'wellness-healing', label: 'Wellness & Healing' },
-  { value: 'yoga-meditation', label: 'Yoga & Meditation' },
-  { value: 'personal-growth-self-development', label: 'Personal Growth & Self-Development' },
-  { value: 'spiritual-exploration', label: 'Spiritual Exploration' },
-  { value: 'plant-medicine-ceremony', label: 'Plant Medicine & Ceremony' },
-  { value: 'relationships-connection', label: 'Relationships & Connection' },
-  { value: 'leadership-professional-growth', label: 'Leadership & Professional Growth' },
-  { value: 'adventure-aliveness', label: 'Adventure & Aliveness' },
-  { value: 'creativity-expression', label: 'Creativity & Expression' },
-  { value: 'nature-immersion', label: 'Nature Immersion' },
-  { value: 'transformation', label: 'Transformation' },
+    { value: 'all-experiences', label: 'All Experiences' },
+    { value: 'rest-reset', label: 'Rest & Reset' },
+    { value: 'wellness-healing', label: 'Wellness & Healing' },
+    { value: 'yoga-meditation', label: 'Yoga & Meditation' },
+    { value: 'personal-growth-self-development', label: 'Personal Growth & Self-Development' },
+    { value: 'spiritual-exploration', label: 'Spiritual Exploration' },
+    { value: 'plant-medicine-ceremony', label: 'Plant Medicine & Ceremony' },
+    { value: 'relationships-connection', label: 'Relationships & Connection' },
+    { value: 'leadership-professional-growth', label: 'Leadership & Professional Growth' },
+    { value: 'adventure-aliveness', label: 'Adventure & Aliveness' },
+    { value: 'creativity-expression', label: 'Creativity & Expression' },
+    { value: 'nature-immersion', label: 'Nature Immersion' },
+    { value: 'transformation', label: 'Transformation' },
 ];
 
 const continents = [
@@ -99,7 +99,7 @@ export default function SeekerPage() {
       )}
 
       <Card className="mb-8 p-4 md:p-6 bg-secondary">
-        <div className={cn('grid grid-cols-1 md:grid-cols-3 gap-4 items-end', selectedContinent && selectedContinent !== 'anywhere' ? 'lg:grid-cols-5' : 'lg:grid-cols-4')}>
+        <div className={cn('grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 items-end')}>
           <div className="space-y-2">
             <Label htmlFor="type" className="text-base font-semibold font-body tracking-wide">Choose Your Experience</Label>
             <Select>
@@ -157,7 +157,7 @@ export default function SeekerPage() {
               </SelectContent>
             </Select>
           </div>
-          <Button size="lg" className="w-full text-base tracking-wider">Explore Experiences</Button>
+          <Button size="lg" className={cn('w-full text-base tracking-wider', selectedContinent && selectedContinent !== 'anywhere' ? 'md:col-span-2 lg:col-span-1' : 'md:col-span-3 lg:col-span-2')}>Explore Experiences</Button>
         </div>
       </Card>
 
