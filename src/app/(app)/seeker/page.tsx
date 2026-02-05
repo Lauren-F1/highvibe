@@ -90,8 +90,8 @@ export default function SeekerPage() {
             priority
           />
           <div className="relative text-white px-4 z-20">
-            <h1 className="font-headline text-4xl md:text-7xl font-bold [text-shadow:0_4px_12px_rgba(0,0,0,0.8)]">Find Your Next Experience</h1>
-            <p className="text-slate-100 mt-2 text-xl md:text-3xl max-w-3xl mx-auto font-body [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">
+            <h1 className="font-headline text-4xl md:text-5xl font-bold [text-shadow:0_4px_12px_rgba(0,0,0,0.8)]">Find Your Next Experience</h1>
+            <p className="text-slate-100 mt-2 text-lg md:text-xl max-w-3xl mx-auto font-body [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">
               Curated retreats for those who choose curiosity, connection, and living well.
             </p>
           </div>
@@ -157,7 +157,7 @@ export default function SeekerPage() {
               </SelectContent>
             </Select>
           </div>
-          <Button size="lg" className={cn('w-full text-base tracking-wider', selectedContinent && selectedContinent !== 'anywhere' ? 'md:col-span-2 lg:col-span-1' : 'md:col-span-3 lg:col-span-2')}>Explore Experiences</Button>
+          <Button size="lg" className={cn('w-full text-base tracking-wider', selectedContinent && selectedContinent !== 'anywhere' ? 'md:col-span-1 lg:col-span-1' : 'md:col-span-2 lg:col-span-2')}>Explore Experiences</Button>
         </div>
       </Card>
 
