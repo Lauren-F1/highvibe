@@ -76,6 +76,8 @@ export default function SeekerPage() {
   const [selectedRegion, setSelectedRegion] = useState('');
   const mostExpensiveRetreatId = retreats.reduce((prev, current) => (prev.price > current.price) ? prev : current).id;
 
+  const showRegionFilter = selectedContinent && selectedContinent !== 'anywhere';
+
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
       {heroImage && (
@@ -99,7 +101,7 @@ export default function SeekerPage() {
       )}
 
       <Card className="mb-8 p-4 md:p-6 bg-secondary">
-        <div className={cn('grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-4 items-end')}>
+        <div className={cn('grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end')}>
           <div className="space-y-2">
             <Label htmlFor="type" className="text-base font-semibold font-body tracking-wide">Choose Your Experience</Label>
             <Select>
@@ -129,13 +131,13 @@ export default function SeekerPage() {
               </SelectContent>
             </Select>
           </div>
-          {selectedContinent && selectedContinent !== 'anywhere' && (
+          {showRegionFilter && (
             <div className="space-y-2">
               <Label htmlFor="region" className="text-base font-semibold font-body tracking-wide">Region / Country</Label>
               <Select onValueChange={setSelectedRegion} value={selectedRegion}>
                 <SelectTrigger id="region">
                   <SelectValue placeholder="Select a country or region" />
-                </SelectTrigger>
+                </Trigger>
                 <SelectContent>
                   {(destinations[selectedContinent as keyof typeof destinations] || []).map(region => (
                     <SelectItem key={region} value={region}>{region}</SelectItem>
@@ -157,7 +159,7 @@ export default function SeekerPage() {
               </SelectContent>
             </Select>
           </div>
-          <Button size="lg" className={cn('w-full text-base tracking-wider', selectedContinent && selectedContinent !== 'anywhere' ? 'md:col-span-4 lg:col-span-1' : 'lg:col-span-2')}>Explore Experiences</Button>
+          <Button size="lg" className={cn('w-full', showRegionFilter ? 'md:col-span-2 lg:col-span-2' : 'md:col-span-1 lg:col-span-1')}>Explore Experiences</Button>
         </div>
       </Card>
 
