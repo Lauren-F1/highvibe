@@ -90,8 +90,8 @@ export default function SeekerPage() {
             priority
           />
           <div className="relative text-white px-4 z-20">
-            <h1 className="font-headline text-4xl md:text-6xl font-bold [text-shadow:0_4px_12px_rgba(0,0,0,0.8)]">Find Your Next Experience</h1>
-            <p className="text-slate-100 mt-2 text-xl md:text-2xl max-w-3xl mx-auto font-body [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">
+            <h1 className="font-headline text-4xl md:text-7xl font-bold [text-shadow:0_4px_12px_rgba(0,0,0,0.8)]">Find Your Next Experience</h1>
+            <p className="text-slate-100 mt-2 text-xl md:text-3xl max-w-3xl mx-auto font-body [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">
               Curated retreats for those who choose curiosity, connection, and living well.
             </p>
           </div>
