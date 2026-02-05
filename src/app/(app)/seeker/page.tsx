@@ -22,17 +22,18 @@ const retreats = [
 
 const experienceTypes = [
   { value: 'all-experiences', label: 'All Experiences' },
+  { value: 'rest-reset', label: 'Rest & Reset'},
   { value: 'wellness-healing', label: 'Wellness & Healing' },
   { value: 'yoga-meditation', label: 'Yoga & Meditation' },
   { value: 'personal-growth-self-development', label: 'Personal Growth & Self-Development' },
-  { value: 'spirituality-consciousness', label: 'Spirituality & Consciousness' },
+  { value: 'spiritual-exploration', label: 'Spiritual Exploration' },
   { value: 'plant-medicine-ceremony', label: 'Plant Medicine & Ceremony' },
   { value: 'relationships-connection', label: 'Relationships & Connection' },
-  { value: 'leadership-professional-development', label: 'Leadership & Professional Development' },
-  { value: 'adventure-exploration', label: 'Adventure & Exploration' },
+  { value: 'leadership-professional-growth', label: 'Leadership & Professional Growth' },
+  { value: 'adventure-aliveness', label: 'Adventure & Aliveness' },
   { value: 'creativity-expression', label: 'Creativity & Expression' },
   { value: 'nature-immersion', label: 'Nature Immersion' },
-  { value: 'somatic-body-based-work', label: 'Somatic & Body-Based Work' },
+  { value: 'transformation', label: 'Transformation' },
 ];
 
 const continents = [
@@ -98,9 +99,9 @@ export default function SeekerPage() {
       )}
 
       <Card className="mb-8 p-4 md:p-6 bg-secondary">
-        <div className={cn('grid grid-cols-1 md:grid-cols-3 gap-4 items-end', selectedContinent && selectedContinent !== 'anywhere' ? 'lg:grid-cols-6' : 'lg:grid-cols-5')}>
+        <div className={cn('grid grid-cols-1 md:grid-cols-3 gap-4 items-end', selectedContinent && selectedContinent !== 'anywhere' ? 'lg:grid-cols-5' : 'lg:grid-cols-4')}>
           <div className="space-y-2">
-            <Label htmlFor="type" className="text-base font-semibold font-body tracking-wide">Experience Type</Label>
+            <Label htmlFor="type" className="text-base font-semibold font-body tracking-wide">Choose Your Experience</Label>
             <Select>
               <SelectTrigger id="type">
                 <SelectValue placeholder="All Experiences" />
@@ -109,26 +110,6 @@ export default function SeekerPage() {
                 {experienceTypes.map(type => (
                   <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
                 ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="intent" className="text-base font-semibold font-body tracking-wide">What Are You Seeking?</Label>
-            <Select>
-              <SelectTrigger id="intent">
-                <SelectValue placeholder="Select an intent" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="rest-reset">Rest & Reset</SelectItem>
-                <SelectItem value="healing-integration">Healing & Integration</SelectItem>
-                <SelectItem value="personal-growth">Personal Growth</SelectItem>
-                <SelectItem value="connection-relationships">Connection & Relationships</SelectItem>
-                <SelectItem value="leadership-professional-growth">Leadership & Professional Growth</SelectItem>
-                <SelectItem value="purpose-meaning">Purpose & Meaning</SelectItem>
-                <SelectItem value="adventure-aliveness">Adventure & Aliveness</SelectItem>
-                <SelectItem value="creativity">Creativity</SelectItem>
-                <SelectItem value="spiritual-exploration">Spiritual Exploration</SelectItem>
-                <SelectItem value="transformation">Transformation</SelectItem>
               </SelectContent>
             </Select>
           </div>
