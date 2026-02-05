@@ -99,7 +99,7 @@ export default function SeekerPage() {
       )}
 
       <Card className="mb-8 p-4 md:p-6 bg-secondary">
-        <div className={cn('grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 items-end')}>
+        <div className={cn('grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-4 items-end')}>
           <div className="space-y-2">
             <Label htmlFor="type" className="text-base font-semibold font-body tracking-wide">Choose Your Experience</Label>
             <Select>
@@ -157,7 +157,7 @@ export default function SeekerPage() {
               </SelectContent>
             </Select>
           </div>
-          <Button size="lg" className={cn('w-full text-base tracking-wider', selectedContinent && selectedContinent !== 'anywhere' ? 'md:col-span-1 lg:col-span-1' : 'md:col-span-2 lg:col-span-2')}>Explore Experiences</Button>
+          <Button size="lg" className={cn('w-full text-base tracking-wider', selectedContinent && selectedContinent !== 'anywhere' ? 'md:col-span-4 lg:col-span-1' : 'lg:col-span-2')}>Explore Experiences</Button>
         </div>
       </Card>
 
