@@ -382,7 +382,7 @@ export default function BillingPage() {
                  {role === 'guide' && (
                     <div className="p-4 border-l-4 border-primary bg-primary/10 rounded-r-lg">
                         <p className="font-semibold text-sm">Example:</p>
-                        <p className="text-sm text-muted-foreground">“On a $10,000 retreat, the platform fee is $750. In return, you receive end-to-end discovery, partner matching, booking infrastructure, and visibility that would cost significantly more through ads, agencies, or manual outreach.”</p>
+                        <p className="text-sm text-muted-foreground">On a $10,000 retreat, the platform fee is $750. In return, you receive end-to-end discovery, partner matching, booking infrastructure, and visibility that would cost significantly more through ads, agencies, or manual outreach.</p>
                     </div>
                  )}
                   {role === 'host' && (
