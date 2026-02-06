@@ -69,6 +69,14 @@ const investmentRanges = [
   { value: "over-100000", label: "$100,000+" },
 ];
 
+const timingOptions = [
+  { value: '3-months', label: 'Within 3 months' },
+  { value: '6-months', label: 'Within 6 months' },
+  { value: '12-months', label: 'Within 12 months' },
+  { value: 'exploring', label: 'Just exploring' }
+];
+
+
 export default function SeekerPage() {
   const heroImage = placeholderImages.find(p => p.id === 'seeker-hero-panoramic');
   const [selectedContinent, setSelectedContinent] = useState('');
@@ -100,9 +108,9 @@ export default function SeekerPage() {
       )}
 
       <Card className="mb-8 p-4 md:p-6 bg-secondary">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
           <div className="space-y-2">
-            <Label htmlFor="type">Choose Your Experience</Label>
+            <Label htmlFor="type">What experience are you seeking?</Label>
             <Select>
               <SelectTrigger id="type">
                 <SelectValue placeholder="All Experiences" />
@@ -130,8 +138,7 @@ export default function SeekerPage() {
               </SelectContent>
             </Select>
           </div>
-          {showRegionFilter ? (
-            <>
+          {showRegionFilter && (
               <div className="space-y-2">
                 <Label htmlFor="region">Region / Country</Label>
                 <Select onValueChange={setSelectedRegion} value={selectedRegion}>
@@ -145,39 +152,36 @@ export default function SeekerPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
-                 <Label htmlFor="price">Investment Range</Label>
-                 <Select>
-                   <SelectTrigger id="price">
-                     <SelectValue placeholder="Any Range" />
-                   </SelectTrigger>
-                   <SelectContent>
-                     {investmentRanges.map((range) => (
-                       <SelectItem key={range.value} value={range.value}>{range.label}</SelectItem>
-                     ))}
-                   </SelectContent>
-                 </Select>
-               </div>
-               <Button size="lg" className="w-full md:col-span-2 lg:col-span-2">Explore Experiences</Button>
-            </>
-          ) : (
-             <>
-                <div className="space-y-2 md:col-span-2 lg:col-span-1">
-                    <Label htmlFor="price">Investment Range</Label>
-                    <Select>
-                    <SelectTrigger id="price">
-                        <SelectValue placeholder="Any Range" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {investmentRanges.map((range) => (
-                        <SelectItem key={range.value} value={range.value}>{range.label}</SelectItem>
-                        ))}
-                    </SelectContent>
-                    </Select>
-                </div>
-                <Button size="lg" className="w-full md:col-span-2 lg:col-span-3">Explore Experiences</Button>
-            </>
           )}
+          <div className="space-y-2">
+            <Label htmlFor="price">Investment Range</Label>
+            <Select>
+              <SelectTrigger id="price">
+                <SelectValue placeholder="Any Range" />
+              </SelectTrigger>
+              <SelectContent>
+                {investmentRanges.map((range) => (
+                  <SelectItem key={range.value} value={range.value}>{range.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+           <div className="space-y-2">
+              <Label htmlFor="timing">Timing (When are you hoping to go?)</Label>
+              <Select>
+                <SelectTrigger id="timing">
+                  <SelectValue placeholder="Just exploring" />
+                </SelectTrigger>
+                <SelectContent>
+                  {timingOptions.map((timing) => (
+                    <SelectItem key={timing.value} value={timing.value}>{timing.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          <div className="lg:col-span-full">
+            <Button size="lg" className="w-full">Explore Experiences</Button>
+          </div>
         </div>
       </Card>
 
