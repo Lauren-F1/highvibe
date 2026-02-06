@@ -158,7 +158,7 @@ export default function GuidePage() {
             <CardContent>
                 {activeRetreat ? (
                      <Tabs defaultValue="hosts">
-                        <TabsList className="grid w-full grid-cols-2">
+                        <TabsList className="grid w-full grid-cols-2 bg-primary text-primary-foreground">
                             <TabsTrigger value="hosts">Hosts (Spaces)</TabsTrigger>
                             <TabsTrigger value="vendors">Vendors (Services)</TabsTrigger>
                         </TabsList>

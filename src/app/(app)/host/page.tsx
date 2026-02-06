@@ -186,7 +186,7 @@ export default function HostPage() {
             <CardContent>
                 {activeSpaceId ? (
                      <Tabs defaultValue="guides">
-                        <TabsList className="grid w-full grid-cols-2">
+                        <TabsList className="grid w-full grid-cols-2 bg-primary text-primary-foreground">
                             <TabsTrigger value="guides">Guides (Retreat Leaders)</TabsTrigger>
                             <TabsTrigger value="vendors">Vendors (Local Partners)</TabsTrigger>
                         </TabsList>
