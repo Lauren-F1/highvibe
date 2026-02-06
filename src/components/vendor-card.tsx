@@ -18,7 +18,7 @@ export interface VendorCardProps {
     avatar: ImagePlaceholder;
     luxApproved?: boolean;
   };
-  onConnect: () => void;
+  onConnect?: () => void;
 }
 
 export function VendorCard({ vendor, onConnect }: VendorCardProps) {
@@ -45,9 +45,11 @@ export function VendorCard({ vendor, onConnect }: VendorCardProps) {
           </div>
         </div>
       </CardContent>
-      <CardFooter className="p-4 pt-0">
-        <Button onClick={onConnect} className="w-full">Request to Connect</Button>
-      </CardFooter>
+      {onConnect && (
+        <CardFooter className="p-4 pt-0">
+          <Button onClick={onConnect} className="w-full">Request to Connect</Button>
+        </CardFooter>
+      )}
     </Card>
   );
 }
