@@ -31,8 +31,8 @@ type RolePlans = {
 
 const plans: Record<UserRole, RolePlans> = {
   guide: {
-    essential: {
-      name: 'Guide Essential',
+    partner: {
+      name: 'Partner Guide',
       price: 199,
       benefits: [
         'Unlimited retreat listings (create, draft, publish)',
@@ -45,10 +45,10 @@ const plans: Record<UserRole, RolePlans> = {
       ],
     },
     pro: {
-      name: 'Guide Pro',
+      name: 'Pro Guide',
       price: 299,
       benefits: [
-        'Everything in Essential, plus:',
+        'Everything in Partner, plus:',
         'Priority placement in discovery results',
         'Featured retreat eligibility',
         'Early access to premium hosts & vendors',
@@ -60,8 +60,8 @@ const plans: Record<UserRole, RolePlans> = {
     },
   },
   host: {
-    standard: {
-      name: 'Host Standard',
+    partner: {
+      name: 'Partner Host',
       price: 149,
       benefits: [
         'Unlimited space listings',
@@ -73,11 +73,11 @@ const plans: Record<UserRole, RolePlans> = {
         'Eligibility for LUX consideration',
       ],
     },
-    premier: {
-      name: 'Host Premier',
+    premium: {
+      name: 'Premium Host',
       price: 249,
       benefits: [
-        'Everything in Standard, plus:',
+        'Everything in Partner, plus:',
         'Priority placement for premium retreats',
         'Featured venue eligibility',
         'Enhanced profile presentation',
@@ -88,8 +88,8 @@ const plans: Record<UserRole, RolePlans> = {
     },
   },
   vendor: {
-    basic: {
-      name: 'Vendor Basic',
+    partner: {
+      name: 'Partner Vendor',
       price: 49,
       benefits: [
         'Vendor profile + service listings',
@@ -99,11 +99,11 @@ const plans: Record<UserRole, RolePlans> = {
         'Eligibility for LUX consideration',
       ],
     },
-    plus: {
-      name: 'Vendor Plus',
+    premier: {
+      name: 'Premier Vendor',
       price: 79,
       benefits: [
-        'Everything in Basic, plus:',
+        'Everything in Partner, plus:',
         'Priority placement in matching results',
         'Featured service eligibility',
         'Enhanced profile layout',
@@ -116,10 +116,10 @@ const plans: Record<UserRole, RolePlans> = {
 };
 
 const invoices = [
-    { id: 'SUB-001', date: 'July 30, 2024', description: 'Guide Essential Plan', amount: '$199.00' },
+    { id: 'SUB-001', date: 'July 30, 2024', description: 'Partner Guide', amount: '$199.00' },
     { id: 'FEE-001', date: 'July 1, 2024', description: 'Success Fee (Andes Hiking)', amount: '$750.00' },
     { id: 'FAC-001', date: 'June 25, 2024', description: 'Booking Facilitation Fee (#B123)', amount: '$200.00' },
-    { id: 'SUB-002', date: 'June 30, 2024', description: 'Guide Essential Plan', amount: '$199.00' },
+    { id: 'SUB-002', date: 'June 30, 2024', description: 'Partner Guide', amount: '$199.00' },
 ];
 
 type UserPlans = Record<UserRole, string>;
@@ -231,7 +231,7 @@ const UpgradeDowngradeModal = ({ isOpen, onOpenChange, onConfirm, currentPlan, t
 
 export default function BillingPage() {
     const [role, setRole] = useState<UserRole>('guide');
-    const [userPlans, setUserPlans] = useState<UserPlans>({ guide: 'essential', host: 'standard', vendor: 'basic' });
+    const [userPlans, setUserPlans] = useState<UserPlans>({ guide: 'partner', host: 'partner', vendor: 'partner' });
     const [isPaused, setIsPaused] = useState(false);
     const [luxStatus] = useState<LuxStatus>('Under Consideration');
     const [luxRequested, setLuxRequested] = useState(false);
@@ -475,5 +475,7 @@ export default function BillingPage() {
     </>
   );
 }
+
+    
 
     
