@@ -23,6 +23,7 @@ type PlanTier = {
   name: string;
   price: number;
   benefits: string[];
+  helperText?: string;
 };
 
 type RolePlans = {
@@ -35,28 +36,30 @@ const plans: Record<UserRole, RolePlans> = {
       name: 'Partner Guide',
       price: 199,
       benefits: [
-        'Unlimited retreat listings (create, draft, publish)',
-        'Host + Vendor discovery and direct requests',
-        'Smart matching for venues and services',
-        'In-app messaging & coordination',
-        'Retreat planning dashboard (guests, vendors, logistics)',
-        'Standard placement in search',
-        'Eligibility for LUX consideration',
+        'Create and publish retreats',
+        'Be discovered by aligned seekers',
+        'Connect with hosts and vendors',
+        'Smart matching for venues and experience partners',
+        'In-app messaging and coordination',
+        'Booking and retreat management tools',
+        'Standard discovery placement',
+        'Access to LUX consideration',
       ],
     },
     pro: {
       name: 'Pro Guide',
       price: 299,
       benefits: [
-        'Everything in Partner, plus:',
-        'Priority placement in discovery results',
+        'Get noticed faster with priority placement in discovery',
+        'Increased visibility to high-intent seekers',
+        'Priority matching with top hosts and vendors',
         'Featured retreat eligibility',
-        'Early access to premium hosts & vendors',
         'Advanced matching filters',
-        'Priority support response',
-        'Listing insights (views, saves, inquiries)',
-        'Increased consideration weight for LUX review',
+        'Performance insights on listings',
+        'Priority support',
+        'Stronger consideration weighting for LUX review',
       ],
+      helperText: 'Built for guides who want more bookings, faster momentum, and greater visibility.',
     },
   },
   host: {
@@ -64,27 +67,29 @@ const plans: Record<UserRole, RolePlans> = {
       name: 'Partner Host',
       price: 149,
       benefits: [
-        'Unlimited space listings',
-        'Discovered by vetted guides',
-        'Booking inquiries + calendar/availability',
-        'Smart matching to aligned retreats',
-        'In-app messaging',
-        'Standard visibility in search',
-        'Eligibility for LUX consideration',
+        'List your property as a retreat-ready space',
+        'Be discovered by aligned guides',
+        'Receive booking inquiries',
+        'Smart matching to relevant retreats',
+        'In-app messaging and booking coordination',
+        'Standard discovery placement',
+        'Access to LUX consideration',
       ],
     },
     premium: {
       name: 'Premium Host',
       price: 249,
       benefits: [
-        'Everything in Partner, plus:',
-        'Priority placement for premium retreats',
+        'Get discovered faster by high-intent guides',
+        'Priority placement in host discovery',
         'Featured venue eligibility',
+        'Increased visibility for premium retreats',
+        'Early access to top guides',
         'Enhanced profile presentation',
-        'Early access to high-intent guides',
-        'Preferred partner status in matching',
-        'Higher weighting in LUX review pipeline',
+        'Priority matching for aligned experiences',
+        'Stronger consideration weighting for LUX review',
       ],
+      helperText: 'Built for hosts who want more bookings, better-fit retreats, and higher-quality partnerships.',
     },
   },
   vendor: {
@@ -92,25 +97,28 @@ const plans: Record<UserRole, RolePlans> = {
       name: 'Partner Vendor',
       price: 49,
       benefits: [
-        'Vendor profile + service listings',
-        'Discovery by guides and hosts',
-        'In-app messaging',
-        'Standard visibility in vendor search',
-        'Eligibility for LUX consideration',
+        'Create a vendor profile and list your services',
+        'Be discovered by guides and hosts',
+        'Receive service inquiries',
+        'Smart matching to relevant retreats',
+        'In-app messaging and coordination',
+        'Standard visibility in vendor discovery',
+        'Access to LUX consideration',
       ],
     },
     premier: {
       name: 'Premier Vendor',
       price: 79,
       benefits: [
-        'Everything in Partner, plus:',
-        'Priority placement in matching results',
+        'Get noticed faster with priority placement',
+        'Increased visibility to Pro Guides and Premium Hosts',
         'Featured service eligibility',
-        'Enhanced profile layout',
-        'Early access to high-value retreats',
-        'Higher matching priority with Pro guides & Premier hosts',
-        'Increased weighting in LUX consideration',
+        'Priority matching for high-value retreats',
+        'Enhanced profile presentation',
+        'Early access to premium opportunities',
+        'Stronger consideration weighting for LUX review',
       ],
+      helperText: 'Built for vendors who want more leads, higher-quality partnerships, and premium exposure.',
     },
   },
 };
@@ -200,7 +208,7 @@ const UpgradeDowngradeModal = ({ isOpen, onOpenChange, onConfirm, currentPlan, t
                         <CardContent>
                              <p className="text-2xl font-bold">${currentPlan.price}<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
                             <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-                                {currentPlan.benefits.map((b, i) => <li key={i}>{b.startsWith('Everything') ? <strong>{b}</strong> : b}</li>)}
+                                {currentPlan.benefits.map((b, i) => <li key={i}>{b}</li>)}
                             </ul>
                         </CardContent>
                     </Card>
@@ -212,8 +220,9 @@ const UpgradeDowngradeModal = ({ isOpen, onOpenChange, onConfirm, currentPlan, t
                         <CardContent>
                             <p className="text-2xl font-bold">${targetPlan.price}<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
                             <ul className="mt-4 space-y-2 text-sm text-primary">
-                                {targetPlan.benefits.map((b, i) => <li key={i}>{b.startsWith('Everything') ? <strong>{b}</strong> : b}</li>)}
+                                {targetPlan.benefits.map((b, i) => <li key={i}>{b}</li>)}
                             </ul>
+                            {isUpgrade && targetPlan.helperText && <p className="mt-4 text-xs italic text-muted-foreground">{targetPlan.helperText}</p>}
                         </CardContent>
                     </Card>
                 </div>
@@ -349,7 +358,7 @@ export default function BillingPage() {
                     {currentPlan.benefits.map((benefit, i) => (
                         <li key={i} className="flex items-start">
                             <CheckCircle className="h-5 w-5 mr-3 mt-0.5 text-primary shrink-0"/>
-                            <span>{benefit.startsWith('Everything') ? <strong>{benefit}</strong> : benefit}</span>
+                            <span>{benefit}</span>
                         </li>
                     ))}
                 </ul>
