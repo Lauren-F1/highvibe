@@ -50,11 +50,14 @@ export function Header() {
                 <span className="sr-only">Inbox</span>
                 </Link>
             </Button>
+            <Button variant="ghost" asChild>
+                <Link href="/billing">Billing</Link>
+            </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src="https://picsum.photos/seed/human/100/100" alt="User avatar" />
+                      <AvatarImage src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="User avatar" />
                       <AvatarFallback>U</AvatarFallback>
                     </Avatar>
                   </Button>
@@ -69,8 +72,8 @@ export function Header() {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild><Link href="#">Account</Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link href="/billing">Billing</Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link href="#">Account Settings</Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link href="#">Payouts</Link></DropdownMenuItem>
                   <DropdownMenuItem asChild><Link href="#">Support</Link></DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>

@@ -15,10 +15,12 @@ import { PaywallModal } from '@/components/paywall-modal';
 import { RequestConnectionModal } from '@/components/request-connection-modal';
 import { HostCard } from '@/components/host-card';
 import { VendorCard } from '@/components/vendor-card';
-import type { Vendor } from '@/lib/mock-data';
 import { HostFilters } from '@/components/host-filters';
 import { VendorFilters } from '@/components/vendor-filters';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { placeholderImages } from '@/lib/placeholder-images';
 
+const genericImage = placeholderImages.find(p => p.id === 'generic-placeholder')!;
 
 export default function GuidePage() {
   const router = useRouter();
@@ -35,10 +37,8 @@ export default function GuidePage() {
     }
   };
 
-  const handleRefineMatchesClick = (retreatId: string) => {
+  const handleViewMatchesClick = (retreatId: string) => {
     setActiveRetreatId(retreatId);
-    // smoothly scroll to the matches section
-    document.getElementById('matches-section')?.scrollIntoView({ behavior: 'smooth' });
   }
 
   const handleConnectClick = (name: string, role: 'Host' | 'Vendor') => {
@@ -82,6 +82,7 @@ export default function GuidePage() {
       <Card className="mb-12">
         <CardHeader>
           <CardTitle>Your Retreats</CardTitle>
+          <CardDescription>A summary of your created retreats. Select one to find matches below.</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -92,18 +93,18 @@ export default function GuidePage() {
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Bookings</TableHead>
                 <TableHead className="text-right">Total Income</TableHead>
-                <TableHead className="w-[200px] text-right">Actions</TableHead>
+                <TableHead className="w-[200px] text-center">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {yourRetreats.map((retreat) => (
-                <TableRow key={retreat.id} className="cursor-pointer" onClick={() => router.push(`/guide/retreats/${retreat.id}`)}>
+                <TableRow key={retreat.id} className={activeRetreatId === retreat.id ? 'bg-accent' : ''}>
                   <TableCell>
-                    <div className="relative h-12 w-12 rounded-md overflow-hidden">
+                    <div className="relative h-12 w-12 rounded-md overflow-hidden bg-secondary">
                       <Image
-                        src={retreat.image.imageUrl}
-                        alt={retreat.image.description}
-                        data-ai-hint={retreat.image.imageHint}
+                        src={retreat.image?.imageUrl || genericImage.imageUrl}
+                        alt={retreat.image?.description || genericImage.description}
+                        data-ai-hint={retreat.image?.imageHint || genericImage.imageHint}
                         fill
                         className="object-cover"
                       />
@@ -115,9 +116,19 @@ export default function GuidePage() {
                   </TableCell>
                   <TableCell className="text-right">{retreat.bookings}</TableCell>
                   <TableCell className="text-right">${retreat.income.toLocaleString()}</TableCell>
-                  <TableCell className="text-right space-x-2">
-                    <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); handleRefineMatchesClick(retreat.id); }}>Refine Matches</Button>
-                    <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}><MoreHorizontal className="h-4 w-4"/></Button>
+                  <TableCell className="text-center space-x-2">
+                    <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); handleViewMatchesClick(retreat.id); }}>View Matches</Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}><MoreHorizontal className="h-4 w-4"/></Button>
+                      </DropdownMenuTrigger>
+                       <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => alert('Edit clicked')}>Edit</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => alert('Duplicate clicked')}>Duplicate</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => alert('Unpublish clicked')}>Unpublish</DropdownMenuItem>
+                          <DropdownMenuItem className="text-destructive" onClick={() => alert('Delete clicked')}>Delete</DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))}
@@ -133,7 +144,7 @@ export default function GuidePage() {
                 <CardDescription className="font-body text-base">The right people, in the right place—without the back-and-forth.</CardDescription>
                 <div className="!mt-6 max-w-sm">
                     <Select onValueChange={setActiveRetreatId} value={activeRetreatId || ''}>
-                        <SelectTrigger id="retreat-selector">
+                        <SelectTrigger id="retreat-selector" className="text-lg py-6">
                             <SelectValue placeholder="Select a retreat to find matches..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -157,14 +168,21 @@ export default function GuidePage() {
                                     <HostFilters />
                                 </div>
                                 <div className="lg:col-span-3">
-                                    <h3 className="font-headline text-2xl mb-2">Recommended for you</h3>
-                                    <p className="text-muted-foreground mb-4">Spaces that hold the vibe.</p>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        {hosts.slice(0, 4).map(host => <HostCard key={host.id} host={host} onConnect={() => handleConnectClick(host.name, 'Host')} />)}
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h3 className="font-headline text-2xl">Recommended for you</h3>
+                                        <Select defaultValue="recommended">
+                                            <SelectTrigger className="w-[180px]">
+                                                <SelectValue placeholder="Sort by" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="recommended">Recommended</SelectItem>
+                                                <SelectItem value="price-asc">Price (low to high)</SelectItem>
+                                                <SelectItem value="price-desc">Price (high to low)</SelectItem>
+                                                <SelectItem value="rating">Highest rated</SelectItem>
+                                            </SelectContent>
+                                        </Select>
                                     </div>
-                                    <hr className="my-8" />
-                                    <h3 className="font-headline text-2xl mb-4">Search & Filter</h3>
-                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         {hosts.map(host => <HostCard key={host.id} host={host} onConnect={() => handleConnectClick(host.name, 'Host')} />)}
                                     </div>
                                 </div>
@@ -176,13 +194,21 @@ export default function GuidePage() {
                                     <VendorFilters />
                                 </div>
                                 <div className="lg:col-span-3">
-                                     <h3 className="font-headline text-2xl mb-2">Recommended for you</h3>
-                                     <p className="text-muted-foreground mb-4">The details that make it unforgettable.</p>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                        {vendors.slice(0, 3).map(vendor => <VendorCard key={vendor.id} vendor={vendor} onConnect={() => handleConnectClick(vendor.name, 'Vendor')} />)}
-                                    </div>
-                                     <hr className="my-8" />
-                                    <h3 className="font-headline text-2xl mb-4">Search & Filter</h3>
+                                     <div className="flex justify-between items-center mb-4">
+                                        <h3 className="font-headline text-2xl">Build Your Retreat Team</h3>
+                                        <Select defaultValue="recommended">
+                                            <SelectTrigger className="w-[180px]">
+                                                <SelectValue placeholder="Sort by" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="recommended">Recommended</SelectItem>
+                                                <SelectItem value="price-asc">Price (low to high)</SelectItem>
+                                                <SelectItem value="price-desc">Price (high to low)</SelectItem>
+                                                <SelectItem value="rating">Highest rated</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                     </div>
+                                     <p className="text-muted-foreground mb-4">Find the people who elevate the experience.</p>
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                         {vendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} onConnect={() => handleConnectClick(vendor.name, 'Vendor')} />)}
                                     </div>
