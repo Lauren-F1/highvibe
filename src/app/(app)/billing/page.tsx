@@ -399,16 +399,18 @@ export default function BillingPage() {
                     LUX is an earned distinction, reserved for experiences that demonstrate exceptional care, quality, thoughtfulness, and delivery. It reflects not how expensive something is, but how intentionally it is designed and how consistently it exceeds expectations.<br/><br/>
                     Guides, Hosts, and Vendors may be quietly and periodically evaluated based on real experiences, participant feedback, operational excellence, and the overall integrity of what they deliver. When awarded, the LUX badge signals to seekers that this experience meets HighVibe’s highest standard of excellence.
                 </p>
-                <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                         <Star className="h-6 w-6 text-primary"/>
-                         <div>
-                            <p className="font-semibold">Current LUX Status</p>
-                            <p className="text-muted-foreground">{luxStatus}</p>
-                         </div>
+                {role !== 'vendor' && (
+                    <div className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex items-center gap-3">
+                             <Star className="h-6 w-6 text-primary"/>
+                             <div>
+                                <p className="font-semibold">Current LUX Status</p>
+                                <p className="text-muted-foreground">{luxStatus}</p>
+                             </div>
+                        </div>
+                        <Badge variant="outline">LUX cannot be purchased</Badge>
                     </div>
-                    <Badge variant="outline">LUX cannot be purchased</Badge>
-                </div>
+                )}
                  <div className="pt-2">
                     <Button onClick={() => setLuxRequested(true)} disabled={luxRequested} variant={luxRequested ? "secondary" : "default"}>
                         {luxRequested ? "Consideration Requested" : "Request LUX Consideration"}
