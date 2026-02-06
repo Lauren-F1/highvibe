@@ -86,12 +86,12 @@
     },
     {
       "id": "host-peru-hacienda-bright",
-      "description": "A rustic and beautiful hacienda in the Sacred Valley of Peru, bathed in bright sunlight.",
-      "imageUrl": "https://images.unsplash.com/photo-1574042343899-0a5639b7473b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxicmlnaHQlMjBsdXh1cnklMjBoYWNpZW5kYSUyMHBlcnUlMjBleHRlcmlvcnxlbnwwfHx8fDE3MDc1NTk4MzR8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "luxury hacienda bright"
+      "description": "A traditional and rustic luxury hacienda in Peru, showcasing old-world charm.",
+      "imageUrl": "https://images.unsplash.com/photo-1620392137953-55d7f11d18ca?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx0cmFkaXRpb25hbCUyMGx1eHVyeSUyMGhhY2llbmRhJTIwcGVydXxlbnwwfHx8fDE3MDc1NjI0MTZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "traditional hacienda"
     },
     {
-      "id": "host-tuscany-farmhouse-bright",
+      "id": "host-tuscany-winery-sunset",
       "description": "A rustic but charming winery in Tuscany at sunset, with warm light over the vineyards.",
       "imageUrl": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxydXN0aWMlMjB0dXNjYW4lMjB3aW5lcnklMjBzdW5zZXR8ZW58MHx8fHwxNzA3NTYwMDIzfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "tuscan winery sunset"
