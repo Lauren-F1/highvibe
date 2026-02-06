@@ -1,8 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RetreatCard } from '@/components/retreat-card';
@@ -12,12 +11,12 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
 const retreats = [
-  { id: '1', title: 'Serene Yoga Escape', description: 'A grounding escape designed for deep rest, clarity, and reconnection.', location: 'Bali, Indonesia', price: 400, rating: 4.8, image: placeholderImages[0] },
-  { id: '2', title: 'Forest Bathing & Mindfulness', description: 'An invitation to slow down, awaken your senses, and find presence in the heart of nature.', location: 'Kyoto, Japan', price: 550, rating: 4.9, image: placeholderImages[1] },
-  { id: '3', title: 'Andean Peaks Adventure', description: 'For those who crave altitude and challenge, this is an ascent into unforgettable landscapes.', location: 'Cusco, Peru', price: 1200, rating: 5.0, image: placeholderImages[2] },
-  { id: '4', title: 'Cozy Writer\'s Retreat', description: 'A quiet sanctuary designed for the creative soul, where inspiration flows and your next story awaits.', location: 'Vermont, USA', price: 350, rating: 4.7, image: placeholderImages[3] },
-  { id: '5', title: 'Gourmet Wellness Journey', description: 'A culinary journey to nourish and delight, designed to celebrate vibrant, wholesome food and mindful eating.', location: 'Tuscany, Italy', price: 750, rating: 4.9, image: placeholderImages[4] },
-  { id: '6', title: 'Ultimate Spa & Relaxation', description: 'Your permission to completely unwind. A week of pure indulgence and restorative care designed for total rejuvenation.', location: 'Phuket, Thailand', price: 600, rating: 4.8, image: placeholderImages[5] },
+  { id: '1', title: 'Serene Yoga Escape', description: 'A grounding escape designed for deep rest, clarity, and reconnection.', location: 'Bali, Indonesia', price: 400, rating: 4.8, image: placeholderImages.find(p => p.id === 'yoga-beach')! },
+  { id: '2', title: 'Forest Bathing & Mindfulness', description: 'An invitation to slow down, awaken your senses, and find presence in the heart of nature.', location: 'Kyoto, Japan', price: 550, rating: 4.9, image: placeholderImages.find(p => p.id === 'meditation-forest')! },
+  { id: '3', title: 'Andean Peaks Adventure', description: 'For those who crave altitude and challenge, this is an ascent into unforgettable landscapes.', location: 'Cusco, Peru', price: 1200, rating: 5.0, image: placeholderImages.find(p => p.id === 'mountain-hike')! },
+  { id: '4', title: 'Cozy Writer\'s Retreat', description: 'A quiet sanctuary designed for the creative soul, where inspiration flows and your next story awaits.', location: 'Vermont, USA', price: 350, rating: 4.7, image: placeholderImages.find(p => p.id === 'cozy-cabin')! },
+  { id: '5', title: 'Gourmet Wellness Journey', description: 'A culinary journey to nourish and delight, designed to celebrate vibrant, wholesome food and mindful eating.', location: 'Tuscany, Italy', price: 750, rating: 4.9, image: placeholderImages.find(p => p.id === 'healthy-food-chef')! },
+  { id: '6', title: 'Ultimate Spa & Relaxation', description: 'Your permission to completely unwind. A week of pure indulgence and restorative care designed for total rejuvenation.', location: 'Phuket, Thailand', price: 600, rating: 4.8, image: placeholderImages.find(p => p.id === 'spa-massage')! },
 ];
 
 const experienceTypes = [
@@ -47,7 +46,7 @@ const continents = [
     { value: 'middle-east', label: 'Middle East' },
 ];
 
-const destinations = {
+const destinations: Record<string, string[]> = {
   africa: ['Morocco', 'South Africa', 'Kenya', 'Tanzania', 'Egypt', 'Namibia', 'Rwanda', 'Seychelles'],
   asia: ['Bali, Indonesia', 'Thailand', 'Japan', 'India', 'Nepal', 'Sri Lanka', 'Vietnam', 'Cambodia', 'Philippines', 'Bhutan'],
   europe: ['Italy', 'France', 'Portugal', 'Spain', 'Greece', 'Switzerland', 'Austria', 'Iceland', 'Croatia', 'United Kingdom'],
@@ -76,7 +75,7 @@ export default function SeekerPage() {
   const [selectedRegion, setSelectedRegion] = useState('');
   const mostExpensiveRetreatId = retreats.reduce((prev, current) => (prev.price > current.price) ? prev : current).id;
 
-  const showRegionFilter = selectedContinent && selectedContinent !== 'anywhere';
+  const showRegionFilter = selectedContinent && selectedContinent !== 'anywhere' && destinations[selectedContinent];
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -101,9 +100,9 @@ export default function SeekerPage() {
       )}
 
       <Card className="mb-8 p-4 md:p-6 bg-secondary">
-        <div className={cn('grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end')}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
           <div className="space-y-2">
-            <Label htmlFor="type" className="text-base font-semibold font-body tracking-wide">Choose Your Experience</Label>
+            <Label htmlFor="type">Choose Your Experience</Label>
             <Select>
               <SelectTrigger id="type">
                 <SelectValue placeholder="All Experiences" />
@@ -116,7 +115,7 @@ export default function SeekerPage() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="destination" className="text-base font-semibold font-body tracking-wide">Destination</Label>
+            <Label htmlFor="destination">Destination</Label>
             <Select onValueChange={(value) => {
               setSelectedContinent(value);
               setSelectedRegion('');
@@ -131,35 +130,54 @@ export default function SeekerPage() {
               </SelectContent>
             </Select>
           </div>
-          {showRegionFilter && (
-            <div className="space-y-2">
-              <Label htmlFor="region" className="text-base font-semibold font-body tracking-wide">Region / Country</Label>
-              <Select onValueChange={setSelectedRegion} value={selectedRegion}>
-                <SelectTrigger id="region">
-                  <SelectValue placeholder="Select a country or region" />
-                </Trigger>
-                <SelectContent>
-                  {(destinations[selectedContinent as keyof typeof destinations] || []).map(region => (
-                    <SelectItem key={region} value={region}>{region}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          {showRegionFilter ? (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="region">Region / Country</Label>
+                <Select onValueChange={setSelectedRegion} value={selectedRegion}>
+                  <SelectTrigger id="region">
+                    <SelectValue placeholder="Select a country or region" />
+                  </Trigger>
+                  <SelectContent>
+                    {(destinations[selectedContinent] || []).map(region => (
+                      <SelectItem key={region} value={region}>{region}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2 md:col-span-2 lg:col-span-1">
+                 <Label htmlFor="price">Investment Range</Label>
+                 <Select>
+                   <SelectTrigger id="price">
+                     <SelectValue placeholder="Any Range" />
+                   </SelectTrigger>
+                   <SelectContent>
+                     {investmentRanges.map((range) => (
+                       <SelectItem key={range.value} value={range.value}>{range.label}</SelectItem>
+                     ))}
+                   </SelectContent>
+                 </Select>
+               </div>
+               <Button size="lg" className="w-full md:col-span-full">Explore Experiences</Button>
+            </>
+          ) : (
+             <>
+                <div className="space-y-2">
+                    <Label htmlFor="price">Investment Range</Label>
+                    <Select>
+                    <SelectTrigger id="price">
+                        <SelectValue placeholder="Any Range" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {investmentRanges.map((range) => (
+                        <SelectItem key={range.value} value={range.value}>{range.label}</SelectItem>
+                        ))}
+                    </SelectContent>
+                    </Select>
+                </div>
+                <Button size="lg" className="w-full md:col-span-2 lg:col-span-1">Explore Experiences</Button>
+            </>
           )}
-          <div className="space-y-2">
-            <Label htmlFor="price" className="text-base font-semibold font-body tracking-wide">Investment Range</Label>
-            <Select>
-              <SelectTrigger id="price">
-                <SelectValue placeholder="Any Range" />
-              </SelectTrigger>
-              <SelectContent>
-                {investmentRanges.map((range) => (
-                  <SelectItem key={range.value} value={range.value}>{range.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <Button size="lg" className={cn('w-full', showRegionFilter ? 'md:col-span-2 lg:col-span-2' : 'md:col-span-1 lg:col-span-1')}>Explore Experiences</Button>
         </div>
       </Card>
 

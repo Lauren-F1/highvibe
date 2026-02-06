@@ -49,21 +49,15 @@
       "imageHint": "woman portrait"
     },
     {
-      "id": "serene-lake",
-      "description": "A calm lake reflecting the sky, with a wooden dock.",
-      "imageUrl": "https://images.unsplash.com/photo-1586891032469-a82530e3a490?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxzZXJlbmUlMjBsYWtlfGVufDB8fHx8MTc3MDA1MDU4NHww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "serene lake"
-    },
-    {
-      "id": "vendor-pottery",
-      "description": "A vendor teaching a pottery class.",
-      "imageUrl": "https://images.unsplash.com/photo-1595351298020-038700609878?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxwb3R0ZXJ5JTIwY2xhc3N8ZW58MHx8fHwxNzcwMDcwMDIxfDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "pottery class"
+      "id": "vendor-photographer",
+      "description": "A friendly male photographer with a camera.",
+      "imageUrl": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwaG90b2dyYXBoZXIlMjBwb3J0cmFpdHxlbnwwfHx8fDE3NzA3NTU4NTd8MA&ixlib=rb-4.1.0&q=80&w=400",
+      "imageHint": "photographer portrait"
     },
     {
       "id": "space-owner-villa",
       "description": "A luxurious villa with a pool, owned by a space owner.",
-      "imageUrl": "https://images.unsplash.com/photo-1613977257365-aaae5a9817ff?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxsdXh1cnklMjB2aWxsYXxlbnwwfHx8fDE3NzAwNzAwMjF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1613977257365-aaae5a9817ff?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxsdXh1cnklMjB2aWxsYXxlbnwwfHx8fDE3NzAwNzAwMjF8MA&ixlib=rb-4.1.0&q=80&w=400",
       "imageHint": "luxury villa"
     },
     {
@@ -77,6 +71,42 @@
       "description": "An infinity pool at a luxury resort overlooking a lush, tropical valley at sunset.",
       "imageUrl": "/lux-jungle.png",
       "imageHint": "jungle"
+    },
+    {
+      "id": "host-bali-villa",
+      "description": "An open-air luxury villa in Bali with a pool and jungle view.",
+      "imageUrl": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxiYWxpJTIwdmlsbGF8ZW58MHx8fHwxNzA3NTU5MjI4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "bali villa"
+    },
+    {
+      "id": "host-kyoto-ryokan",
+      "description": "A traditional Japanese ryokan with a serene garden in Kyoto.",
+      "imageUrl": "https://images.unsplash.com/photo-1582719508461-905c673771fd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxKYXBhbiUyMGhvdGVsJTIwaW50ZXJpb3J8ZW58MHx8fHwxNzA3NTU5MzA5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "japan interior"
+    },
+    {
+      "id": "host-peru-hacienda",
+      "description": "A rustic and beautiful hacienda in the Sacred Valley of Peru.",
+      "imageUrl": "https://images.unsplash.com/photo-1600585154340-be6164a83639?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxydXN0aWMlMjBsdXh1cnklMjBob3VzZSUyMGV4dGVyaW9yfGVufDB8fHx8MTcwNzU1OTM4NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "luxury house"
+    },
+    {
+      "id": "host-tuscany-farmhouse",
+      "description": "A classic Tuscan farmhouse overlooking rolling hills and vineyards.",
+      "imageUrl": "https://images.unsplash.com/photo-1562608988-9100363c8734?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxUdXNjYW55JTIwdmlsbGF8ZW58MHx8fHwxNzA3NTU5NDQ1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "tuscany villa"
+    },
+    {
+      "id": "vendor-chef-profile",
+      "description": "A smiling female chef in a professional kitchen.",
+      "imageUrl": "https://images.unsplash.com/photo-1556911220-bff31c812dba?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmZW1hbGUlMjBjaGVmfGVufDB8fHx8MTcwNzU1OTUwOHww&ixlib=rb-4.1.0&q=80&w=400",
+      "imageHint": "female chef"
+    },
+    {
+      "id": "vendor-yoga-teacher-profile",
+      "description": "A male yoga teacher smiling.",
+      "imageUrl": "https://images.unsplash.com/photo-1599566150163-29194dcaad36?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtYWxlJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzA3NTU5NTU3fDA&ixlib=rb-4.1.0&q=80&w=400",
+      "imageHint": "man portrait"
     }
   ]
 }

@@ -9,7 +9,7 @@ const sampleSpace = {
   name: 'The Glass House',
   location: 'Topanga, California',
   capacity: 'Up to 25 guests',
-  image: placeholderImages[6]
+  image: placeholderImages.find(p => p.id === 'modern-event-space')!
 }
 
 const sampleProfile = {
@@ -18,10 +18,14 @@ const sampleProfile = {
   service: 'Luxury Villas & Estates',
   rating: 4.9,
   reviewCount: 42,
-  avatar: placeholderImages[10]
+  avatar: placeholderImages.find(p => p.id === 'space-owner-villa')!
 }
 
 export default function HostPage() {
+  const handleConnect = () => {
+    alert('Connect functionality to be implemented.');
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
@@ -68,7 +72,7 @@ export default function HostPage() {
               <CardDescription>Your identity as a host.</CardDescription>
             </CardHeader>
             <CardContent>
-              <VendorCard vendor={sampleProfile} />
+              <VendorCard vendor={sampleProfile} onConnect={handleConnect}/>
             </CardContent>
           </Card>
         </div>

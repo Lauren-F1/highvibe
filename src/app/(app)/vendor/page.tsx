@@ -12,10 +12,15 @@ const sampleVendor = {
   service: 'Catering & Nutrition',
   rating: 4.9,
   reviewCount: 88,
-  avatar: placeholderImages[7]
+  avatar: placeholderImages.find(p => p.id === 'friendly-host-portrait')!
 };
 
 export default function VendorPage() {
+
+  const handleConnect = () => {
+    alert('Connect functionality to be implemented.');
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
@@ -36,7 +41,7 @@ export default function VendorPage() {
             <CardDescription>This is how guides will see your profile.</CardDescription>
           </CardHeader>
           <CardContent>
-            <VendorCard vendor={sampleVendor} />
+            <VendorCard vendor={sampleVendor} onConnect={handleConnect} />
           </CardContent>
         </Card>
         <Card className="bg-secondary">

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
+import { Mail } from 'lucide-react';
 
 export function Header() {
   return (
@@ -32,6 +33,12 @@ export function Header() {
           </nav>
         </div>
         <div className="flex items-center space-x-2">
+            <Button variant="ghost" size="icon" asChild>
+                <Link href="/inbox">
+                <Mail className="h-5 w-5" />
+                <span className="sr-only">Inbox</span>
+                </Link>
+            </Button>
           <Button variant="ghost">Log In</Button>
           <Button>Sign Up</Button>
         </div>

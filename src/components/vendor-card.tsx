@@ -1,13 +1,14 @@
 'use client';
 
 import Image from 'next/image';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { ImagePlaceholder } from '@/lib/placeholder-images';
+import { Button } from './ui/button';
 
-interface VendorCardProps {
+export interface VendorCardProps {
   vendor: {
     id: string;
     name: string;
@@ -15,13 +16,15 @@ interface VendorCardProps {
     rating: number;
     reviewCount: number;
     avatar: ImagePlaceholder;
+    luxApproved?: boolean;
   };
+  onConnect: () => void;
 }
 
-export function VendorCard({ vendor }: VendorCardProps) {
+export function VendorCard({ vendor, onConnect }: VendorCardProps) {
   return (
-    <Card className="w-full overflow-hidden">
-      <CardContent className="flex items-center gap-4 p-4">
+    <Card className="w-full overflow-hidden flex flex-col h-full">
+      <CardContent className="flex items-center gap-4 p-4 flex-grow">
         <Avatar className="h-16 w-16">
           <AvatarImage 
             src={vendor.avatar.imageUrl} 
@@ -31,7 +34,10 @@ export function VendorCard({ vendor }: VendorCardProps) {
           <AvatarFallback>{vendor.name.charAt(0)}</AvatarFallback>
         </Avatar>
         <div className="flex-grow">
-          <CardTitle className="text-lg">{vendor.name}</CardTitle>
+          <div className="flex justify-between items-start">
+            <CardTitle className="text-lg">{vendor.name}</CardTitle>
+            {vendor.luxApproved && <Image src="/lux.png" alt="LUX Approved" width={28} height={28} />}
+          </div>
           <CardDescription>{vendor.service}</CardDescription>
           <div className="flex items-center mt-1">
             <Rating value={vendor.rating} />
@@ -39,6 +45,9 @@ export function VendorCard({ vendor }: VendorCardProps) {
           </div>
         </div>
       </CardContent>
+      <CardFooter className="p-4 pt-0">
+        <Button onClick={onConnect} className="w-full">Request to Connect</Button>
+      </CardFooter>
     </Card>
   );
 }
