@@ -326,14 +326,14 @@ export default function BillingPage() {
              <div className="space-y-2">
                 <h4 className="font-semibold">Plan Management</h4>
                  <div className="flex flex-wrap gap-2">
-                    {upgradePlan && <Button variant="outline" onClick={() => setModalState({ type: 'upgrade', isOpen: true })}>Upgrade Plan</Button>}
+                    <Button variant="outline" onClick={() => setModalState({ type: 'cancel', isOpen: true })}>Cancel Subscription</Button>
                     {downgradePlan && <Button variant="outline" onClick={() => setModalState({ type: 'downgrade', isOpen: true })}>Downgrade Plan</Button>}
                     {isPaused ? (
                         <Button onClick={handleResume}><PlayCircle className="mr-2"/> Resume Subscription</Button>
                     ) : (
                         <Button variant="ghost" onClick={() => setModalState({ type: 'pause', isOpen: true })}><PauseCircle className="mr-2"/> Pause Subscription</Button>
                     )}
-                    <Button variant="destructive" onClick={() => setModalState({ type: 'cancel', isOpen: true })}>Cancel Subscription</Button>
+                    {upgradePlan && <Button variant="default" onClick={() => setModalState({ type: 'upgrade', isOpen: true })}>Upgrade Plan</Button>}
                 </div>
             </div>
           </CardContent>
