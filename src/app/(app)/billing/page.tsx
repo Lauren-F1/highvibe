@@ -369,39 +369,30 @@ export default function BillingPage() {
         <Card>
             <CardHeader>
                 <CardTitle>Platform Success Fees</CardTitle>
-                 <CardDescription>HighVibe only wins when you win. Our success fees support the systems that bring the right people together and help retreats fill, run smoothly, and deliver exceptional experiences.</CardDescription>
+                 <CardDescription>HighVibe only wins when you win. Instead of taking a big cut upfront like most platforms, we keep the fee simple and small—so you keep more margin while we do the behind-the-scenes work that helps you get booked more often.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
                  <div className="text-base p-4 bg-secondary rounded-md space-y-2">
                     {role === 'host' ? (
                        <p>• <strong>2% platform fee</strong> on bookings confirmed through the platform.</p>
                     ) : role === 'guide' ? (
-                       <p>• <strong>7.5% platform success fee</strong> charged on Day 1 of the retreat start date.</p>
+                       <p>• <strong>7.5% success fee</strong> charged on Day 1 of the retreat start date (only for retreats booked through HighVibe).</p>
                     ) : (
                        <p>• <strong>No transaction fees.</strong> Your subscription covers discovery, matching, and lead generation.</p>
                     )}
                  </div>
-                 <ul className="text-sm space-y-2 text-muted-foreground pl-4">
-                     <li>• Intelligent matching between guides, hosts, and vendors</li>
-                     <li>• Discovery and placement that brings aligned participants</li>
-                     <li>• Trust systems, reputation layers, and LUX evaluation</li>
-                     <li>• Booking infrastructure and operational tooling</li>
-                     <li>• Ongoing platform growth that increases future visibility</li>
+                 <ul className="text-sm space-y-2 text-muted-foreground">
+                    <li>• Visibility + distribution that brings you the right matches (not just more traffic)</li>
+                    <li>• Matching tools that connect Guides, Hosts, and Vendors faster—with less back-and-forth</li>
+                    <li>• Secure in-app messaging, booking flow, and coordination tools</li>
+                    <li>• Trust & quality systems that keep the marketplace strong (reviews, reporting, and standards)</li>
+                    <li>• Ongoing marketing that improves your future bookings over time</li>
                  </ul>
                  {role === 'guide' && (
-                    <div className="p-4 border-l-4 border-primary bg-primary/10 rounded-r-lg">
-                        <p className="font-semibold text-sm">Example:</p>
-                        <p className="text-sm text-muted-foreground">On a $10,000 retreat, the platform fee is $750. In return, you receive end-to-end discovery, partner matching, booking infrastructure, and visibility that would cost significantly more through ads, agencies, or manual outreach.</p>
-                    </div>
+                    <p className="text-xs text-muted-foreground pt-2">
+                        Most platforms make money whether you get results or not. We keep the percentage modest so you can book more, run more retreats, and keep your margins strong.
+                    </p>
                  )}
-                  {role === 'host' && (
-                    <div className="p-4 border-l-4 border-primary bg-primary/10 rounded-r-lg">
-                    </div>
-                 )}
-                  {role === 'vendor' && (
-                    <div className="p-4 border-l-4 border-primary bg-primary/10 rounded-r-lg">
-                    </div>
-                  )}
             </CardContent>
         </Card>
 
@@ -484,9 +475,3 @@ export default function BillingPage() {
     </>
   );
 }
-
-    
-
-    
-
-
