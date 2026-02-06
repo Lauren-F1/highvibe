@@ -320,7 +320,7 @@ export default function BillingPage() {
             </div>
             
             <p className="text-sm text-muted-foreground px-1">
-                “HighVibe is your platform partner in protecting your standards and preserving your margins—so you can focus on delivering experiences that actually matter.”
+                HighVibe is your platform partner in protecting your standards and preserving your margins—so you can focus on delivering experiences that actually matter.
             </p>
 
              <div className="space-y-2">
@@ -475,3 +475,5 @@ export default function BillingPage() {
     </>
   );
 }
+
+    
