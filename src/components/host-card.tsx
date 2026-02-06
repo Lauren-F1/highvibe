@@ -34,16 +34,6 @@ export function HostCard({ host, onConnect }: HostCardProps) {
             fill
             className="object-cover"
         />
-        {host.luxApproved && (
-            <div className="absolute top-3 right-3">
-                 <Image
-                    src="/lux.png"
-                    alt="LUX Approved"
-                    width={36}
-                    height={36}
-                />
-            </div>
-        )}
       </div>
       <CardContent className="p-4 flex-grow flex flex-col">
         <div className="flex-grow">
@@ -61,15 +51,25 @@ export function HostCard({ host, onConnect }: HostCardProps) {
                     <p className="text-xs text-muted-foreground">/ night</p>
                 </div>
             </div>
-            <div className="flex items-center text-sm text-muted-foreground space-x-4 mt-2 border-t pt-2">
-                <div className="flex items-center">
-                    <Users className="mr-1.5 h-4 w-4" />
-                    <span>{host.capacity} guests</span>
+            <div className="flex items-center justify-between text-sm text-muted-foreground mt-2 border-t pt-2">
+                <div className="flex items-center space-x-4">
+                    <div className="flex items-center">
+                        <Users className="mr-1.5 h-4 w-4" />
+                        <span>{host.capacity} guests</span>
+                    </div>
+                    <div className="flex items-center">
+                        <Bed className="mr-1.5 h-4 w-4" />
+                        <span>{host.bedrooms} beds</span>
+                    </div>
                 </div>
-                <div className="flex items-center">
-                    <Bed className="mr-1.5 h-4 w-4" />
-                    <span>{host.bedrooms} beds</span>
-                </div>
+                 {host.luxApproved && (
+                    <Image
+                        src="/lux.png"
+                        alt="LUX Approved"
+                        width={28}
+                        height={28}
+                    />
+                )}
             </div>
         </div>
       </CardContent>
