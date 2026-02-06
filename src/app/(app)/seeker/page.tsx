@@ -137,7 +137,7 @@ export default function SeekerPage() {
                 <Select onValueChange={setSelectedRegion} value={selectedRegion}>
                   <SelectTrigger id="region">
                     <SelectValue placeholder="Select a country or region" />
-                  </Trigger>
+                  </SelectTrigger>
                   <SelectContent>
                     {(destinations[selectedContinent] || []).map(region => (
                       <SelectItem key={region} value={region}>{region}</SelectItem>
