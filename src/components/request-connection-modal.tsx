@@ -15,13 +15,26 @@ interface RequestConnectionModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   name: string;
-  role: 'Host' | 'Vendor';
+  role: 'Host' | 'Vendor' | 'Guide';
 }
 
 export function RequestConnectionModal({ isOpen, onOpenChange, name, role }: RequestConnectionModalProps) {
   const handleSubmit = () => {
     alert('Connection request sent!');
     onOpenChange(false);
+  }
+  
+  const getPlaceholderText = () => {
+    switch (role) {
+        case 'Host':
+            return `Hi ${name}, I'm interested in your space for my upcoming retreat...`;
+        case 'Vendor':
+            return `Hi ${name}, I'm interested in your services for my upcoming retreat...`;
+        case 'Guide':
+            return `Hi ${name}, I think my space would be a great fit for your next retreat...`;
+        default:
+            return `Hi ${name}, I'd like to connect...`;
+    }
   }
   
   return (
@@ -36,9 +49,8 @@ export function RequestConnectionModal({ isOpen, onOpenChange, name, role }: Req
         <div className="py-4 space-y-4">
             <div className="space-y-2">
                 <Label htmlFor="message">Message</Label>
-                <Textarea id="message" placeholder={`Hi ${name}, I\'m interested in your ${role === 'Host' ? 'space' : 'services'} for my upcoming retreat...`} rows={5} />
+                <Textarea id="message" placeholder={getPlaceholderText()} rows={5} />
             </div>
-            {/* Other fields like dates, headcount would go here */}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
