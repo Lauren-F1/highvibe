@@ -21,7 +21,7 @@
     {
       "id": "cozy-cabin",
       "description": "The warm and inviting interior of a rustic cabin with a fireplace.",
-      "imageUrl": "https://images.unsplash.com/photo-1487695652027-48e475bfa86f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxjYWJpbiUyMGludGVyaW9yfGVufDB8fHx8MTc3MDAyMzQ1OHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1487695652027-48e475bfa86f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxjYWJpbiUyMGludGVyaW9yfGVufDB8fHx8fDE3NzAwMjM0NTh8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "cabin interior"
     },
     {
@@ -45,7 +45,7 @@
     {
       "id": "friendly-host-portrait",
       "description": "A welcoming portrait of a retreat host.",
-      "imageUrl": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHx3b21hbiUyMHBvcnRyYWl0fGVufDB8fHx8MTc3MDAxODk3OXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHx3b21hbiUyMHBvcnRyYWl0fGVufDB8fHx8fDE3NzAwMTg5NzN8MA&ixlib=rb-4.1.0&q=80&w=400",
       "imageHint": "woman portrait"
     },
     {
@@ -74,15 +74,15 @@
     },
     {
       "id": "host-bali-villa",
-      "description": "An open-air luxury villa in Bali with a pool and jungle view.",
-      "imageUrl": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxiYWxpJTIwdmlsbGF8ZW58MHx8fHwxNzA3NTU5MjI4fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "bali villa"
-    },
-    {
-      "id": "host-kyoto-ryokan",
       "description": "A traditional Japanese ryokan with a serene garden in Kyoto.",
       "imageUrl": "https://images.unsplash.com/photo-1582719508461-905c673771fd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxKYXBhbiUyMGhvdGVsJTIwaW50ZXJpb3J8ZW58MHx8fHwxNzA3NTU5MzA5fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "japan interior"
+    },
+    {
+      "id": "host-kyoto-ryokan",
+      "description": "An open-air luxury villa in Bali with a pool and jungle view.",
+      "imageUrl": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxiYWxpJTIwdmlsbGF8ZW58MHx8fHwxNzA3NTU5MjI4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "bali villa"
     },
     {
       "id": "host-peru-hacienda-bright",
@@ -92,14 +92,14 @@
     },
     {
       "id": "host-tuscany-farmhouse-bright",
-      "description": "A classic Tuscan farmhouse overlooking rolling hills and vineyards, bathed in bright sunlight.",
-      "imageUrl": "https://images.unsplash.com/photo-1564553224853-f665511e4917?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxiaWdndCUyMGx1eHVyeSUyMHR1c2NhbiUyMHZpbGxhJTIwZXh0ZXJpb3J8ZW58MHx8fHwxNzA3NTYwMDIzfDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "tuscany villa bright"
+      "description": "A rustic but charming winery in Tuscany at sunset, with warm light over the vineyards.",
+      "imageUrl": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxydXN0aWMlMjB0dXNjYW4lMjB3aW5lcnklMjBzdW5zZXR8ZW58MHx8fHwxNzA3NTYwMDIzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "tuscan winery sunset"
     },
     {
       "id": "vendor-chef-profile",
       "description": "A smiling female chef in a professional kitchen.",
-      "imageUrl": "https://images.unsplash.com/photo-1556911220-bff31c812dba?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmZW1hbGUlMjBjaGVmfGVufDB8fHx8MTcwNzU1OTUwOHww&ixlib=rb-4.1.0&q=80&w=400",
+      "imageUrl": "https://images.unsplash.com/photo-1556911220-bff31c812dba?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmZW1hbGUlMjBjaGVmfGVufDB8fHx8fDE3MDc1NTk1MDh8MA&ixlib=rb-4.1.0&q=80&w=400",
       "imageHint": "female chef"
     },
     {
@@ -113,6 +113,18 @@
       "description": "A High Vibe Retreats placeholder image.",
       "imageUrl": "https://images.unsplash.com/photo-1635082946283-9cff3600b5ae?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxyZXRyZWF0JTIwc3BhY2V8ZW58MHx8fHwxNzcwMzkyMTEwfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "retreat space"
+    },
+    {
+      "id": "profile-avatar-placeholder",
+      "description": "A placeholder image for a user's profile avatar.",
+      "imageUrl": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "imageHint": "woman portrait"
+    },
+    {
+      "id": "tuscan-culinary-journey",
+      "description": "A classic Tuscan farmhouse overlooking rolling hills and vineyards, bathed in bright sunlight.",
+      "imageUrl": "https://images.unsplash.com/photo-1564553224853-f665511e4917?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxiaWdndCUyMGx1eHVyeSUyMHR1c2NhbiUyMHZpbGxhJTIwZXh0ZXJpb3J8ZW58MHx8fHwxNzA3NTYwMDIzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "tuscany villa bright"
     }
   ]
 }
