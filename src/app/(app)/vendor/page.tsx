@@ -1,69 +1,215 @@
-"use client";
 
+"use client";
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { VendorCard } from '@/components/vendor-card';
-import { placeholderImages } from '@/lib/placeholder-images';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Eye, Users, MessageSquare, CheckCircle, DollarSign, MoreHorizontal } from 'lucide-react';
+import { PaywallModal } from '@/components/paywall-modal';
+import { RequestConnectionModal } from '@/components/request-connection-modal';
+import { yourServices, matchingGuidesForVendor, matchingHostsForVendor } from '@/lib/mock-data';
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { GuideCard, type Guide } from '@/components/guide-card';
+import { HostCard, type Host } from '@/components/host-card';
+import { VendorGuideFilters } from '@/components/vendor-guide-filters';
+import { VendorHostFilters } from '@/components/vendor-host-filters';
 
-const sampleVendor = {
-  id: '1',
-  name: 'Elena Ray',
-  service: 'Catering & Nutrition',
-  rating: 4.9,
-  reviewCount: 88,
-  avatar: placeholderImages.find(p => p.id === 'friendly-host-portrait')!
-};
+interface StatCardProps {
+  title: string;
+  value: string;
+  icon: React.ReactNode;
+  description: string;
+}
+
+function StatCard({ title, value, icon, description }: StatCardProps) {
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        {icon}
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">{value}</div>
+        <p className="text-xs text-muted-foreground">{description}</p>
+      </CardContent>
+    </Card>
+  );
+}
+
 
 export default function VendorPage() {
+  const [isPaywallOpen, setPaywallOpen] = useState(false);
+  const [connectionModal, setConnectionModal] = useState<{isOpen: boolean, name: string, role: 'Host' | 'Vendor' | 'Guide'}>({isOpen: false, name: '', role: 'Guide'});
 
-  const handleConnect = () => {
-    alert('Connect functionality to be implemented.');
-  };
+  const handleConnectClick = (name: string, role: 'Host' | 'Vendor' | 'Guide') => {
+    setConnectionModal({ isOpen: true, name, role });
+  }
+
+  const handleAddNewService = () => {
+    alert("Navigate to 'Add New Service' page.");
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
+      <PaywallModal isOpen={isPaywallOpen} onOpenChange={setPaywallOpen} />
+      <RequestConnectionModal 
+        isOpen={connectionModal.isOpen} 
+        onOpenChange={(val) => setConnectionModal({...connectionModal, isOpen: val})} 
+        name={connectionModal.name} 
+        role={connectionModal.role} 
+      />
+      
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div>
-          <h1 className="font-headline text-4xl md:text-5xl font-bold">Grow Your Business</h1>
-          <p className="text-muted-foreground mt-2 text-lg font-body">Offer the elements that make retreats unforgettable, from private chefs and musicians to transportation, photography, wellness, and bespoke experiences.</p>
+          <h1 className="font-headline text-4xl md:text-5xl font-bold">Vendor Dashboard</h1>
+          <p className="text-muted-foreground mt-2 text-lg font-body">Manage your services, find opportunities, and grow your business.</p>
         </div>
-        <Button size="lg" className="mt-4 md:mt-0">
+        <Button size="lg" className="mt-4 md:mt-0" onClick={handleAddNewService}>
           <PlusCircle className="mr-2 h-5 w-5" />
-          Create Your Profile
+          Add New Service
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="mb-12">
+        <h2 className="text-2xl font-bold tracking-tight mb-4 font-headline">Your Performance</h2>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+            <StatCard title="Profile Views" value="1.2k" icon={<Eye className="h-4 w-4 text-muted-foreground" />} description="in the last 30 days" />
+            <StatCard title="Connection Requests" value="+23" icon={<Users className="h-4 w-4 text-muted-foreground" />} description="in the last 30 days" />
+            <StatCard title="Active Conversations" value="8" icon={<MessageSquare className="h-4 w-4 text-muted-foreground" />} description="Awaiting your response" />
+            <StatCard title="Bookings Confirmed" value="5" icon={<CheckCircle className="h-4 w-4 text-muted-foreground" />} description="in the last 90 days" />
+            <StatCard title="Total Earnings" value="$12,845" icon={<DollarSign className="h-4 w-4 text-muted-foreground" />} description="All-time earnings" />
+        </div>
+      </div>
+
+      <Card className="mb-12">
+        <CardHeader>
+          <CardTitle>Your Services</CardTitle>
+          <CardDescription>Manage your offered services and availability.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Service</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Service Area</TableHead>
+                <TableHead>Starting Price</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="w-[100px] text-center">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {yourServices.map((service) => (
+                <TableRow key={service.id}>
+                  <TableCell className="font-medium">{service.name}</TableCell>
+                  <TableCell>{service.category}</TableCell>
+                  <TableCell>{service.serviceArea}</TableCell>
+                  <TableCell>${service.startingPrice}</TableCell>
+                   <TableCell>
+                    <Badge variant={service.status === 'Active' ? 'default' : 'secondary'}>{service.status}</Badge>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4"/></Button>
+                      </DropdownMenuTrigger>
+                       <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => alert('Edit clicked')}>Edit Service</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => alert('Update availability clicked')}>Update Availability</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => alert('Pause listing clicked')}>Pause Listing</DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <div id="matches-section" className="mb-12">
         <Card>
-          <CardHeader>
-            <CardTitle>Profile Preview</CardTitle>
-            <CardDescription>This is how guides will see your profile.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <VendorCard vendor={sampleVendor} onConnect={handleConnect} />
-          </CardContent>
-        </Card>
-        <Card className="bg-secondary">
-          <CardHeader>
-            <CardTitle>How it Works</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 text-muted-foreground font-body">
-            <div className="flex items-start gap-4">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold">1</div>
-              <p>Create your vendor profile highlighting your skills and pricing.</p>
-            </div>
-            <div className="flex items-start gap-4">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold">2</div>
-              <p>Get discovered by retreat guides looking for your services.</p>
-            </div>
-            <div className="flex items-start gap-4">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold">3</div>
-              <p>Communicate and get hired directly through the platform.</p>
-            </div>
-          </CardContent>
+            <CardHeader>
+                <CardTitle className="font-headline text-3xl">Matches for You</CardTitle>
+                <CardDescription className="font-body text-base">Find the right guides and hosts to partner with.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                 <Tabs defaultValue="guides">
+                    <TabsList className="grid w-full grid-cols-2 bg-primary text-primary-foreground">
+                        <TabsTrigger value="guides">Guides (Retreat Leaders)</TabsTrigger>
+                        <TabsTrigger value="hosts">Hosts (Local Spaces)</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="guides" className="mt-6">
+                        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                            <div className="lg:col-span-1">
+                                <VendorGuideFilters />
+                            </div>
+                            <div className="lg:col-span-3">
+                                <div className="flex justify-between items-center mb-4">
+                                    <h3 className="font-headline text-2xl">Recommended Guides</h3>
+                                    <Select defaultValue="recommended">
+                                        <SelectTrigger className="w-[180px]">
+                                            <SelectValue placeholder="Sort by" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="recommended">Recommended</SelectItem>
+                                            <SelectItem value="rating">Highest rated</SelectItem>
+                                            <SelectItem value="newest">Newest</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {matchingGuidesForVendor.map(guide => <GuideCard key={guide.id} guide={guide} onConnect={() => handleConnectClick(guide.name, 'Guide')} />)}
+                                </div>
+                            </div>
+                        </div>
+                    </TabsContent>
+                    <TabsContent value="hosts" className="mt-6">
+                       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                            <div className="lg:col-span-1">
+                                <VendorHostFilters />
+                            </div>
+                            <div className="lg:col-span-3">
+                                 <div className="flex justify-between items-center mb-4">
+                                    <h3 className="font-headline text-2xl">Find Local Space Partners</h3>
+                                    <Select defaultValue="recommended">
+                                        <SelectTrigger className="w-[180px]">
+                                            <SelectValue placeholder="Sort by" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="recommended">Recommended</SelectItem>
+                                            <SelectItem value="price-asc">Price (low to high)</SelectItem>
+                                            <SelectItem value="price-desc">Price (high to low)</SelectItem>
+                                            <SelectItem value="rating">Highest rated</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                 </div>
+                                 <p className="text-muted-foreground mb-4">Discover local spaces to partner with.</p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {matchingHostsForVendor.map(host => <HostCard key={host.id} host={host} onConnect={() => handleConnectClick(host.name, 'Host')} />)}
+                                </div>
+                            </div>
+                        </div>
+                    </TabsContent>
+                </Tabs>
+            </CardContent>
         </Card>
       </div>
+      
+       <Card>
+        <CardHeader>
+            <CardTitle>Local Partnerships</CardTitle>
+            <CardDescription>Create suggested retreat packages for guides by bundling your services with preferred local hosts.</CardDescription>
+        </CardHeader>
+        <CardContent className="text-center text-muted-foreground py-12">
+            <p>(Coming Soon)</p>
+            <Button className="mt-4" variant="secondary">Manage Packaged Services</Button>
+        </CardContent>
+      </Card>
+
     </div>
   );
 }
