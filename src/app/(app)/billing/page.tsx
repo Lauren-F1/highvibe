@@ -321,7 +321,7 @@ export default function BillingPage() {
                         {currentPlan.name}
                         <Badge variant={isPaused ? 'secondary' : 'default'}>{isPaused ? 'Paused' : 'Active'}</Badge>
                     </h3>
-                    <p className="text-muted-foreground">{isPaused ? 'Resumes upon request.' : 'Renews on July 30, 2024.'}</p>
+                    <p className="text-muted-foreground">{isPaused ? 'Resumes upon request.' : 'Renews on July 30, 2027.'}</p>
                 </div>
                 <div className="text-right mt-2 md:mt-0">
                     <p className="text-2xl font-bold">${currentPlan.price}/mo</p>
@@ -329,7 +329,7 @@ export default function BillingPage() {
             </div>
             
             <p className="text-sm text-muted-foreground px-1">
-                HighVibe is your platform partner in protecting your standards and preserving your margins—so you can focus on delivering experiences that actually matter.
+                HighVibe is your platform partner in protecting your standards and preserving your margins, so you can focus on delivering experiences that actually matter.
             </p>
 
              <div className="space-y-2">
@@ -488,4 +488,5 @@ export default function BillingPage() {
     
 
     
+
 
