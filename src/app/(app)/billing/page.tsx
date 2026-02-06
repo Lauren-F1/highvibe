@@ -367,10 +367,7 @@ export default function BillingPage() {
                     {role === 'host' ? (
                        <p>• <strong>2% platform fee</strong> on bookings confirmed through the platform.</p>
                     ) : role === 'guide' ? (
-                       <>
-                        <p>• <strong>2% facilitation fee</strong> when a retreat is booked through the platform.</p>
-                        <p>• <strong>7.5% platform success fee</strong> charged on Day 1 of the retreat start date.</p>
-                       </>
+                       <p>• <strong>7.5% platform success fee</strong> charged on Day 1 of the retreat start date.</p>
                     ) : (
                        <p>• <strong>No transaction fees.</strong> Your subscription covers discovery, matching, and lead generation.</p>
                     )}
