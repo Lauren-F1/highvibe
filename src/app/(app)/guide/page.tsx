@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -106,6 +107,7 @@ export default function GuidePage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[80px]"></TableHead>
                 <TableHead>Retreat</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Bookings</TableHead>
@@ -116,6 +118,17 @@ export default function GuidePage() {
             <TableBody>
               {yourRetreats.map((retreat) => (
                 <TableRow key={retreat.id} className="cursor-pointer" onClick={() => router.push(`/guide/retreats/${retreat.id}`)}>
+                  <TableCell>
+                    <div className="relative h-12 w-12 rounded-md overflow-hidden">
+                      <Image
+                        src={retreat.image.imageUrl}
+                        alt={retreat.image.description}
+                        data-ai-hint={retreat.image.imageHint}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  </TableCell>
                   <TableCell className="font-medium">{retreat.name}</TableCell>
                   <TableCell>
                     <Badge variant={retreat.status === 'Published' ? 'default' : 'secondary'}>{retreat.status}</Badge>
