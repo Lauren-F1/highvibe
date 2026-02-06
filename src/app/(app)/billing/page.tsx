@@ -285,9 +285,8 @@ export default function BillingPage() {
         )}
       <div className="max-w-5xl mx-auto space-y-12">
         <div className="text-center">
-            <h1 className="font-headline text-4xl font-bold">Billing & Plan</h1>
-            <p className="text-muted-foreground mt-2">Manage your subscription and see how your plan works.</p>
-            <p className="text-sm text-muted-foreground mt-1">You’re viewing your <span className="capitalize font-semibold">{role}</span> plan.</p>
+            <h1 className="font-headline text-4xl font-bold tracking-tight">HighVibe Partnership</h1>
+            <p className="text-muted-foreground mt-2 text-lg">Everything you need to build, connect, get booked, and grow.</p>
              <Tabs value={role} onValueChange={(value) => setRole(value as UserRole)} className="mt-6 max-w-sm mx-auto">
                 <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="guide">Guide</TabsTrigger>
@@ -390,6 +389,10 @@ export default function BillingPage() {
                     <div className="p-4 border-l-4 border-primary bg-primary/10 rounded-r-lg">
                     </div>
                  )}
+                  {role === 'vendor' && (
+                    <div className="p-4 border-l-4 border-primary bg-primary/10 rounded-r-lg">
+                    </div>
+                  )}
             </CardContent>
         </Card>
 
@@ -472,5 +475,3 @@ export default function BillingPage() {
     </>
   );
 }
-
-    
