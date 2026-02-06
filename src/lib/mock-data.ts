@@ -26,7 +26,7 @@ export interface Vendor {
     service: string;
     rating: number;
     reviewCount: number;
-    avatar: ImagePlaceholder;
+    avatar?: ImagePlaceholder;
     luxApproved: boolean;
     location: string;
 }

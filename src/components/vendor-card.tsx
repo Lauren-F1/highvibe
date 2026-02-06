@@ -5,31 +5,29 @@ import { Card, CardContent, CardDescription, CardFooter, CardTitle } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { ImagePlaceholder } from '@/lib/placeholder-images';
 import { Button } from './ui/button';
+import type { Vendor } from '@/lib/mock-data';
+import { placeholderImages } from '@/lib/placeholder-images';
+
 
 export interface VendorCardProps {
-  vendor: {
-    id: string;
-    name: string;
-    service: string;
-    rating: number;
-    reviewCount: number;
-    avatar: ImagePlaceholder;
-    luxApproved?: boolean;
-  };
+  vendor: Vendor;
   onConnect?: () => void;
 }
 
+const defaultAvatar = placeholderImages.find(p => p.id === 'friendly-host-portrait')!;
+
 export function VendorCard({ vendor, onConnect }: VendorCardProps) {
+  const avatar = vendor.avatar || defaultAvatar;
+
   return (
     <Card className="w-full overflow-hidden flex flex-col h-full">
       <CardContent className="flex items-center gap-4 p-4 flex-grow">
         <Avatar className="h-16 w-16">
           <AvatarImage 
-            src={vendor.avatar.imageUrl} 
+            src={avatar.imageUrl} 
             alt={vendor.name} 
-            data-ai-hint={vendor.avatar.imageHint}
+            data-ai-hint={avatar.imageHint}
           />
           <AvatarFallback>{vendor.name.charAt(0)}</AvatarFallback>
         </Avatar>

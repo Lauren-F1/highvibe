@@ -13,32 +13,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { yourRetreats, hosts, vendors, UserSubscriptionStatus } from '@/lib/mock-data';
 import { PaywallModal } from '@/components/paywall-modal';
 import { RequestConnectionModal } from '@/components/request-connection-modal';
-import { HostCard, Host } from '@/components/host-card';
+import { HostCard } from '@/components/host-card';
 import { VendorCard } from '@/components/vendor-card';
 import type { Vendor } from '@/lib/mock-data';
+import { HostFilters } from '@/components/host-filters';
+import { VendorFilters } from '@/components/vendor-filters';
 
-// --- Filter Components ---
-
-function HostFilters() {
-    return (
-        <div className="p-4 border rounded-lg space-y-4">
-             <h3 className="font-headline text-lg font-semibold">Filter Spaces</h3>
-            {/* Add filter controls here: Sliders, Checkboxes, etc. */}
-            <p className="text-sm text-muted-foreground">Host filters coming soon.</p>
-        </div>
-    )
-}
-
-function VendorFilters() {
-    return (
-        <div className="p-4 border rounded-lg space-y-4">
-            <h3 className="font-headline text-lg font-semibold">Filter Services</h3>
-            <p className="text-sm text-muted-foreground">Vendor filters coming soon.</p>
-        </div>
-    )
-}
-
-// --- Main Dashboard Page ---
 
 export default function GuidePage() {
   const router = useRouter();
@@ -55,7 +35,7 @@ export default function GuidePage() {
     }
   };
 
-  const handleMatchMeClick = (retreatId: string) => {
+  const handleRefineMatchesClick = (retreatId: string) => {
     setActiveRetreatId(retreatId);
     // smoothly scroll to the matches section
     document.getElementById('matches-section')?.scrollIntoView({ behavior: 'smooth' });
@@ -136,7 +116,7 @@ export default function GuidePage() {
                   <TableCell className="text-right">{retreat.bookings}</TableCell>
                   <TableCell className="text-right">${retreat.income.toLocaleString()}</TableCell>
                   <TableCell className="text-right space-x-2">
-                    <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); handleMatchMeClick(retreat.id); }}>Match me</Button>
+                    <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); handleRefineMatchesClick(retreat.id); }}>Refine Matches</Button>
                     <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}><MoreHorizontal className="h-4 w-4"/></Button>
                   </TableCell>
                 </TableRow>

@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { MapPin, Users, Bed } from 'lucide-react';
 import type { ImagePlaceholder } from '@/lib/placeholder-images';
 import { Button } from './ui/button';
+import { placeholderImages } from '@/lib/placeholder-images';
 
 export interface Host {
   id: string;
@@ -14,7 +15,7 @@ export interface Host {
   bedrooms: number;
   pricePerNight: number;
   propertyType: string;
-  image: ImagePlaceholder;
+  image?: ImagePlaceholder;
   luxApproved: boolean;
 }
 
@@ -23,14 +24,18 @@ interface HostCardProps {
   onConnect: () => void;
 }
 
+const defaultImage = placeholderImages.find(p => p.id === 'generic-placeholder')!;
+
+
 export function HostCard({ host, onConnect }: HostCardProps) {
+  const image = host.image || defaultImage;
   return (
     <Card className="w-full overflow-hidden transition-shadow duration-300 hover:shadow-xl flex flex-col h-full">
       <div className="relative aspect-[4/3] w-full">
          <Image
-            src={host.image.imageUrl}
-            alt={host.image.description}
-            data-ai-hint={host.image.imageHint}
+            src={image.imageUrl}
+            alt={image.description}
+            data-ai-hint={image.imageHint}
             fill
             className="object-cover"
         />
