@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -326,6 +327,7 @@ export default function BillingPage() {
              <div className="space-y-2">
                 <h4 className="font-semibold">Plan Management</h4>
                  <div className="flex flex-wrap gap-2">
+                    {upgradePlan && <Button variant="default" size="lg" onClick={() => setModalState({ type: 'upgrade', isOpen: true })}>Upgrade Plan</Button>}
                     <Button variant="outline" onClick={() => setModalState({ type: 'cancel', isOpen: true })}>Cancel Subscription</Button>
                     {downgradePlan && <Button variant="outline" onClick={() => setModalState({ type: 'downgrade', isOpen: true })}>Downgrade Plan</Button>}
                     {isPaused ? (
@@ -333,7 +335,6 @@ export default function BillingPage() {
                     ) : (
                         <Button variant="ghost" onClick={() => setModalState({ type: 'pause', isOpen: true })}><PauseCircle className="mr-2"/> Pause Subscription</Button>
                     )}
-                    {upgradePlan && <Button variant="default" onClick={() => setModalState({ type: 'upgrade', isOpen: true })}>Upgrade Plan</Button>}
                 </div>
             </div>
           </CardContent>
@@ -383,6 +384,10 @@ export default function BillingPage() {
                     <div className="p-4 border-l-4 border-primary bg-primary/10 rounded-r-lg">
                         <p className="font-semibold text-sm">Example:</p>
                         <p className="text-sm text-muted-foreground">“On a $10,000 retreat, the platform fee is $750. In return, you receive end-to-end discovery, partner matching, booking infrastructure, and visibility that would cost significantly more through ads, agencies, or manual outreach.”</p>
+                    </div>
+                 )}
+                  {role === 'host' && (
+                    <div className="p-4 border-l-4 border-primary bg-primary/10 rounded-r-lg">
                     </div>
                  )}
             </CardContent>
@@ -467,3 +472,5 @@ export default function BillingPage() {
     </>
   );
 }
+
+    
