@@ -145,7 +145,7 @@ export default function SeekerPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2 md:col-span-2 lg:col-span-1">
+              <div className="space-y-2">
                  <Label htmlFor="price">Investment Range</Label>
                  <Select>
                    <SelectTrigger id="price">
@@ -158,11 +158,11 @@ export default function SeekerPage() {
                    </SelectContent>
                  </Select>
                </div>
-               <Button size="lg" className="w-full md:col-span-full">Explore Experiences</Button>
+               <Button size="lg" className="w-full md:col-span-2 lg:col-span-2">Explore Experiences</Button>
             </>
           ) : (
              <>
-                <div className="space-y-2">
+                <div className="space-y-2 md:col-span-2 lg:col-span-1">
                     <Label htmlFor="price">Investment Range</Label>
                     <Select>
                     <SelectTrigger id="price">
@@ -175,7 +175,7 @@ export default function SeekerPage() {
                     </SelectContent>
                     </Select>
                 </div>
-                <Button size="lg" className="w-full md:col-span-2 lg:col-span-1">Explore Experiences</Button>
+                <Button size="lg" className="w-full md:col-span-2 lg:col-span-3">Explore Experiences</Button>
             </>
           )}
         </div>
