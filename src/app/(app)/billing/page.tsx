@@ -114,7 +114,7 @@ export default function BillingPage() {
           </CardContent>
           <CardFooter>
             <div className="flex items-center space-x-2 p-4 border rounded-lg bg-background w-full">
-                <Switch id="lux-opt-in" />
+                <Switch id="lux-opt-in" className="data-[state=checked]:border-black"/>
                 <Label htmlFor="lux-opt-in" className="text-base">Opt in for LUX consideration eligibility.</Label>
             </div>
           </CardFooter>
