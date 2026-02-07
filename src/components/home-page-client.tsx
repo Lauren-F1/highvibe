@@ -14,15 +14,15 @@ function RoleCard({ href, icon, primaryLabel, title, description }: RoleCardProp
   return (
     <Link href={href} className="group">
       <Card className="h-full w-full transition-all duration-300 ease-in-out hover:shadow-xl hover:border-primary/75">
-        <CardHeader className="items-center text-center p-4">
+        <CardHeader className="items-center text-center p-6">
           <CardTitle className="font-headline text-4xl text-beige tracking-wider">{primaryLabel}</CardTitle>
-          <div className="h-28 flex items-center justify-center my-2">
+          <div className="flex items-center justify-center my-4">
             {icon}
           </div>
-          <h3 className="font-body text-lg !mt-0 text-foreground">{title}</h3>
+          <h3 className="font-body text-base !mt-0 text-foreground">{title}</h3>
         </CardHeader>
-        <CardContent className="text-center px-4 pb-4 pt-0">
-          <CardDescription className="font-body text-xs leading-snug text-muted-foreground">{description}</CardDescription>
+        <CardContent className="text-center px-6 pb-6 pt-0">
+          <CardDescription className="font-body text-xs leading-relaxed text-muted-foreground">{description}</CardDescription>
         </CardContent>
       </Card>
     </Link>
@@ -69,28 +69,28 @@ export default function HomePageClient() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full max-w-7xl">
         <RoleCard
           href="/seeker"
-          icon={<SeekerIcon className="w-36 h-36 text-primary" />}
+          icon={<SeekerIcon className="w-24 h-24 text-primary" />}
           primaryLabel="Seeker"
           title="I’m Seeking a Retreat"
           description="I’m looking to attend a retreat! Whether for leadership, wellness, creativity, healing, or personal growth, I want to discover meaningful experiences and be notified when retreats that match what I’m seeking become available."
         />
         <RoleCard
           href="/guide"
-          icon={<HostIcon className="w-36 h-36 text-primary" />}
+          icon={<HostIcon className="w-24 h-24 text-primary" />}
           primaryLabel="Guide"
           title="I’m Hosting a Retreat"
           description="I’m creating and leading a retreat experience. I want to find the right space, connect with aligned seekers, and partner with trusted vendors to bring the full vision to life."
         />
         <RoleCard
           href="/vendor"
-          icon={<VendorIcon className="w-36 h-36 text-primary" />}
+          icon={<VendorIcon className="w-24 h-24 text-primary" />}
           primaryLabel="Vendor"
           title="I’m Offering Retreat Services"
           description="I offer services that make retreats unforgettable — from private chefs and photographers to wellness, music, transportation, and local experiences. I want to be discovered by guides and hosts who need what I do."
         />
         <RoleCard
           href="/host"
-          icon={<SpaceOwnerIcon className="w-28 h-28 text-primary" />}
+          icon={<SpaceOwnerIcon className="w-20 h-20 text-primary" />}
           primaryLabel="Host"
           title="I’m Listing a Retreat Space"
           description="I have a property that can host retreats, gatherings, and immersive experiences. I want to connect with guides seeking a beautiful space that fits their retreat vision."
