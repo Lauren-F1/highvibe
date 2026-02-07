@@ -7,16 +7,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RetreatCard } from '@/components/retreat-card';
 import { placeholderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
+// Original Data - should not be mutated
 const retreats = [
-  { id: '1', title: 'Serene Yoga Escape', description: 'A grounding escape designed for deep rest, clarity, and reconnection.', location: 'Bali, Indonesia', price: 400, rating: 4.8, image: placeholderImages.find(p => p.id === 'yoga-beach')! },
-  { id: '2', title: 'Forest Bathing & Mindfulness', description: 'An invitation to slow down, awaken your senses, and find presence in the heart of nature.', location: 'Kyoto, Japan', price: 550, rating: 4.9, image: placeholderImages.find(p => p.id === 'meditation-forest')! },
-  { id: '3', title: 'Andean Peaks Adventure', description: 'For those who crave altitude and challenge, this is an ascent into unforgettable landscapes.', location: 'Cusco, Peru', price: 1200, rating: 5.0, image: placeholderImages.find(p => p.id === 'mountain-hike')! },
-  { id: '4', title: 'Cozy Writer\'s Retreat', description: 'A quiet sanctuary designed for the creative soul, where inspiration flows and your next story awaits.', location: 'Vermont, USA', price: 350, rating: 4.7, image: placeholderImages.find(p => p.id === 'cozy-cabin')! },
-  { id: '5', title: 'Gourmet Wellness Journey', description: 'A culinary journey to nourish and delight, designed to celebrate vibrant, wholesome food and mindful eating.', location: 'Tuscany, Italy', price: 750, rating: 4.9, image: placeholderImages.find(p => p.id === 'healthy-food-chef')! },
-  { id: '6', title: 'Ultimate Spa & Relaxation', description: 'Your permission to completely unwind. A week of pure indulgence and restorative care designed for total rejuvenation.', location: 'Phuket, Thailand', price: 600, rating: 4.8, image: placeholderImages.find(p => p.id === 'spa-massage')! },
+  { id: '1', title: 'Serene Yoga Escape', description: 'A grounding escape designed for deep rest, clarity, and reconnection.', location: 'Bali, Indonesia', price: 400, rating: 4.8, image: placeholderImages.find(p => p.id === 'yoga-beach')!, type: ['yoga-meditation', 'rest-reset', 'wellness-healing'] },
+  { id: '2', title: 'Forest Bathing & Mindfulness', description: 'An invitation to slow down, awaken your senses, and find presence in the heart of nature.', location: 'Kyoto, Japan', price: 550, rating: 4.9, image: placeholderImages.find(p => p.id === 'meditation-forest')!, type: ['nature-immersion', 'yoga-meditation', 'rest-reset'] },
+  { id: '3', title: 'Andean Peaks Adventure', description: 'For those who crave altitude and challenge, this is an ascent into unforgettable landscapes.', location: 'Cusco, Peru', price: 1200, rating: 5.0, image: placeholderImages.find(p => p.id === 'mountain-hike')!, type: ['adventure-aliveness', 'nature-immersion'] },
+  { id: '4', title: 'Cozy Writer\'s Retreat', description: 'A quiet sanctuary designed for the creative soul, where inspiration flows and your next story awaits.', location: 'Vermont, USA', price: 350, rating: 4.7, image: placeholderImages.find(p => p.id === 'cozy-cabin')!, type: ['creativity-expression', 'personal-growth-self-development'] },
+  { id: '5', title: 'Gourmet Wellness Journey', description: 'A culinary journey to nourish and delight, designed to celebrate vibrant, wholesome food and mindful eating.', location: 'Tuscany, Italy', price: 750, rating: 4.9, image: placeholderImages.find(p => p.id === 'healthy-food-chef')!, type: ['wellness-healing', 'creativity-expression'] },
+  { id: '6', title: 'Ultimate Spa & Relaxation', description: 'Your permission to completely unwind. A week of pure indulgence and restorative care designed for total rejuvenation.', location: 'Phuket, Thailand', price: 600, rating: 4.8, image: placeholderImages.find(p => p.id === 'spa-massage')!, type: ['rest-reset', 'wellness-healing'] },
 ];
 
 const experienceTypes = [
@@ -48,10 +49,10 @@ const continents = [
 
 const destinations: Record<string, string[]> = {
   africa: ['Morocco', 'South Africa', 'Kenya', 'Tanzania', 'Egypt', 'Namibia', 'Rwanda', 'Seychelles'],
-  asia: ['Bali, Indonesia', 'Thailand', 'Japan', 'India', 'Nepal', 'Sri Lanka', 'Vietnam', 'Cambodia', 'Philippines', 'Bhutan'],
-  europe: ['Italy', 'France', 'Portugal', 'Spain', 'Greece', 'Switzerland', 'Austria', 'Iceland', 'Croatia', 'United Kingdom'],
+  asia: ['Bali, Indonesia', 'Thailand', 'Japan', 'India', 'Nepal', 'Sri Lanka', 'Vietnam', 'Cambodia', 'Philippines', 'Bhutan', 'Phuket, Thailand', 'Kyoto, Japan'],
+  europe: ['Italy', 'France', 'Portugal', 'Spain', 'Greece', 'Switzerland', 'Austria', 'Iceland', 'Croatia', 'United Kingdom', 'Tuscany, Italy'],
   'north-america': ['California, USA', 'Utah, USA', 'Arizona, USA', 'Colorado, USA', 'Vermont, USA', 'British Columbia, Canada', 'Baja California, Mexico', 'Costa Rica'],
-  'south-america': ['Peru', 'Colombia', 'Brazil', 'Argentina', 'Chile', 'Ecuador', 'Patagonia (Region)'],
+  'south-america': ['Peru', 'Colombia', 'Brazil', 'Argentina', 'Chile', 'Ecuador', 'Patagonia (Region)', 'Cusco, Peru'],
   oceania: ['New Zealand', 'Australia', 'Fiji', 'Tahiti (French Polynesia)', 'Hawaii, USA'],
   'middle-east': ['Jordan', 'Oman', 'United Arab Emirates', 'Turkey', 'Israel', 'Lebanon'],
 };
@@ -66,7 +67,7 @@ const investmentRanges = [
   { value: "15000-30000", label: "$15,000–$30,000" },
   { value: "30000-50000", label: "$30,000–$50,000" },
   { value: "50000-100000", label: "$50,000–$100,000" },
-  { value: "over-100000", label: "$100,000+" },
+  { value: "over-100000", label: "Over $100,000" },
 ];
 
 const timingOptions = [
@@ -76,14 +77,90 @@ const timingOptions = [
   { value: 'exploring', label: 'Just exploring' }
 ];
 
+const parsePriceRange = (rangeValue: string) => {
+    if (rangeValue === 'any') return { min: 0, max: Infinity };
+    if (rangeValue.startsWith('under-')) {
+        const max = parseInt(rangeValue.replace('under-', ''), 10);
+        return { min: 0, max: max };
+    }
+    if (rangeValue.startsWith('over-')) {
+        const min = parseInt(rangeValue.replace('over-', ''), 10);
+        return { min: min, max: Infinity };
+    }
+    const parts = rangeValue.split('-');
+    if (parts.length === 2) {
+        const min = parseInt(parts[0], 10);
+        const max = parseInt(parts[1], 10);
+        if (!isNaN(min) && !isNaN(max)) return { min, max };
+    }
+    return { min: 0, max: Infinity };
+};
+
 
 export default function SeekerPage() {
   const heroImage = placeholderImages.find(p => p.id === 'seeker-hero-panoramic');
-  const [selectedContinent, setSelectedContinent] = useState('');
+  
+  // Filter states
+  const [experienceType, setExperienceType] = useState('all-experiences');
+  const [selectedContinent, setSelectedContinent] = useState('anywhere');
   const [selectedRegion, setSelectedRegion] = useState('');
+  const [investmentRange, setInvestmentRange] = useState('any');
+  const [timing, setTiming] = useState('exploring');
+
+  const [filteredRetreats, setFilteredRetreats] = useState(retreats);
+  
   const mostExpensiveRetreatId = retreats.reduce((prev, current) => (prev.price > current.price) ? prev : current).id;
 
+  useEffect(() => {
+    let newFilteredRetreats = [...retreats];
+
+    // Experience Type Filter
+    if (experienceType !== 'all-experiences') {
+      newFilteredRetreats = newFilteredRetreats.filter(retreat => 
+        retreat.type && retreat.type.includes(experienceType)
+      );
+    }
+    
+    // Destination filter
+    if (selectedContinent !== 'anywhere' && !selectedRegion) {
+        const regionsInContinent = destinations[selectedContinent] || [];
+        newFilteredRetreats = newFilteredRetreats.filter(retreat =>
+            regionsInContinent.includes(retreat.location)
+        );
+    }
+    if (selectedRegion && selectedRegion !== '') {
+        newFilteredRetreats = newFilteredRetreats.filter(retreat =>
+            retreat.location === selectedRegion
+        );
+    }
+
+    // Price filter
+    if (investmentRange !== 'any') {
+        const { min, max } = parsePriceRange(investmentRange);
+        newFilteredRetreats = newFilteredRetreats.filter(
+            retreat => retreat.price >= min && retreat.price <= max
+        );
+    }
+    
+    // Timing filter is cosmetic for now as data is not available on retreats
+    
+    setFilteredRetreats(newFilteredRetreats);
+  }, [experienceType, selectedContinent, selectedRegion, investmentRange, timing]);
+
+
   const showRegionFilter = selectedContinent && selectedContinent !== 'anywhere' && destinations[selectedContinent];
+
+  const handleClearFilters = () => {
+    setExperienceType('all-experiences');
+    setSelectedContinent('anywhere');
+    setSelectedRegion('');
+    setInvestmentRange('any');
+    setTiming('exploring');
+  };
+  
+  const handleExploreClick = () => {
+    document.getElementById('retreat-results')?.scrollIntoView({ behavior: 'smooth' });
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -111,7 +188,7 @@ export default function SeekerPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
           <div className="space-y-2">
             <Label htmlFor="type">What experience are you seeking?</Label>
-            <Select>
+            <Select value={experienceType} onValueChange={setExperienceType}>
               <SelectTrigger id="type">
                 <SelectValue placeholder="All Experiences" />
               </SelectTrigger>
@@ -124,7 +201,7 @@ export default function SeekerPage() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="destination">Destination</Label>
-            <Select onValueChange={(value) => {
+            <Select value={selectedContinent} onValueChange={(value) => {
               setSelectedContinent(value);
               setSelectedRegion('');
             }}>
@@ -155,7 +232,7 @@ export default function SeekerPage() {
           )}
           <div className="space-y-2">
             <Label htmlFor="price">Investment Range</Label>
-            <Select>
+            <Select value={investmentRange} onValueChange={setInvestmentRange}>
               <SelectTrigger id="price">
                 <SelectValue placeholder="Any Range" />
               </SelectTrigger>
@@ -168,7 +245,7 @@ export default function SeekerPage() {
           </div>
            <div className="space-y-2">
               <Label htmlFor="timing">Timing (When are you hoping to go?)</Label>
-              <Select>
+              <Select value={timing} onValueChange={setTiming}>
                 <SelectTrigger id="timing">
                   <SelectValue placeholder="Just exploring" />
                 </SelectTrigger>
@@ -179,18 +256,27 @@ export default function SeekerPage() {
                 </SelectContent>
               </Select>
             </div>
-          <div className="lg:col-span-full">
-            <Button size="lg" className="w-full">Explore Experiences</Button>
+          <div className="lg:col-span-full flex gap-2">
+            <Button size="lg" className="w-full" onClick={handleExploreClick}>Explore Experiences</Button>
+            <Button size="lg" variant="outline" onClick={handleClearFilters}>Clear Filters</Button>
           </div>
         </div>
       </Card>
 
-      <h2 className="text-3xl font-bold tracking-tight mb-6 font-headline">Experiences We’re Loving</h2>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {retreats.map((retreat) => (
-          <RetreatCard key={retreat.id} retreat={retreat} isLux={retreat.id === mostExpensiveRetreatId} />
-        ))}
+      <div id="retreat-results" className="scroll-mt-24">
+        <h2 className="text-3xl font-bold tracking-tight mb-6 font-headline">Experiences We’re Loving</h2>
+        
+        {filteredRetreats.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredRetreats.map((retreat) => (
+              <RetreatCard key={retreat.id} retreat={retreat} isLux={retreat.id === mostExpensiveRetreatId} />
+            ))}
+          </div>
+        ) : (
+           <div className="text-center py-16">
+              <p className="text-lg text-muted-foreground">No matches yet — try widening your filters or selecting Anywhere.</p>
+           </div>
+        )}
       </div>
     </div>
   );
