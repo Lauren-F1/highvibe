@@ -114,8 +114,6 @@ export default function SeekerPage() {
   
   const mostExpensiveRetreatId = retreats.reduce((prev, current) => (prev.price > current.price) ? prev : current).id;
   
-  const seekerCount = 250; // Mock seeker count for this experience
-
   // Waitlist form state
   const [waitlistStatus, setWaitlistStatus] = useState<'idle' | 'submitted' | 'confirmed'>('idle');
   const [waitlistEmail, setWaitlistEmail] = useState('');
@@ -239,7 +237,7 @@ export default function SeekerPage() {
           <form onSubmit={handleWaitlistSubmit}>
             <Card className="mt-8 text-left bg-secondary/50">
               <CardHeader>
-                <CardTitle className="text-2xl">Get notified when retreats like this become available</CardTitle>
+                <CardTitle className="text-2xl">Get notified when aligned retreats become available</CardTitle>
                 <CardDescription>
                   We’ll only reach out when something matches what you’re looking for. No spam. No noise.
                 </CardDescription>
@@ -278,7 +276,7 @@ export default function SeekerPage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button type="submit" className="w-full" size="lg">Notify me when retreats like this become available</Button>
+                <Button type="submit" className="w-full" size="lg">Notify Me When It’s Available</Button>
               </CardFooter>
             </Card>
           </form>
@@ -400,23 +398,11 @@ export default function SeekerPage() {
            <div className="text-center py-16 max-w-2xl mx-auto">
               <h3 className="font-headline text-3xl font-bold">We’re so glad you’re here.</h3>
               <p className="text-muted-foreground mt-4 leading-relaxed">
-                  HighVibe is just getting started, and we’re actively connecting with aligned guides and hosts to bring meaningful retreats to life.<br/>
-                  There isn’t a match for your filters yet — but we’re building toward exactly what you’re seeking.
+                HighVibe is just getting started, and we’re actively connecting with guides, hosts, and vendors to create the kinds of experiences you’re seeking. There isn’t a retreat available yet that matches your exact filters — but this is exactly why HighVibe exists. We’re building toward what you’re seeking.
               </p>
-              
-                {seekerCount < 100 ? (
-                    <p className="text-muted-foreground mt-6">
-                        Be part of shaping what comes next.
-                    </p>
-                ) : (
-                    <div className="mt-6">
-                        <div className="inline-flex items-center justify-center rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
-                        <Users className="mr-2 h-4 w-4" />
-                        Join hundreds of seekers shaping what comes next.
-                        </div>
-                    </div>
-                )}
-
+              <p className="text-muted-foreground mt-4">
+                If you’d like, we can let you know the moment something aligned becomes available.
+              </p>
               {renderWaitlistCard()}
           </div>
         )}
