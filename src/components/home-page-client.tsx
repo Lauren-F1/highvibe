@@ -72,28 +72,28 @@ export default function HomePageClient() {
           icon={<SeekerIcon className="w-24 h-24 text-primary" />}
           primaryLabel="Seeker"
           title="I’m Seeking a Retreat"
-          description="I’m looking to attend a retreat! Whether for leadership, wellness, creativity, healing, or personal growth, I want to discover meaningful experiences and be notified when retreats that match what I’m seeking become available."
+          description="Discover retreats aligned with leadership, wellness, creativity, healing, and personal growth. Get notified when experiences that match what you’re seeking become available."
         />
         <RoleCard
           href="/guide"
           icon={<HostIcon className="w-24 h-24 text-primary" />}
           primaryLabel="Guide"
           title="I’m Hosting a Retreat"
-          description="I’m creating and leading a retreat experience. I want to find the right space, connect with aligned seekers, and partner with trusted vendors to bring the full vision to life."
+          description="Design and lead meaningful retreats. Find the right space, connect with aligned seekers, and partner with trusted vendors to bring your vision to life."
         />
         <RoleCard
           href="/vendor"
           icon={<VendorIcon className="w-24 h-24 text-primary" />}
           primaryLabel="Vendor"
           title="I’m Offering Retreat Services"
-          description="I offer services that make retreats unforgettable — from private chefs and photographers to wellness, music, transportation, and local experiences. I want to be discovered by guides and hosts who need what I do."
+          description="Offer services that elevate retreats — from wellness and music to food, transport, and local experiences. Be discovered by guides and hosts who need what you provide."
         />
         <RoleCard
           href="/host"
           icon={<SpaceOwnerIcon className="w-20 h-20 text-primary" />}
           primaryLabel="Host"
           title="I’m Listing a Retreat Space"
-          description="I have a property that can host retreats, gatherings, and immersive experiences. I want to connect with guides seeking a beautiful space that fits their retreat vision."
+          description="List a property designed for retreats and gatherings. Connect with guides seeking beautiful, well-suited spaces for immersive experiences."
         />
       </div>
     </main>
