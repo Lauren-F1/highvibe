@@ -8,9 +8,9 @@ export function HostIcon(props: SVGProps<SVGSVGElement>) {
       viewBox="0 0 1500 1500"
       {...props}
     >
-      <circle cx="742.81" cy="505.85" r="494.6" fill="none" stroke="currentColor" strokeWidth="15"/>
-      <circle cx="497.36" cy="979.98" r="494.6" fill="none" stroke="currentColor" strokeWidth="15"/>
-      <circle cx="988.26" cy="979.98" r="494.6" fill="none" stroke="currentColor" strokeWidth="15"/>
+      <circle cx="750" cy="505.85" r="450" fill="none" stroke="currentColor" strokeWidth="20"/>
+      <circle cx="450" cy="979.98" r="450" fill="none" stroke="currentColor" strokeWidth="20"/>
+      <circle cx="1050" cy="979.98" r="450" fill="none" stroke="currentColor" strokeWidth="20"/>
     </svg>
   );
 }
