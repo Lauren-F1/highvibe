@@ -61,26 +61,26 @@ export default function HomePageClient() {
         <RoleCard
           href="/seeker"
           icon={<div className="h-64 flex items-center justify-center"><SeekerIcon className="w-64 h-64 text-primary" /></div>}
-          title="I'm a Seeker"
-          description="Discover curated retreats and immersive experiences, from wellness and leadership to creative, cultural, and transformational journeys around the globe."
+          title="I’m Seeking a Retreat"
+          description="I’m looking to attend a retreat! Whether for leadership, wellness, creativity, healing, or personal growth, I want to discover meaningful experiences and be notified when retreats that match what I’m seeking become available."
         />
         <RoleCard
           href="/guide"
           icon={<div className="h-64 flex items-center justify-center"><HostIcon className="w-56 h-56 text-primary" /></div>}
-          title="I'm a Guide"
-          description="Design and lead meaningful retreat experiences. Connect with aligned seekers, collaborate with trusted vendors, and bring your vision to life."
+          title="I’m Hosting a Retreat"
+          description="I’m creating and leading a retreat experience. I want to find the right space, connect with aligned seekers, and partner with trusted vendors to bring the full vision to life."
         />
         <RoleCard
           href="/vendor"
           icon={<div className="h-64 flex items-center justify-center"><VendorIcon className="w-64 h-64 text-primary" /></div>}
-          title="I'm a Vendor"
-          description="Offer the elements that make retreats unforgettable, from private chefs and musicians to transportation, photography, wellness, and bespoke experiences."
+          title="I’m Offering Retreat Services"
+          description="I offer services that make retreats unforgettable — from private chefs and photographers to wellness, music, transportation, and local experiences. I want to be discovered by guides and hosts who need what I do."
         />
         <RoleCard
           href="/host"
           icon={<div className="h-64 flex items-center justify-center"><SpaceOwnerIcon className="w-48 h-48 text-primary" /></div>}
-          title="I'm a Host"
-          description="List your property as a retreat destination. Attract guides seeking beautifully designed, professionally managed spaces for retreats, gatherings, and intimate events."
+          title="I’m Listing a Retreat Space"
+          description="I have a property that can host retreats, gatherings, and immersive experiences. I want to connect with guides seeking a beautiful space that fits their retreat vision."
         />
       </div>
     </main>
