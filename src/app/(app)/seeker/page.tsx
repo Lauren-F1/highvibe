@@ -11,6 +11,7 @@ import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Users } from 'lucide-react';
 
 // Original Data - should not be mutated
 const retreats = [
@@ -280,7 +281,15 @@ export default function SeekerPage() {
               <p className="text-muted-foreground mt-4 leading-relaxed">
                   We’re just getting started and actively connecting with guides, hosts, and vendors to create the kinds of experiences you’re seeking. There isn’t a retreat available yet that matches your exact filters — but this is exactly why HighVibe exists. We’re building this with and for people like you, and we won’t stop until the right experiences find you.
               </p>
-              <p className="text-muted-foreground mt-2 text-sm">
+              
+              <div className="mt-6">
+                <div className="inline-flex items-center justify-center rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
+                  <Users className="mr-2 h-4 w-4" />
+                  Join 142 other seekers waiting for this experience.
+                </div>
+              </div>
+
+              <p className="text-muted-foreground mt-6 text-sm">
                   If you’d like, we can let you know the moment something aligned becomes available.
               </p>
 
