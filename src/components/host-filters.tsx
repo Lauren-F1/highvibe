@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Button } from './ui/button';
 import { Popover, PopoverTrigger, PopoverContent } from './ui/popover';
 import { Calendar } from './ui/calendar';
+import { Switch } from './ui/switch';
 
 function FilterGroup({ title, children }: { title: string, children: React.ReactNode }) {
     return (
@@ -50,6 +51,7 @@ const retreatPolicies = ["Alcohol allowed", "Wellness activities allowed (yoga /
 export function HostFilters() {
     const [startDate, setStartDate] = React.useState<Date>();
     const [endDate, setEndDate] = React.useState<Date>();
+    const [showExactDates, setShowExactDates] = React.useState(false);
 
     return (
         <Card className="lg:sticky lg:top-24">
@@ -75,67 +77,92 @@ export function HostFilters() {
                     <FilterGroup title="Availability">
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="start-date">Start Date</Label>
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <Button
-                                            id="start-date"
-                                            variant={"outline"}
-                                            className={cn(
-                                                "w-full justify-start text-left font-normal",
-                                                !startDate && "text-muted-foreground"
-                                            )}
-                                        >
-                                            <CalendarIcon className="mr-2 h-4 w-4" />
-                                            {startDate ? format(startDate, "PPP") : <span>Pick a date</span>}
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto p-0">
-                                        <Calendar
-                                            mode="single"
-                                            selected={startDate}
-                                            onSelect={setStartDate}
-                                            initialFocus
-                                        />
-                                    </PopoverContent>
-                                </Popover>
+                                <Label>Availability Window</Label>
+                                <Select defaultValue="anytime">
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Anytime" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="anytime">Anytime</SelectItem>
+                                        <SelectItem value="3-months">Within 3 months</SelectItem>
+                                        <SelectItem value="3-6-months">3–6 months</SelectItem>
+                                        <SelectItem value="6-9-months">6–9 months</SelectItem>
+                                        <SelectItem value="9-12-months">9–12 months</SelectItem>
+                                        <SelectItem value="12-plus-months">12+ months</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="end-date">End Date</Label>
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <Button
-                                            id="end-date"
-                                            variant={"outline"}
-                                            className={cn(
-                                                "w-full justify-start text-left font-normal",
-                                                !endDate && "text-muted-foreground"
-                                            )}
-                                        >
-                                            <CalendarIcon className="mr-2 h-4 w-4" />
-                                            {endDate ? format(endDate, "PPP") : <span>Pick a date</span>}
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto p-0">
-                                        <Calendar
-                                            mode="single"
-                                            selected={endDate}
-                                            onSelect={setEndDate}
-                                            disabled={(date) =>
-                                                startDate ? date < startDate : false
-                                            }
-                                            initialFocus
-                                        />
-                                    </PopoverContent>
-                                </Popover>
+                            <div className="flex items-center space-x-2 pt-2">
+                                <Switch id="exact-dates-toggle" onCheckedChange={setShowExactDates} checked={showExactDates} />
+                                <Label htmlFor="exact-dates-toggle">I have exact dates.</Label>
                             </div>
-                            <div className="pt-2">
-                                <div className="flex items-center space-x-2">
-                                    <Checkbox id="flexible-dates" />
-                                    <Label htmlFor="flexible-dates" className="font-normal leading-tight">My dates are flexible</Label>
+
+                            {showExactDates && (
+                                <div className="space-y-4 pt-4 mt-4 border-t">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="start-date">Start Date</Label>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button
+                                                    id="start-date"
+                                                    variant={"outline"}
+                                                    className={cn(
+                                                        "w-full justify-start text-left font-normal",
+                                                        !startDate && "text-muted-foreground"
+                                                    )}
+                                                >
+                                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                                    {startDate ? format(startDate, "PPP") : <span>Pick a date</span>}
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0">
+                                                <Calendar
+                                                    mode="single"
+                                                    selected={startDate}
+                                                    onSelect={setStartDate}
+                                                    initialFocus
+                                                />
+                                            </PopoverContent>
+                                        </Popover>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="end-date">End Date</Label>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button
+                                                    id="end-date"
+                                                    variant={"outline"}
+                                                    className={cn(
+                                                        "w-full justify-start text-left font-normal",
+                                                        !endDate && "text-muted-foreground"
+                                                    )}
+                                                >
+                                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                                    {endDate ? format(endDate, "PPP") : <span>Pick a date</span>}
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0">
+                                                <Calendar
+                                                    mode="single"
+                                                    selected={endDate}
+                                                    onSelect={setEndDate}
+                                                    disabled={(date) =>
+                                                        startDate ? date < startDate : false
+                                                    }
+                                                    initialFocus
+                                                />
+                                            </PopoverContent>
+                                        </Popover>
+                                    </div>
+                                    <div className="pt-2">
+                                        <div className="flex items-center space-x-2">
+                                            <Checkbox id="flexible-dates" />
+                                            <Label htmlFor="flexible-dates" className="font-normal leading-tight">My dates are flexible</Label>
+                                        </div>
+                                        <p className="text-xs text-muted-foreground mt-1 ml-6">We’ll show spaces that are available close to your dates.</p>
+                                    </div>
                                 </div>
-                                <p className="text-xs text-muted-foreground mt-1 ml-6">We’ll show spaces that are available close to your dates.</p>
-                            </div>
+                            )}
                         </div>
                     </FilterGroup>
 
