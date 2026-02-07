@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -55,7 +54,7 @@ const plans: Record<UserRole, RolePlans> = {
         'Priority matching with top hosts and vendors',
         'Featured retreat eligibility',
         'Advanced matching filters',
-        'Performance insights on listings',
+        'Performance insights on your retreats',
         'Priority support',
         'Stronger consideration weighting for LUX review',
       ],

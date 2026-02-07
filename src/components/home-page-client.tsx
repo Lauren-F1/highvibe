@@ -37,8 +37,8 @@ const roles: Role[] = [
       href: "/guide",
       icon: <HostIcon className="w-16 h-16 text-primary" />,
       primaryLabel: "Guide",
-      title: "I’m Hosting a Retreat",
-      description: "Design and lead meaningful retreats. Find the right space, connect with aligned seekers, and partner with trusted vendors to bring your vision to life."
+      title: "I’m Leading a Retreat",
+      description: "Design and lead meaningful retreat experiences. Find the right space, connect with aligned seekers, and collaborate with trusted vendors to bring your vision to life."
     },
     {
       id: 'vendor',
