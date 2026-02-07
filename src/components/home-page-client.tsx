@@ -63,7 +63,7 @@ export default function HomePageClient() {
 
       <div className="w-full max-w-4xl text-center mb-12">
         <h2 className="font-headline text-3xl md:text-4xl">Every journey begins with participation.</h2>
-        <p className="text-lg text-muted-foreground mt-2 max-w-3xl mx-auto">Choose the role most aligned with what brought you here. You can add more ways to participate as your path unfolds.</p>
+        <p className="text-lg text-beige mt-2 max-w-3xl mx-auto">Choose the role most aligned with what brought you here. You can add more ways to participate as your path unfolds.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full max-w-7xl">
