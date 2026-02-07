@@ -18,6 +18,7 @@ export default {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         beige: 'hsl(var(--beige))',
+        'beige-dark': 'hsl(var(--beige-dark))',
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
