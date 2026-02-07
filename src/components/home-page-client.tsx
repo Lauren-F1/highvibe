@@ -1,35 +1,21 @@
-"use client";
+'use client';
 
-import Link from 'next/link';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/icons/logo';
 import { SeekerIcon } from '@/components/icons/seeker-icon';
 import { HostIcon } from '@/components/icons/host-icon';
 import { VendorIcon } from '@/components/icons/vendor-icon';
 import { SpaceOwnerIcon } from '@/components/icons/space-owner-icon';
 import { placeholderImages } from '@/lib/placeholder-images';
+import { cn } from '@/lib/utils';
+import { CheckCircle } from 'lucide-react';
 
-function RoleCard({ href, icon, primaryLabel, title, description }: RoleCardProps) {
-  return (
-    <Link href={href} className="group">
-      <Card className="h-full w-full transition-all duration-300 ease-in-out hover:shadow-xl hover:border-primary/75">
-        <CardHeader className="items-center text-center p-6">
-          <CardTitle className="font-headline text-4xl text-beige tracking-wider">{primaryLabel}</CardTitle>
-          <div className="flex items-center justify-center my-4">
-            {icon}
-          </div>
-          <h3 className="font-body text-base !mt-0 text-foreground">{title}</h3>
-        </CardHeader>
-        <CardContent className="text-center px-6 pb-6 pt-0">
-          <CardDescription className="font-body text-xs leading-relaxed text-muted-foreground">{description}</CardDescription>
-        </CardContent>
-      </Card>
-    </Link>
-  );
-}
-
-interface RoleCardProps {
+interface Role {
+  id: 'seeker' | 'guide' | 'vendor' | 'host';
   href: string;
   icon: React.ReactNode;
   primaryLabel: string;
@@ -37,8 +23,63 @@ interface RoleCardProps {
   description: string;
 }
 
+const roles: Role[] = [
+    {
+      id: 'seeker',
+      href: "/seeker",
+      icon: <SeekerIcon className="w-16 h-16 text-primary" />,
+      primaryLabel: "Seeker",
+      title: "I’m Seeking a Retreat",
+      description: "Discover retreats aligned with leadership, wellness, creativity, healing, and personal growth. Get notified when experiences that match what you’re seeking become available."
+    },
+    {
+      id: 'guide',
+      href: "/guide",
+      icon: <HostIcon className="w-16 h-16 text-primary" />,
+      primaryLabel: "Guide",
+      title: "I’m Hosting a Retreat",
+      description: "Design and lead meaningful retreats. Find the right space, connect with aligned seekers, and partner with trusted vendors to bring your vision to life."
+    },
+    {
+      id: 'vendor',
+      href: "/vendor",
+      icon: <VendorIcon className="w-16 h-16 text-primary" />,
+      primaryLabel: "Vendor",
+      title: "I’m Offering Retreat Services",
+      description: "Offer services that elevate retreats — from wellness and music to food, transport, and local experiences. Be discovered by guides and hosts who need what you provide."
+    },
+    {
+      id: 'host',
+      href: "/host",
+      icon: <SpaceOwnerIcon className="w-16 h-16 text-primary" />,
+      primaryLabel: "Host",
+      title: "I’m Listing a Retreat Space",
+      description: "List a property designed for retreats and gatherings. Connect with guides seeking beautiful, well-suited spaces for immersive experiences."
+    },
+];
+
+
 export default function HomePageClient() {
+  const router = useRouter();
   const heroImage = placeholderImages.find((img) => img.id === 'resort-hero');
+  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+  
+  const handleSelectRole = (role: Role) => {
+    setSelectedRole(role);
+  };
+  
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>, role: Role) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      handleSelectRole(role);
+    }
+  };
+  
+  const handleContinue = () => {
+    if (selectedRole) {
+      router.push(selectedRole.href);
+    }
+  };
 
   return (
     <main className="flex min-h-screen w-full flex-col items-center bg-background p-4 sm:p-6 md:p-8">
@@ -66,36 +107,57 @@ export default function HomePageClient() {
         <p className="text-lg text-beige-dark mt-2 max-w-3xl mx-auto">Choose the role most aligned with what brought you here. You can add more ways to participate as your path unfolds.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full max-w-7xl">
-        <RoleCard
-          href="/seeker"
-          icon={<SeekerIcon className="w-24 h-24 text-primary" />}
-          primaryLabel="Seeker"
-          title="I’m Seeking a Retreat"
-          description="Discover retreats aligned with leadership, wellness, creativity, healing, and personal growth. Get notified when experiences that match what you’re seeking become available."
-        />
-        <RoleCard
-          href="/guide"
-          icon={<HostIcon className="w-24 h-24 text-primary" />}
-          primaryLabel="Guide"
-          title="I’m Hosting a Retreat"
-          description="Design and lead meaningful retreats. Find the right space, connect with aligned seekers, and partner with trusted vendors to bring your vision to life."
-        />
-        <RoleCard
-          href="/vendor"
-          icon={<VendorIcon className="w-24 h-24 text-primary" />}
-          primaryLabel="Vendor"
-          title="I’m Offering Retreat Services"
-          description="Offer services that elevate retreats — from wellness and music to food, transport, and local experiences. Be discovered by guides and hosts who need what you provide."
-        />
-        <RoleCard
-          href="/host"
-          icon={<SpaceOwnerIcon className="w-20 h-20 text-primary" />}
-          primaryLabel="Host"
-          title="I’m Listing a Retreat Space"
-          description="List a property designed for retreats and gatherings. Connect with guides seeking beautiful, well-suited spaces for immersive experiences."
-        />
+      <div 
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full max-w-7xl mb-8"
+        role="radiogroup"
+        aria-label="Select your role"
+      >
+        {roles.map((role) => {
+          const isSelected = selectedRole?.id === role.id;
+          return (
+            <div
+              key={role.id}
+              role="radio"
+              aria-checked={isSelected}
+              tabIndex={0}
+              onClick={() => handleSelectRole(role)}
+              onKeyDown={(e) => handleKeyDown(e, role)}
+              className="group cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg"
+            >
+              <Card className={cn(
+                  "h-full w-full transition-all duration-200 ease-in-out relative p-4",
+                  "hover:shadow-xl hover:border-primary/50",
+                  isSelected ? 'border-primary shadow-xl bg-accent/50' : 'border-border',
+                  selectedRole && !isSelected ? 'opacity-70 hover:opacity-100' : ''
+              )}>
+                {isSelected && <CheckCircle className="absolute top-3 right-3 h-5 w-5 text-primary" />}
+                <CardHeader className="items-center text-center p-0 space-y-4">
+                  <CardTitle className="font-headline text-3xl text-beige tracking-wider">{role.primaryLabel}</CardTitle>
+                  <div className="flex items-center justify-center pt-2">
+                    {role.icon}
+                  </div>
+                  <h3 className="font-body text-base !mt-4 text-foreground font-semibold">{role.title}</h3>
+                </CardHeader>
+                <CardContent className="text-center px-2 pb-2 pt-4">
+                  <CardDescription className="font-body text-xs leading-relaxed text-muted-foreground">{role.description}</CardDescription>
+                </CardContent>
+              </Card>
+            </div>
+          )
+        })}
       </div>
+      
+      <div className="w-full max-w-sm">
+        <Button
+          size="lg"
+          className="w-full"
+          disabled={!selectedRole}
+          onClick={handleContinue}
+        >
+          {selectedRole ? `Continue as ${selectedRole.primaryLabel}` : 'Continue'}
+        </Button>
+      </div>
+
     </main>
   );
 }
