@@ -39,7 +39,7 @@ export function Header() {
           </Link>
           <nav className="hidden items-center space-x-6 text-sm font-medium md:flex">
             <Link href="/seeker" className="transition-colors hover:text-foreground/80 text-foreground/60">
-              Explore
+              Seeker
             </Link>
             <Link href="/guide" className="transition-colors hover:text-foreground/80 text-foreground/60">
               For Guides

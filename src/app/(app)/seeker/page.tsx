@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RetreatCard } from '@/components/retreat-card';
@@ -9,6 +9,8 @@ import { placeholderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 
 // Original Data - should not be mutated
 const retreats = [
@@ -273,9 +275,43 @@ export default function SeekerPage() {
             ))}
           </div>
         ) : (
-           <div className="text-center py-16">
-              <p className="text-lg text-muted-foreground">No matches yet — try widening your filters or selecting Anywhere.</p>
-           </div>
+           <div className="text-center py-16 max-w-2xl mx-auto">
+              <h3 className="font-headline text-3xl font-bold">We’re so glad you’re here.</h3>
+              <p className="text-muted-foreground mt-4 leading-relaxed">
+                  We’re just getting started and actively connecting with guides, hosts, and vendors to create the kinds of experiences you’re seeking. There isn’t a retreat available yet that matches your exact filters — but this is exactly why HighVibe exists. We’re building this with and for people like you, and we won’t stop until the right experiences find you.
+              </p>
+              <p className="text-muted-foreground mt-2 text-sm">
+                  If you’d like, we can let you know the moment something aligned becomes available.
+              </p>
+
+              <Card className="mt-8 text-left bg-secondary/50">
+                  <CardHeader>
+                      <CardTitle className="text-2xl">Get notified when aligned retreats become available</CardTitle>
+                      <CardDescription>
+                          We’ll only reach out when something matches what you’re looking for. No spam. No noise.
+                      </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                      <div className="space-y-2">
+                          <Label htmlFor="email-notify">Email Address</Label>
+                          <Input id="email-notify" type="email" placeholder="you@example.com" />
+                      </div>
+                      <div className="space-y-2">
+                          <Label htmlFor="phone-notify">Phone Number (optional)</Label>
+                          <Input id="phone-notify" type="tel" placeholder="(555) 123-4567" />
+                      </div>
+                      <div className="flex items-center space-x-2">
+                          <Checkbox id="sms-notify" />
+                          <Label htmlFor="sms-notify" className="text-sm font-normal leading-none">
+                              Text me when new retreats match my preferences
+                          </Label>
+                      </div>
+                  </CardContent>
+                  <CardFooter>
+                      <Button className="w-full" size="lg">Notify Me When It’s Available</Button>
+                  </CardFooter>
+              </Card>
+          </div>
         )}
       </div>
     </div>
