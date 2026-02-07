@@ -13,8 +13,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { useRouter } from 'next/navigation';
 
 export function Header() {
+  const router = useRouter();
+
+  const handleLogout = () => {
+    // In a real app with authentication, you would call a sign-out function here.
+    // For now, we will just redirect to the home page.
+    router.push('/');
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-24 items-center">
@@ -72,11 +81,11 @@ export function Header() {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild><Link href="#">Account Settings</Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link href="#">Payouts</Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link href="#">Support</Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link href="/account">Account Settings</Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link href="/payouts">Payouts</Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link href="/support">Support</Link></DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>
                     Log out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
