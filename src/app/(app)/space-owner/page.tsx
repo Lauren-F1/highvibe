@@ -16,8 +16,8 @@ const sampleSpace = {
 
 const sampleProfile = {
   id: '1',
-  name: 'Juniper Holdings',
-  service: 'Luxury Villas & Estates',
+  name: 'My Spaces',
+  service: 'Retreat Venues',
   rating: 4.9,
   reviewCount: 42,
   avatar: placeholderImages[10]
@@ -28,12 +28,12 @@ export default function SpaceOwnerPage() {
     <div className="container mx-auto px-4 py-8 md:py-12">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div>
-          <h1 className="font-headline text-4xl md:text-5xl font-bold">Showcase Your Space</h1>
-          <p className="text-muted-foreground mt-2 text-lg font-body">List your property and host unforgettable retreats.</p>
+          <h1 className="font-headline text-4xl md:text-5xl font-bold">Host Dashboard</h1>
+          <p className="text-muted-foreground mt-2 text-lg font-body">Offer a space designed for retreat experiences.</p>
         </div>
         <Button size="lg" className="mt-4 md:mt-0">
           <PlusCircle className="mr-2 h-5 w-5" />
-          Create Your Profile
+          List Your Space
         </Button>
       </div>
 
@@ -42,7 +42,7 @@ export default function SpaceOwnerPage() {
           <Card className="overflow-hidden">
             <CardHeader>
               <CardTitle>Listing Preview</CardTitle>
-              <CardDescription>This is how hosts will see your space.</CardDescription>
+              <CardDescription>This is how guides will see your space.</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="relative aspect-video w-full rounded-lg overflow-hidden">
@@ -67,7 +67,7 @@ export default function SpaceOwnerPage() {
           <Card>
             <CardHeader>
               <CardTitle>Your Profile</CardTitle>
-              <CardDescription>Your identity as a space owner.</CardDescription>
+              <CardDescription>Your identity as a Host.</CardDescription>
             </CardHeader>
             <CardContent>
               <VendorCard vendor={sampleProfile} />

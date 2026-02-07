@@ -54,7 +54,7 @@ const roles: Role[] = [
       icon: <SpaceOwnerIcon className="w-16 h-16 text-primary" />,
       primaryLabel: "Host",
       title: "I’m Listing a Retreat Space",
-      description: "List a property designed for retreats and gatherings. Connect with guides seeking beautiful, well-suited spaces for immersive experiences."
+      description: "List a property designed for retreats, gatherings, and immersive experiences. Connect with guides seeking beautiful, well-suited spaces for meaningful retreat experiences."
     },
 ];
 
