@@ -1,10 +1,22 @@
 
 import { placeholderImages } from './placeholder-images';
 import type { ImagePlaceholder } from './placeholder-images';
-import type { Host } from '@/components/host-card';
 import type { Guide } from '@/components/guide-card';
 
-export type { Host } from '@/components/host-card';
+export interface Host {
+  id: string;
+  name: string;
+  location: string;
+  capacity: number;
+  bedrooms: number;
+  bathrooms: number;
+  pricePerNight: number;
+  propertyType: string;
+  image?: ImagePlaceholder;
+  luxApproved: boolean;
+  roomStyleTags?: string[];
+}
+
 export type { Guide } from '@/components/guide-card';
 
 
@@ -20,11 +32,11 @@ export const yourRetreats = [
 ];
 
 export const hosts: Host[] = [
-    { id: 'h1', name: 'Ubud Jungle Haven', location: 'Bali, Indonesia', capacity: 20, bedrooms: 10, pricePerNight: 1200, propertyType: 'Villa', image: placeholderImages.find(p => p.id === 'host-bali-villa')!, luxApproved: true },
-    { id: 'h2', name: 'Kyoto Serenity Center', location: 'Kyoto, Japan', capacity: 15, bedrooms: 8, pricePerNight: 950, propertyType: 'Retreat Center', image: placeholderImages.find(p => p.id === 'host-kyoto-ryokan')!, luxApproved: false },
-    { id: 'h3', name: 'Sacred Valley Hacienda', location: 'Cusco, Peru', capacity: 25, bedrooms: 12, pricePerNight: 1500, propertyType: 'Hacienda', image: placeholderImages.find(p => p.id === 'hacienda-leather-interior')!, luxApproved: true },
-    { id: 'h4', name: 'Tuscan Farmhouse Estate', location: 'Tuscany, Italy', capacity: 18, bedrooms: 9, pricePerNight: 1100, propertyType: 'Farmhouse', image: placeholderImages.find(p => p.id === 'host-tuscany-winery-sunset')!, luxApproved: false },
-    { id: 'h5', name: 'Modern Bali Escape', location: 'Bali, Indonesia', capacity: 12, bedrooms: 6, pricePerNight: 800, propertyType: 'Villa', image: placeholderImages.find(p => p.id === 'space-owner-villa')!, luxApproved: false },
+    { id: 'h1', name: 'Ubud Jungle Haven', location: 'Bali, Indonesia', capacity: 20, bedrooms: 10, bathrooms: 10, pricePerNight: 1200, propertyType: 'Villa', image: placeholderImages.find(p => p.id === 'host-bali-villa')!, luxApproved: true, roomStyleTags: ['Private rooms available', 'Mixed (private + shared)'] },
+    { id: 'h2', name: 'Kyoto Serenity Center', location: 'Kyoto, Japan', capacity: 15, bedrooms: 8, bathrooms: 8, pricePerNight: 950, propertyType: 'Retreat Center', image: placeholderImages.find(p => p.id === 'host-kyoto-ryokan')!, luxApproved: false, roomStyleTags: ['Private rooms available'] },
+    { id: 'h3', name: 'Sacred Valley Hacienda', location: 'Cusco, Peru', capacity: 25, bedrooms: 12, bathrooms: 12, pricePerNight: 1500, propertyType: 'Hacienda', image: placeholderImages.find(p => p.id === 'hacienda-leather-interior')!, luxApproved: true, roomStyleTags: ['Private rooms available', 'Shared rooms available', 'Mixed (private + shared)'] },
+    { id: 'h4', name: 'Tuscan Farmhouse Estate', location: 'Tuscany, Italy', capacity: 18, bedrooms: 9, bathrooms: 9, pricePerNight: 1100, propertyType: 'Farmhouse', image: placeholderImages.find(p => p.id === 'host-tuscany-winery-sunset')!, luxApproved: false, roomStyleTags: ['Private rooms available'] },
+    { id: 'h5', name: 'Modern Bali Escape', location: 'Bali, Indonesia', capacity: 12, bedrooms: 6, bathrooms: 6, pricePerNight: 800, propertyType: 'Villa', image: placeholderImages.find(p => p.id === 'space-owner-villa')!, luxApproved: false, roomStyleTags: ['Private rooms available', 'Shared rooms available'] },
 ];
 
 export interface Vendor {

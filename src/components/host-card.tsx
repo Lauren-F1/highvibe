@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
-import { MapPin, Users, Bed } from 'lucide-react';
+import { MapPin, Users, Bed, Bath } from 'lucide-react';
 import type { ImagePlaceholder } from '@/lib/placeholder-images';
 import { Button } from './ui/button';
 import { placeholderImages } from '@/lib/placeholder-images';
@@ -13,10 +13,12 @@ export interface Host {
   location: string;
   capacity: number;
   bedrooms: number;
+  bathrooms: number;
   pricePerNight: number;
   propertyType: string;
   image?: ImagePlaceholder;
   luxApproved: boolean;
+  roomStyleTags?: string[];
 }
 
 interface HostCardProps {
@@ -65,6 +67,10 @@ export function HostCard({ host, onConnect }: HostCardProps) {
                     <div className="flex items-center">
                         <Bed className="mr-1.5 h-4 w-4" />
                         <span>{host.bedrooms} beds</span>
+                    </div>
+                     <div className="flex items-center">
+                        <Bath className="mr-1.5 h-4 w-4" />
+                        <span>{host.bathrooms} baths</span>
                     </div>
                 </div>
                  {host.luxApproved && (

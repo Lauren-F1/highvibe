@@ -39,6 +39,10 @@ function CheckboxFilter({ item }: { item: string }) {
 }
 
 const locations = ["Anywhere", ...new Set(hosts.map(h => h.location))];
+const sleepingCapacityOptions = ["6+", "10+", "14+", "18+", "24+", "30+"];
+const bedroomOptions = ["Any", "2+", "4+", "6+", "8+", "10+"];
+const bathroomOptions = ["Any", "2+", "4+", "6+", "8+"];
+const roomStyleOptions = ["Private rooms available", "Shared rooms available", "Mixed (private + shared)"];
 
 export function HostFilters() {
     const [startDate, setStartDate] = React.useState<Date>();
@@ -50,7 +54,7 @@ export function HostFilters() {
                 <CardTitle className="text-xl font-headline font-bold">Filter Spaces</CardTitle>
             </CardHeader>
             <CardContent>
-                <Accordion type="multiple" defaultValue={["Location", "Availability", "Group Size", "Budget", "Space Type", "Must-Have Amenities", "Vibe"]} className="w-full">
+                <Accordion type="multiple" defaultValue={["Location", "Availability", "Capacity & Layout", "Budget", "Space Type", "Must-Have Amenities", "Vibe"]} className="w-full">
                     
                     <FilterGroup title="Location">
                         <Select defaultValue="anywhere">
@@ -132,11 +136,52 @@ export function HostFilters() {
                         </div>
                     </FilterGroup>
 
-                    <FilterGroup title="Group Size">
-                        <Slider defaultValue={[20]} max={100} step={1} />
-                        <div className="flex justify-between text-xs text-muted-foreground">
-                            <span>1 guest</span>
-                            <span>100+ guests</span>
+                    <FilterGroup title="Capacity & Layout">
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <Label>Sleeping Capacity</Label>
+                                <Select defaultValue="any">
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Any capacity" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="any">Any capacity</SelectItem>
+                                        {sleepingCapacityOptions.map(option => (
+                                            <SelectItem key={option} value={option.replace('+', '')}>{option}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                             <div className="space-y-2">
+                                <Label>Bedrooms</Label>
+                                <Select defaultValue="any">
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Any" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {bedroomOptions.map(option => (
+                                            <SelectItem key={option} value={option === 'Any' ? 'any' : option.replace('+', '')}>{option}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                             <div className="space-y-2">
+                                <Label>Bathrooms</Label>
+                                <Select defaultValue="any">
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Any" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {bathroomOptions.map(option => (
+                                            <SelectItem key={option} value={option === 'Any' ? 'any' : option.replace('+', '')}>{option}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-3 pt-2">
+                                <Label>Room Style</Label>
+                                {roomStyleOptions.map(item => <CheckboxFilter key={item} item={item} />)}
+                            </div>
                         </div>
                     </FilterGroup>
 
