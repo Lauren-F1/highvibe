@@ -30,10 +30,11 @@ function FilterGroup({ title, children }: { title: string, children: React.React
 }
 
 function CheckboxFilter({ item }: { item: string }) {
+    const id = `filter-${item.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
     return (
         <div className="flex items-center space-x-2">
-            <Checkbox id={`filter-${item}`} />
-            <Label htmlFor={`filter-${item}`} className="font-normal leading-tight">{item}</Label>
+            <Checkbox id={id} />
+            <Label htmlFor={id} className="font-normal leading-tight">{item}</Label>
         </div>
     )
 }
@@ -43,6 +44,8 @@ const sleepingCapacityOptions = ["6+", "10+", "14+", "18+", "24+", "30+"];
 const bedroomOptions = ["Any", "2+", "4+", "6+", "8+", "10+"];
 const bathroomOptions = ["Any", "2+", "4+", "6+", "8+"];
 const roomStyleOptions = ["Private rooms available", "Shared rooms available", "Mixed (private + shared)"];
+const retreatPolicies = ["Alcohol allowed", "Wellness activities allowed (yoga / sound / breathwork)", "Outdoor fires allowed (if applicable)"];
+
 
 export function HostFilters() {
     const [startDate, setStartDate] = React.useState<Date>();
@@ -54,7 +57,7 @@ export function HostFilters() {
                 <CardTitle className="text-xl font-headline font-bold">Filter Spaces</CardTitle>
             </CardHeader>
             <CardContent>
-                <Accordion type="multiple" defaultValue={["Location", "Availability", "Capacity & Layout", "Budget", "Space Type", "Must-Have Amenities", "Vibe"]} className="w-full">
+                <Accordion type="multiple" defaultValue={["Location", "Availability", "Capacity & Layout", "Budget", "Space Type", "Must-Have Amenities", "Retreat Suitability", "Vibe"]} className="w-full">
                     
                     <FilterGroup title="Location">
                         <Select defaultValue="anywhere">
@@ -199,6 +202,51 @@ export function HostFilters() {
 
                     <FilterGroup title="Must-Have Amenities">
                         {hostAmenities.map(amenity => <CheckboxFilter key={amenity} item={amenity} />)}
+                    </FilterGroup>
+                    
+                    <FilterGroup title="Retreat Suitability">
+                        <div className="space-y-4">
+                             <div className="items-top flex space-x-2">
+                                <Checkbox id="filter-retreat-ready" />
+                                <div className="grid gap-1.5 leading-none">
+                                    <Label htmlFor="filter-retreat-ready" className="font-normal leading-tight">Retreat-ready spaces</Label>
+                                    <p className="text-xs text-muted-foreground">Spaces that explicitly support retreats, workshops, and group experiences.</p>
+                                </div>
+                            </div>
+                             <div className="items-top flex space-x-2">
+                                <Checkbox id="filter-gathering-space" />
+                                <div className="grid gap-1.5 leading-none">
+                                    <Label htmlFor="filter-gathering-space" className="font-normal leading-tight">Dedicated gathering space</Label>
+                                    <p className="text-xs text-muted-foreground">Indoor or covered space suitable for group sessions.</p>
+                                </div>
+                            </div>
+                             <div className="items-top flex space-x-2">
+                                <Checkbox id="filter-quiet-setting" />
+                                <div className="grid gap-1.5 leading-none">
+                                    <Label htmlFor="filter-quiet-setting" className="font-normal leading-tight">Quiet setting</Label>
+                                    <p className="text-xs text-muted-foreground">Good for meditation, rest, and low-noise evenings.</p>
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Kitchen + meal-friendly</Label>
+                                <Select defaultValue="any">
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Any" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="any">Any</SelectItem>
+                                        <SelectItem value="full">Full kitchen onsite</SelectItem>
+                                        <SelectItem value="commercial">Commercial kitchen</SelectItem>
+                                        <SelectItem value="catering">Catering allowed</SelectItem>
+                                        <SelectItem value="chef">Private chef allowed</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-3 pt-2">
+                                <Label>Retreat policies</Label>
+                                {retreatPolicies.map(item => <CheckboxFilter key={item} item={item} />)}
+                            </div>
+                        </div>
                     </FilterGroup>
 
                     <FilterGroup title="Vibe">

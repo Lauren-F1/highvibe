@@ -19,6 +19,13 @@ export interface Host {
   image?: ImagePlaceholder;
   luxApproved: boolean;
   roomStyleTags?: string[];
+  retreatReady?: boolean;
+  gatheringSpace?: boolean;
+  quietSetting?: boolean;
+  kitchenType?: ('full' | 'commercial')[];
+  cateringAllowed?: boolean;
+  privateChefAllowed?: boolean;
+  policyTags?: string[];
 }
 
 interface HostCardProps {
