@@ -116,6 +116,12 @@ export default function SeekerPage() {
   
   const seekerCount = 250; // Mock seeker count for this experience
 
+  // Waitlist form state
+  const [waitlistStatus, setWaitlistStatus] = useState<'idle' | 'submitted' | 'confirmed'>('idle');
+  const [waitlistEmail, setWaitlistEmail] = useState('');
+  const [waitlistPhone, setWaitlistPhone] = useState('');
+  const [waitlistSmsOptIn, setWaitlistSmsOptIn] = useState(false);
+
   useEffect(() => {
     let newFilteredRetreats = [...retreats];
 
@@ -152,6 +158,41 @@ export default function SeekerPage() {
     setFilteredRetreats(newFilteredRetreats);
   }, [experienceType, selectedContinent, selectedRegion, investmentRange, timing]);
 
+  // Simulate confirmation flow
+  useEffect(() => {
+    if (waitlistStatus === 'submitted') {
+      const timer = setTimeout(() => {
+        setWaitlistStatus('confirmed');
+      }, 7000); // Simulate time for user to check email and confirm
+      return () => clearTimeout(timer);
+    }
+  }, [waitlistStatus]);
+
+  const handleWaitlistSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!waitlistEmail) {
+      // In a real app, you would add more robust form validation here.
+      return;
+    }
+
+    console.log('Submitting to waitlist:', {
+        email: waitlistEmail,
+        phone: waitlistPhone,
+        smsOptIn: waitlistSmsOptIn,
+        filters: {
+            experienceType,
+            selectedContinent,
+            selectedRegion,
+            investmentRange,
+            timing,
+        },
+        timestamp: new Date().toISOString(),
+        email_verified: false,
+        sms_verified: false,
+    });
+    // In a real app, you would trigger the backend to send confirmation email/SMS here.
+    setWaitlistStatus('submitted');
+  };
 
   const showRegionFilter = selectedContinent && selectedContinent !== 'anywhere' && destinations[selectedContinent];
 
@@ -166,6 +207,84 @@ export default function SeekerPage() {
   const handleExploreClick = () => {
     document.getElementById('retreat-results')?.scrollIntoView({ behavior: 'smooth' });
   }
+
+  const renderWaitlistCard = () => {
+    switch (waitlistStatus) {
+      case 'submitted':
+        return (
+          <Card className="mt-8 text-left bg-secondary/50">
+            <CardHeader>
+              <CardTitle className="text-2xl">Check your email to confirm your spot.</CardTitle>
+              <CardDescription>
+                We’ve sent a quick confirmation so we know where to send updates when retreats like this become available.
+                {waitlistSmsOptIn && <p className="mt-2">We’ve also sent a quick text to confirm your number.</p>}
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        );
+      case 'confirmed':
+        return (
+          <Card className="mt-8 text-left bg-secondary/50">
+            <CardHeader>
+              <CardTitle className="text-2xl">You’re on the list.</CardTitle>
+              <CardDescription>
+                We’ll notify you when retreats like this become available.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        );
+      case 'idle':
+      default:
+        return (
+          <form onSubmit={handleWaitlistSubmit}>
+            <Card className="mt-8 text-left bg-secondary/50">
+              <CardHeader>
+                <CardTitle className="text-2xl">Get notified when retreats like this become available</CardTitle>
+                <CardDescription>
+                  We’ll only reach out when something matches what you’re looking for. No spam. No noise.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email-notify">Email Address</Label>
+                  <Input
+                    id="email-notify"
+                    type="email"
+                    placeholder="you@example.com"
+                    required
+                    value={waitlistEmail}
+                    onChange={(e) => setWaitlistEmail(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone-notify">Phone Number (optional)</Label>
+                  <Input
+                    id="phone-notify"
+                    type="tel"
+                    placeholder="(555) 123-4567"
+                    value={waitlistPhone}
+                    onChange={(e) => setWaitlistPhone(e.target.value)}
+                  />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="sms-notify"
+                    checked={waitlistSmsOptIn}
+                    onCheckedChange={(checked) => setWaitlistSmsOptIn(Boolean(checked))}
+                  />
+                  <Label htmlFor="sms-notify" className="text-sm font-normal leading-none">
+                    Text me when new retreats match my preferences
+                  </Label>
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button type="submit" className="w-full" size="lg">Notify me when retreats like this become available</Button>
+              </CardFooter>
+            </Card>
+          </form>
+        );
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -298,33 +417,7 @@ export default function SeekerPage() {
                     </div>
                 )}
 
-              <Card className="mt-8 text-left bg-secondary/50">
-                  <CardHeader>
-                      <CardTitle className="text-2xl">Get notified when retreats like this become available</CardTitle>
-                      <CardDescription>
-                          We’ll only reach out when something matches what you’re looking for. No spam. No noise.
-                      </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                      <div className="space-y-2">
-                          <Label htmlFor="email-notify">Email Address</Label>
-                          <Input id="email-notify" type="email" placeholder="you@example.com" />
-                      </div>
-                      <div className="space-y-2">
-                          <Label htmlFor="phone-notify">Phone Number (optional)</Label>
-                          <Input id="phone-notify" type="tel" placeholder="(555) 123-4567" />
-                      </div>
-                      <div className="flex items-center space-x-2">
-                          <Checkbox id="sms-notify" />
-                          <Label htmlFor="sms-notify" className="text-sm font-normal leading-none">
-                              Text me when new retreats match my preferences
-                          </Label>
-                      </div>
-                  </CardContent>
-                  <CardFooter>
-                      <Button className="w-full" size="lg">Notify me when retreats like this become available</Button>
-                  </CardFooter>
-              </Card>
+              {renderWaitlistCard()}
           </div>
         )}
       </div>
