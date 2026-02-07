@@ -132,10 +132,10 @@ export default function HomePageClient() {
                   selectedRole && !isSelected ? 'opacity-70 hover:opacity-100' : ''
               )}>
                 {isSelected && <CheckCircle className="absolute top-3 right-3 h-5 w-5 text-primary" />}
-                <CardHeader className="items-center text-center p-0 space-y-6">
-                  <CardTitle className="font-headline text-3xl text-beige tracking-wider">{role.primaryLabel}</CardTitle>
-                  <div className="flex items-center justify-center">
-                    {React.cloneElement(role.icon as React.ReactElement, { className: cn("text-primary", role.id === 'seeker' ? "w-16 h-16" : "w-14 h-14") })}
+                <CardHeader className="items-center text-center p-0">
+                  <CardTitle className="font-headline text-3xl text-beige tracking-wider mb-3">{role.primaryLabel}</CardTitle>
+                  <div className="flex items-center justify-center mb-3">
+                    {React.cloneElement(role.icon as React.ReactElement, { className: cn("text-primary", role.id === 'seeker' ? "w-20 h-20" : "w-16 h-16") })}
                   </div>
                   <h3 className="font-body text-sm text-foreground font-semibold">{role.title}</h3>
                 </CardHeader>
