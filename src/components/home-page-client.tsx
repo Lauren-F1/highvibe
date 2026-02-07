@@ -13,6 +13,7 @@ import { SpaceOwnerIcon } from '@/components/icons/space-owner-icon';
 import { placeholderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
 import { CheckCircle } from 'lucide-react';
+import React from 'react';
 
 interface Role {
   id: 'seeker' | 'guide' | 'vendor' | 'host';
@@ -46,7 +47,7 @@ const roles: Role[] = [
       icon: <VendorIcon className="w-16 h-16 text-primary" />,
       primaryLabel: "Vendor",
       title: "I’m Offering Retreat Services",
-      description: "Offer services that elevate retreats — from wellness and music to food, transport, and local experiences. Be discovered by guides and hosts who need what you provide."
+      description: "Offer services that make retreats unforgettable — from wellness and music to food, transportation, and curated local experiences. Connect with guides and hosts looking to elevate their retreats."
     },
     {
       id: 'host',
@@ -125,21 +126,21 @@ export default function HomePageClient() {
               className="group cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg"
             >
               <Card className={cn(
-                  "h-full w-full transition-all duration-200 ease-in-out relative p-4",
+                  "h-full w-full transition-all duration-200 ease-in-out relative p-6",
                   "hover:shadow-xl hover:border-primary/50",
                   isSelected ? 'border-primary shadow-xl bg-accent/50' : 'border-border',
                   selectedRole && !isSelected ? 'opacity-70 hover:opacity-100' : ''
               )}>
                 {isSelected && <CheckCircle className="absolute top-3 right-3 h-5 w-5 text-primary" />}
-                <CardHeader className="items-center text-center p-0 space-y-4">
+                <CardHeader className="items-center text-center p-0 space-y-6">
                   <CardTitle className="font-headline text-3xl text-beige tracking-wider">{role.primaryLabel}</CardTitle>
                   <div className="flex items-center justify-center pt-2">
-                    {role.icon}
+                    {React.cloneElement(role.icon as React.ReactElement, { className: "w-12 h-12 text-primary" })}
                   </div>
-                  <h3 className="font-body text-base !mt-4 text-foreground font-semibold">{role.title}</h3>
+                  <h3 className="font-body text-sm !mt-4 text-foreground font-semibold">{role.title}</h3>
                 </CardHeader>
                 <CardContent className="text-center px-2 pb-2 pt-4">
-                  <CardDescription className="font-body text-xs leading-relaxed text-muted-foreground">{role.description}</CardDescription>
+                  <CardDescription className="font-body text-[13px] leading-snug text-muted-foreground">{role.description}</CardDescription>
                 </CardContent>
               </Card>
             </div>
