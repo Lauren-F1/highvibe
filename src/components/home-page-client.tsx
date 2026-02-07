@@ -28,7 +28,7 @@ const roles: Role[] = [
     {
       id: 'seeker',
       href: "/seeker",
-      icon: <SeekerIcon className="w-16 h-16 text-primary" />,
+      icon: <SeekerIcon />,
       primaryLabel: "Seeker",
       title: "I’m Seeking a Retreat",
       description: "Discover retreats aligned with leadership, wellness, creativity, healing, and personal growth. Get notified when experiences that match what you’re seeking become available."
@@ -36,7 +36,7 @@ const roles: Role[] = [
     {
       id: 'guide',
       href: "/guide",
-      icon: <HostIcon className="w-16 h-16 text-primary" />,
+      icon: <HostIcon />,
       primaryLabel: "Guide",
       title: "I’m Leading a Retreat",
       description: "Design and lead meaningful retreat experiences. Find the right space, connect with aligned seekers, and collaborate with trusted vendors to bring your vision to life."
@@ -44,7 +44,7 @@ const roles: Role[] = [
     {
       id: 'vendor',
       href: "/vendor",
-      icon: <VendorIcon className="w-16 h-16 text-primary" />,
+      icon: <VendorIcon />,
       primaryLabel: "Vendor",
       title: "I’m Offering Retreat Services",
       description: "Offer services that make retreats unforgettable — from wellness and music to food, transportation, and curated local experiences. Connect with guides and hosts looking to elevate their retreats."
@@ -52,7 +52,7 @@ const roles: Role[] = [
     {
       id: 'host',
       href: "/host",
-      icon: <SpaceOwnerIcon className="w-16 h-16 text-primary" />,
+      icon: <SpaceOwnerIcon />,
       primaryLabel: "Host",
       title: "I’m Listing a Retreat Space",
       description: "List a property designed for retreats, gatherings, and immersive experiences. Connect with guides seeking beautiful, well-suited spaces for meaningful retreat experiences."
@@ -134,10 +134,10 @@ export default function HomePageClient() {
                 {isSelected && <CheckCircle className="absolute top-3 right-3 h-5 w-5 text-primary" />}
                 <CardHeader className="items-center text-center p-0 space-y-6">
                   <CardTitle className="font-headline text-3xl text-beige tracking-wider">{role.primaryLabel}</CardTitle>
-                  <div className="flex items-center justify-center pt-2">
-                    {React.cloneElement(role.icon as React.ReactElement, { className: "w-12 h-12 text-primary" })}
+                  <div className="flex items-center justify-center">
+                    {React.cloneElement(role.icon as React.ReactElement, { className: cn("text-primary", role.id === 'seeker' ? "w-16 h-16" : "w-14 h-14") })}
                   </div>
-                  <h3 className="font-body text-sm !mt-4 text-foreground font-semibold">{role.title}</h3>
+                  <h3 className="font-body text-sm text-foreground font-semibold">{role.title}</h3>
                 </CardHeader>
                 <CardContent className="text-center px-2 pb-2 pt-4">
                   <CardDescription className="font-body text-[13px] leading-snug text-muted-foreground">{role.description}</CardDescription>
