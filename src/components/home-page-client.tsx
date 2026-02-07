@@ -15,14 +15,14 @@ function RoleCard({ href, icon, primaryLabel, title, description }: RoleCardProp
     <Link href={href} className="group">
       <Card className="h-full w-full transition-all duration-300 ease-in-out hover:shadow-xl hover:border-primary/75">
         <CardHeader className="items-center text-center p-4">
-          <div className="h-32 flex items-center justify-center">
+          <CardTitle className="font-headline text-4xl text-beige tracking-wider">{primaryLabel}</CardTitle>
+          <div className="h-28 flex items-center justify-center my-2">
             {icon}
           </div>
-          <CardTitle className="font-headline text-4xl text-beige tracking-wider !mt-4">{primaryLabel}</CardTitle>
-          <h3 className="font-body text-xl !mt-2 text-foreground">{title}</h3>
+          <h3 className="font-body text-lg !mt-0 text-foreground">{title}</h3>
         </CardHeader>
         <CardContent className="text-center px-4 pb-4 pt-0">
-          <CardDescription className="font-body text-sm leading-relaxed text-muted-foreground">{description}</CardDescription>
+          <CardDescription className="font-body text-xs leading-snug text-muted-foreground">{description}</CardDescription>
         </CardContent>
       </Card>
     </Link>
