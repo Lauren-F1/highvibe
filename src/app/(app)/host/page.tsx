@@ -3,6 +3,7 @@
 
 import { useState, useMemo } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -91,6 +92,7 @@ function StatCard({ title, value, icon, description }: StatCardProps) {
 }
 
 export default function HostPage() {
+  const router = useRouter();
   const [activeSpaceId, setActiveSpaceId] = useState<string | null>(hostSpaces[0]?.id || null);
   const [isPaywallOpen, setPaywallOpen] = useState(false);
   const [connectionModal, setConnectionModal] = useState<{isOpen: boolean, name: string, role: 'Host' | 'Vendor' | 'Guide'}>({isOpen: false, name: '', role: 'Guide'});
@@ -373,7 +375,7 @@ export default function HostPage() {
                                             </CardHeader>
                                             <CardContent>
                                                 <p className="mt-2 text-sm max-w-md mx-auto">
-                                                  No guides are listed yet. When guides join, you’ll be able to browse profiles, save favorites, and start a conversation.
+                                                  No guides are available yet. When guides join, you’ll be able to browse profiles, save favorites, and start a conversation.
                                                 </p>
                                                 <div className="mt-4">
                                                     <Button disabled>Find Guides</Button>
@@ -475,7 +477,7 @@ export default function HostPage() {
                                                 <TableCell>{req.role}</TableCell>
                                                 <TableCell><Badge variant={req.status === 'New Request' ? 'default' : 'secondary'}>{req.status}</Badge></TableCell>
                                                 <TableCell className="text-right">
-                                                    <Button variant="outline" size="sm" className="mr-2">View Message</Button>
+                                                    <Button variant="outline" size="sm" className="mr-2" onClick={() => router.push('/inbox')}>View Message</Button>
                                                 </TableCell>
                                             </TableRow>
                                         ))}
@@ -535,3 +537,5 @@ export default function HostPage() {
     </div>
   );
 }
+
+    

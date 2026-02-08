@@ -370,7 +370,7 @@ export default function GuidePage() {
                                                 <TableCell>{req.role}</TableCell>
                                                 <TableCell><Badge variant={req.status === 'Conversation Started' ? 'default' : 'secondary'}>{req.status}</Badge></TableCell>
                                                 <TableCell className="text-right">
-                                                    <Button variant="outline" size="sm" className="mr-2">View Message</Button>
+                                                    <Button variant="outline" size="sm" className="mr-2" onClick={() => router.push('/inbox')}>View Message</Button>
                                                 </TableCell>
                                             </TableRow>
                                         ))}
@@ -430,3 +430,5 @@ export default function GuidePage() {
     </div>
   );
 }
+
+    

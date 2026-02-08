@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import { Mail } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,10 +15,14 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/firebase';
 import { getAuth } from 'firebase/auth';
+import { useToast } from '@/hooks/use-toast';
+import { isFirebaseEnabled } from '@/firebase/config';
+import { ToastAction } from './ui/toast';
 
 export function Header() {
   const router = useRouter();
   const user = useUser();
+  const { toast } = useToast();
 
   const handleLogout = () => {
     if (user.status === 'authenticated') {
@@ -29,6 +32,14 @@ export function Header() {
         });
     }
   };
+  
+  const handlePreviewClick = () => {
+    toast({
+        title: "Account setup is coming soon.",
+        description: "You’re currently in Preview Mode.",
+        action: <ToastAction altText="Continue">Continue</ToastAction>,
+    })
+  }
 
   const userInitial = user.status === 'authenticated'
     ? user.data.displayName?.charAt(0) || user.data.email?.charAt(0) || 'U'
@@ -60,17 +71,14 @@ export function Header() {
              <Link href={user.status === 'authenticated' && user.profile?.roles?.vendor ? "/vendor" : "/join/vendor"} className="transition-colors hover:text-foreground/80 text-foreground/60">
               For Vendors
             </Link>
+             <Link href="/inbox" className="transition-colors hover:text-foreground/80 text-foreground/60">
+              Inbox
+            </Link>
           </nav>
         </div>
         <div className="flex items-center space-x-2">
             {user.status === 'authenticated' ? (
                 <>
-                    <Button variant="ghost" size="icon" asChild>
-                        <Link href="/inbox">
-                        <Mail className="h-5 w-5" />
-                        <span className="sr-only">Inbox</span>
-                        </Link>
-                    </Button>
                     <Button variant="ghost" asChild>
                         <Link href="/billing">Billing</Link>
                     </Button>
@@ -105,12 +113,21 @@ export function Header() {
                 </>
             ) : user.status === 'unauthenticated' ? (
                  <>
-                    <Button variant="ghost" asChild>
-                        <Link href="/login">Login</Link>
-                    </Button>
-                    <Button asChild>
-                        <Link href="/join/guide">Sign Up</Link>
-                    </Button>
+                    {!isFirebaseEnabled ? (
+                        <>
+                            <Button variant="ghost" onClick={handlePreviewClick}>Login</Button>
+                            <Button onClick={handlePreviewClick}>Sign Up</Button>
+                        </>
+                    ) : (
+                        <>
+                            <Button variant="ghost" asChild>
+                                <Link href="/login">Login</Link>
+                            </Button>
+                            <Button asChild>
+                                <Link href="/join/guide">Sign Up</Link>
+                            </Button>
+                        </>
+                    )}
                 </>
             ) : null }
         </div>
@@ -118,3 +135,5 @@ export function Header() {
     </header>
   );
 }
+
+    

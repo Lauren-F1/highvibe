@@ -1,16 +1,32 @@
+'use client';
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useUser } from "@/firebase";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Info } from "lucide-react";
 
 const conversations = [
-  { id: 1, name: 'Elena Ray', role: 'Vendor', retreat: 'Sunrise Yoga in Bali', lastMessage: 'Sounds great! I can do that for $500.', avatar: 'https://images.unsplash.com/photo-1556911220-bff31c812dba?w=200', unread: true },
-  { id: 2, name: 'The Glass House', role: 'Host', retreat: 'Andes Hiking Adventure', lastMessage: 'Yes, we are available for those dates. Let\'s connect.', avatar: 'https://images.unsplash.com/photo-1600585154340-be6164a83639?w=200', unread: false },
-  { id: 3, name: 'Sam Kolder', role: 'Vendor', retreat: 'Sunrise Yoga in Bali', lastMessage: 'Perfect, I will send over the contract shortly.', avatar: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=200', unread: false },
-
+  { id: 'cr1', name: 'Asha Sharma', role: 'Guide', retreat: 'The Glass House Inquiry', lastMessage: 'This looks like a great fit! Can you confirm availability for November?', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200', unread: true },
+  { id: 'cr2', name: 'Local Caterers', role: 'Vendor', retreat: 'The Glass House Inquiry', lastMessage: 'Yes, we can provide a sample menu for 25 guests.', avatar: 'https://images.unsplash.com/photo-1606756790138-261d2b21cd75?w=200', unread: true },
+  { id: 'cr3', name: 'Ubud Jungle Haven', role: 'Host', retreat: 'Sunrise Yoga in Bali', lastMessage: 'We have availability. Let\'s discuss details.', avatar: 'https://images.unsplash.com/photo-1600585154340-be6164a83639?w=200', unread: false },
 ];
 
 export default function InboxPage() {
+  const user = useUser();
+  const isPreview = user.status === 'unauthenticated';
+
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
+      {isPreview && (
+        <Alert className="mb-8 bg-blue-50 border-blue-500 text-blue-700">
+          <Info className="h-4 w-4 !text-blue-500" />
+          <AlertTitle className="font-bold">Preview Mode</AlertTitle>
+          <AlertDescription>
+            You are currently in preview mode. This page is showing sample conversations.
+          </AlertDescription>
+        </Alert>
+      )}
       <div className="max-w-3xl mx-auto">
         <h1 className="font-headline text-4xl md:text-5xl font-bold mb-8">Inbox</h1>
         <Card>
@@ -42,3 +58,5 @@ export default function InboxPage() {
     </div>
   );
 }
+
+    
