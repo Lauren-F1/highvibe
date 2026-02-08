@@ -23,6 +23,8 @@ import { GuideCard, type Guide } from '@/components/guide-card';
 import { GuideFilters, type GuideFiltersState } from '@/components/guide-filters';
 import { getDistanceInMiles } from '@/lib/geo';
 import { useToast } from '@/hooks/use-toast';
+import { useUser, useFirestore } from '@/firebase';
+import { collection, addDoc, query, where, getDocs, limit, serverTimestamp } from 'firebase/firestore';
 
 
 const genericImage = placeholderImages.find(p => p.id === 'generic-placeholder')!;
@@ -39,7 +41,7 @@ const connectionRequests = [
 ];
 
 const confirmedBookings = [
-    { id: 'cb1', guideName: 'Marcus Green', retreatName: 'Adventure & Leadership Summit', forSpace: 'The Glass House', dates: 'Nov 5-10, 2024' }
+    { id: 'cb1', guideName: 'Marcus Green', retreatName: 'Adventure & Leadership Summit', forSpace: 'The Glass House', dates: 'Nov 5-10, 2024', partnerRole: 'Guide' }
 ];
 
 interface StatCardProps {
@@ -100,7 +102,11 @@ export default function HostPage() {
   const [appliedVendorFilters, setAppliedVendorFilters] = useState<VendorFiltersState>(initialVendorFilters);
   const [vendorSortOption, setVendorSortOption] = useState('recommended');
   const [vendorFiltersDirty, setVendorFiltersDirty] = useState(false);
+  
   const { toast } = useToast();
+  const currentUser = useUser();
+  const firestore = useFirestore();
+  const [isConnecting, setIsConnecting] = useState(false);
 
   const handleAddNewSpace = () => {
       alert("Navigate to 'Add New Space' page.");
@@ -109,7 +115,17 @@ export default function HostPage() {
   const activeSpace = hostSpaces.find(s => s.id === activeSpaceId);
   const spaceConnectionRequests = connectionRequests.filter(c => c.forSpace === activeSpace?.name);
   const spaceConfirmedBookings = confirmedBookings.filter(c => c.forSpace === activeSpace?.name);
-  
+
+  const displayedConnectionRequests = useMemo(() => {
+    const roleToMatch = activeTab === 'guides' ? 'Guide' : 'Vendor';
+    return spaceConnectionRequests.filter(req => req.role === roleToMatch);
+  }, [spaceConnectionRequests, activeTab]);
+
+  const displayedConfirmedBookings = useMemo(() => {
+    const roleToMatch = activeTab === 'guides' ? 'Guide' : 'Vendor';
+    return spaceConfirmedBookings.filter(booking => booking.partnerRole === roleToMatch);
+  }, [spaceConfirmedBookings, activeTab]);
+
   const handleGuideFilterChange = (newFilters: Partial<GuideFiltersState>) => {
     setGuideFilters(prev => ({...prev, ...newFilters}));
     setGuideFiltersDirty(true);
@@ -172,20 +188,17 @@ export default function HostPage() {
   };
 
   const displayedVendors = useMemo(() => {
-    // 1. Augment vendors with distance information
     const vendorsWithDistance = vendors.map(vendor => {
       if (activeSpace?.hostLat && activeSpace.hostLng && vendor.vendorLat && vendor.vendorLng) {
         const distance = getDistanceInMiles(activeSpace.hostLat, activeSpace.hostLng, vendor.vendorLat, vendor.vendorLng);
         return { ...vendor, distance };
       }
-      return { ...vendor, distance: Infinity }; // No location data, effectively infinite distance
+      return { ...vendor, distance: Infinity };
     });
 
-    // 2. Filter the augmented list
     let filtered = vendorsWithDistance.filter(vendor => {
-      // Location filter
       if (activeSpace?.hostLat && activeSpace.hostLng) {
-        if (vendor.distance === Infinity) return false; // Exclude vendors without location if space has one
+        if (vendor.distance === Infinity) return false;
         
         const isInRadius = vendor.distance <= appliedVendorFilters.radius;
         const canService = !vendor.vendorServiceRadiusMiles || vendor.distance <= vendor.vendorServiceRadiusMiles;
@@ -193,8 +206,7 @@ export default function HostPage() {
         if (!isInRadius || !canService) return false;
       }
 
-      // Other filters
-      if (appliedVendorFilters.categories.length > 0 && !appliedVendorFilters.categories.includes(vendor.category)) {
+      if (appliedVendorFilters.categories.length > 0 && !appliedVendorFilters.categories.some(cat => vendor.category.includes(cat))) {
         return false;
       }
       if (appliedVendorFilters.budget < 5000 && (vendor.startingPrice ?? Infinity) > appliedVendorFilters.budget) {
@@ -204,7 +216,6 @@ export default function HostPage() {
       return true;
     });
 
-    // 3. Sort the filtered list
     switch (vendorSortOption) {
       case 'price-asc':
         filtered.sort((a, b) => (a.startingPrice || Infinity) - (b.startingPrice || Infinity));
@@ -215,19 +226,9 @@ export default function HostPage() {
       case 'recommended':
       default:
         filtered.sort((a, b) => {
-          // Premium first
-          if (a.premiumMembership !== b.premiumMembership) {
-            return b.premiumMembership ? 1 : -1;
-          }
-          // Rating
-          if ((b.rating ?? 0) !== (a.rating ?? 0)) {
-            return (b.rating ?? 0) - (a.rating ?? 0);
-          }
-          // Review Count
-          if ((b.reviewCount ?? 0) !== (a.reviewCount ?? 0)) {
-            return (b.reviewCount ?? 0) - (a.reviewCount ?? 0);
-          }
-          // Distance
+          if (a.premiumMembership !== b.premiumMembership) return b.premiumMembership ? 1 : -1;
+          if ((b.rating ?? 0) !== (a.rating ?? 0)) return (b.rating ?? 0) - (a.rating ?? 0);
+          if ((b.reviewCount ?? 0) !== (a.reviewCount ?? 0)) return (b.reviewCount ?? 0) - (a.reviewCount ?? 0);
           return (a.distance ?? Infinity) - (b.distance ?? Infinity);
         });
         break;
@@ -249,14 +250,69 @@ export default function HostPage() {
     }
   };
 
-  const vendorHeaderText = activeSpace?.hostLat && activeSpace?.hostLng
-    ? `Suggested Vendors near ${activeSpace.name}`
-    : 'Suggested Vendors';
-  
-  const vendorHeaderSubtext = !(activeSpace?.hostLat && activeSpace?.hostLng)
-    ? "Add a space location to enable 'nearby' vendor suggestions."
-    : 'Based on this property’s location. Refine with filters anytime.';
+  const handleRequestConnection = async (targetProfile: Guide | Vendor) => {
+    if (currentUser.status !== 'authenticated' || !firestore) {
+      router.push(`/login?redirect=/host`);
+      return;
+    }
+    
+    if (currentUser.data.uid === targetProfile.uid) {
+        toast({ title: "This is your own profile!", variant: "default" });
+        return;
+    }
 
+    setIsConnecting(true);
+
+    try {
+      const conversationsRef = collection(firestore, 'conversations');
+      const q = query(conversationsRef, where('participants', 'array-contains', currentUser.data.uid), limit(10));
+      const querySnapshot = await getDocs(q);
+      
+      let existingConversationId: string | null = null;
+      querySnapshot.forEach(doc => {
+          const data = doc.data();
+          if(data.participants.includes(targetProfile.uid)) {
+              existingConversationId = doc.id;
+          }
+      });
+      
+      if (existingConversationId) {
+          router.push(`/inbox?c=${existingConversationId}`);
+          return;
+      }
+
+      const newConversationRef = await addDoc(collection(firestore, 'conversations'), {
+        participants: [currentUser.data.uid, targetProfile.uid],
+        participantInfo: {
+          [currentUser.data.uid]: {
+            displayName: currentUser.profile?.displayName || 'Me',
+            avatarUrl: currentUser.profile?.avatarUrl || '',
+          },
+          [targetProfile.uid as string]: {
+            displayName: targetProfile.name,
+            avatarUrl: targetProfile.avatar?.imageUrl || '',
+          }
+        },
+        createdAt: serverTimestamp(),
+        lastMessageAt: serverTimestamp(),
+        lastMessageSnippet: `Connection requested regarding ${activeSpace?.name || 'your space'}.`,
+      });
+      
+      await addDoc(collection(newConversationRef, 'messages'), {
+          senderId: currentUser.data.uid,
+          text: `Hi ${targetProfile.name}, I found your profile on RETREAT and I’d like to connect about my space, "${activeSpace?.name}".`,
+          createdAt: serverTimestamp(),
+      });
+      
+      router.push(`/inbox?c=${newConversationRef.id}`);
+
+    } catch (error) {
+      console.error("Error requesting connection:", error);
+      toast({ title: "Could not start connection", description: "Please try again later.", variant: "destructive" });
+    } finally {
+      setIsConnecting(false);
+    }
+  };
   
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -366,6 +422,8 @@ export default function HostPage() {
                 {activeSpaceId ? (
                     <>
                         <div className="pt-4">
+                             <h3 className="font-headline text-2xl mb-2">Matches Available</h3>
+                             <p className="text-muted-foreground mb-4">Potential connections that fit this space.</p>
                             <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'guides' | 'vendors')}>
                                 <TabsList className="grid w-full grid-cols-2 bg-primary text-primary-foreground">
                                     <TabsTrigger value="guides">Guides (Retreat Leaders)</TabsTrigger>
@@ -379,10 +437,7 @@ export default function HostPage() {
                                         <div className="lg:col-span-3">
                                             <div className='space-y-4'>
                                                 <div className="flex justify-between items-center">
-                                                    <div>
-                                                        <h3 className="font-headline text-2xl">Suggested Guides</h3>
-                                                        <p className="text-sm text-muted-foreground mt-1">A starting point. Refine with filters anytime.</p>
-                                                    </div>
+                                                    <h4 className="font-headline text-xl">{displayedGuides.length} Matching Guides</h4>
                                                     <Select value={guideSortOption} onValueChange={setGuideSortOption}>
                                                         <SelectTrigger className="w-[180px]">
                                                             <SelectValue placeholder="Sort by" />
@@ -396,7 +451,7 @@ export default function HostPage() {
                                                 </div>
                                                 {displayedGuides.length > 0 ? (
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                        {displayedGuides.map(guide => <GuideCard key={guide.id} guide={guide} />)}
+                                                        {displayedGuides.map(guide => <GuideCard key={guide.id} guide={guide} onConnect={handleRequestConnection} />)}
                                                     </div>
                                                 ) : (
                                                     <Card className="text-center py-12">
@@ -427,10 +482,7 @@ export default function HostPage() {
                                         <div className="lg:col-span-3">
                                             <div className="space-y-4">
                                                 <div className="flex justify-between items-center">
-                                                    <div>
-                                                        <h3 className="font-headline text-2xl">{vendorHeaderText}</h3>
-                                                        <p className="text-sm text-muted-foreground mt-1">{vendorHeaderSubtext}</p>
-                                                    </div>
+                                                    <h4 className="font-headline text-xl">{displayedVendors.length} Matching Vendors</h4>
                                                     <Select value={vendorSortOption} onValueChange={setVendorSortOption}>
                                                     <SelectTrigger className="w-[180px]">
                                                         <SelectValue placeholder="Sort by" />
@@ -445,7 +497,7 @@ export default function HostPage() {
                                                 </div>
                                                 {displayedVendors.length > 0 ? (
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                    {displayedVendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} distance={vendor.distance} />)}
+                                                    {displayedVendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} distance={vendor.distance} onConnect={handleRequestConnection} />)}
                                                     </div>
                                                 ) : (
                                                     <Card className="text-center py-12">
@@ -469,8 +521,8 @@ export default function HostPage() {
 
                         <div>
                             <h3 className="font-headline text-2xl mb-2">Connections Requested</h3>
-                            <p className="text-muted-foreground mb-4">Connections you’ve initiated or received.</p>
-                             {spaceConnectionRequests.length > 0 ? (
+                            <p className="text-muted-foreground mb-4">People you’ve reached out to or who’ve started a conversation with you.</p>
+                             {displayedConnectionRequests.length > 0 ? (
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
@@ -481,7 +533,7 @@ export default function HostPage() {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {spaceConnectionRequests.map(req => (
+                                        {displayedConnectionRequests.map(req => (
                                             <TableRow key={req.id}>
                                                 <TableCell className="font-medium">{req.name}</TableCell>
                                                 <TableCell>{req.role}</TableCell>
@@ -504,19 +556,19 @@ export default function HostPage() {
 
                         <div>
                             <h3 className="font-headline text-2xl mb-2">Confirmed Bookings</h3>
-                            <p className="text-muted-foreground mb-4">These are your confirmed retreat relationships and bookings.</p>
-                            {spaceConfirmedBookings.length > 0 ? (
+                            <p className="text-muted-foreground mb-4">These are your confirmed retreat collaborations.</p>
+                            {displayedConfirmedBookings.length > 0 ? (
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
-                                            <TableHead>Guide</TableHead>
+                                            <TableHead>{activeTab === 'guides' ? 'Guide' : 'Partner'}</TableHead>
                                             <TableHead>Retreat</TableHead>
                                             <TableHead>Dates</TableHead>
                                             <TableHead className="text-right">Actions</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {spaceConfirmedBookings.map(booking => (
+                                        {displayedConfirmedBookings.map(booking => (
                                             <TableRow key={booking.id}>
                                                 <TableCell className="font-medium">{booking.guideName}</TableCell>
                                                 <TableCell>{booking.retreatName}</TableCell>
@@ -530,7 +582,10 @@ export default function HostPage() {
                                 </Table>
                             ) : (
                                 <div className="text-center py-12 rounded-lg bg-secondary/50">
-                                    <p className="text-muted-foreground">No confirmed bookings yet. You're building momentum!</p>
+                                    <p className="text-muted-foreground">Your confirmed retreat collaborations will appear here.</p>
+                                     <Button variant="link" className="mt-2" onClick={() => document.getElementById('partnership-dashboard')?.scrollIntoView({ behavior: 'smooth' })}>
+                                        Continue building connections
+                                    </Button>
                                 </div>
                             )}
                         </div>

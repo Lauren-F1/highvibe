@@ -15,13 +15,13 @@ import Link from 'next/link';
 
 export interface VendorCardProps {
   vendor: Vendor;
-  onConnect?: () => void;
+  onConnect?: (vendor: Vendor) => void;
   distance?: number;
 }
 
 const defaultAvatar = placeholderImages.find(p => p.id === 'friendly-host-portrait')!;
 
-export function VendorCard({ vendor, distance }: VendorCardProps) {
+export function VendorCard({ vendor, onConnect, distance }: VendorCardProps) {
   const avatar = vendor.avatar || defaultAvatar;
 
   return (
@@ -58,10 +58,11 @@ export function VendorCard({ vendor, distance }: VendorCardProps) {
             )}
         </div>
       </CardContent>
-        <CardFooter className="p-4 pt-0">
-          <Button asChild className="w-full">
-            <Link href={vendor.profileSlug ? `/u/${vendor.profileSlug}` : '#'}>View Profile</Link>
-          </Button>
+        <CardFooter className="p-4 pt-0 flex items-center gap-2">
+            <Button asChild variant="outline" className="w-full">
+              <Link href={vendor.profileSlug ? `/u/${vendor.profileSlug}` : '#'}>Profile</Link>
+            </Button>
+            {onConnect && <Button onClick={() => onConnect(vendor)} className="w-full">Connect</Button>}
         </CardFooter>
     </Card>
   );

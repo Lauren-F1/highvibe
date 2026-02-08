@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -13,6 +14,7 @@ import Link from 'next/link';
 
 export interface Guide {
   id: string;
+  uid: string;
   name: string;
   specialty: string;
   rating: number;
@@ -28,12 +30,12 @@ export interface Guide {
 
 export interface GuideCardProps {
   guide: Guide;
-  onConnect?: () => void;
+  onConnect?: (guide: Guide) => void;
 }
 
 const defaultAvatar = placeholderImages.find(p => p.id === 'profile-avatar-placeholder')!;
 
-export function GuideCard({ guide }: GuideCardProps) {
+export function GuideCard({ guide, onConnect }: GuideCardProps) {
   const avatar = guide.avatar || defaultAvatar;
 
   return (
@@ -60,10 +62,11 @@ export function GuideCard({ guide }: GuideCardProps) {
            <p className="text-xs text-muted-foreground mt-1">{guide.upcomingRetreatsCount} upcoming retreats</p>
         </div>
       </CardContent>
-      <CardFooter className="p-4 pt-0">
-        <Button asChild className="w-full">
-            <Link href={guide.profileSlug ? `/u/${guide.profileSlug}` : '#'}>View Profile</Link>
+      <CardFooter className="p-4 pt-0 flex items-center gap-2">
+        <Button asChild variant="outline" className="w-full">
+            <Link href={guide.profileSlug ? `/u/${guide.profileSlug}` : '#'}>Profile</Link>
         </Button>
+        {onConnect && <Button onClick={() => onConnect(guide)} className="w-full">Connect</Button>}
       </CardFooter>
     </Card>
   );

@@ -1,7 +1,7 @@
 
 import { placeholderImages } from './placeholder-images';
 import type { ImagePlaceholder } from './placeholder-images';
-import type { Guide } from '@/components/guide-card';
+import type { Guide as GuideType } from '@/components/guide-card';
 
 export interface Host {
   id: string;
@@ -31,7 +31,7 @@ export interface Host {
   hostStateRegion?: string;
 }
 
-export type { Guide } from '@/components/guide-card';
+export type Guide = GuideType;
 
 
 export type UserSubscriptionStatus = 'active' | 'inactive' | 'past_due' | 'trial';
@@ -55,6 +55,7 @@ export const hosts: Host[] = [
 
 export interface Vendor {
     id: string;
+    uid: string;
     name: string;
     category: string;
     rating: number;
@@ -75,14 +76,14 @@ export interface Vendor {
 }
 
 export const vendors: Vendor[] = [
-  { id: 'v1', name: 'Elena Ray', category: 'Catering & Nutrition', rating: 4.9, reviewCount: 88, avatar: placeholderImages.find(p => p.id === 'vendor-chef-profile')!, luxApproved: true, premiumMembership: true, location: 'Bali, Indonesia', vendorLat: -8.5, vendorLng: 115.26, startingPrice: 2000, isSample: true, profileSlug: 'elena-ray' },
-  { id: 'v2', name: 'Sam Kolder', category: 'Photography & Videography', rating: 5.0, reviewCount: 120, avatar: placeholderImages.find(p => p.id === 'vendor-photographer')!, luxApproved: true, premiumMembership: true, location: 'Global', vendorServiceRadiusMiles: 10000, startingPrice: 4500, isSample: true, profileSlug: 'sam-kolder' },
-  { id: 'v3', name: 'Kyoto Wellness Collective', category: 'Yoga & Meditation', rating: 4.8, reviewCount: 75, avatar: placeholderImages.find(p => p.id === 'vendor-yoga-teacher-profile')!, luxApproved: false, premiumMembership: false, location: 'Kyoto, Japan', vendorLat: 35.01, vendorLng: 135.76, startingPrice: 1000, isSample: true, profileSlug: 'kyoto-wellness-collective' },
-  { id: 'v4', name: 'Andean Spirit Guides', category: 'Outdoor Adventure', rating: 4.9, reviewCount: 95, avatar: placeholderImages.find(p => p.id === 'friendly-host-portrait')!, luxApproved: false, premiumMembership: false, location: 'Cusco, Peru', vendorLat: -13.53, vendorLng: -71.96, startingPrice: 1500, isSample: true, profileSlug: 'andean-spirit-guides' },
-  { id: 'v5', name: 'The Sound Sanctuary', category: 'Sound healing', rating: 4.9, reviewCount: 60, avatar: placeholderImages.find(p => p.id === 'generic-placeholder')!, luxApproved: true, premiumMembership: true, location: 'California, USA', vendorLat: 34.05, vendorLng: -118.24, vendorServiceRadiusMiles: 100, startingPrice: 800, isSample: true, profileSlug: 'the-sound-sanctuary' },
-  { id: 'v6', name: 'Breathwork Journeys', category: 'Breathwork', rating: 4.7, reviewCount: 40, avatar: placeholderImages.find(p => p.id === 'profile-avatar-placeholder')!, luxApproved: false, premiumMembership: false, location: 'Remote', startingPrice: 500, isSample: true, profileSlug: 'breathwork-journeys' },
-  { id: 'v7', name: 'Tuscan Tastings', category: 'Private chef / Catering', rating: 5.0, reviewCount: 72, avatar: placeholderImages.find(p => p.id === 'vendor-chef-profile')!, luxApproved: true, premiumMembership: false, location: 'Tuscany, Italy', vendorLat: 43.77, vendorLng: 11.25, vendorServiceRadiusMiles: 50, startingPrice: 3000, isSample: true, profileSlug: 'tuscan-tastings' },
-  { id: 'v8', name: 'Bali Bodywork', category: 'Massage / Spa', rating: 4.8, reviewCount: 110, avatar: placeholderImages.find(p => p.id === 'spa-massage')!, luxApproved: false, premiumMembership: false, location: 'Bali, Indonesia', vendorLat: -8.65, vendorLng: 115.21, startingPrice: 400, isSample: true, profileSlug: 'bali-bodywork' }
+  { id: 'v1', uid: 'v1', name: 'Elena Ray', category: 'Catering & Nutrition', rating: 4.9, reviewCount: 88, avatar: placeholderImages.find(p => p.id === 'vendor-chef-profile')!, luxApproved: true, premiumMembership: true, location: 'Bali, Indonesia', vendorLat: -8.5, vendorLng: 115.26, startingPrice: 2000, isSample: true, profileSlug: 'elena-ray' },
+  { id: 'v2', uid: 'v2', name: 'Sam Kolder', category: 'Photography & Videography', rating: 5.0, reviewCount: 120, avatar: placeholderImages.find(p => p.id === 'vendor-photographer')!, luxApproved: true, premiumMembership: true, location: 'Global', vendorServiceRadiusMiles: 10000, startingPrice: 4500, isSample: true, profileSlug: 'sam-kolder' },
+  { id: 'v3', uid: 'v3', name: 'Kyoto Wellness Collective', category: 'Yoga & Meditation', rating: 4.8, reviewCount: 75, avatar: placeholderImages.find(p => p.id === 'vendor-yoga-teacher-profile')!, luxApproved: false, premiumMembership: false, location: 'Kyoto, Japan', vendorLat: 35.01, vendorLng: 135.76, startingPrice: 1000, isSample: true, profileSlug: 'kyoto-wellness-collective' },
+  { id: 'v4', uid: 'v4', name: 'Andean Spirit Guides', category: 'Outdoor Adventure', rating: 4.9, reviewCount: 95, avatar: placeholderImages.find(p => p.id === 'friendly-host-portrait')!, luxApproved: false, premiumMembership: false, location: 'Cusco, Peru', vendorLat: -13.53, vendorLng: -71.96, startingPrice: 1500, isSample: true, profileSlug: 'andean-spirit-guides' },
+  { id: 'v5', uid: 'v5', name: 'The Sound Sanctuary', category: 'Sound healing', rating: 4.9, reviewCount: 60, avatar: placeholderImages.find(p => p.id === 'generic-placeholder')!, luxApproved: true, premiumMembership: true, location: 'California, USA', vendorLat: 34.05, vendorLng: -118.24, vendorServiceRadiusMiles: 100, startingPrice: 800, isSample: true, profileSlug: 'the-sound-sanctuary' },
+  { id: 'v6', uid: 'v6', name: 'Breathwork Journeys', category: 'Breathwork', rating: 4.7, reviewCount: 40, avatar: placeholderImages.find(p => p.id === 'profile-avatar-placeholder')!, luxApproved: false, premiumMembership: false, location: 'Remote', startingPrice: 500, isSample: true, profileSlug: 'breathwork-journeys' },
+  { id: 'v7', uid: 'v7', name: 'Tuscan Tastings', category: 'Private chef / Catering', rating: 5.0, reviewCount: 72, avatar: placeholderImages.find(p => p.id === 'vendor-chef-profile')!, luxApproved: true, premiumMembership: false, location: 'Tuscany, Italy', vendorLat: 43.77, vendorLng: 11.25, vendorServiceRadiusMiles: 50, startingPrice: 3000, isSample: true, profileSlug: 'tuscan-tastings' },
+  { id: 'v8', uid: 'v8', name: 'Bali Bodywork', category: 'Massage / Spa', rating: 4.8, reviewCount: 110, avatar: placeholderImages.find(p => p.id === 'spa-massage')!, luxApproved: false, premiumMembership: false, location: 'Bali, Indonesia', vendorLat: -8.65, vendorLng: 115.21, startingPrice: 400, isSample: true, profileSlug: 'bali-bodywork' }
 ];
 
 export const yourServices = [
@@ -92,12 +93,12 @@ export const yourServices = [
 ];
 
 export const matchingGuidesForVendor: Guide[] = [
-  { id: 'g1', name: 'Asha Sharma', specialty: 'Yoga & Meditation', rating: 4.9, reviewCount: 45, upcomingRetreatsCount: 3, avatar: placeholderImages.find(p => p.id === 'vendor-yoga-teacher-profile')!, premiumMembership: true, isSample: true, retreatTypes: ['Yoga & Meditation', 'Wellness & Healing'], vibeTags: ['Quiet + Restorative'], profileSlug: 'asha-sharma' },
-  { id: 'g2', name: 'Marcus Green', specialty: 'Adventure & Leadership', rating: 5.0, reviewCount: 32, upcomingRetreatsCount: 2, avatar: placeholderImages.find(p => p.id === 'vendor-photographer')!, premiumMembership: false, isSample: true, retreatTypes: ['Adventure & Aliveness', 'Leadership & Professional Growth'], vibeTags: ['Adventure-friendly'], profileSlug: 'marcus-green' },
-  { id: 'g3', name: 'Isabella Rossi', specialty: 'Culinary & Wellness', rating: 4.8, reviewCount: 60, upcomingRetreatsCount: 4, avatar: placeholderImages.find(p => p.id === 'vendor-chef-profile')!, premiumMembership: true, isSample: true, retreatTypes: ['Wellness & Healing', 'Creativity & Expression'], vibeTags: ['Luxury + Elevated'], profileSlug: 'isabella-rossi' },
-  { id: 'g4', name: 'Liam Johnson', specialty: 'Nature Immersion', rating: 4.7, reviewCount: 28, upcomingRetreatsCount: 1, avatar: placeholderImages.find(p => p.id === 'profile-avatar-placeholder')!, premiumMembership: false, isSample: true, retreatTypes: ['Nature Immersion'], vibeTags: ['Nature + Immersive'], profileSlug: 'liam-johnson' },
-  { id: 'g5', name: 'Sophia Chen', specialty: 'Creative Expression', rating: 4.9, reviewCount: 55, upcomingRetreatsCount: 2, avatar: placeholderImages.find(p => p.id === 'friendly-host-portrait')!, premiumMembership: true, isSample: true, retreatTypes: ['Creativity & Expression'], vibeTags: ['Social + Communal'], profileSlug: 'sophia-chen' },
-  { id: 'g6', name: 'David Lee', specialty: 'Spiritual Exploration', rating: 4.6, reviewCount: 38, upcomingRetreatsCount: 3, avatar: placeholderImages.find(p => p.id === 'vendor-photographer')!, premiumMembership: false, isSample: true, retreatTypes: ['Spiritual Exploration', 'Personal Growth'], vibeTags: ['Quiet + Restorative'], profileSlug: 'david-lee' },
+  { id: 'g1', uid: 'g1', name: 'Asha Sharma', specialty: 'Yoga & Meditation', rating: 4.9, reviewCount: 45, upcomingRetreatsCount: 3, avatar: placeholderImages.find(p => p.id === 'vendor-yoga-teacher-profile')!, premiumMembership: true, isSample: true, retreatTypes: ['Yoga & Meditation', 'Wellness & Healing'], vibeTags: ['Quiet + Restorative'], profileSlug: 'asha-sharma' },
+  { id: 'g2', uid: 'g2', name: 'Marcus Green', specialty: 'Adventure & Leadership', rating: 5.0, reviewCount: 32, upcomingRetreatsCount: 2, avatar: placeholderImages.find(p => p.id === 'vendor-photographer')!, premiumMembership: false, isSample: true, retreatTypes: ['Adventure & Aliveness', 'Leadership & Professional Growth'], vibeTags: ['Adventure-friendly'], profileSlug: 'marcus-green' },
+  { id: 'g3', uid: 'g3', name: 'Isabella Rossi', specialty: 'Culinary & Wellness', rating: 4.8, reviewCount: 60, upcomingRetreatsCount: 4, avatar: placeholderImages.find(p => p.id === 'vendor-chef-profile')!, premiumMembership: true, isSample: true, retreatTypes: ['Wellness & Healing', 'Creativity & Expression'], vibeTags: ['Luxury + Elevated'], profileSlug: 'isabella-rossi' },
+  { id: 'g4', uid: 'g4', name: 'Liam Johnson', specialty: 'Nature Immersion', rating: 4.7, reviewCount: 28, upcomingRetreatsCount: 1, avatar: placeholderImages.find(p => p.id === 'profile-avatar-placeholder')!, premiumMembership: false, isSample: true, retreatTypes: ['Nature Immersion'], vibeTags: ['Nature + Immersive'], profileSlug: 'liam-johnson' },
+  { id: 'g5', uid: 'g5', name: 'Sophia Chen', specialty: 'Creative Expression', rating: 4.9, reviewCount: 55, upcomingRetreatsCount: 2, avatar: placeholderImages.find(p => p.id === 'friendly-host-portrait')!, premiumMembership: true, isSample: true, retreatTypes: ['Creativity & Expression'], vibeTags: ['Social + Communal'], profileSlug: 'sophia-chen' },
+  { id: 'g6', uid: 'g6', name: 'David Lee', specialty: 'Spiritual Exploration', rating: 4.6, reviewCount: 38, upcomingRetreatsCount: 3, avatar: placeholderImages.find(p => p.id === 'vendor-photographer')!, premiumMembership: false, isSample: true, retreatTypes: ['Spiritual Exploration', 'Personal Growth'], vibeTags: ['Quiet + Restorative'], profileSlug: 'david-lee' },
 ];
 
 export const matchingHostsForVendor: Host[] = hosts.slice(0, 4);
