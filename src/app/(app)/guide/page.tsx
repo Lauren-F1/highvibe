@@ -209,9 +209,17 @@ export default function GuidePage() {
                                         </Select>
                                      </div>
                                      <p className="text-muted-foreground mb-4">Find the people who elevate the experience.</p>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                        {vendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} onConnect={() => handleConnectClick(vendor.name, 'Vendor')} />)}
-                                    </div>
+                                    {vendors.length > 0 ? (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                            {vendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} onConnect={() => handleConnectClick(vendor.name, 'Vendor')} />)}
+                                        </div>
+                                    ) : (
+                                        <div className="text-center py-12 rounded-lg bg-secondary/50">
+                                            <p className="text-muted-foreground max-w-md mx-auto">
+                                                We’re expanding this network. If you don’t see the perfect match yet, we’ll surface new vendors as they join.
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </TabsContent>
