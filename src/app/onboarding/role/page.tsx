@@ -17,25 +17,25 @@ const roles: { id: Role, name: string, description: string, icon: React.ReactNod
       id: 'guide',
       name: 'Guide',
       description: 'Design and lead retreats',
-      icon: <HostIcon className="w-12 h-12 text-primary" />
+      icon: <HostIcon className="w-16 h-16 text-primary" />
     },
     {
       id: 'host',
       name: 'Host',
       description: 'List your retreat space',
-      icon: <SpaceOwnerIcon className="w-12 h-12 text-primary" />
+      icon: <SpaceOwnerIcon className="w-16 h-16 text-primary" />
     },
     {
       id: 'vendor',
       name: 'Vendor',
       description: 'Offer retreat services',
-      icon: <VendorIcon className="w-12 h-12 text-primary" />
+      icon: <VendorIcon className="w-16 h-16 text-primary" />
     },
      {
       id: 'seeker',
       name: 'Seeker',
       description: 'Find and book retreats',
-      icon: <SeekerIcon className="w-14 h-14 text-primary" />
+      icon: <SeekerIcon className="w-20 h-20 text-primary" />
     },
 ]
 

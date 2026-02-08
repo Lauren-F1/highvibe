@@ -11,25 +11,25 @@ const roles = [
       name: 'Guide',
       description: 'Design and lead retreats',
       href: '/join/guide',
-      icon: <HostIcon className="w-12 h-12 text-primary" />
+      icon: <HostIcon className="w-16 h-16 text-primary" />
     },
     {
       name: 'Host',
       description: 'List your retreat space',
       href: '/join/host',
-      icon: <SpaceOwnerIcon className="w-12 h-12 text-primary" />
+      icon: <SpaceOwnerIcon className="w-16 h-16 text-primary" />
     },
     {
       name: 'Vendor',
       description: 'Offer retreat services',
       href: '/join/vendor',
-      icon: <VendorIcon className="w-12 h-12 text-primary" />
+      icon: <VendorIcon className="w-16 h-16 text-primary" />
     },
      {
       name: 'Seeker',
       description: 'Find and book retreats',
       href: '/join/seeker',
-      icon: <SeekerIcon className="w-14 h-14 text-primary" />
+      icon: <SeekerIcon className="w-20 h-20 text-primary" />
     },
 ]
 

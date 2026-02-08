@@ -8,7 +8,7 @@ export function VendorIcon(props: SVGProps<SVGSVGElement>) {
       viewBox="0 0 1500 1500"
       fill="none"
       stroke="currentColor"
-      strokeWidth="20"
+      strokeWidth="60"
       {...props}
     >
         <path d="M67 58V1442 M340 58V1442 M613 58V1442 M886 58V1442 M1159 58V1442 M1433 58V1442 M64 59H1436 M64 335H1436 M64 611H1436 M64 888H1436 M64 1164H1436 M64 1441H1436" />
