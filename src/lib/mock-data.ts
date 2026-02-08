@@ -45,17 +45,17 @@ export const yourRetreats = [
 ];
 
 export const hosts: Host[] = [
-    { id: 'h1', name: 'Ubud Jungle Haven', location: 'Bali, Indonesia', capacity: 20, eventCapacity: 30, bedrooms: 10, bathrooms: 10, pricePerNight: 1200, propertyType: 'Villa', image: placeholderImages.find(p => p.id === 'host-bali-villa')!, luxApproved: true, roomStyleTags: ['Private rooms available', 'Mixed (private + shared)'], retreatReady: true, gatheringSpace: true, quietSetting: true, kitchenType: ['full'], cateringAllowed: true, privateChefAllowed: true, policyTags: ['Wellness activities allowed (yoga / sound / breathwork)'] },
-    { id: 'h2', name: 'Kyoto Serenity Center', location: 'Kyoto, Japan', capacity: 15, eventCapacity: 25, bedrooms: 8, bathrooms: 8, pricePerNight: 950, propertyType: 'Retreat Center', image: placeholderImages.find(p => p.id === 'host-kyoto-ryokan')!, luxApproved: false, roomStyleTags: ['Private rooms available'], retreatReady: true, gatheringSpace: true, quietSetting: true, kitchenType: ['full'], cateringAllowed: true, privateChefAllowed: false, policyTags: ['Wellness activities allowed (yoga / sound / breathwork)'] },
-    { id: 'h3', name: 'Sacred Valley Hacienda', location: 'Cusco, Peru', capacity: 25, eventCapacity: 40, bedrooms: 12, bathrooms: 12, pricePerNight: 1500, propertyType: 'Hacienda', image: placeholderImages.find(p => p.id === 'spanish-villa-sunset')!, luxApproved: true, roomStyleTags: ['Private rooms available', 'Shared rooms available', 'Mixed (private + shared)'], retreatReady: true, gatheringSpace: true, quietSetting: false, kitchenType: ['full', 'commercial'], cateringAllowed: true, privateChefAllowed: true, policyTags: ['Alcohol allowed', 'Wellness activities allowed (yoga / sound / breathwork)', 'Outdoor fires allowed (if applicable)'] },
-    { id: 'h4', name: 'Tuscan Farmhouse Estate', location: 'Tuscany, Italy', capacity: 18, eventCapacity: 25, bedrooms: 9, bathrooms: 9, pricePerNight: 1100, propertyType: 'Farmhouse', image: placeholderImages.find(p => p.id === 'host-tuscany-winery-sunset')!, luxApproved: false, roomStyleTags: ['Private rooms available'], retreatReady: true, gatheringSpace: false, quietSetting: true, kitchenType: ['full'], cateringAllowed: true, privateChefAllowed: true, policyTags: ['Alcohol allowed', 'Outdoor fires allowed (if applicable)'] },
-    { id: 'h5', name: 'Modern Bali Escape', location: 'Bali, Indonesia', capacity: 12, eventCapacity: 20, bedrooms: 6, bathrooms: 6, pricePerNight: 800, propertyType: 'Villa', image: placeholderImages.find(p => p.id === 'space-owner-villa')!, luxApproved: false, roomStyleTags: ['Private rooms available', 'Shared rooms available'], retreatReady: false, gatheringSpace: true, quietSetting: false, kitchenType: ['full'], cateringAllowed: true, privateChefAllowed: false, policyTags: ['Alcohol allowed'] },
+    { id: 'h1', name: 'Ubud Jungle Haven', location: 'Bali, Indonesia', capacity: 20, eventCapacity: 30, bedrooms: 10, bathrooms: 10, pricePerNight: 1200, propertyType: 'Villa', image: placeholderImages.find(p => p.id === 'host-bali-villa')!, luxApproved: true, roomStyleTags: ['Private rooms available', 'Mixed (private + shared)'], retreatReady: true, gatheringSpace: true, quietSetting: true, kitchenType: ['full'], cateringAllowed: true, privateChefAllowed: true, policyTags: ['Wellness activities allowed (yoga / sound / breathwork)'], hostLat: -8.5, hostLng: 115.26 },
+    { id: 'h2', name: 'Kyoto Serenity Center', location: 'Kyoto, Japan', capacity: 15, eventCapacity: 25, bedrooms: 8, bathrooms: 8, pricePerNight: 950, propertyType: 'Retreat Center', image: placeholderImages.find(p => p.id === 'host-kyoto-ryokan')!, luxApproved: false, roomStyleTags: ['Private rooms available'], retreatReady: true, gatheringSpace: true, quietSetting: true, kitchenType: ['full'], cateringAllowed: true, privateChefAllowed: false, policyTags: ['Wellness activities allowed (yoga / sound / breathwork)'], hostLat: 35.01, hostLng: 135.76 },
+    { id: 'h3', name: 'Sacred Valley Hacienda', location: 'Cusco, Peru', capacity: 25, eventCapacity: 40, bedrooms: 12, bathrooms: 12, pricePerNight: 1500, propertyType: 'Hacienda', image: placeholderImages.find(p => p.id === 'spanish-villa-sunset')!, luxApproved: true, roomStyleTags: ['Private rooms available', 'Shared rooms available', 'Mixed (private + shared)'], retreatReady: true, gatheringSpace: true, quietSetting: false, kitchenType: ['full', 'commercial'], cateringAllowed: true, privateChefAllowed: true, policyTags: ['Alcohol allowed', 'Wellness activities allowed (yoga / sound / breathwork)', 'Outdoor fires allowed (if applicable)'], hostLat: -13.53, hostLng: -71.96 },
+    { id: 'h4', name: 'Tuscan Farmhouse Estate', location: 'Tuscany, Italy', capacity: 18, eventCapacity: 25, bedrooms: 9, bathrooms: 9, pricePerNight: 1100, propertyType: 'Farmhouse', image: placeholderImages.find(p => p.id === 'host-tuscany-winery-sunset')!, luxApproved: false, roomStyleTags: ['Private rooms available'], retreatReady: true, gatheringSpace: false, quietSetting: true, kitchenType: ['full'], cateringAllowed: true, privateChefAllowed: true, policyTags: ['Alcohol allowed', 'Outdoor fires allowed (if applicable)'], hostLat: 43.77, hostLng: 11.25 },
+    { id: 'h5', name: 'Modern Bali Escape', location: 'Bali, Indonesia', capacity: 12, eventCapacity: 20, bedrooms: 6, bathrooms: 6, pricePerNight: 800, propertyType: 'Villa', image: placeholderImages.find(p => p.id === 'space-owner-villa')!, luxApproved: false, roomStyleTags: ['Private rooms available', 'Shared rooms available'], retreatReady: false, gatheringSpace: true, quietSetting: false, kitchenType: ['full'], cateringAllowed: true, privateChefAllowed: false, policyTags: ['Alcohol allowed'], hostLat: -8.4, hostLng: 115.18 },
 ];
 
 export interface Vendor {
     id: string;
     name: string;
-    service: string;
+    category: string;
     rating: number;
     reviewCount: number;
     avatar?: ImagePlaceholder;
@@ -65,13 +65,14 @@ export interface Vendor {
     vendorLng?: number;
     vendorServiceRadiusMiles?: number;
     vendorBaseLocationLabel?: string;
+    vendorVibeTags?: string[];
 }
 
 export const vendors: Vendor[] = [
-  { id: 'v1', name: 'Elena Ray', service: 'Catering & Nutrition', rating: 4.9, reviewCount: 88, avatar: placeholderImages.find(p => p.id === 'vendor-chef-profile')!, luxApproved: true, location: 'Bali, Indonesia' },
-  { id: 'v2', name: 'Sam Kolder', service: 'Photography & Videography', rating: 5.0, reviewCount: 120, avatar: placeholderImages.find(p => p.id === 'vendor-photographer')!, luxApproved: true, location: 'Global' },
-  { id: 'v3', name: 'Kyoto Wellness Collective', service: 'Yoga & Meditation', rating: 4.8, reviewCount: 75, avatar: placeholderImages.find(p => p.id === 'vendor-yoga-teacher-profile')!, luxApproved: false, location: 'Kyoto, Japan' },
-  { id: 'v4', name: 'Andean Spirit Guides', service: 'Outdoor Adventure', rating: 4.9, reviewCount: 95, avatar: placeholderImages.find(p => p.id === 'friendly-host-portrait')!, luxApproved: false, location: 'Cusco, Peru' },
+  { id: 'v1', name: 'Elena Ray', category: 'Catering & Nutrition', rating: 4.9, reviewCount: 88, avatar: placeholderImages.find(p => p.id === 'vendor-chef-profile')!, luxApproved: true, location: 'Bali, Indonesia' },
+  { id: 'v2', name: 'Sam Kolder', category: 'Photography & Videography', rating: 5.0, reviewCount: 120, avatar: placeholderImages.find(p => p.id === 'vendor-photographer')!, luxApproved: true, location: 'Global' },
+  { id: 'v3', name: 'Kyoto Wellness Collective', category: 'Yoga & Meditation', rating: 4.8, reviewCount: 75, avatar: placeholderImages.find(p => p.id === 'vendor-yoga-teacher-profile')!, luxApproved: false, location: 'Kyoto, Japan' },
+  { id: 'v4', name: 'Andean Spirit Guides', category: 'Outdoor Adventure', rating: 4.9, reviewCount: 95, avatar: placeholderImages.find(p => p.id === 'friendly-host-portrait')!, luxApproved: false, location: 'Cusco, Peru' },
 ];
 
 export const yourServices = [
@@ -142,6 +143,6 @@ export const vendorCategories: { name: string; description?: string }[] = [
     { name: "Art / Creative facilitation" },
     { name: "Decor / Styling / Rentals" },
     { name: "Security (for high-end)" },
-    { name: "Other (out-of-the-box offerings)", description: "For offerings that don’t fit neatly into a category but still elevate retreat experiences." },
+    { name: "Other", description: "I offer something out of the box that I think would be your vibe." },
 ];
 export const vendorPricingTiers = ["Budget", "Mid-range", "Premium", "Luxury"];

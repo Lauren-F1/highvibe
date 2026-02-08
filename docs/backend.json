@@ -246,8 +246,9 @@
         "name": {
           "type": "string"
         },
-        "service": {
-          "type": "string"
+        "vendorCategory": {
+          "type": "string",
+          "description": "The primary category of service offered by the vendor."
         },
         "location": {
           "type": "string"
@@ -267,12 +268,19 @@
         "vendorBaseLocationLabel": {
           "type": "string",
           "description": "Label for the vendor's base location (e.g., 'Bali, Indonesia')."
+        },
+        "vendorVibeTags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Tags describing the vendor's vibe or style."
         }
       },
       "required": [
         "userId",
         "name",
-        "service",
+        "vendorCategory",
         "location"
       ]
     }

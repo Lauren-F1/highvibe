@@ -20,14 +20,15 @@ import { VendorCard } from '@/components/vendor-card';
 import { VendorFilters } from '@/components/vendor-filters';
 import { GuideCard, type Guide } from '@/components/guide-card';
 import { GuideFilters } from '@/components/guide-filters';
+import { enableGuideDiscovery, enableVendorDiscovery } from '@/firebase/config';
 
 
 const genericImage = placeholderImages.find(p => p.id === 'generic-placeholder')!;
 
 const hostSpaces = [
-  { id: 'space1', name: 'The Glass House', location: 'Topanga, California', capacity: 25, rate: 2200, status: 'Published', bookings: 3, image: placeholderImages.find(p => p.id === 'modern-event-space')! },
-  { id: 'space2', name: 'Sacred Valley Hacienda', location: 'Cusco, Peru', capacity: 18, rate: 1500, status: 'Published', bookings: 5, image: placeholderImages.find(p => p.id === 'spanish-villa-sunset')! },
-  { id: 'space3', name: 'Mountain View Lodge', location: 'Asheville, North Carolina', capacity: 40, rate: 3500, status: 'Draft', bookings: 0, image: placeholderImages.find(p => p.id === 'mountain-hike')! },
+  { id: 'space1', name: 'The Glass House', location: 'Topanga, California', capacity: 25, rate: 2200, status: 'Published', bookings: 3, image: placeholderImages.find(p => p.id === 'modern-event-space')!, hostLat: 34.09, hostLng: -118.6 },
+  { id: 'space2', name: 'Sacred Valley Hacienda', location: 'Cusco, Peru', capacity: 18, rate: 1500, status: 'Published', bookings: 5, image: placeholderImages.find(p => p.id === 'spanish-villa-sunset')!, hostLat: -13.53, hostLng: -71.96 },
+  { id: 'space3', name: 'Mountain View Lodge', location: 'Asheville, North Carolina', capacity: 40, rate: 3500, status: 'Draft', bookings: 0, image: placeholderImages.find(p => p.id === 'mountain-hike')!, hostLat: 35.59, hostLng: -82.55 },
 ];
 
 const matchingGuides: Guide[] = [
@@ -217,22 +218,44 @@ export default function HostPage() {
                                             <GuideFilters groupSize={groupSize} onGroupSizeChange={setGroupSize} />
                                         </div>
                                         <div className="lg:col-span-3">
-                                            <div className="flex justify-between items-center mb-4">
-                                                <h3 className="font-headline text-2xl">{matchingGuides.length} Matching {matchingGuides.length === 1 ? 'Guide' : 'Guides'}</h3>
-                                                <Select defaultValue="recommended">
-                                                    <SelectTrigger className="w-[180px]">
-                                                        <SelectValue placeholder="Sort by" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="recommended">Recommended</SelectItem>
-                                                        <SelectItem value="rating">Highest rated</SelectItem>
-                                                        <SelectItem value="newest">Newest</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                {matchingGuides.map(guide => <GuideCard key={guide.id} guide={guide} onConnect={() => handleConnectClick(guide.name, 'Guide')} />)}
-                                            </div>
+                                            {enableGuideDiscovery && matchingGuides.length > 0 ? (
+                                                <>
+                                                    <div className="flex justify-between items-center mb-4">
+                                                        <h3 className="font-headline text-2xl">{matchingGuides.length} Matching {matchingGuides.length === 1 ? 'Guide' : 'Guides'}</h3>
+                                                        <Select defaultValue="recommended">
+                                                            <SelectTrigger className="w-[180px]">
+                                                                <SelectValue placeholder="Sort by" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="recommended">Recommended</SelectItem>
+                                                                <SelectItem value="rating">Highest rated</SelectItem>
+                                                                <SelectItem value="newest">Newest</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                        {matchingGuides.map(guide => <GuideCard key={guide.id} guide={guide} onConnect={() => handleConnectClick(guide.name, 'Guide')} />)}
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <Card className="text-center text-muted-foreground py-8">
+                                                    <CardHeader>
+                                                        <CardTitle className="text-2xl text-foreground">Begin building your guide partnerships.</CardTitle>
+                                                        <CardDescription className="text-sm max-w-md mx-auto">
+                                                            Create curated, vibe-aligned collaborations with guides—so retreat planning starts with alignment, not logistics.
+                                                        </CardDescription>
+                                                    </CardHeader>
+                                                    <CardContent>
+                                                        <p className="mt-4 text-sm max-w-md mx-auto">
+                                                            No guides are available yet. Once guides join, you’ll be able to explore aligned matches and save favorites.
+                                                        </p>
+                                                        <div className="mt-6">
+                                                            <Button disabled>Find Guides</Button>
+                                                            <p className="text-xs text-muted-foreground mt-2">Guide discovery will unlock at launch.</p>
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                            )}
                                         </div>
                                     </div>
                                 </TabsContent>
@@ -242,24 +265,50 @@ export default function HostPage() {
                                             <VendorFilters />
                                         </div>
                                         <div className="lg:col-span-3">
-                                            <div className="flex justify-between items-center mb-4">
-                                                <h3 className="font-headline text-2xl">{localVendors.length} Matching {localVendors.length === 1 ? 'Vendor' : 'Vendors'}</h3>
-                                                <Select defaultValue="recommended">
-                                                    <SelectTrigger className="w-[180px]">
-                                                        <SelectValue placeholder="Sort by" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="recommended">Recommended</SelectItem>
-                                                        <SelectItem value="price-asc">Price (low to high)</SelectItem>
-                                                        <SelectItem value="price-desc">Price (high to low)</SelectItem>
-                                                        <SelectItem value="rating">Highest rated</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                            <p className="text-muted-foreground mb-4">Discover local vendors to elevate your guests' experience.</p>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                {localVendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} onConnect={() => handleConnectClick(vendor.name, 'Vendor')} />)}
-                                            </div>
+                                            {activeSpace && (!activeSpace.hostLat || !activeSpace.hostLng) ? (
+                                                <Card className="flex items-center justify-center text-center py-12 h-full">
+                                                    <p className="text-destructive text-sm max-w-xs">Add a location to this space to enable local vendor matching.</p>
+                                                </Card>
+                                            ) : enableVendorDiscovery && localVendors.length > 0 ? (
+                                                <>
+                                                    <div className="flex justify-between items-center mb-4">
+                                                        <h3 className="font-headline text-2xl">{localVendors.length} Matching {localVendors.length === 1 ? 'Vendor' : 'Vendors'}</h3>
+                                                        <Select defaultValue="recommended">
+                                                            <SelectTrigger className="w-[180px]">
+                                                                <SelectValue placeholder="Sort by" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="recommended">Recommended</SelectItem>
+                                                                <SelectItem value="price-asc">Price (low to high)</SelectItem>
+                                                                <SelectItem value="price-desc">Price (high to low)</SelectItem>
+                                                                <SelectItem value="rating">Highest rated</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                    <p className="text-muted-foreground mb-4">Discover local vendors to elevate your guests' experience.</p>
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                        {localVendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} onConnect={() => handleConnectClick(vendor.name, 'Vendor')} />)}
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <Card className="text-center text-muted-foreground py-8">
+                                                    <CardHeader>
+                                                        <CardTitle className="text-2xl text-foreground">Begin building your vendor partnerships.</CardTitle>
+                                                        <CardDescription className="text-sm max-w-md mx-auto">
+                                                            Create curated, vibe-aligned vendor pairings so guides can build aligned retreat experiences faster.
+                                                        </CardDescription>
+                                                    </CardHeader>
+                                                    <CardContent>
+                                                        <p className="mt-4 text-sm max-w-md mx-auto">
+                                                          No vendors are available yet. Once vendors join, you’ll be able to find nearby options for this property and save favorites.
+                                                        </p>
+                                                        <div className="mt-6">
+                                                            <Button disabled>Find Local Vendors</Button>
+                                                            <p className="text-xs text-muted-foreground mt-2">Vendor discovery will unlock at launch.</p>
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                            )}
                                         </div>
                                     </div>
                                 </TabsContent>
@@ -343,49 +392,6 @@ export default function HostPage() {
                         <p className="text-muted-foreground">Please select a space to see its partnership dashboard.</p>
                     </div>
                 )}
-            </CardContent>
-        </Card>
-
-        <Card>
-            <CardHeader>
-                <CardTitle>Local Partnerships</CardTitle>
-                <CardDescription>
-                    Create curated, vibe-aligned vendor pairings so guides can build aligned retreat experiences faster.
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="text-center text-muted-foreground py-8">
-                {activeSpace && (!activeSpace.hostLat || !activeSpace.hostLng) && (
-                    <p className="text-destructive text-sm mb-4">
-                        Add your location to enable local vendor matching.
-                    </p>
-                )}
-                <p className="text-base text-foreground">Begin building your vendor partnerships.</p>
-                <p className="mt-4 text-sm max-w-md mx-auto">
-                    No vendors are available yet. Once vendors join, you’ll be able to find nearby options and save favorites.
-                </p>
-                <div className="mt-6">
-                    <Button disabled>Find Local Vendors</Button>
-                    <p className="text-xs text-muted-foreground mt-2">Vendor discovery will unlock at launch.</p>
-                </div>
-            </CardContent>
-        </Card>
-
-        <Card>
-            <CardHeader>
-                <CardTitle>Local Guides</CardTitle>
-                <CardDescription>
-                    Create curated, vibe-aligned collaborations with guides—so retreat planning starts with alignment, not logistics.
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="text-center text-muted-foreground py-8">
-                <p className="text-base text-foreground">Begin building your guide partnerships.</p>
-                <p className="mt-4 text-sm max-w-md mx-auto">
-                    No guides are available yet. Once guides join, you’ll be able to explore aligned matches and save favorites.
-                </p>
-                <div className="mt-6">
-                    <Button disabled>Find Guides</Button>
-                    <p className="text-xs text-muted-foreground mt-2">Guide discovery will unlock at launch.</p>
-                </div>
             </CardContent>
         </Card>
       </div>
