@@ -9,7 +9,7 @@ export default function ContactPage() {
           <CardHeader>
             <CardTitle className="font-headline text-4xl">Contact</CardTitle>
             <CardDescription>
-              Need help, have feedback, or want to partner with HighVibe? Send a message below and we’ll get back to you.
+              Need help, have feedback, or want to partner with RETREAT? Send a message below and we’ll get back to you.
             </CardDescription>
           </CardHeader>
           <CardContent>

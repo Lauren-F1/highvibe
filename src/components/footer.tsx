@@ -9,13 +9,13 @@ export function Footer() {
           <Link href="/">
             <Image
               src="/logo.svg"
-              alt="High Vibe Retreats"
+              alt="RETREAT"
               width={140}
               height={50}
             />
           </Link>
           <p className="mt-4 text-sm text-muted-foreground sm:mt-0">
-            © {new Date().getFullYear()} High Vibe Retreats Inc. All rights reserved.
+            © {new Date().getFullYear()} RETREAT Inc. All rights reserved.
           </p>
           <div className="mt-4 flex space-x-6 sm:mt-0">
             <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground">

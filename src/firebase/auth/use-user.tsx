@@ -14,14 +14,11 @@ export interface UserProfile extends DocumentData {
   email: string;
   displayName?: string;
   photoURL?: string;
-  roles: {
-    guide?: boolean;
-    host?: boolean;
-    vendor?: boolean;
-  };
-  primaryRole?: 'guide' | 'host' | 'vendor';
-  profileStatus?: 'incomplete' | 'pending_review' | 'active';
+  roles: ('guide' | 'host' | 'vendor' | 'seeker')[];
+  primaryRole?: 'guide' | 'host' | 'vendor' | 'seeker';
+  onboardingComplete: boolean;
   createdAt?: any;
+  lastLoginAt?: any;
 }
 
 export type AuthState =

@@ -14,7 +14,7 @@ import {
   sendPasswordResetEmail,
 } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp, arrayUnion } from 'firebase/firestore';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -29,17 +29,36 @@ import { Input } from '@/components/ui/input';
 import { useFirebaseApp, useFirestore } from '@/firebase';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
-import { isBuilderMode } from '@/firebase/config';
-import { CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Checkbox } from './ui/checkbox';
 
 const formSchema = z.object({
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
   email: z.string().email({ message: 'Please enter a valid email.' }),
-  password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
+  password: z.string().min(8, { message: 'Password must be at least 8 characters.' }),
+  confirmPassword: z.string().optional(),
+  terms: z.boolean().optional(),
+}).refine(data => {
+    if (data.confirmPassword) {
+        return data.password === data.confirmPassword
+    }
+    return true;
+}, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+}).refine(data => {
+    if (data.terms !== undefined) {
+        return data.terms === true;
+    }
+    return true;
+}, {
+    message: 'You must accept the terms and conditions.',
+    path: ['terms'],
 });
 
 type AuthFormProps = {
   mode: 'login' | 'signup';
-  role?: 'guide' | 'host' | 'vendor';
+  role?: 'guide' | 'host' | 'vendor' | 'seeker';
 };
 
 export function AuthForm({ mode, role }: AuthFormProps) {
@@ -55,42 +74,24 @@ export function AuthForm({ mode, role }: AuthFormProps) {
     defaultValues: { email: '', password: '' },
   });
 
-  if (isBuilderMode) {
-    return (
-      <div className="text-center">
-        <CardHeader className="p-0 mb-6">
-          <CardTitle>Preview Mode</CardTitle>
-          <CardDescription>
-            Account sign-up isn’t available in this build yet. You can still explore the full experience in preview.
-          </CardDescription>
-        </CardHeader>
-        <div className="space-y-4">
-            <Button className="w-full" onClick={() => router.back()}>
-                Continue in Preview Mode
-            </Button>
-        </div>
-      </div>
-    );
-  }
+  const redirectPath = role ? `/${role}` : '/guide';
 
-  const redirectPath = role ? `/${role}/onboarding` : '/guide';
-
-  const createUserProfileDocument = async (user: import('firebase/auth').User, selectedRole: string) => {
+  const createUserProfileDocument = async (user: import('firebase/auth').User, data: z.infer<typeof formSchema>) => {
     if (!firestore) return;
     const userRef = doc(firestore, 'users', user.uid);
+    
+    const displayName = [data.firstName, data.lastName].filter(Boolean).join(' ') || user.displayName || '';
+    
     const userData = {
       uid: user.uid,
       email: user.email?.toLowerCase(),
-      displayName: user.displayName || '',
+      displayName,
       photoURL: user.photoURL || '',
-      roles: {
-        guide: selectedRole === 'guide',
-        host: selectedRole === 'host',
-        vendor: selectedRole === 'vendor',
-      },
-      primaryRole: selectedRole,
-      profileStatus: 'incomplete',
+      roles: role ? [role] : [],
+      primaryRole: role || null,
+      onboardingComplete: !!role,
       createdAt: serverTimestamp(),
+      lastLoginAt: serverTimestamp(),
     };
     await setDoc(userRef, userData, { merge: true });
   };
@@ -103,41 +104,21 @@ export function AuthForm({ mode, role }: AuthFormProps) {
 
     try {
       if (mode === 'signup') {
-        if (!role) throw new Error('Role is required for signup.');
         const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
-        await createUserProfileDocument(userCredential.user, role);
-        toast({ title: 'Account created!', description: "Let's build your profile." });
-        router.push(redirectPath);
-      } else {
-        await signInWithEmailAndPassword(auth, values.email, values.password);
-        router.push('/guide'); // Redirect to a default dashboard after login
-      }
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    if (!app || !firestore) return;
-    setLoading(true);
-    setError(null);
-    const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
-
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const isNewUser = getAdditionalUserInfo(result)?.isNewUser;
-      
-      // If it's a new user signing up via a join page, create their profile
-      if (isNewUser && mode === 'signup' && role) {
-        await createUserProfileDocument(result.user, role);
-        toast({ title: 'Account created!', description: "Let's build your profile." });
-        router.push(redirectPath);
-      } else {
-        // For returning users or login page sign-ins, just redirect
-        router.push('/guide');
+        await createUserProfileDocument(userCredential.user, values);
+        toast({ title: 'Account created!', description: "Let's get started." });
+        if (role) {
+            router.push(redirectPath);
+        } else {
+            router.push('/onboarding/role');
+        }
+      } else { // login
+        const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
+        const userDocRef = doc(firestore, 'users', userCredential.user.uid);
+        await setDoc(userDocRef, { lastLoginAt: serverTimestamp() }, { merge: true });
+        
+        // This part is handled by the login page useEffect now
+        // router.push(redirectPath); 
       }
     } catch (err: any) {
       setError(err.message);
@@ -152,6 +133,7 @@ export function AuthForm({ mode, role }: AuthFormProps) {
         toast({ variant: 'destructive', title: 'Please enter your email address to reset your password.' });
         return;
     }
+    if (!app) return;
     const auth = getAuth(app);
     sendPasswordResetEmail(auth, email)
         .then(() => {
@@ -167,6 +149,36 @@ export function AuthForm({ mode, role }: AuthFormProps) {
         {error && <p className="text-destructive text-center text-sm">{error}</p>}
         <Form {...form}>
             <form onSubmit={form.handleSubmit(handleEmailSubmit)} className="space-y-4">
+            {mode === 'signup' && (
+                <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                        control={form.control}
+                        name="firstName"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>First Name</FormLabel>
+                            <FormControl>
+                            <Input placeholder="First" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="lastName"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Last Name</FormLabel>
+                            <FormControl>
+                            <Input placeholder="Last" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                </div>
+            )}
             <FormField
                 control={form.control}
                 name="email"
@@ -193,29 +205,56 @@ export function AuthForm({ mode, role }: AuthFormProps) {
                 </FormItem>
                 )}
             />
+            {mode === 'signup' && (
+                 <FormField
+                    control={form.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Confirm Password</FormLabel>
+                        <FormControl>
+                        <Input type="password" placeholder="••••••••" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+            )}
+            {mode === 'signup' && (
+                 <FormField
+                    control={form.control}
+                    name="terms"
+                    render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                        <FormControl>
+                            <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                            />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                            <FormLabel>
+                                I agree to the <Link href="/terms" className="underline hover:text-primary" target="_blank">Terms of Service</Link>.
+                            </FormLabel>
+                            <FormMessage />
+                        </div>
+                    </FormItem>
+                    )}
+                />
+            )}
+
             <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? 'Processing...' : (mode === 'login' ? 'Log In' : 'Sign Up')}
             </Button>
             </form>
         </Form>
-        <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-            </div>
-        </div>
-        <Button variant="outline" onClick={handleGoogleSignIn} className="w-full" disabled={loading}>
-            Sign In with Google
-        </Button>
-
+       
         <div className="text-center text-sm text-muted-foreground">
             {mode === 'login' ? (
                 <>
                     <p>
                         Don't have an account?{' '}
-                        <Link href="/join/guide" className="text-primary hover:underline">
+                        <Link href="/join" className="text-primary hover:underline">
                             Sign up
                         </Link>
                     </p>

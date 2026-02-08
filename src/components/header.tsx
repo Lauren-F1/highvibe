@@ -33,10 +33,6 @@ export function Header() {
   const userInitial = user.status === 'authenticated'
     ? user.data.displayName?.charAt(0) || user.data.email?.charAt(0) || 'U'
     : '';
-    
-  const getNavLink = (role: 'guide' | 'host' | 'vendor') => {
-    return user.status === 'authenticated' && user.profile?.roles?.[role] ? `/${role}` : `/join/${role}`;
-  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -45,7 +41,7 @@ export function Header() {
           <Link href="/" className="mr-6">
             <Image
               src="/logo.svg"
-              alt="High Vibe Retreats"
+              alt="RETREAT"
               width={252}
               height={90}
               priority
@@ -64,16 +60,13 @@ export function Header() {
              <Link href='/vendor' className="transition-colors hover:text-foreground/80 text-foreground/60">
               For Vendors
             </Link>
-             <Link href="/inbox" className="transition-colors hover:text-foreground/80 text-foreground/60">
-              Inbox
-            </Link>
           </nav>
         </div>
         <div className="flex items-center space-x-2">
             {user.status === 'authenticated' ? (
                 <>
                     <Button variant="ghost" asChild>
-                        <Link href="/billing">Billing</Link>
+                        <Link href="/inbox">Inbox</Link>
                     </Button>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -94,9 +87,8 @@ export function Header() {
                             </div>
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild><Link href="/account">Account Settings</Link></DropdownMenuItem>
-                        <DropdownMenuItem asChild><Link href="/payouts">Payouts</Link></DropdownMenuItem>
-                        <DropdownMenuItem asChild><Link href="/contact">Support</Link></DropdownMenuItem>
+                        <DropdownMenuItem asChild><Link href="/account">Profile</Link></DropdownMenuItem>
+                        <DropdownMenuItem asChild><Link href="/billing">Billing</Link></DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={handleLogout}>
                             Log out
@@ -110,7 +102,7 @@ export function Header() {
                         <Link href="/login">Login</Link>
                     </Button>
                     <Button asChild>
-                        <Link href="/join/guide">Sign Up</Link>
+                        <Link href="/join">Sign Up</Link>
                     </Button>
                 </>
             )}

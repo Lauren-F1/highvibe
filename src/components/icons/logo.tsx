@@ -6,7 +6,7 @@ export function Logo() {
   return (
     <Image
       src="/logo.svg"
-      alt="High Vibe Retreats Logo"
+      alt="RETREAT Logo"
       width={1152}
       height={413}
       className="mx-auto"
