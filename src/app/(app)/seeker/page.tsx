@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -96,7 +95,7 @@ export default function SeekerPage() {
   const mostExpensiveRetreatId = retreats.reduce((prev, current) => (prev.price > current.price) ? prev : current).id;
   
   // Waitlist form state
-  const [waitlistStatus, setWaitlistStatus] = useState<'idle' | 'submitted' | 'confirmed'>('idle');
+  const [waitlistStatus, setWaitlistStatus] = useState<'idle' | 'submitted'>('idle');
   const [waitlistEmail, setWaitlistEmail] = useState('');
   const [waitlistPhone, setWaitlistPhone] = useState('');
   const [waitlistSmsOptIn, setWaitlistSmsOptIn] = useState(false);
@@ -136,16 +135,6 @@ export default function SeekerPage() {
     
     setFilteredRetreats(newFilteredRetreats);
   }, [experienceType, selectedContinent, selectedRegion, investmentRange, timing]);
-
-  // Simulate confirmation flow
-  useEffect(() => {
-    if (waitlistStatus === 'submitted') {
-      const timer = setTimeout(() => {
-        setWaitlistStatus('confirmed');
-      }, 7000); // Simulate time for user to check email and confirm
-      return () => clearTimeout(timer);
-    }
-  }, [waitlistStatus]);
 
   const handleWaitlistSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -193,21 +182,9 @@ export default function SeekerPage() {
         return (
           <Card className="mt-8 text-left bg-secondary/50">
             <CardHeader>
-              <CardTitle className="text-2xl">Check your email to confirm your spot.</CardTitle>
-              <CardDescription>
-                We’ve sent a quick confirmation so we know where to send updates when retreats like this become available.
-                {waitlistSmsOptIn && <p className="mt-2">We’ve also sent a quick text to confirm your number.</p>}
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        );
-      case 'confirmed':
-        return (
-          <Card className="mt-8 text-left bg-secondary/50">
-            <CardHeader>
               <CardTitle className="text-2xl">You’re on the list.</CardTitle>
               <CardDescription>
-                We’ll notify you when retreats like this become available.
+                We’ll notify you when retreats like this become available. Email delivery will be enabled soon — for now, your spot is saved.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -234,6 +211,7 @@ export default function SeekerPage() {
                     value={waitlistEmail}
                     onChange={(e) => setWaitlistEmail(e.target.value)}
                   />
+                  <p className="text-xs text-muted-foreground pt-1">No spam. Just aligned retreats when they’re ready.</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone-notify">Phone Number (optional)</Label>
