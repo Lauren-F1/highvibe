@@ -20,7 +20,6 @@ import { VendorCard } from '@/components/vendor-card';
 import { VendorFilters, type VendorFiltersState } from '@/components/vendor-filters';
 import { GuideCard, type Guide } from '@/components/guide-card';
 import { GuideFilters, type GuideFiltersState } from '@/components/guide-filters';
-import { enableGuideDiscovery, enableVendorDiscovery } from '@/firebase/config';
 import { getDistanceInMiles } from '@/lib/geo';
 import { useToast } from '@/hooks/use-toast';
 
@@ -124,25 +123,21 @@ export default function HostPage() {
     setGuideFiltersDirty(false);
   };
   
-  const areGuideFiltersDefault = JSON.stringify(appliedGuideFilters) === JSON.stringify(initialGuideFilters);
-
   const displayedGuides = useMemo(() => {
     let filtered = [...matchingGuidesForVendor];
     
-    if (!areGuideFiltersDefault) {
-      if (appliedGuideFilters.experienceTypes.length > 0) {
-        filtered = filtered.filter(guide => 
-            guide.retreatTypes?.some(type => appliedGuideFilters.experienceTypes.includes(type))
+    if (appliedGuideFilters.experienceTypes.length > 0) {
+      filtered = filtered.filter(guide => 
+          guide.retreatTypes?.some(type => appliedGuideFilters.experienceTypes.includes(type))
+      );
+    }
+    if (appliedGuideFilters.groupSize < 100) {
+        filtered = filtered.filter(guide => (guide.upcomingRetreatsCount + 1) * 5 <= appliedGuideFilters.groupSize);
+    }
+    if (appliedGuideFilters.vibes.length > 0) {
+        filtered = filtered.filter(guide =>
+            guide.vibeTags?.some(tag => appliedGuideFilters.vibes.includes(tag))
         );
-      }
-      if (appliedGuideFilters.groupSize < 100) {
-          filtered = filtered.filter(guide => (guide.upcomingRetreatsCount + 1) * 5 <= appliedGuideFilters.groupSize);
-      }
-      if (appliedGuideFilters.vibes.length > 0) {
-          filtered = filtered.filter(guide =>
-              guide.vibeTags?.some(tag => appliedGuideFilters.vibes.includes(tag))
-          );
-      }
     }
     
     switch (guideSortOption) {
@@ -154,16 +149,12 @@ export default function HostPage() {
         break;
       case 'recommended':
       default:
-         filtered.sort((a, b) => (b.premiumMembership ? 1 : 0) - (a.premiumMembership ? 1 : 0) || (b.rating ?? 0) - (a.rating ?? 0));
+         filtered.sort((a, b) => (b.premiumMembership ? 1 : 0) - (a.premiumMembership ? 1 : 0) || (b.rating ?? 0) - (a.rating ?? 0) || (b.reviewCount ?? 0) - (a.reviewCount ?? 0));
         break;
     }
     
-    if (areGuideFiltersDefault) {
-      return filtered.slice(0, 6);
-    }
-    
     return filtered;
-  }, [appliedGuideFilters, guideSortOption, areGuideFiltersDefault]);
+  }, [appliedGuideFilters, guideSortOption]);
 
   const handleVendorFilterChange = (newFilters: Partial<VendorFiltersState>) => {
     setVendorFilters(prev => ({...prev, ...newFilters}));
@@ -181,13 +172,12 @@ export default function HostPage() {
 
   const displayedVendors = useMemo(() => {
     let filtered = [...vendors];
-    const radius = appliedVendorFilters.radius;
     
     if (activeSpace?.hostLat && activeSpace.hostLng) {
       filtered = filtered.filter(vendor => {
           if (!vendor.vendorLat || !vendor.vendorLng) return vendor.location === 'Global' || vendor.location === 'Remote';
           const distance = getDistanceInMiles(activeSpace.hostLat!, activeSpace.hostLng!, vendor.vendorLat, vendor.vendorLng);
-          const isInRadius = distance <= radius;
+          const isInRadius = distance <= appliedVendorFilters.radius;
 
           if (vendor.vendorServiceRadiusMiles) {
             return isInRadius && distance <= vendor.vendorServiceRadiusMiles;
@@ -212,7 +202,7 @@ export default function HostPage() {
         break;
       case 'recommended':
       default:
-        filtered.sort((a, b) => (b.premiumMembership ? 1 : 0) - (a.premiumMembership ? 1 : 0) || (b.luxApproved ? 1 : 0) - (a.luxApproved ? 1 : 0) || (a.startingPrice || Infinity) - (b.startingPrice || Infinity));
+        filtered.sort((a, b) => (b.premiumMembership ? 1 : 0) - (a.premiumMembership ? 1 : 0) || (b.rating ?? 0) - (a.rating ?? 0) || (b.reviewCount ?? 0) - (a.reviewCount ?? 0));
         break;
     }
     
@@ -231,6 +221,15 @@ export default function HostPage() {
         });
     }
   };
+
+  const vendorHeaderText = activeSpace?.hostLat && activeSpace?.hostLng
+    ? `Suggested Vendors near ${activeSpace.name}`
+    : 'Suggested Vendors';
+  
+  const vendorHeaderSubtext = !(activeSpace?.hostLat && activeSpace?.hostLng)
+    ? "Add a space location to enable 'nearby' vendor suggestions."
+    : 'Based on this property’s location. Refine with filters anytime.';
+
   
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -351,27 +350,12 @@ export default function HostPage() {
                                             <GuideFilters filters={guideFilters} onFiltersChange={handleGuideFilterChange} onApply={handleApplyGuideFilters} onReset={handleResetGuideFilters} isDirty={guideFiltersDirty}/>
                                         </div>
                                         <div className="lg:col-span-3">
-                                        {!enableGuideDiscovery ? (
-                                            <Card className="text-center py-6">
-                                                <CardHeader className="pb-2">
-                                                    <CardTitle className="font-headline text-xl">Start building your guide partnerships.</CardTitle>
-                                                    <CardDescription className="max-w-md mx-auto">Find guides who fit the vibe of this space—and the kind of experience you want people to leave with.</CardDescription>
-                                                </CardHeader>
-                                                <CardContent>
-                                                    <p className="text-muted-foreground text-sm mb-4">No guides are listed yet. When guides join, you’ll be able to browse profiles, save favorites, and start a conversation.</p>
-                                                    <Button disabled>Find Guides</Button>
-                                                    <p className="text-xs text-muted-foreground mt-2">Guide discovery unlocks at launch.</p>
-                                                </CardContent>
-                                            </Card>
-                                        ) : (
-                                            <>
-                                                <div>
-                                                    <h3 className="font-headline text-2xl">Suggested Guides</h3>
-                                                    <p className="text-sm text-muted-foreground mt-1">A starting point. Refine with filters anytime.</p>
-                                                </div>
-                                                <div className="flex justify-between items-center mb-4 mt-4">
-                                                    
-                                                    <div className="flex-grow"></div>
+                                            <div className='space-y-4'>
+                                                <div className="flex justify-between items-center">
+                                                    <div>
+                                                        <h3 className="font-headline text-2xl">Suggested Guides</h3>
+                                                        <p className="text-sm text-muted-foreground mt-1">A starting point. Refine with filters anytime.</p>
+                                                    </div>
                                                     <Select value={guideSortOption} onValueChange={setGuideSortOption}>
                                                         <SelectTrigger className="w-[180px]">
                                                             <SelectValue placeholder="Sort by" />
@@ -398,86 +382,56 @@ export default function HostPage() {
                                                         </CardContent>
                                                     </Card>
                                                 )}
-                                            </>
-                                        )}
+                                            </div>
                                         </div>
                                     </div>
                                 </TabsContent>
                                 <TabsContent value="vendors" className="mt-6">
                                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                                         <div className="lg:col-span-1">
-                                        <VendorFilters 
-                                            filters={vendorFilters} 
-                                            onFiltersChange={handleVendorFilterChange}
-                                            onApply={handleApplyVendorFilters}
-                                            onReset={handleResetVendorFilters}
-                                            isDirty={vendorFiltersDirty}
-                                        />
+                                            <VendorFilters 
+                                                filters={vendorFilters} 
+                                                onFiltersChange={handleVendorFilterChange}
+                                                onApply={handleApplyVendorFilters}
+                                                onReset={handleResetVendorFilters}
+                                                isDirty={vendorFiltersDirty}
+                                            />
                                         </div>
                                         <div className="lg:col-span-3">
-                                        {!enableVendorDiscovery ? (
-                                             <Card className="text-center py-6">
-                                                <CardHeader className="pb-2">
-                                                    <CardTitle className="font-headline text-xl">Start building your vendor partnerships.</CardTitle>
-                                                    <CardDescription className="max-w-md mx-auto">
-                                                    Discover local vendors who elevate the retreat experience—food, wellness, music, logistics, and everything in between.
-                                                    </CardDescription>
-                                                </CardHeader>
-                                                <CardContent>
-                                                    <p className="text-muted-foreground text-sm mb-4">
-                                                    No vendors are listed yet. When vendors join, you’ll be able to browse nearby options for this property, save favorites, and start a conversation.
-                                                    </p>
-                                                    <Button disabled>Find Local Vendors</Button>
-                                                    <p className="text-xs text-muted-foreground mt-2">Vendor discovery unlocks at launch.</p>
-                                                </CardContent>
-                                            </Card>
-                                        ) : (
-                                            <div>
-                                            {activeSpace && (!activeSpace.hostLat || !activeSpace.hostLng) && (
-                                                <Alert variant="default" className="mb-4">
-                                                    <AlertTitle>Location Missing</AlertTitle>
-                                                    <AlertDescription>
-                                                        Add a location to this space to enable local vendor suggestions.
-                                                        
-                                                    </AlertDescription>
-                                                </Alert>
-                                            )}
-                                            <div>
-                                                <h3 className="font-headline text-2xl">Suggested Vendors near {activeSpace?.name}</h3>
-                                                <p className="text-sm text-muted-foreground mt-1">Based on this property’s location. Refine with filters anytime.</p>
-                                            </div>
-                                            <div className="flex justify-between items-center mb-4 mt-4">
-                                                
-                                                <div className="flex-grow"></div>
-                                                <Select value={vendorSortOption} onValueChange={setVendorSortOption}>
-                                                <SelectTrigger className="w-[180px]">
-                                                    <SelectValue placeholder="Sort by" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="recommended">Recommended</SelectItem>
-                                                    <SelectItem value="price-asc">Price (low to high)</SelectItem>
-                                                    <SelectItem value="price-desc">Price (high to low)</SelectItem>
-                                                    <SelectItem value="rating">Highest rated</SelectItem>
-                                                </SelectContent>
-                                                </Select>
-                                            </div>
-                                            {displayedVendors.length > 0 ? (
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                {displayedVendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} />)}
+                                            <div className="space-y-4">
+                                                <div className="flex justify-between items-center">
+                                                    <div>
+                                                        <h3 className="font-headline text-2xl">{vendorHeaderText}</h3>
+                                                        <p className="text-sm text-muted-foreground mt-1">{vendorHeaderSubtext}</p>
+                                                    </div>
+                                                    <Select value={vendorSortOption} onValueChange={setVendorSortOption}>
+                                                    <SelectTrigger className="w-[180px]">
+                                                        <SelectValue placeholder="Sort by" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="recommended">Recommended</SelectItem>
+                                                        <SelectItem value="price-asc">Price (low to high)</SelectItem>
+                                                        <SelectItem value="price-desc">Price (high to low)</SelectItem>
+                                                        <SelectItem value="rating">Highest rated</SelectItem>
+                                                    </SelectContent>
+                                                    </Select>
                                                 </div>
-                                            ) : (
-                                                <Card className="text-center py-12">
-                                                    <CardHeader>
-                                                        <CardTitle className="font-headline text-xl">No matches yet.</CardTitle>
-                                                        <CardDescription>Try resetting filters.</CardDescription>
-                                                    </CardHeader>
-                                                    <CardContent>
-                                                        <Button onClick={handleResetVendorFilters}>Reset Filters</Button>
-                                                    </CardContent>
-                                                </Card>
-                                            )}
+                                                {displayedVendors.length > 0 ? (
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    {displayedVendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} />)}
+                                                    </div>
+                                                ) : (
+                                                    <Card className="text-center py-12">
+                                                        <CardHeader>
+                                                            <CardTitle className="font-headline text-xl">No matches yet.</CardTitle>
+                                                            <CardDescription>Try resetting filters.</CardDescription>
+                                                        </CardHeader>
+                                                        <CardContent>
+                                                            <Button onClick={handleResetVendorFilters}>Reset Filters</Button>
+                                                        </CardContent>
+                                                    </Card>
+                                                )}
                                             </div>
-                                        )}
                                         </div>
                                     </div>
                                 </TabsContent>

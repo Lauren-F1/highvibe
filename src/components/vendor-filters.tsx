@@ -96,7 +96,7 @@ export function VendorFilters({ filters, onFiltersChange, onApply, onReset, isDi
                  <CardTitle className="text-xl font-headline font-bold">Filter Services</CardTitle>
             </CardHeader>
             <CardContent>
-                 <Accordion type="multiple" defaultValue={["Vendor Category", "Location", "Budget Range", "Availability", "Service Radius"]} className="w-full">
+                 <Accordion type="multiple" defaultValue={["Vendor Category", "Location", "Budget Range", "Availability"]} className="w-full">
                     <FilterGroup title="Vendor Category">
                         {vendorCategories.map(category => <CheckboxFilter key={category.name} item={category.name} description={category.description} />)}
                     </FilterGroup>
@@ -118,25 +118,20 @@ export function VendorFilters({ filters, onFiltersChange, onApply, onReset, isDi
                                 </SelectContent>
                             </Select>
                         </div>
-                    </FilterGroup>
-
-                     <FilterGroup title="Service Radius">
-                        <div className="space-y-4 px-1 pt-2">
-                             <div className="flex justify-between items-center">
-                                <p className="text-sm text-foreground font-medium">Within {filters.radius} miles</p>
-                            </div>
-                            <div className="py-3">
-                                <Slider
-                                    value={[filters.radius]}
-                                    onValueChange={(value) => onFiltersChange({ radius: value[0] })}
-                                    max={200}
-                                    step={10}
-                                />
-                            </div>
-                            <div className="flex justify-between text-xs text-muted-foreground -mt-2">
-                                <span>10 mi</span>
-                                <span>200 mi</span>
-                            </div>
+                        <div className="space-y-2">
+                            <Label>Service Radius</Label>
+                            <Select value={String(filters.radius)} onValueChange={(value) => onFiltersChange({ radius: Number(value) })}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select radius" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="10">Within 10 miles</SelectItem>
+                                    <SelectItem value="25">Within 25 miles</SelectItem>
+                                    <SelectItem value="50">Within 50 miles</SelectItem>
+                                    <SelectItem value="100">Within 100 miles</SelectItem>
+                                    <SelectItem value="200">Within 200 miles</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                     </FilterGroup>
 
