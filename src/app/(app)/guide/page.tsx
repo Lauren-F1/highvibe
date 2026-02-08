@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -10,12 +10,12 @@ import { PlusCircle, MoreHorizontal, CheckCircle, XCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { yourRetreats, hosts, vendors, UserSubscriptionStatus } from '@/lib/mock-data';
+import { yourRetreats, hosts, vendors, UserSubscriptionStatus, destinations } from '@/lib/mock-data';
 import { PaywallModal } from '@/components/paywall-modal';
 import { RequestConnectionModal } from '@/components/request-connection-modal';
 import { HostCard } from '@/components/host-card';
 import { VendorCard } from '@/components/vendor-card';
-import { HostFilters } from '@/components/host-filters';
+import { HostFilters, type HostFiltersState } from '@/components/host-filters';
 import { VendorFilters } from '@/components/vendor-filters';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { placeholderImages } from '@/lib/placeholder-images';
@@ -34,12 +34,38 @@ const confirmedBookings = [
   { id: 'cb1', partnerName: 'Sacred Valley Hacienda', role: 'Host', forRetreat: 'Andes Hiking Adventure', dates: 'Oct 15-22, 2024' },
 ];
 
+const initialHostFilters: HostFiltersState = {
+  continent: 'anywhere',
+  region: '',
+  planningWindow: 'anytime',
+  flexibleDates: false,
+  showNearMatches: false,
+  showExactDates: false,
+  budget: 20000,
+  sleepingCapacity: 'any',
+  eventCapacity: 'any',
+  bedrooms: 'any',
+  bathrooms: 'any',
+  roomStyles: [],
+  amenities: [],
+  retreatReady: false,
+  gatheringSpace: false,
+  quietSetting: false,
+  kitchen: 'any',
+  policies: [],
+  vibes: [],
+};
+
+
 export default function GuidePage() {
   const router = useRouter();
   const [activeRetreatId, setActiveRetreatId] = useState<string | null>(yourRetreats[0]?.id || null);
   const [subscriptionStatus] = useState<UserSubscriptionStatus>('active'); // mock status
   const [isPaywallOpen, setPaywallOpen] = useState(false);
   const [connectionModal, setConnectionModal] = useState<{isOpen: boolean, name: string, role: 'Host' | 'Vendor'}>({isOpen: false, name: '', role: 'Host'});
+
+  const [hostFilters, setHostFilters] = useState<HostFiltersState>(initialHostFilters);
+  const [sortOption, setSortOption] = useState('recommended');
 
   const handleCreateRetreatClick = () => {
     if (subscriptionStatus === 'active') {
@@ -75,7 +101,48 @@ export default function GuidePage() {
 
   const retreatConnectionRequests = connectionRequests.filter(c => c.forRetreat === activeRetreat?.name);
   const retreatConfirmedBookings = confirmedBookings.filter(c => c.forRetreat === activeRetreat?.name);
-  const noHostsFound = hosts.length === 0;
+  
+  const displayHosts = useMemo(() => {
+    let filtered = [...hosts];
+
+    // Location filtering
+    if (hostFilters.continent !== 'anywhere') {
+        if (hostFilters.region) {
+            filtered = filtered.filter(host => host.location === hostFilters.region);
+        } else {
+            const regionsInContinent = destinations[hostFilters.continent] || [];
+            filtered = filtered.filter(host => regionsInContinent.includes(host.location));
+        }
+    }
+    
+    // Budget filtering
+    if(hostFilters.budget < 20000) {
+      filtered = filtered.filter(host => host.pricePerNight <= hostFilters.budget);
+    }
+
+    // Sorting
+    switch (sortOption) {
+      case 'price-asc':
+        filtered.sort((a, b) => a.pricePerNight - b.pricePerNight);
+        break;
+      case 'price-desc':
+        filtered.sort((a, b) => b.pricePerNight - a.pricePerNight);
+        break;
+      case 'recommended':
+         filtered.sort((a, b) => (b.luxApproved ? 1 : 0) - (a.luxApproved ? 1 : 0) || a.pricePerNight - b.pricePerNight);
+        break;
+      case 'rating':
+        // Assuming no rating property, sorting by price descending as a stand-in
+        filtered.sort((a, b) => b.pricePerNight - a.pricePerNight);
+        break;
+      default:
+        break;
+    }
+
+    return filtered;
+  }, [hostFilters, sortOption]);
+
+  const noHostsFound = displayHosts.length === 0;
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -180,7 +247,6 @@ export default function GuidePage() {
                     <>
                         {/* Matches Available */}
                         <div>
-                            <p className="text-muted-foreground mb-4">These are spaces and vendors that fit what you’re looking for.</p>
                             <Tabs defaultValue="hosts">
                                 <TabsList className="grid w-full grid-cols-2 bg-primary text-primary-foreground">
                                     <TabsTrigger value="hosts">Hosts (Spaces)</TabsTrigger>
@@ -189,13 +255,13 @@ export default function GuidePage() {
                                 <TabsContent value="hosts" className="mt-6">
                                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                                         <div className="lg:col-span-1">
-                                            <HostFilters />
+                                            <HostFilters filters={hostFilters} onFiltersChange={(newFilters) => setHostFilters(prev => ({...prev, ...newFilters}))} />
                                         </div>
                                         <div className="lg:col-span-3">
                                             <div className="flex justify-between items-center mb-4">
-                                                <h3 className="font-headline text-2xl">{hosts.length} potential {hosts.length === 1 ? 'space' : 'spaces'} found</h3>
+                                                <h3 className="font-headline text-2xl">{displayHosts.length} potential {displayHosts.length === 1 ? 'space' : 'spaces'} found</h3>
                                                 <p className="text-xs text-muted-foreground">Counts update as you filter.</p>
-                                                <Select defaultValue="recommended">
+                                                <Select value={sortOption} onValueChange={setSortOption}>
                                                     <SelectTrigger className="w-[180px]">
                                                         <SelectValue placeholder="Sort by" />
                                                     </SelectTrigger>
@@ -239,7 +305,7 @@ export default function GuidePage() {
                                                 </Card>
                                             ) : (
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                    {hosts.map(host => <HostCard key={host.id} host={host} onConnect={() => handleConnectClick(host.name, 'Host')} />)}
+                                                    {displayHosts.map(host => <HostCard key={host.id} host={host} onConnect={() => handleConnectClick(host.name, 'Host')} />)}
                                                 </div>
                                             )}
                                         </div>

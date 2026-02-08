@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import * as React from 'react';
@@ -19,6 +17,36 @@ import { Popover, PopoverTrigger, PopoverContent } from './ui/popover';
 import { Calendar } from './ui/calendar';
 import { Switch } from './ui/switch';
 
+export interface HostFiltersState {
+  continent: string;
+  region: string;
+  planningWindow: string;
+  flexibleDates: boolean;
+  showNearMatches: boolean;
+  showExactDates: boolean;
+  startDate?: Date;
+  endDate?: Date;
+  sleepingCapacity: string;
+  eventCapacity: string;
+  bedrooms: string;
+  bathrooms: string;
+  roomStyles: string[];
+  budget: number;
+  amenities: string[];
+  retreatReady: boolean;
+  gatheringSpace: boolean;
+  quietSetting: boolean;
+  kitchen: string;
+  policies: string[];
+  vibes: string[];
+}
+
+interface HostFiltersProps {
+  filters: HostFiltersState;
+  onFiltersChange: (filters: Partial<HostFiltersState>) => void;
+}
+
+
 function FilterGroup({ title, children }: { title: string, children: React.ReactNode }) {
     return (
         <AccordionItem value={title}>
@@ -29,19 +57,6 @@ function FilterGroup({ title, children }: { title: string, children: React.React
                 </div>
             </AccordionContent>
         </AccordionItem>
-    )
-}
-
-function CheckboxFilter({ item, description }: { item: string, description?: string }) {
-    const id = `filter-${item.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
-    return (
-        <div className="flex items-start space-x-3">
-            <Checkbox id={id} className="mt-0.5" />
-            <div className="grid gap-1.5 leading-none">
-                <Label htmlFor={id} className="font-normal leading-tight">{item}</Label>
-                {description && <p className="text-xs text-muted-foreground">{description}</p>}
-            </div>
-        </div>
     )
 }
 
@@ -61,15 +76,36 @@ const planningWindowOptions = [
     { value: '12-plus-months', label: '12+ months' },
 ];
 
-export function HostFilters() {
-    const [startDate, setStartDate] = React.useState<Date>();
-    const [endDate, setEndDate] = React.useState<Date>();
-    const [showExactDates, setShowExactDates] = React.useState(false);
-    const [budget, setBudget] = React.useState(20000);
-    const [selectedContinent, setSelectedContinent] = React.useState('anywhere');
-    const [showNearMatches, setShowNearMatches] = React.useState(false);
+export function HostFilters({ filters, onFiltersChange }: HostFiltersProps) {
 
-    const showRegionFilter = selectedContinent && selectedContinent !== 'anywhere' && destinations[selectedContinent];
+    const handleCheckboxChange = (group: keyof HostFiltersState, item: string, checked: boolean) => {
+        const currentValues = (filters[group] as string[]) || [];
+        const newValues = checked
+            ? [...currentValues, item]
+            : currentValues.filter(v => v !== item);
+        onFiltersChange({ [group]: newValues });
+    };
+
+    const CheckboxFilter = ({ item, description, group }: { item: string, description?: string, group: keyof HostFiltersState }) => {
+        const id = `filter-${group}-${item.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+        const isChecked = Array.isArray(filters[group]) ? (filters[group] as string[]).includes(item) : false;
+        return (
+            <div className="flex items-start space-x-3">
+                <Checkbox 
+                    id={id} 
+                    className="mt-0.5"
+                    checked={isChecked}
+                    onCheckedChange={(checked) => handleCheckboxChange(group, item, !!checked)}
+                />
+                <div className="grid gap-1.5 leading-none">
+                    <Label htmlFor={id} className="font-normal leading-tight">{item}</Label>
+                    {description && <p className="text-xs text-muted-foreground">{description}</p>}
+                </div>
+            </div>
+        )
+    };
+    
+    const showRegionFilter = filters.continent && filters.continent !== 'anywhere' && destinations[filters.continent];
 
     return (
         <Card className="lg:sticky lg:top-24">
@@ -83,7 +119,7 @@ export function HostFilters() {
                         <div className="space-y-2">
                              <p className="text-xs text-muted-foreground">Start broad, then narrow. You can also choose “Anywhere”.</p>
                             <Label>Continent</Label>
-                            <Select defaultValue="anywhere" onValueChange={setSelectedContinent}>
+                            <Select value={filters.continent} onValueChange={(value) => onFiltersChange({ continent: value, region: '' })}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Anywhere" />
                                 </SelectTrigger>
@@ -97,13 +133,13 @@ export function HostFilters() {
                         {showRegionFilter && (
                              <div className="space-y-2">
                                 <Label>Country/Region</Label>
-                                <Select>
+                                <Select value={filters.region} onValueChange={(value) => onFiltersChange({ region: value })}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select Country/Region" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {(destinations[selectedContinent] || []).map(region => (
-                                            <SelectItem key={region} value={region.toLowerCase().replace(/\s/g, '-')}>{region}</SelectItem>
+                                        {(destinations[filters.continent] || []).map(region => (
+                                            <SelectItem key={region} value={region}>{region}</SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
@@ -114,7 +150,7 @@ export function HostFilters() {
                     <FilterGroup title="Availability">
                         <div className="space-y-2">
                             <Label>Planning Window</Label>
-                            <Select defaultValue="anytime">
+                            <Select value={filters.planningWindow} onValueChange={(value) => onFiltersChange({ planningWindow: value })}>
                                 <SelectTrigger>
                                 <SelectValue placeholder="Anytime" />
                                 </SelectTrigger>
@@ -132,14 +168,14 @@ export function HostFilters() {
                             </p>
                         </div>
                         <div className="flex items-start space-x-3 pt-2">
-                            <Checkbox id="flexible-dates-host" />
+                            <Checkbox id="flexible-dates-host" checked={filters.flexibleDates} onCheckedChange={(checked) => onFiltersChange({ flexibleDates: !!checked })} />
                             <div className="grid gap-1.5 leading-none">
                                 <Label htmlFor="flexible-dates-host" className="font-normal">My dates are flexible</Label>
                                 <p className="text-xs text-muted-foreground">Helpful if you’re choosing the location first and locking dates second.</p>
                             </div>
                         </div>
                         <div className="flex items-start space-x-3 pt-2">
-                            <Switch id="near-matches-toggle" onCheckedChange={setShowNearMatches} checked={showNearMatches} className="mt-0.5" />
+                            <Switch id="near-matches-toggle" checked={filters.showNearMatches} onCheckedChange={(checked) => onFiltersChange({ showNearMatches: checked })} className="mt-0.5" />
                             <div className="grid gap-1.5 leading-none">
                                 <Label htmlFor="near-matches-toggle" className="font-normal">Show near matches</Label>
                                 <p className="text-xs text-muted-foreground">We’ll include spaces that are close to your ideal window.</p>
@@ -147,11 +183,11 @@ export function HostFilters() {
                         </div>
 
                         <div className="flex items-start space-x-3 pt-2">
-                            <Switch id="exact-dates-toggle" onCheckedChange={setShowExactDates} checked={showExactDates} className="mt-0.5" />
+                            <Switch id="exact-dates-toggle" checked={filters.showExactDates} onCheckedChange={(checked) => onFiltersChange({ showExactDates: checked })} className="mt-0.5" />
                             <Label htmlFor="exact-dates-toggle" className="font-normal">I have exact dates (optional)</Label>
                         </div>
 
-                        {showExactDates && (
+                        {filters.showExactDates && (
                             <div className="space-y-4 pt-4 mt-4 border-t">
                                 <div className="space-y-2">
                                     <Label htmlFor="start-date">Start Date</Label>
@@ -162,18 +198,18 @@ export function HostFilters() {
                                                 variant={"outline"}
                                                 className={cn(
                                                     "w-full justify-start text-left font-normal",
-                                                    !startDate && "text-muted-foreground"
+                                                    !filters.startDate && "text-muted-foreground"
                                                 )}
                                             >
                                                 <CalendarIcon className="mr-2 h-4 w-4" />
-                                                {startDate ? format(startDate, "PPP") : <span>Pick a date</span>}
+                                                {filters.startDate ? format(filters.startDate, "PPP") : <span>Pick a date</span>}
                                             </Button>
                                         </PopoverTrigger>
                                         <PopoverContent className="w-auto p-0">
                                             <Calendar
                                                 mode="single"
-                                                selected={startDate}
-                                                onSelect={setStartDate}
+                                                selected={filters.startDate}
+                                                onSelect={(date) => onFiltersChange({ startDate: date })}
                                                 initialFocus
                                             />
                                         </PopoverContent>
@@ -188,32 +224,25 @@ export function HostFilters() {
                                                 variant={"outline"}
                                                 className={cn(
                                                     "w-full justify-start text-left font-normal",
-                                                    !endDate && "text-muted-foreground"
+                                                    !filters.endDate && "text-muted-foreground"
                                                 )}
                                             >
                                                 <CalendarIcon className="mr-2 h-4 w-4" />
-                                                {endDate ? format(endDate, "PPP") : <span>Pick a date</span>}
+                                                {filters.endDate ? format(filters.endDate, "PPP") : <span>Pick a date</span>}
                                             </Button>
                                         </PopoverTrigger>
                                         <PopoverContent className="w-auto p-0">
                                             <Calendar
                                                 mode="single"
-                                                selected={endDate}
-                                                onSelect={setEndDate}
+                                                selected={filters.endDate}
+                                                onSelect={(date) => onFiltersChange({ endDate: date })}
                                                 disabled={(date) =>
-                                                    startDate ? date < startDate : false
+                                                    filters.startDate ? date < filters.startDate : false
                                                 }
                                                 initialFocus
                                             />
                                         </PopoverContent>
                                     </Popover>
-                                </div>
-                                <div className="pt-2">
-                                    <div className="flex items-center space-x-2">
-                                        <Checkbox id="flexible-dates" />
-                                        <Label htmlFor="flexible-dates" className="font-normal leading-tight">My dates are flexible</Label>
-                                    </div>
-                                    <p className="text-xs text-muted-foreground mt-1 ml-6">We’ll show spaces that are available close to your dates.</p>
                                 </div>
                             </div>
                         )}
@@ -224,7 +253,7 @@ export function HostFilters() {
                             <p className="text-xs text-muted-foreground">Some spaces sleep fewer than they can host for daytime sessions.</p>
                             <div className="space-y-2">
                                 <Label>Sleeping capacity (guests)</Label>
-                                <Select defaultValue="any">
+                                <Select value={filters.sleepingCapacity} onValueChange={(value) => onFiltersChange({ sleepingCapacity: value })}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Any capacity" />
                                     </SelectTrigger>
@@ -239,7 +268,7 @@ export function HostFilters() {
                             </div>
                              <div className="space-y-2">
                                 <Label>Event capacity (day use)</Label>
-                                <Select defaultValue="any">
+                                <Select value={filters.eventCapacity} onValueChange={(value) => onFiltersChange({ eventCapacity: value })}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Any capacity" />
                                     </SelectTrigger>
@@ -254,7 +283,7 @@ export function HostFilters() {
                             </div>
                              <div className="space-y-2">
                                 <Label>Bedrooms</Label>
-                                <Select defaultValue="any">
+                                <Select value={filters.bedrooms} onValueChange={(value) => onFiltersChange({ bedrooms: value })}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Any" />
                                     </SelectTrigger>
@@ -267,7 +296,7 @@ export function HostFilters() {
                             </div>
                              <div className="space-y-2">
                                 <Label>Bathrooms</Label>
-                                <Select defaultValue="any">
+                                <Select value={filters.bathrooms} onValueChange={(value) => onFiltersChange({ bathrooms: value })}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Any" />
                                     </SelectTrigger>
@@ -280,7 +309,7 @@ export function HostFilters() {
                             </div>
                             <div className="space-y-3 pt-2">
                                 <Label>Room Style</Label>
-                                {roomStyleOptions.map(item => <CheckboxFilter key={item} item={item} />)}
+                                {roomStyleOptions.map(item => <CheckboxFilter key={item} item={item} group="roomStyles" />)}
                             </div>
                         </div>
                     </FilterGroup>
@@ -288,12 +317,12 @@ export function HostFilters() {
                     <FilterGroup title="Nightly Rate">
                         <div className="space-y-4 px-1 pt-2">
                             <div className="flex justify-between items-center">
-                                <p className="text-sm text-foreground font-medium">Up to ${budget.toLocaleString()}{budget >= 20000 ? '+' : ''} / night</p>
+                                <p className="text-sm text-foreground font-medium">Up to ${filters.budget.toLocaleString()}{filters.budget >= 20000 ? '+' : ''} / night</p>
                             </div>
                             <div className="py-3">
                                 <Slider
-                                    value={[budget]}
-                                    onValueChange={(value) => setBudget(value[0])}
+                                    value={[filters.budget]}
+                                    onValueChange={(value) => onFiltersChange({ budget: value[0]})}
                                     max={20000}
                                     step={100}
                                 />
@@ -312,26 +341,44 @@ export function HostFilters() {
                         <div className="space-y-2">
                             <h4 className="font-semibold text-sm">Popular</h4>
                             <div className="space-y-3">
-                                {popularAmenities.map(type => <CheckboxFilter key={type} item={type} />)}
+                                {popularAmenities.map(type => <CheckboxFilter key={type} item={type} group="amenities" />)}
                             </div>
                         </div>
                         <div className="space-y-2 pt-4">
                             <h4 className="font-semibold text-sm">Other</h4>
                             <div className="space-y-3">
-                                {otherAmenities.map(amenity => <CheckboxFilter key={amenity} item={amenity} />)}
+                                {otherAmenities.map(amenity => <CheckboxFilter key={amenity} item={amenity} group="amenities" />)}
                             </div>
                         </div>
                     </FilterGroup>
                     
                     <FilterGroup title="Retreat Suitability">
                         <div className="space-y-4">
-                            <CheckboxFilter item="Retreat-ready spaces" description="Spaces that explicitly support retreats, workshops, and group experiences." />
-                            <CheckboxFilter item="Dedicated gathering space" description="Indoor or covered space suitable for group sessions." />
-                            <CheckboxFilter item="Quiet setting" description="Good for meditation, rest, and low-noise evenings." />
+                             <div className="flex items-start space-x-3">
+                                <Checkbox id="retreat-ready" className="mt-0.5" checked={filters.retreatReady} onCheckedChange={(checked) => onFiltersChange({ retreatReady: !!checked })}/>
+                                <div className="grid gap-1.5 leading-none">
+                                    <Label htmlFor="retreat-ready" className="font-normal">Retreat-ready spaces</Label>
+                                    <p className="text-xs text-muted-foreground">Spaces that explicitly support retreats, workshops, and group experiences.</p>
+                                </div>
+                            </div>
+                             <div className="flex items-start space-x-3">
+                                <Checkbox id="gathering-space" className="mt-0.5" checked={filters.gatheringSpace} onCheckedChange={(checked) => onFiltersChange({ gatheringSpace: !!checked })}/>
+                                <div className="grid gap-1.5 leading-none">
+                                    <Label htmlFor="gathering-space" className="font-normal">Dedicated gathering space</Label>
+                                    <p className="text-xs text-muted-foreground">Indoor or covered space suitable for group sessions.</p>
+                                </div>
+                            </div>
+                             <div className="flex items-start space-x-3">
+                                <Checkbox id="quiet-setting" className="mt-0.5" checked={filters.quietSetting} onCheckedChange={(checked) => onFiltersChange({ quietSetting: !!checked })}/>
+                                <div className="grid gap-1.5 leading-none">
+                                    <Label htmlFor="quiet-setting" className="font-normal">Quiet setting</Label>
+                                    <p className="text-xs text-muted-foreground">Good for meditation, rest, and low-noise evenings.</p>
+                                </div>
+                            </div>
                             
                             <div className="space-y-2">
                                 <Label>Kitchen + meal-friendly</Label>
-                                <Select defaultValue="any">
+                                <Select value={filters.kitchen} onValueChange={(value) => onFiltersChange({ kitchen: value })}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Any" />
                                     </SelectTrigger>
@@ -346,14 +393,14 @@ export function HostFilters() {
                             </div>
                             <div className="space-y-3 pt-2">
                                 <Label>Retreat policies</Label>
-                                {retreatPolicies.map(item => <CheckboxFilter key={item} item={item} />)}
+                                {retreatPolicies.map(item => <CheckboxFilter key={item} item={item} group="policies" />)}
                             </div>
                         </div>
                     </FilterGroup>
 
                     <FilterGroup title="Vibe">
                         <div className="space-y-4">
-                            {hostVibes.map(vibe => <CheckboxFilter key={vibe.name} item={vibe.name} description={vibe.description} />)}
+                            {hostVibes.map(vibe => <CheckboxFilter key={vibe.name} item={vibe.name} description={vibe.description} group="vibes" />)}
                             <p className="text-xs text-muted-foreground pt-1">Vibe helps us match aesthetics and energy—select all that fit.</p>
                         </div>
                     </FilterGroup>
