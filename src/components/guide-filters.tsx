@@ -32,11 +32,15 @@ function FilterGroup({ title, children }: { title: string, children: React.React
     )
 }
 
-function CheckboxFilter({ item }: { item: string }) {
+function CheckboxFilter({ item, description }: { item: string, description?: string }) {
+    const id = `filter-guide-${item.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
     return (
-        <div className="flex items-center space-x-2">
-            <Checkbox id={`filter-guide-${item}`} />
-            <Label htmlFor={`filter-guide-${item}`} className="font-normal leading-tight">{item}</Label>
+        <div className="flex items-start space-x-3">
+            <Checkbox id={id} className="mt-0.5" />
+            <div className="grid gap-1.5 leading-none">
+                <Label htmlFor={id} className="font-normal leading-tight">{item}</Label>
+                {description && <p className="text-xs text-muted-foreground">{description}</p>}
+            </div>
         </div>
     )
 }
@@ -63,7 +67,7 @@ export function GuideFilters() {
                     </FilterGroup>
 
                     <FilterGroup title="Vibe">
-                        {hostVibes.map(vibe => <CheckboxFilter key={vibe} item={vibe} />)}
+                        {hostVibes.map(vibe => <CheckboxFilter key={vibe.name} item={vibe.name} description={vibe.description} />)}
                     </FilterGroup>
 
                      <FilterGroup title="Timing">
