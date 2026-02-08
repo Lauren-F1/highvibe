@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -257,7 +258,7 @@ export default function HostPage() {
         </CardContent>
       </Card>
       
-       <div id="partnership-dashboard" className="space-y-8">
+       <div id="partnership-dashboard" className="space-y-6">
         <Card>
             <CardHeader>
                 <CardTitle className="font-headline text-3xl">Partnership Dashboard for {activeSpace ? `"${activeSpace.name}"` : 'Your Space'}</CardTitle>
@@ -278,10 +279,7 @@ export default function HostPage() {
             <CardContent className="space-y-8">
                 {activeSpaceId ? (
                     <>
-                        {/* Matches Available */}
                         <div>
-                             <h3 className="font-headline text-2xl mb-2">Matches Available</h3>
-                            <p className="text-muted-foreground mb-4">These are guides and vendors that fit what you’re looking for.</p>
                             <Tabs defaultValue="guides">
                                 <TabsList className="grid w-full grid-cols-2 bg-primary text-primary-foreground">
                                     <TabsTrigger value="guides">Guides (Retreat Leaders)</TabsTrigger>
@@ -293,7 +291,7 @@ export default function HostPage() {
                                             <GuideFilters groupSize={groupSize} onGroupSizeChange={setGroupSize} />
                                         </div>
                                         <div className="lg:col-span-3">
-                                            {matchingGuides.length > 0 ? (
+                                            {(enableGuideDiscovery && matchingGuides.length > 0) ? (
                                                 <>
                                                     <div className="flex justify-between items-center mb-4">
                                                         <h3 className="font-headline text-2xl">{matchingGuides.length} Suggested {matchingGuides.length === 1 ? 'Guide' : 'Guides'}</h3>
@@ -315,18 +313,18 @@ export default function HostPage() {
                                             ) : (
                                                 <Card className="text-center text-muted-foreground py-4">
                                                     <CardHeader>
-                                                        <CardTitle className="text-2xl text-foreground">Begin building your guide partnerships.</CardTitle>
+                                                        <CardTitle className="text-2xl text-foreground">Start building your guide partnerships.</CardTitle>
                                                         <CardDescription className="text-sm max-w-md mx-auto">
-                                                            Create curated, vibe-aligned collaborations with guides—so retreat planning starts with alignment, not logistics.
+                                                            Find guides who fit the vibe of this space—and the kind of experience you want people to leave with.
                                                         </CardDescription>
                                                     </CardHeader>
                                                     <CardContent>
                                                         <p className="mt-2 text-sm max-w-md mx-auto">
-                                                            No guides are available yet. Once guides join, you’ll be able to explore aligned matches and save favorites.
+                                                          No guides are listed yet. When guides join, you’ll be able to browse profiles, save favorites, and start a conversation.
                                                         </p>
                                                         <div className="mt-4">
                                                             <Button disabled>Find Guides</Button>
-                                                            <p className="text-xs text-muted-foreground mt-2">Guide discovery will unlock at launch.</p>
+                                                            <p className="text-xs text-muted-foreground mt-2">Guide discovery unlocks at launch.</p>
                                                         </div>
                                                     </CardContent>
                                                 </Card>
@@ -335,58 +333,77 @@ export default function HostPage() {
                                     </div>
                                 </TabsContent>
                                 <TabsContent value="vendors" className="mt-6">
-                                  <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                                    <div className="lg:col-span-1">
-                                      <VendorFilters 
-                                        filters={vendorFilters} 
-                                        onFiltersChange={setVendorFilters}
-                                        onApply={handleApplyVendorFilters}
-                                        onReset={handleResetVendorFilters}
-                                       />
-                                    </div>
-                                    <div className="lg:col-span-3">
-                                      {activeSpace && (!activeSpace.hostLat || !activeSpace.hostLng) ? (
-                                        <Card className="flex items-center justify-center text-center py-12 h-full">
-                                          <p className="text-destructive text-sm max-w-xs">Add a location to this space to enable local vendor matching.</p>
-                                        </Card>
-                                      ) : (
-                                        <div>
-                                          <div className="flex justify-between items-center mb-4">
-                                            <h3 className="font-headline text-2xl">{displayedVendors.length} Matching {displayedVendors.length === 1 ? 'Vendor' : 'Vendors'}</h3>
-                                            <p className="text-xs text-muted-foreground">Preview mode — sample listings.</p>
-                                            <Select value={vendorSortOption} onValueChange={setVendorSortOption}>
-                                              <SelectTrigger className="w-[180px]">
-                                                <SelectValue placeholder="Sort by" />
-                                              </SelectTrigger>
-                                              <SelectContent>
-                                                <SelectItem value="recommended">Recommended</SelectItem>
-                                                <SelectItem value="price-asc">Price (low to high)</SelectItem>
-                                                <SelectItem value="price-desc">Price (high to low)</SelectItem>
-                                                <SelectItem value="rating">Highest rated</SelectItem>
-                                              </SelectContent>
-                                            </Select>
-                                          </div>
-                                          {displayedVendors.length > 0 ? (
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                              {displayedVendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} onConnect={() => handleConnectClick(vendor.name, 'Vendor')} />)}
+                                  {enableVendorDiscovery ? (
+                                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                                      <div className="lg:col-span-1">
+                                        <VendorFilters 
+                                          filters={vendorFilters} 
+                                          onFiltersChange={setVendorFilters}
+                                          onApply={handleApplyVendorFilters}
+                                          onReset={handleResetVendorFilters}
+                                        />
+                                      </div>
+                                      <div className="lg:col-span-3">
+                                        {activeSpace && (!activeSpace.hostLat || !activeSpace.hostLng) ? (
+                                          <Card className="flex items-center justify-center text-center py-12 h-full">
+                                            <p className="text-destructive text-sm max-w-xs">Add a location to this space to enable local vendor matching.</p>
+                                          </Card>
+                                        ) : (
+                                          <div>
+                                            <div className="flex justify-between items-center mb-4">
+                                              <h3 className="font-headline text-2xl">{displayedVendors.length} Suggested {displayedVendors.length === 1 ? 'Vendor' : 'Vendors'}</h3>
+                                              <p className="text-xs text-muted-foreground">Preview mode — sample listings.</p>
+                                              <Select value={vendorSortOption} onValueChange={setVendorSortOption}>
+                                                <SelectTrigger className="w-[180px]">
+                                                  <SelectValue placeholder="Sort by" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                  <SelectItem value="recommended">Recommended</SelectItem>
+                                                  <SelectItem value="price-asc">Price (low to high)</SelectItem>
+                                                  <SelectItem value="price-desc">Price (high to low)</SelectItem>
+                                                  <SelectItem value="rating">Highest rated</SelectItem>
+                                                </SelectContent>
+                                              </Select>
                                             </div>
-                                          ) : (
-                                            <Card className="text-center py-12">
-                                              <CardHeader><CardTitle className="font-headline text-xl">No matches for these filters yet.</CardTitle></CardHeader>
-                                              <CardContent><CardDescription>Try a different category or widening your filters.</CardDescription></CardContent>
-                                            </Card>
-                                          )}
-                                        </div>
-                                      )}
+                                            {displayedVendors.length > 0 ? (
+                                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                {displayedVendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} onConnect={() => handleConnectClick(vendor.name, 'Vendor')} />)}
+                                              </div>
+                                            ) : (
+                                              <Card className="text-center py-12">
+                                                <CardHeader><CardTitle className="font-headline text-xl">No matches for these filters yet.</CardTitle></CardHeader>
+                                                <CardContent><CardDescription>Try a different category or widening your filters.</CardDescription></CardContent>
+                                              </Card>
+                                            )}
+                                          </div>
+                                        )}
+                                      </div>
                                     </div>
-                                  </div>
+                                  ) : (
+                                    <Card className="text-center text-muted-foreground py-4">
+                                        <CardHeader>
+                                            <CardTitle className="text-2xl text-foreground">Start building your vendor partnerships.</CardTitle>
+                                            <CardDescription className="text-sm max-w-md mx-auto">
+                                                Discover local vendors who elevate the retreat experience—food, wellness, music, logistics, and everything in between.
+                                            </CardDescription>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <p className="mt-2 text-sm max-w-md mx-auto">
+                                                No vendors are listed yet. When vendors join, you’ll be able to browse nearby options for this property, save favorites, and start a conversation.
+                                            </p>
+                                            <div className="mt-4">
+                                                <Button disabled>Find Local Vendors</Button>
+                                                <p className="text-xs text-muted-foreground mt-2">Vendor discovery unlocks at launch.</p>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                  )}
                                 </TabsContent>
                             </Tabs>
                         </div>
                         
                         <Separator />
 
-                        {/* Connections Requested */}
                         <div>
                             <h3 className="font-headline text-2xl mb-2">Connections Requested</h3>
                             <p className="text-muted-foreground mb-4">These are people you’ve reached out to or who have requested to connect with you.</p>
@@ -422,7 +439,6 @@ export default function HostPage() {
                         
                         <Separator />
 
-                        {/* Confirmed Bookings */}
                         <div>
                             <h3 className="font-headline text-2xl mb-2">Confirmed Bookings</h3>
                             <p className="text-muted-foreground mb-4">These are your confirmed retreat relationships and bookings.</p>
