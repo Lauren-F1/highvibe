@@ -25,7 +25,7 @@ export default function AboutPage() {
               </ul>
             </div>
             <p className="pt-8 text-center text-muted-foreground italic">
-              HighVibe is growing. If you’re early, you’re part of shaping what this becomes.
+              HighVibe is growing, and we’re grateful you’re here. Your participation helps shape what this becomes. Thank you for being part of the community that brings it to life.
             </p>
           </CardContent>
         </Card>
