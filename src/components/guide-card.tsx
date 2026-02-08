@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 import type { ImagePlaceholder } from '@/lib/placeholder-images';
 import { placeholderImages } from '@/lib/placeholder-images';
+import { Badge } from './ui/badge';
 
 export interface Guide {
   id: string;
@@ -17,6 +18,9 @@ export interface Guide {
   reviewCount: number;
   avatar?: ImagePlaceholder;
   upcomingRetreatsCount: number;
+  retreatTypes?: string[];
+  vibeTags?: string[];
+  premiumMembership?: boolean;
 }
 
 export interface GuideCardProps {
@@ -41,7 +45,10 @@ export function GuideCard({ guide, onConnect }: GuideCardProps) {
           <AvatarFallback>{guide.name.charAt(0)}</AvatarFallback>
         </Avatar>
         <div className="flex-grow">
-          <CardTitle className="text-lg">{guide.name}</CardTitle>
+          <div className="flex justify-between items-start">
+             <CardTitle className="text-lg">{guide.name}</CardTitle>
+             {guide.premiumMembership && <Badge variant="secondary">Featured</Badge>}
+          </div>
           <CardDescription>{guide.specialty}</CardDescription>
           <div className="flex items-center mt-1">
             <Rating value={guide.rating} />

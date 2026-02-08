@@ -20,7 +20,7 @@ import { vendors, type Vendor } from '@/lib/mock-data';
 import { VendorCard } from '@/components/vendor-card';
 import { VendorFilters, type VendorFiltersState } from '@/components/vendor-filters';
 import { GuideCard, type Guide } from '@/components/guide-card';
-import { GuideFilters } from '@/components/guide-filters';
+import { GuideFilters, type GuideFiltersState } from '@/components/guide-filters';
 import { enableGuideDiscovery, enableVendorDiscovery } from '@/firebase/config';
 import { getDistanceInMiles } from '@/lib/geo';
 
@@ -34,9 +34,10 @@ const hostSpaces = [
 ];
 
 const matchingGuides: Guide[] = [
-  { id: 'g1', name: 'Asha Sharma', specialty: 'Yoga & Meditation', rating: 4.9, reviewCount: 45, upcomingRetreatsCount: 3, avatar: placeholderImages.find(p => p.id === 'vendor-yoga-teacher-profile')! },
+  { id: 'g1', name: 'Asha Sharma', specialty: 'Yoga & Meditation', rating: 4.9, reviewCount: 45, upcomingRetreatsCount: 3, avatar: placeholderImages.find(p => p.id === 'vendor-yoga-teacher-profile')!, premiumMembership: true },
   { id: 'g2', name: 'Marcus Green', specialty: 'Adventure & Leadership', rating: 5.0, reviewCount: 32, upcomingRetreatsCount: 2, avatar: placeholderImages.find(p => p.id === 'vendor-photographer')! },
   { id: 'g3', name: 'Isabella Rossi', specialty: 'Culinary & Wellness', rating: 4.8, reviewCount: 60, upcomingRetreatsCount: 4, avatar: placeholderImages.find(p => p.id === 'vendor-chef-profile')! },
+  { id: 'g4', name: 'Liam Harrison', specialty: 'Personal Growth', rating: 4.7, reviewCount: 28, upcomingRetreatsCount: 1, avatar: placeholderImages.find(p => p.id === 'profile-avatar-placeholder')! },
 ];
 
 const connectionRequests = [
@@ -54,6 +55,13 @@ interface StatCardProps {
   icon: React.ReactNode;
   description: string;
 }
+
+const initialGuideFilters: GuideFiltersState = {
+  experienceTypes: [],
+  groupSize: 20,
+  vibes: [],
+  timing: 'anytime',
+};
 
 const initialVendorFilters: VendorFiltersState = {
   categories: [],
@@ -86,7 +94,11 @@ export default function HostPage() {
   const [activeSpaceId, setActiveSpaceId] = useState<string | null>(hostSpaces[0]?.id || null);
   const [isPaywallOpen, setPaywallOpen] = useState(false);
   const [connectionModal, setConnectionModal] = useState<{isOpen: boolean, name: string, role: 'Host' | 'Vendor' | 'Guide'}>({isOpen: false, name: '', role: 'Guide'});
-  const [groupSize, setGroupSize] = useState(20);
+  
+  // Guide filter state
+  const [guideFilters, setGuideFilters] = useState<GuideFiltersState>(initialGuideFilters);
+  const [appliedGuideFilters, setAppliedGuideFilters] = useState<GuideFiltersState>(initialGuideFilters);
+  const [guideSortOption, setGuideSortOption] = useState('recommended');
   
   // Vendor filter state
   const [vendorFilters, setVendorFilters] = useState<VendorFiltersState>(initialVendorFilters);
@@ -105,11 +117,40 @@ export default function HostPage() {
   const activeSpace = hostSpaces.find(s => s.id === activeSpaceId);
   const spaceConnectionRequests = connectionRequests.filter(c => c.forSpace === activeSpace?.name);
   const spaceConfirmedBookings = confirmedBookings.filter(c => c.forSpace === activeSpace?.name);
-
-  const handleApplyVendorFilters = () => {
-    setAppliedVendorFilters(vendorFilters);
+  
+  const handleApplyGuideFilters = () => setAppliedGuideFilters(guideFilters);
+  const handleResetGuideFilters = () => {
+    setGuideFilters(initialGuideFilters);
+    setAppliedGuideFilters(initialGuideFilters);
   };
   
+  const displayedGuides = useMemo(() => {
+    let filtered = [...matchingGuides];
+    
+    // Apply filters from `appliedGuideFilters`
+    if (appliedGuideFilters.groupSize < 100) {
+        // Mock filtering logic - in a real app this would be more complex
+        filtered = filtered.filter(guide => (guide.upcomingRetreatsCount + 1) * 5 <= appliedGuideFilters.groupSize);
+    }
+    
+    // Sort
+    switch (guideSortOption) {
+      case 'rating':
+        filtered.sort((a, b) => b.rating - a.rating);
+        break;
+      case 'newest':
+         filtered.sort((a, b) => b.reviewCount - a.reviewCount);
+        break;
+      case 'recommended':
+      default:
+         filtered.sort((a, b) => (b.premiumMembership ? 1 : 0) - (a.premiumMembership ? 1 : 0) || b.rating - a.rating);
+        break;
+    }
+    
+    return filtered;
+  }, [appliedGuideFilters, guideSortOption]);
+
+  const handleApplyVendorFilters = () => setAppliedVendorFilters(vendorFilters);
   const handleResetVendorFilters = () => {
     setVendorFilters(initialVendorFilters);
     setAppliedVendorFilters(initialVendorFilters);
@@ -117,7 +158,12 @@ export default function HostPage() {
 
   const displayedVendors = useMemo(() => {
     if (!activeSpace?.hostLat || !activeSpace.hostLng) {
-      return [];
+      // With no location, we can't filter by distance, but we can show non-local results for preview
+      let filtered = [...vendors];
+       if (appliedVendorFilters.categories.length > 0) {
+          filtered = filtered.filter(vendor => appliedVendorFilters.categories.includes(vendor.category));
+      }
+      return filtered;
     }
 
     let filtered = [...vendors];
@@ -125,7 +171,7 @@ export default function HostPage() {
     
     // Initial location filter
     filtered = filtered.filter(vendor => {
-        if (!vendor.vendorLat || !vendor.vendorLng) return false;
+        if (!vendor.vendorLat || !vendor.vendorLng) return vendor.location === 'Global' || vendor.location === 'Remote'; // Include non-geo vendors
         const distance = getDistanceInMiles(activeSpace.hostLat!, activeSpace.hostLng!, vendor.vendorLat, vendor.vendorLng);
         const isInRadius = distance <= radius;
 
@@ -148,13 +194,13 @@ export default function HostPage() {
     // Sort
     switch (vendorSortOption) {
       case 'price-asc':
-        filtered.sort((a, b) => (a.startingPrice || 0) - (b.startingPrice || 0));
+        filtered.sort((a, b) => (a.startingPrice || Infinity) - (b.startingPrice || Infinity));
         break;
       case 'price-desc':
         filtered.sort((a, b) => (b.startingPrice || 0) - (a.startingPrice || 0));
         break;
       case 'recommended':
-         filtered.sort((a, b) => (b.premiumMembership ? 1 : 0) - (a.premiumMembership ? 1 : 0) || (b.luxApproved ? 1 : 0) - (a.luxApproved ? 1 : 0) || (a.startingPrice || 0) - (b.startingPrice || 0));
+         filtered.sort((a, b) => (b.premiumMembership ? 1 : 0) - (a.premiumMembership ? 1 : 0) || (b.luxApproved ? 1 : 0) - (a.luxApproved ? 1 : 0) || (a.startingPrice || Infinity) - (b.startingPrice || Infinity));
         break;
       default:
         break;
@@ -216,7 +262,7 @@ export default function HostPage() {
             </TableHeader>
             <TableBody>
               {hostSpaces.map((space) => (
-                <TableRow key={space.id} className={activeSpaceId === space.id ? 'bg-accent' : ''}>
+                <TableRow key={space.id} className={activeSpaceId === space.id ? 'bg-accent' : ''} onClick={() => setActiveSpaceId(space.id)} style={{cursor: 'pointer'}}>
                   <TableCell>
                     <div className="relative h-12 w-16 rounded-md overflow-hidden bg-secondary">
                       <Image
@@ -239,10 +285,10 @@ export default function HostPage() {
                   <TableCell className="text-right">${space.rate}/night</TableCell>
                   <TableCell className="text-center">{space.bookings}</TableCell>
                   <TableCell className="text-center space-x-2">
-                    <Button variant="outline" size="sm" onClick={() => setActiveSpaceId(space.id)}>Partners Dashboard</Button>
+                    <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); setActiveSpaceId(space.id)}}>Partners Dashboard</Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4"/></Button>
+                        <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}><MoreHorizontal className="h-4 w-4"/></Button>
                       </DropdownMenuTrigger>
                        <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => alert('Edit clicked')}>Edit</DropdownMenuItem>
@@ -279,58 +325,63 @@ export default function HostPage() {
             <CardContent className="space-y-8">
                 {activeSpaceId ? (
                     <>
-                        <div>
+                        <div className="pt-4">
                             <Tabs defaultValue="guides">
                                 <TabsList className="grid w-full grid-cols-2 bg-primary text-primary-foreground">
                                     <TabsTrigger value="guides">Guides (Retreat Leaders)</TabsTrigger>
                                     <TabsTrigger value="vendors">Vendors (Local Partners)</TabsTrigger>
                                 </TabsList>
                                 <TabsContent value="guides" className="mt-6">
+                                  {enableGuideDiscovery ? (
                                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                                         <div className="lg:col-span-1">
-                                            <GuideFilters groupSize={groupSize} onGroupSizeChange={setGroupSize} />
+                                            <GuideFilters filters={guideFilters} onFiltersChange={setGuideFilters} onApply={handleApplyGuideFilters} onReset={handleResetGuideFilters} />
                                         </div>
                                         <div className="lg:col-span-3">
-                                            {(enableGuideDiscovery && matchingGuides.length > 0) ? (
-                                                <>
-                                                    <div className="flex justify-between items-center mb-4">
-                                                        <h3 className="font-headline text-2xl">{matchingGuides.length} Suggested {matchingGuides.length === 1 ? 'Guide' : 'Guides'}</h3>
-                                                        <Select defaultValue="recommended">
-                                                            <SelectTrigger className="w-[180px]">
-                                                                <SelectValue placeholder="Sort by" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                <SelectItem value="recommended">Recommended</SelectItem>
-                                                                <SelectItem value="rating">Highest rated</SelectItem>
-                                                                <SelectItem value="newest">Newest</SelectItem>
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </div>
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                        {matchingGuides.map(guide => <GuideCard key={guide.id} guide={guide} onConnect={() => handleConnectClick(guide.name, 'Guide')} />)}
-                                                    </div>
-                                                </>
+                                            <div className="flex justify-between items-center mb-4">
+                                                <h3 className="font-headline text-2xl">{displayedGuides.length} Suggested {displayedGuides.length === 1 ? 'Guide' : 'Guides'}</h3>
+                                                <Select value={guideSortOption} onValueChange={setGuideSortOption}>
+                                                    <SelectTrigger className="w-[180px]">
+                                                        <SelectValue placeholder="Sort by" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="recommended">Recommended</SelectItem>
+                                                        <SelectItem value="rating">Highest rated</SelectItem>
+                                                        <SelectItem value="newest">Newest</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            {displayedGuides.length > 0 ? (
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                    {displayedGuides.map(guide => <GuideCard key={guide.id} guide={guide} onConnect={() => handleConnectClick(guide.name, 'Guide')} />)}
+                                                </div>
                                             ) : (
-                                                <Card className="text-center text-muted-foreground py-4">
-                                                    <CardHeader>
-                                                        <CardTitle className="text-2xl text-foreground">Start building your guide partnerships.</CardTitle>
-                                                        <CardDescription className="text-sm max-w-md mx-auto">
-                                                            Find guides who fit the vibe of this space—and the kind of experience you want people to leave with.
-                                                        </CardDescription>
-                                                    </CardHeader>
-                                                    <CardContent>
-                                                        <p className="mt-2 text-sm max-w-md mx-auto">
-                                                          No guides are listed yet. When guides join, you’ll be able to browse profiles, save favorites, and start a conversation.
-                                                        </p>
-                                                        <div className="mt-4">
-                                                            <Button disabled>Find Guides</Button>
-                                                            <p className="text-xs text-muted-foreground mt-2">Guide discovery unlocks at launch.</p>
-                                                        </div>
-                                                    </CardContent>
-                                                </Card>
+                                              <Card className="text-center py-12">
+                                                <CardHeader><CardTitle className="font-headline text-xl">No matches for these filters yet.</CardTitle></CardHeader>
+                                                <CardContent><CardDescription>Try changing or resetting your filters.</CardDescription></CardContent>
+                                              </Card>
                                             )}
                                         </div>
                                     </div>
+                                    ) : (
+                                        <Card className="text-center text-muted-foreground py-4">
+                                            <CardHeader>
+                                                <CardTitle className="text-2xl text-foreground">Start building your guide partnerships.</CardTitle>
+                                                <CardDescription className="text-sm max-w-md mx-auto">
+                                                    Find guides who fit the vibe of this space—and the kind of experience you want people to leave with.
+                                                </CardDescription>
+                                            </CardHeader>
+                                            <CardContent>
+                                                <p className="mt-2 text-sm max-w-md mx-auto">
+                                                  No guides are listed yet. When guides join, you’ll be able to browse profiles, save favorites, and start a conversation.
+                                                </p>
+                                                <div className="mt-4">
+                                                    <Button disabled>Find Guides</Button>
+                                                    <p className="text-xs text-muted-foreground mt-2">Guide discovery unlocks at launch.</p>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    )}
                                 </TabsContent>
                                 <TabsContent value="vendors" className="mt-6">
                                   {enableVendorDiscovery ? (
@@ -389,11 +440,11 @@ export default function HostPage() {
                                         </CardHeader>
                                         <CardContent>
                                             <p className="mt-2 text-sm max-w-md mx-auto">
-                                                No vendors are listed yet. When vendors join, you’ll be able to browse nearby options for this property, save favorites, and start a conversation.
+                                                No vendors are available yet. When vendors join, you’ll be able to browse nearby options for this property, save favorites, and start a conversation.
                                             </p>
                                             <div className="mt-4">
                                                 <Button disabled>Find Local Vendors</Button>
-                                                <p className="text-xs text-muted-foreground mt-2">Vendor discovery unlocks at launch.</p>
+                                                <p className="text-xs text-muted-foreground mt-2">Vendor discovery will unlock at launch.</p>
                                             </div>
                                         </CardContent>
                                     </Card>
@@ -402,11 +453,11 @@ export default function HostPage() {
                             </Tabs>
                         </div>
                         
-                        <Separator />
+                        <Separator className="my-6" />
 
                         <div>
                             <h3 className="font-headline text-2xl mb-2">Connections Requested</h3>
-                            <p className="text-muted-foreground mb-4">These are people you’ve reached out to or who have requested to connect with you.</p>
+                            <p className="text-muted-foreground mb-4">Connections you’ve initiated or received.</p>
                              {spaceConnectionRequests.length > 0 ? (
                                 <Table>
                                     <TableHeader>
@@ -437,7 +488,7 @@ export default function HostPage() {
                             )}
                         </div>
                         
-                        <Separator />
+                        <Separator className="my-6" />
 
                         <div>
                             <h3 className="font-headline text-2xl mb-2">Confirmed Bookings</h3>

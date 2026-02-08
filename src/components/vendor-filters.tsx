@@ -12,7 +12,7 @@ import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar } from "./ui/calendar";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
-import { vendorCategories, vendorPricingTiers } from "@/lib/mock-data";
+import { vendorCategories } from "@/lib/mock-data";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Switch } from './ui/switch';
 import { Slider } from './ui/slider';
@@ -38,12 +38,6 @@ const planningWindowOptions = [
     { value: '6-9-months', label: '6–9 months' },
     { value: '9-12-months', label: '9–12 months' },
     { value: '12-plus-months', label: '12+ months' },
-];
-
-const availabilityTypes = [
-    "Available within my planning window",
-    "Limited availability",
-    "Waitlist / inquiry"
 ];
 
 export interface VendorFiltersState {

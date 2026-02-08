@@ -1,12 +1,26 @@
 'use client';
-
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "./ui/checkbox";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
 import { hostVibes } from "@/lib/mock-data";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { Button } from "./ui/button";
+
+export interface GuideFiltersState {
+  experienceTypes: string[];
+  groupSize: number;
+  vibes: string[];
+  timing: string;
+}
+
+interface GuideFiltersProps {
+  filters: GuideFiltersState;
+  onFiltersChange: (filters: Partial<GuideFiltersState>) => void;
+  onApply: () => void;
+  onReset: () => void;
+}
 
 const experienceTypes = [
     "Wellness & Healing",
@@ -32,31 +46,38 @@ function FilterGroup({ title, children }: { title: string, children: React.React
     )
 }
 
-function CheckboxFilter({ item, description }: { item: string, description?: string }) {
-    const id = `filter-guide-${item.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
-    return (
-        <div className="flex items-start space-x-3">
-            <Checkbox id={id} className="mt-0.5" />
-            <div className="grid gap-1.5 leading-none">
-                <Label htmlFor={id} className="font-normal leading-tight">{item}</Label>
-                {description && <p className="text-xs text-muted-foreground">{description}</p>}
+export function GuideFilters({ filters, onFiltersChange, onApply, onReset }: GuideFiltersProps) {
+
+    const handleCheckboxChange = (group: 'experienceTypes' | 'vibes', item: string, checked: boolean) => {
+        const currentValues = filters[group] || [];
+        const newValues = checked
+            ? [...currentValues, item]
+            : currentValues.filter(v => v !== item);
+        onFiltersChange({ [group]: newValues });
+    };
+
+    const CheckboxFilter = ({ item, description, group }: { item: string, description?: string, group: 'experienceTypes' | 'vibes' }) => {
+        const id = `filter-guide-${item.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+        return (
+            <div className="flex items-start space-x-3">
+                <Checkbox 
+                    id={id} 
+                    className="mt-0.5" 
+                    checked={filters[group].includes(item)}
+                    onCheckedChange={(checked) => handleCheckboxChange(group, item, !!checked)}
+                />
+                <div className="grid gap-1.5 leading-none">
+                    <Label htmlFor={id} className="font-normal leading-tight">{item}</Label>
+                    {description && <p className="text-xs text-muted-foreground">{description}</p>}
+                </div>
             </div>
-        </div>
-    )
-}
-
-interface GuideFiltersProps {
-  groupSize: number;
-  onGroupSizeChange: (value: number) => void;
-}
-
-
-export function GuideFilters({ groupSize, onGroupSizeChange }: GuideFiltersProps) {
+        )
+    }
 
     const getGroupSizeLabel = () => {
-        if (groupSize === 1) return "Up to 1 guest";
-        if (groupSize === 100) return "Up to 100+ guests";
-        return `Up to ${groupSize} guests`;
+        if (filters.groupSize === 1) return "Up to 1 guest";
+        if (filters.groupSize >= 100) return "Up to 100+ guests";
+        return `Up to ${filters.groupSize} guests`;
     }
 
     return (
@@ -67,7 +88,7 @@ export function GuideFilters({ groupSize, onGroupSizeChange }: GuideFiltersProps
             <CardContent>
                 <Accordion type="multiple" defaultValue={["Retreat Type", "Group Size", "Vibe", "Timing"]} className="w-full">
                     <FilterGroup title="Retreat Type">
-                        {experienceTypes.map(type => <CheckboxFilter key={type} item={type} />)}
+                        {experienceTypes.map(type => <CheckboxFilter key={type} item={type} group="experienceTypes" />)}
                     </FilterGroup>
 
                     <FilterGroup title="Group Size">
@@ -76,8 +97,8 @@ export function GuideFilters({ groupSize, onGroupSizeChange }: GuideFiltersProps
                                 {getGroupSizeLabel()}
                             </div>
                             <Slider
-                                value={[groupSize]}
-                                onValueChange={(value) => onGroupSizeChange(value[0])}
+                                value={[filters.groupSize]}
+                                onValueChange={(value) => onFiltersChange({ groupSize: value[0] })}
                                 min={1}
                                 max={100}
                                 step={1}
@@ -90,15 +111,16 @@ export function GuideFilters({ groupSize, onGroupSizeChange }: GuideFiltersProps
                     </FilterGroup>
 
                     <FilterGroup title="Vibe">
-                        {hostVibes.map(vibe => <CheckboxFilter key={vibe.name} item={vibe.name} description={vibe.description} />)}
+                        {hostVibes.map(vibe => <CheckboxFilter key={vibe.name} item={vibe.name} description={vibe.description} group="vibes" />)}
                     </FilterGroup>
 
                      <FilterGroup title="Timing">
-                        <Select>
+                        <Select value={filters.timing} onValueChange={(value) => onFiltersChange({ timing: value })}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Anytime" />
                             </SelectTrigger>
                             <SelectContent>
+                                <SelectItem value="anytime">Anytime</SelectItem>
                                 <SelectItem value="3-months">Next 3 months</SelectItem>
                                 <SelectItem value="6-months">Next 6 months</SelectItem>
                                 <SelectItem value="12-months">Next 12 months</SelectItem>
@@ -107,6 +129,10 @@ export function GuideFilters({ groupSize, onGroupSizeChange }: GuideFiltersProps
                     </FilterGroup>
                 </Accordion>
             </CardContent>
+            <CardFooter className="flex flex-col gap-2 p-4">
+                <Button onClick={onApply} className="w-full">Apply Filters</Button>
+                <Button onClick={onReset} variant="ghost" className="w-full">Reset</Button>
+            </CardFooter>
         </Card>
     )
 }
