@@ -3,8 +3,25 @@
 import { useUser } from '@/firebase';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
+import { isFirebaseEnabled, isBuilderMode } from '@/firebase/config';
+import { BuilderModeBanner } from '@/components/builder-mode-banner';
 
 export default function VendorLayout({ children }: { children: React.ReactNode }) {
+  if (!isFirebaseEnabled) {
+    if (isBuilderMode) {
+      return (
+        <>
+          <BuilderModeBanner pageName="Vendor Dashboard" />
+          {children}
+        </>
+      );
+    }
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center">
+        <p>Firebase not configured. Please contact support.</p>
+      </div>
+    );
+  }
   const user = useUser();
   const router = useRouter();
   const pathname = usePathname();

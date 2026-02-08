@@ -3,8 +3,26 @@
 import { useUser } from '@/firebase';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
+import { isFirebaseEnabled, isBuilderMode } from '@/firebase/config';
+import { BuilderModeBanner } from '@/components/builder-mode-banner';
 
 export default function GuideLayout({ children }: { children: React.ReactNode }) {
+  if (!isFirebaseEnabled) {
+    if (isBuilderMode) {
+      return (
+        <>
+          <BuilderModeBanner pageName="Guide Dashboard" />
+          {children}
+        </>
+      );
+    }
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center">
+        <p>Firebase not configured. Please contact support.</p>
+      </div>
+    );
+  }
+
   const user = useUser();
   const router = useRouter();
   const pathname = usePathname();
@@ -12,7 +30,7 @@ export default function GuideLayout({ children }: { children: React.ReactNode })
   useEffect(() => {
     // Wait until user status and profile are definitively loaded
     if (user.status === 'loading' || (user.status === 'authenticated' && user.profile === undefined)) {
-      return; 
+      return;
     }
 
     // If not authenticated, redirect to the guide join page

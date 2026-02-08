@@ -29,6 +29,8 @@ import { Input } from '@/components/ui/input';
 import { useFirebaseApp, useFirestore } from '@/firebase';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
+import { isFirebaseEnabled } from '@/firebase/config';
+import { CardDescription, CardHeader, CardTitle } from './ui/card';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email.' }),
@@ -54,6 +56,28 @@ export function AuthForm({ mode, role }: AuthFormProps) {
   });
 
   const redirectPath = role ? `/${role}/onboarding` : '/guide';
+
+  if (!isFirebaseEnabled) {
+    const roleName = role ? role.charAt(0).toUpperCase() + role.slice(1) : 'User';
+    return (
+      <div className="text-center">
+        <CardHeader className="p-0 mb-6">
+          <CardTitle>We’re setting up accounts.</CardTitle>
+          <CardDescription>
+            Account sign-up isn’t available in this build yet. You can still preview the {roleName} experience while we finish connecting authentication.
+          </CardDescription>
+        </CardHeader>
+        <div className="space-y-4">
+            <Button className="w-full" asChild>
+                <Link href={`/${role}`}>Preview as {roleName}</Link>
+            </Button>
+            <Button variant="outline" className="w-full" onClick={() => router.back()}>
+                Go back
+            </Button>
+        </div>
+      </div>
+    );
+  }
 
   const createUserProfileDocument = async (user: import('firebase/auth').User, selectedRole: string) => {
     if (!firestore) return;

@@ -35,7 +35,7 @@ export type AuthState =
       status: 'authenticated';
       data: User;
       profile: UserProfile | null | undefined; // null: profile not found
-      app: FirebaseApp;
+      app: FirebaseApp | null;
     }
   | {
       status: 'unauthenticated';
@@ -60,7 +60,10 @@ export function useUser(): AuthState {
   const [profileState, setProfileState] = useState<UserProfile | null | undefined>(undefined);
 
   useEffect(() => {
-    if (!auth) return;
+    if (!auth) {
+      setAuthState({ status: 'unauthenticated', data: null });
+      return;
+    }
     const unsubscribe = onAuthStateChanged(auth, user => {
       setAuthState({ status: user ? 'authenticated' : 'unauthenticated', data: user });
     });
@@ -95,6 +98,6 @@ export function useUser(): AuthState {
     status: 'authenticated',
     data: authState.data!,
     profile: profileState,
-    app: app!,
+    app: app,
   };
 }

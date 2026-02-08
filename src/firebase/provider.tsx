@@ -4,14 +4,17 @@ import { createContext, useContext, ReactNode } from 'react';
 import { FirebaseApp, getApps, initializeApp } from 'firebase/app';
 import { Auth, getAuth } from 'firebase/auth';
 import { Firestore, getFirestore } from 'firebase/firestore';
-import { firebaseConfig } from './config';
+import { firebaseConfig, isFirebaseEnabled } from './config';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
 
 export function initializeFirebase(): {
-  app: FirebaseApp;
-  auth: Auth;
-  firestore: Firestore;
+  app: FirebaseApp | null;
+  auth: Auth | null;
+  firestore: Firestore | null;
 } {
+  if (!isFirebaseEnabled) {
+    return { app: null, auth: null, firestore: null };
+  }
   const apps = getApps();
   const app = apps.length > 0 ? apps[0] : initializeApp(firebaseConfig);
   const auth = getAuth(app);
@@ -20,9 +23,9 @@ export function initializeFirebase(): {
   return { app, auth, firestore };
 }
 export interface FirebaseContextType {
-  app: FirebaseApp;
-  auth: Auth;
-  firestore: Firestore;
+  app: FirebaseApp | null;
+  auth: Auth | null;
+  firestore: Firestore | null;
 }
 
 const FirebaseContext = createContext<FirebaseContextType | undefined>(
@@ -35,7 +38,7 @@ export function FirebaseProvider({
 }: { children: ReactNode } & FirebaseContextType) {
   return (
     <FirebaseContext.Provider value={value}>
-      <FirebaseErrorListener />
+      {isFirebaseEnabled && <FirebaseErrorListener />}
       {children}
     </FirebaseContext.Provider>
   );
@@ -50,13 +53,13 @@ export function useFirebase() {
 }
 
 export function useFirebaseApp() {
-  return useFirebase().app;
+  return useFirebase()?.app ?? null;
 }
 
 export function useAuth() {
-  return useFirebase().auth;
+  return useFirebase()?.auth ?? null;
 }
 
 export function useFirestore() {
-  return useFirebase().firestore;
+  return useFirebase()?.firestore ?? null;
 }
