@@ -7,7 +7,7 @@ import { Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "./ui/checkbox";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar } from "./ui/calendar";
@@ -62,10 +62,12 @@ export interface VendorFiltersState {
 interface VendorFiltersProps {
     filters: VendorFiltersState;
     onFiltersChange: (filters: Partial<VendorFiltersState>) => void;
+    onApply: () => void;
+    onReset: () => void;
 }
 
 
-export function VendorFilters({ filters, onFiltersChange }: VendorFiltersProps) {
+export function VendorFilters({ filters, onFiltersChange, onApply, onReset }: VendorFiltersProps) {
 
     const handleCategoryChange = (category: string, checked: boolean) => {
         const newCategories = checked
@@ -272,6 +274,10 @@ export function VendorFilters({ filters, onFiltersChange }: VendorFiltersProps) 
                     </FilterGroup>
                 </Accordion>
             </CardContent>
+            <CardFooter className="flex flex-col gap-2 p-4">
+                <Button onClick={onApply} className="w-full">Apply Filters</Button>
+                <Button onClick={onReset} variant="ghost" className="w-full">Reset</Button>
+            </CardFooter>
         </Card>
     )
 }

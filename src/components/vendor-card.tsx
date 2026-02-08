@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 import type { Vendor } from '@/lib/mock-data';
 import { placeholderImages } from '@/lib/placeholder-images';
+import { Badge } from './ui/badge';
 
 
 export interface VendorCardProps {
@@ -34,9 +35,12 @@ export function VendorCard({ vendor, onConnect }: VendorCardProps) {
         <div className="flex-grow">
           <div className="flex justify-between items-start">
             <CardTitle className="text-lg">{vendor.name}</CardTitle>
-            {vendor.luxApproved && <Image src="/lux.png" alt="LUX Approved" width={28} height={28} />}
+            <div className="flex items-center gap-2">
+                {vendor.premiumMembership && <Badge variant="secondary">Featured</Badge>}
+                {vendor.luxApproved && <Image src="/lux.png" alt="LUX Approved" width={28} height={28} />}
+            </div>
           </div>
-          <CardDescription>{vendor.service}</CardDescription>
+          <CardDescription>{vendor.category}</CardDescription>
           <div className="flex items-center mt-1">
             <Rating value={vendor.rating} />
             <span className="ml-2 text-xs text-muted-foreground">({vendor.reviewCount} reviews)</span>

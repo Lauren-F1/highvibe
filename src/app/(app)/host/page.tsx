@@ -89,8 +89,8 @@ export default function HostPage() {
   
   // Vendor filter state
   const [vendorFilters, setVendorFilters] = useState<VendorFiltersState>(initialVendorFilters);
-  const [showVendorResults, setShowVendorResults] = useState(false);
-  const [filteredVendors, setFilteredVendors] = useState<Vendor[]>([]);
+  const [appliedVendorFilters, setAppliedVendorFilters] = useState<VendorFiltersState>(initialVendorFilters);
+  const [vendorSortOption, setVendorSortOption] = useState('recommended');
 
 
   const handleConnectClick = (name: string, role: 'Host' | 'Vendor' | 'Guide') => {
@@ -105,19 +105,26 @@ export default function HostPage() {
   const spaceConnectionRequests = connectionRequests.filter(c => c.forSpace === activeSpace?.name);
   const spaceConfirmedBookings = confirmedBookings.filter(c => c.forSpace === activeSpace?.name);
 
-  const handleFindVendors = () => {
-    let vendorsToFilter = [...vendors];
+  const handleApplyVendorFilters = () => {
+    setAppliedVendorFilters(vendorFilters);
+  };
+  
+  const handleResetVendorFilters = () => {
+    setVendorFilters(initialVendorFilters);
+    setAppliedVendorFilters(initialVendorFilters);
+  };
 
-    if (activeSpace?.hostLat && activeSpace.hostLng) {
-      const radius = vendorFilters.radius;
-      vendorsToFilter = vendorsToFilter.filter(vendor => {
-        if (!vendor.vendorLat || !vendor.vendorLng) {
-            // Include vendors that can travel or are remote if that's what's selected
-            if (vendorFilters.locationPreference === 'travel' && vendor.location === 'Global') return true;
-            if (vendorFilters.locationPreference === 'remote' && vendor.location === 'Remote') return true;
-            return false;
-        }
+  const displayedVendors = useMemo(() => {
+    if (!activeSpace?.hostLat || !activeSpace.hostLng) {
+      return [];
+    }
 
+    let filtered = [...vendors];
+    const radius = appliedVendorFilters.radius;
+    
+    // Initial location filter
+    filtered = filtered.filter(vendor => {
+        if (!vendor.vendorLat || !vendor.vendorLng) return false;
         const distance = getDistanceInMiles(activeSpace.hostLat!, activeSpace.hostLng!, vendor.vendorLat, vendor.vendorLng);
         const isInRadius = distance <= radius;
 
@@ -126,19 +133,35 @@ export default function HostPage() {
         }
         return isInRadius;
       });
-    }
 
-    if (vendorFilters.categories.length > 0) {
-        vendorsToFilter = vendorsToFilter.filter(vendor => vendorFilters.categories.includes(vendor.category));
+    // Filter by categories
+    if (appliedVendorFilters.categories.length > 0) {
+        filtered = filtered.filter(vendor => appliedVendorFilters.categories.includes(vendor.category));
     }
     
-    if (vendorFilters.budget < 5000) {
-        vendorsToFilter = vendorsToFilter.filter(vendor => vendor.startingPrice ? vendor.startingPrice <= vendorFilters.budget : true);
+    // Filter by budget
+    if (appliedVendorFilters.budget < 5000) {
+        filtered = filtered.filter(vendor => vendor.startingPrice ? vendor.startingPrice <= appliedVendorFilters.budget : true);
     }
     
-    setFilteredVendors(vendorsToFilter);
-    setShowVendorResults(true);
-  };
+    // Sort
+    switch (vendorSortOption) {
+      case 'price-asc':
+        filtered.sort((a, b) => (a.startingPrice || 0) - (b.startingPrice || 0));
+        break;
+      case 'price-desc':
+        filtered.sort((a, b) => (b.startingPrice || 0) - (a.startingPrice || 0));
+        break;
+      case 'recommended':
+         filtered.sort((a, b) => (b.premiumMembership ? 1 : 0) - (a.premiumMembership ? 1 : 0) || (b.luxApproved ? 1 : 0) - (a.luxApproved ? 1 : 0) || (a.startingPrice || 0) - (b.startingPrice || 0));
+        break;
+      default:
+        break;
+    }
+    
+    return filtered;
+
+  }, [activeSpace, appliedVendorFilters, vendorSortOption]);
 
 
   return (
@@ -234,7 +257,7 @@ export default function HostPage() {
         </CardContent>
       </Card>
       
-       <div id="partnership-dashboard" className="space-y-12">
+       <div id="partnership-dashboard" className="space-y-8">
         <Card>
             <CardHeader>
                 <CardTitle className="font-headline text-3xl">Partnership Dashboard for {activeSpace ? `"${activeSpace.name}"` : 'Your Space'}</CardTitle>
@@ -252,7 +275,7 @@ export default function HostPage() {
                     </Select>
                 </div>
             </CardHeader>
-            <CardContent className="space-y-12">
+            <CardContent className="space-y-8">
                 {activeSpaceId ? (
                     <>
                         {/* Matches Available */}
@@ -270,10 +293,10 @@ export default function HostPage() {
                                             <GuideFilters groupSize={groupSize} onGroupSizeChange={setGroupSize} />
                                         </div>
                                         <div className="lg:col-span-3">
-                                            {enableGuideDiscovery && matchingGuides.length > 0 ? (
+                                            {matchingGuides.length > 0 ? (
                                                 <>
                                                     <div className="flex justify-between items-center mb-4">
-                                                        <h3 className="font-headline text-2xl">{matchingGuides.length} Matching {matchingGuides.length === 1 ? 'Guide' : 'Guides'}</h3>
+                                                        <h3 className="font-headline text-2xl">{matchingGuides.length} Suggested {matchingGuides.length === 1 ? 'Guide' : 'Guides'}</h3>
                                                         <Select defaultValue="recommended">
                                                             <SelectTrigger className="w-[180px]">
                                                                 <SelectValue placeholder="Sort by" />
@@ -290,7 +313,7 @@ export default function HostPage() {
                                                     </div>
                                                 </>
                                             ) : (
-                                                <Card className="text-center text-muted-foreground py-8">
+                                                <Card className="text-center text-muted-foreground py-4">
                                                     <CardHeader>
                                                         <CardTitle className="text-2xl text-foreground">Begin building your guide partnerships.</CardTitle>
                                                         <CardDescription className="text-sm max-w-md mx-auto">
@@ -298,10 +321,10 @@ export default function HostPage() {
                                                         </CardDescription>
                                                     </CardHeader>
                                                     <CardContent>
-                                                        <p className="mt-4 text-sm max-w-md mx-auto">
+                                                        <p className="mt-2 text-sm max-w-md mx-auto">
                                                             No guides are available yet. Once guides join, you’ll be able to explore aligned matches and save favorites.
                                                         </p>
-                                                        <div className="mt-6">
+                                                        <div className="mt-4">
                                                             <Button disabled>Find Guides</Button>
                                                             <p className="text-xs text-muted-foreground mt-2">Guide discovery will unlock at launch.</p>
                                                         </div>
@@ -314,19 +337,24 @@ export default function HostPage() {
                                 <TabsContent value="vendors" className="mt-6">
                                   <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                                     <div className="lg:col-span-1">
-                                      <VendorFilters filters={vendorFilters} onFiltersChange={(newFilters) => setVendorFilters(prev => ({...prev, ...newFilters}))} />
+                                      <VendorFilters 
+                                        filters={vendorFilters} 
+                                        onFiltersChange={setVendorFilters}
+                                        onApply={handleApplyVendorFilters}
+                                        onReset={handleResetVendorFilters}
+                                       />
                                     </div>
                                     <div className="lg:col-span-3">
                                       {activeSpace && (!activeSpace.hostLat || !activeSpace.hostLng) ? (
                                         <Card className="flex items-center justify-center text-center py-12 h-full">
                                           <p className="text-destructive text-sm max-w-xs">Add a location to this space to enable local vendor matching.</p>
                                         </Card>
-                                      ) : showVendorResults ? (
+                                      ) : (
                                         <div>
                                           <div className="flex justify-between items-center mb-4">
-                                            <h3 className="font-headline text-2xl">{filteredVendors.length} Matching {filteredVendors.length === 1 ? 'Vendor' : 'Vendors'}</h3>
+                                            <h3 className="font-headline text-2xl">{displayedVendors.length} Matching {displayedVendors.length === 1 ? 'Vendor' : 'Vendors'}</h3>
                                             <p className="text-xs text-muted-foreground">Preview mode — sample listings.</p>
-                                            <Select defaultValue="recommended">
+                                            <Select value={vendorSortOption} onValueChange={setVendorSortOption}>
                                               <SelectTrigger className="w-[180px]">
                                                 <SelectValue placeholder="Sort by" />
                                               </SelectTrigger>
@@ -338,9 +366,9 @@ export default function HostPage() {
                                               </SelectContent>
                                             </Select>
                                           </div>
-                                          {filteredVendors.length > 0 ? (
+                                          {displayedVendors.length > 0 ? (
                                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                              {filteredVendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} onConnect={() => handleConnectClick(vendor.name, 'Vendor')} />)}
+                                              {displayedVendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} onConnect={() => handleConnectClick(vendor.name, 'Vendor')} />)}
                                             </div>
                                           ) : (
                                             <Card className="text-center py-12">
@@ -349,24 +377,6 @@ export default function HostPage() {
                                             </Card>
                                           )}
                                         </div>
-                                      ) : (
-                                        <Card className="text-center text-muted-foreground py-8">
-                                          <CardHeader>
-                                            <CardTitle className="text-2xl text-foreground">Begin building your vendor partnerships.</CardTitle>
-                                            <CardDescription className="text-sm max-w-md mx-auto">
-                                              Create curated, vibe-aligned vendor pairings so guides can build aligned retreat experiences faster.
-                                            </CardDescription>
-                                          </CardHeader>
-                                          <CardContent>
-                                            <p className="mt-4 text-sm max-w-md mx-auto">
-                                              No vendors are available yet. Once vendors join, you’ll be able to find nearby options for this property and save favorites.
-                                            </p>
-                                            <div className="mt-6">
-                                              <Button onClick={handleFindVendors}>Find Local Vendors</Button>
-                                              <p className="text-xs text-muted-foreground mt-2">Preview the vendor experience (sample listings).</p>
-                                            </div>
-                                          </CardContent>
-                                        </Card>
                                       )}
                                     </div>
                                   </div>
