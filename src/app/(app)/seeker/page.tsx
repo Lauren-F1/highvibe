@@ -386,14 +386,16 @@ export default function SeekerPage() {
       </Card>
 
       <div id="retreat-results" className="scroll-mt-24">
-        <h2 className="text-3xl font-bold tracking-tight mb-6 font-headline">Experiences We’re Loving</h2>
         
         {filteredRetreats.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredRetreats.map((retreat) => (
-              <RetreatCard key={retreat.id} retreat={retreat} isLux={retreat.id === mostExpensiveRetreatId} />
-            ))}
-          </div>
+          <>
+            <h2 className="text-3xl font-bold tracking-tight mb-6 font-headline">{filteredRetreats.length} Matching {filteredRetreats.length === 1 ? 'Retreat' : 'Retreats'}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredRetreats.map((retreat) => (
+                <RetreatCard key={retreat.id} retreat={retreat} isLux={retreat.id === mostExpensiveRetreatId} />
+              ))}
+            </div>
+          </>
         ) : (
            <div className="text-center py-16 max-w-2xl mx-auto">
               <h3 className="font-headline text-3xl font-bold">We’re so glad you’re here.</h3>

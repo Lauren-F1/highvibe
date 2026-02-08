@@ -85,11 +85,11 @@ export default function HostPage() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div>
           <h1 className="font-headline text-4xl md:text-5xl font-bold">Host Dashboard</h1>
-          <p className="text-muted-foreground mt-2 text-lg font-body">Manage your spaces and connect with your next opportunity.</p>
+          <p className="text-muted-foreground mt-2 text-lg font-body">Offer a space designed for retreat experiences.</p>
         </div>
         <Button size="lg" className="mt-4 md:mt-0" onClick={handleAddNewSpace}>
           <PlusCircle className="mr-2 h-5 w-5" />
-          Add New Space
+          List Your Space
         </Button>
       </div>
 
@@ -146,7 +146,7 @@ export default function HostPage() {
                   <TableCell className="text-right">${space.rate}/night</TableCell>
                   <TableCell className="text-center">{space.bookings}</TableCell>
                   <TableCell className="text-center space-x-2">
-                    <Button variant="outline" size="sm" onClick={() => setActiveSpaceId(space.id)}>View Matches</Button>
+                    <Button variant="outline" size="sm" onClick={() => setActiveSpaceId(space.id)}>Find Partners</Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4"/></Button>
@@ -197,7 +197,7 @@ export default function HostPage() {
                                 </div>
                                 <div className="lg:col-span-3">
                                     <div className="flex justify-between items-center mb-4">
-                                        <h3 className="font-headline text-2xl">Recommended Guides</h3>
+                                        <h3 className="font-headline text-2xl">{matchingGuides.length} Matching {matchingGuides.length === 1 ? 'Guide' : 'Guides'}</h3>
                                         <Select defaultValue="recommended">
                                             <SelectTrigger className="w-[180px]">
                                                 <SelectValue placeholder="Sort by" />
@@ -222,7 +222,7 @@ export default function HostPage() {
                                 </div>
                                 <div className="lg:col-span-3">
                                      <div className="flex justify-between items-center mb-4">
-                                        <h3 className="font-headline text-2xl">Find Local Partners</h3>
+                                        <h3 className="font-headline text-2xl">{localVendors.length} Matching {localVendors.length === 1 ? 'Vendor' : 'Vendors'}</h3>
                                         <Select defaultValue="recommended">
                                             <SelectTrigger className="w-[180px]">
                                                 <SelectValue placeholder="Sort by" />

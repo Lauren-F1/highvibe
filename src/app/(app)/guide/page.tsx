@@ -65,7 +65,7 @@ export default function GuidePage() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div>
           <h1 className="font-headline text-4xl md:text-5xl font-bold">Guide Dashboard</h1>
-          <p className="text-muted-foreground mt-2 text-lg font-body">Build retreats. Get matched. Book the right people.</p>
+          <p className="text-muted-foreground mt-2 text-lg font-body">Design and lead meaningful retreat experiences.</p>
         </div>
         <div className="flex items-center gap-4 mt-4 md:mt-0">
              <Badge variant={subscriptionBadge.variant} className="h-9">
@@ -117,7 +117,7 @@ export default function GuidePage() {
                   <TableCell className="text-right">{retreat.bookings}</TableCell>
                   <TableCell className="text-right">${retreat.income.toLocaleString()}</TableCell>
                   <TableCell className="text-center space-x-2">
-                    <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); handleViewMatchesClick(retreat.id); }}>View Matches</Button>
+                    <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); handleViewMatchesClick(retreat.id); }}>Find Partners</Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}><MoreHorizontal className="h-4 w-4"/></Button>
@@ -169,7 +169,7 @@ export default function GuidePage() {
                                 </div>
                                 <div className="lg:col-span-3">
                                     <div className="flex justify-between items-center mb-4">
-                                        <h3 className="font-headline text-2xl">Recommended for you</h3>
+                                        <h3 className="font-headline text-2xl">{hosts.length} Matching {hosts.length === 1 ? 'Space' : 'Spaces'}</h3>
                                         <Select defaultValue="recommended">
                                             <SelectTrigger className="w-[180px]">
                                                 <SelectValue placeholder="Sort by" />
@@ -195,7 +195,7 @@ export default function GuidePage() {
                                 </div>
                                 <div className="lg:col-span-3">
                                      <div className="flex justify-between items-center mb-4">
-                                        <h3 className="font-headline text-2xl">Build Your Retreat Team</h3>
+                                        <h3 className="font-headline text-2xl">{vendors.length} Matching {vendors.length === 1 ? 'Vendor' : 'Vendors'}</h3>
                                         <Select defaultValue="recommended">
                                             <SelectTrigger className="w-[180px]">
                                                 <SelectValue placeholder="Sort by" />
