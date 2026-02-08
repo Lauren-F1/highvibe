@@ -1,0 +1,27 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      // Access is granted if the user has an 'admin' custom claim set to true.
+      // This claim must be set securely, for example, using a Cloud Function.
+      return request.auth != null && request.auth.token.admin == true;
+    }
+
+    match /users/{userId} {
+      allow read, write: if request.auth.uid == userId || isAdmin();
+    }
+
+    match /waitlist_seekers/{seekerId} {
+      // Anyone can add themselves to the waitlist.
+      allow create: if request.resource.data.email is string &&
+                     request.resource.data.email == request.resource.data.email.lower() &&
+                     request.resource.data.status == 'active' &&
+                     request.resource.data.createdAt == request.time;
+      
+      // Only admins can read, update, or delete waitlist entries.
+      allow read, update, delete: if isAdmin();
+    }
+  }
+}

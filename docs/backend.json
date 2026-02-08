@@ -1,0 +1,99 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "A user of the application.",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "isAdmin": {
+          "type": "boolean",
+          "description": "Whether the user is an administrator."
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "photoURL": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "WaitlistSeeker": {
+      "title": "Waitlist Seeker",
+      "description": "A user who has signed up for the waitlist.",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "The user's email address."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the user signed up."
+        },
+        "sourcePage": {
+          "type": "string",
+          "description": "The page from which the user signed up."
+        },
+        "filtersSnapshot": {
+          "type": "object",
+          "properties": {
+            "experienceType": {
+              "type": "string"
+            },
+            "destination": {
+              "type": "string"
+            },
+            "regionCountry": {
+              "type": "string"
+            },
+            "investmentRange": {
+              "type": "string"
+            },
+            "timing": {
+              "type": "string"
+            }
+          },
+          "description": "A snapshot of the user's filter selections."
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "active",
+            "unsubscribed"
+          ]
+        }
+      },
+      "required": [
+        "email",
+        "createdAt",
+        "status"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "google.com"
+    ]
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/backend/entities/User"
+      },
+      "description": "User profile information."
+    },
+    "/waitlist_seekers/{seekerId}": {
+      "schema": {
+        "$ref": "#/backend/entities/WaitlistSeeker"
+      },
+      "description": "Collection of users who have signed up for the waitlist."
+    }
+  }
+}

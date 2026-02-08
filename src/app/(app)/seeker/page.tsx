@@ -13,6 +13,9 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Users } from 'lucide-react';
 import { continents, destinations } from '@/lib/mock-data';
+import { useFirestore } from '@/firebase';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
 
 // Original Data - should not be mutated
 const retreats = [
@@ -95,10 +98,13 @@ export default function SeekerPage() {
   const mostExpensiveRetreatId = retreats.reduce((prev, current) => (prev.price > current.price) ? prev : current).id;
   
   // Waitlist form state
-  const [waitlistStatus, setWaitlistStatus] = useState<'idle' | 'submitted'>('idle');
+  const [waitlistStatus, setWaitlistStatus] = useState<'idle' | 'submitting' | 'submitted' | 'error'>('idle');
   const [waitlistEmail, setWaitlistEmail] = useState('');
   const [waitlistPhone, setWaitlistPhone] = useState('');
   const [waitlistSmsOptIn, setWaitlistSmsOptIn] = useState(false);
+
+  const firestore = useFirestore();
+  const { toast } = useToast();
 
   useEffect(() => {
     let newFilteredRetreats = [...retreats];
@@ -136,30 +142,34 @@ export default function SeekerPage() {
     setFilteredRetreats(newFilteredRetreats);
   }, [experienceType, selectedContinent, selectedRegion, investmentRange, timing]);
 
-  const handleWaitlistSubmit = (e: React.FormEvent) => {
+  const handleWaitlistSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!waitlistEmail) {
-      // In a real app, you would add more robust form validation here.
+    if (!waitlistEmail || !firestore) {
+      toast({ variant: 'destructive', title: 'Please enter a valid email.' });
       return;
     }
-
-    console.log('Submitting to waitlist:', {
-        email: waitlistEmail,
+    setWaitlistStatus('submitting');
+    try {
+      await addDoc(collection(firestore, 'waitlist_seekers'), {
+        email: waitlistEmail.toLowerCase(),
         phone: waitlistPhone,
         smsOptIn: waitlistSmsOptIn,
-        filters: {
-            experienceType,
-            selectedContinent,
-            selectedRegion,
-            investmentRange,
-            timing,
+        createdAt: serverTimestamp(),
+        sourcePage: 'seeker-page',
+        filtersSnapshot: {
+          experienceType,
+          destination: selectedContinent,
+          regionCountry: selectedRegion,
+          investmentRange,
+          timing,
         },
-        timestamp: new Date().toISOString(),
-        email_verified: false,
-        sms_verified: false,
-    });
-    // In a real app, you would trigger the backend to send confirmation email/SMS here.
-    setWaitlistStatus('submitted');
+        status: 'active',
+      });
+      setWaitlistStatus('submitted');
+    } catch (error) {
+      console.error('Error submitting to waitlist:', error);
+      setWaitlistStatus('error');
+    }
   };
 
   const showRegionFilter = selectedContinent && selectedContinent !== 'anywhere' && destinations[selectedContinent];
@@ -190,6 +200,8 @@ export default function SeekerPage() {
           </Card>
         );
       case 'idle':
+      case 'submitting':
+      case 'error':
       default:
         return (
           <form onSubmit={handleWaitlistSubmit}>
@@ -201,6 +213,9 @@ export default function SeekerPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                 {waitlistStatus === 'error' && (
+                  <p className="text-destructive text-sm">Something didn’t go through — please try again.</p>
+                 )}
                 <div className="space-y-2">
                   <Label htmlFor="email-notify">Email Address</Label>
                   <Input
@@ -210,6 +225,7 @@ export default function SeekerPage() {
                     required
                     value={waitlistEmail}
                     onChange={(e) => setWaitlistEmail(e.target.value)}
+                    disabled={waitlistStatus === 'submitting'}
                   />
                   <p className="text-xs text-muted-foreground pt-1">No spam. Just aligned retreats when they’re ready.</p>
                 </div>
@@ -221,6 +237,7 @@ export default function SeekerPage() {
                     placeholder="(555) 123-4567"
                     value={waitlistPhone}
                     onChange={(e) => setWaitlistPhone(e.target.value)}
+                    disabled={waitlistStatus === 'submitting'}
                   />
                 </div>
                 <div className="flex items-center space-x-2">
@@ -228,6 +245,7 @@ export default function SeekerPage() {
                     id="sms-notify"
                     checked={waitlistSmsOptIn}
                     onCheckedChange={(checked) => setWaitlistSmsOptIn(Boolean(checked))}
+                    disabled={waitlistStatus === 'submitting'}
                   />
                   <Label htmlFor="sms-notify" className="text-sm font-normal leading-none">
                     Text me when new retreats match my preferences
@@ -235,7 +253,9 @@ export default function SeekerPage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button type="submit" className="w-full" size="lg">Notify Me When It’s Available</Button>
+                <Button type="submit" className="w-full" size="lg" disabled={waitlistStatus === 'submitting'}>
+                  {waitlistStatus === 'submitting' ? 'Submitting...' : 'Notify Me When It’s Available'}
+                </Button>
               </CardFooter>
             </Card>
           </form>
