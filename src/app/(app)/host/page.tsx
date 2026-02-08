@@ -73,6 +73,8 @@ export default function HostPage() {
   const [activeSpaceId, setActiveSpaceId] = useState<string | null>(hostSpaces[0]?.id || null);
   const [isPaywallOpen, setPaywallOpen] = useState(false);
   const [connectionModal, setConnectionModal] = useState<{isOpen: boolean, name: string, role: 'Host' | 'Vendor' | 'Guide'}>({isOpen: false, name: '', role: 'Guide'});
+  const [groupSize, setGroupSize] = useState(20);
+
 
   const handleConnectClick = (name: string, role: 'Host' | 'Vendor' | 'Guide') => {
     setConnectionModal({ isOpen: true, name, role });
@@ -212,7 +214,7 @@ export default function HostPage() {
                                 <TabsContent value="guides" className="mt-6">
                                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                                         <div className="lg:col-span-1">
-                                            <GuideFilters />
+                                            <GuideFilters groupSize={groupSize} onGroupSizeChange={setGroupSize} />
                                         </div>
                                         <div className="lg:col-span-3">
                                             <div className="flex justify-between items-center mb-4">

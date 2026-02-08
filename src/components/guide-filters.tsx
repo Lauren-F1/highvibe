@@ -45,8 +45,20 @@ function CheckboxFilter({ item, description }: { item: string, description?: str
     )
 }
 
+interface GuideFiltersProps {
+  groupSize: number;
+  onGroupSizeChange: (value: number) => void;
+}
 
-export function GuideFilters() {
+
+export function GuideFilters({ groupSize, onGroupSizeChange }: GuideFiltersProps) {
+
+    const getGroupSizeLabel = () => {
+        if (groupSize === 1) return "Up to 1 guest";
+        if (groupSize === 100) return "Up to 100+ guests";
+        return `Up to ${groupSize} guests`;
+    }
+
     return (
         <Card className="lg:sticky lg:top-24">
             <CardHeader>
@@ -59,10 +71,21 @@ export function GuideFilters() {
                     </FilterGroup>
 
                     <FilterGroup title="Group Size">
-                        <Slider defaultValue={[20]} max={100} step={1} />
-                        <div className="flex justify-between text-xs text-muted-foreground">
-                            <span>1 guest</span>
-                            <span>100+ guests</span>
+                        <div className="space-y-2 px-1 pt-1">
+                            <div className="text-sm font-medium" aria-live="polite">
+                                {getGroupSizeLabel()}
+                            </div>
+                            <Slider
+                                value={[groupSize]}
+                                onValueChange={(value) => onGroupSizeChange(value[0])}
+                                min={1}
+                                max={100}
+                                step={1}
+                            />
+                            <div className="flex justify-between text-xs text-muted-foreground pt-1">
+                                <span>1 guest</span>
+                                <span>100+ guests</span>
+                            </div>
                         </div>
                     </FilterGroup>
 
