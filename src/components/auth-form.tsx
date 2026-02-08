@@ -64,8 +64,27 @@ export function AuthForm({ mode, role }: AuthFormProps) {
 
   const form = useForm({
     resolver: zodResolver(mode === 'signup' ? formSchemaSignup : formSchemaLogin),
-    defaultValues: { email: '', password: '', firstName: '', confirmPassword: '', terms: false },
+    defaultValues: mode === 'signup' 
+        ? { email: '', password: '', firstName: '', lastName: '', confirmPassword: '', terms: false }
+        : { email: '', password: '' },
   });
+  
+  const getFriendlyErrorMessage = (errorCode: string) => {
+    switch (errorCode) {
+      case 'auth/user-not-found':
+      case 'auth/wrong-password':
+        return 'Invalid email or password. Please try again.';
+      case 'auth/invalid-email':
+        return 'Please enter a valid email address.';
+      case 'auth/email-already-in-use':
+        return 'An account with this email already exists. Please log in.';
+      case 'auth/weak-password':
+        return 'Your password must be at least 6 characters long.';
+      default:
+        return 'An unexpected error occurred. Please try again.';
+    }
+  };
+
 
   const createUserProfileDocument = async (user: import('firebase/auth').User, data: z.infer<typeof formSchemaSignup>) => {
     if (!firestore) return;
@@ -82,7 +101,8 @@ export function AuthForm({ mode, role }: AuthFormProps) {
       avatarUrl: user.photoURL || '',
       roles: role ? [role] : [],
       primaryRole: role || null,
-      profileComplete: false, // Onboarding is now multi-step, this is set after profile edit
+      profileComplete: false,
+      onboardingComplete: !!role, // if role is passed, consider it complete for now
       createdAt: serverTimestamp(),
       lastLoginAt: serverTimestamp(),
     };
@@ -94,22 +114,34 @@ export function AuthForm({ mode, role }: AuthFormProps) {
     setLoading(true);
     setError(null);
     const auth = getAuth(app);
-    const redirectUrl = searchParams.get('redirect') || (role ? `/${role}` : '/onboarding/role');
+    const redirectParam = searchParams.get('redirect');
 
     try {
       if (mode === 'signup') {
         const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
         await createUserProfileDocument(userCredential.user, values);
         toast({ title: 'Account created!', description: "Let's get started." });
-        router.push(role ? `/account/edit` : '/onboarding/role');
+
+        if (redirectParam) {
+            router.push(redirectParam);
+        } else if (role) {
+            router.push('/account/edit'); // New user with role, go to edit profile
+        } else {
+            router.push('/onboarding/role'); // New user, no role, go pick one
+        }
+
       } else { // login
+        await signInWithEmailAndPassword(auth, values.email, values.password);
         const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
         const userDocRef = doc(firestore, 'users', userCredential.user.uid);
         await setDoc(userDocRef, { lastLoginAt: serverTimestamp() }, { merge: true });
-        router.push(redirectUrl);
+        
+        // The useUser hook and layouts will handle redirection after state change
+        // but we can give it a push
+        router.push(redirectParam || '/');
       }
     } catch (err: any) {
-      setError(err.message);
+      setError(getFriendlyErrorMessage(err.code));
     } finally {
       setLoading(false);
     }
@@ -128,7 +160,7 @@ export function AuthForm({ mode, role }: AuthFormProps) {
             toast({ title: 'Password Reset Email Sent', description: 'Check your inbox for a link to reset your password.' });
         })
         .catch((error) => {
-            setError(error.message);
+            setError(getFriendlyErrorMessage(error.code));
         });
   };
 
@@ -157,7 +189,7 @@ export function AuthForm({ mode, role }: AuthFormProps) {
                         name="lastName"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Last Name</FormLabel>
+                            <FormLabel>Last Name (optional)</FormLabel>
                             <FormControl>
                             <Input placeholder="Last" {...field} />
                             </FormControl>
@@ -232,7 +264,7 @@ export function AuthForm({ mode, role }: AuthFormProps) {
             )}
 
             <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? 'Processing...' : (mode === 'login' ? 'Log In' : 'Sign Up')}
+                {loading ? 'Processing...' : (mode === 'login' ? 'Log In' : 'Create Account')}
             </Button>
             </form>
         </Form>
@@ -241,9 +273,9 @@ export function AuthForm({ mode, role }: AuthFormProps) {
             {mode === 'login' ? (
                 <>
                     <p>
-                        Don't have an account?{' '}
+                        New here?{' '}
                         <Link href="/join" className="text-primary hover:underline">
-                            Sign up
+                           Create an account
                         </Link>
                     </p>
                     <Button variant="link" size="sm" onClick={handlePasswordReset} className="p-0 h-auto mt-2">

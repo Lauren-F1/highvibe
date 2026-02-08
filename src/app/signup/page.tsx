@@ -8,8 +8,8 @@ export default function SignupPage() {
     <div className="flex min-h-screen items-center justify-center bg-secondary p-4">
       <Card className="w-full max-w-md mx-4">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-headline">Create an Account</CardTitle>
-          <CardDescription>Join the RETREAT community.</CardDescription>
+          <CardTitle className="text-2xl font-headline">Create your account.</CardTitle>
+          <CardDescription>Start building connections.</CardDescription>
         </CardHeader>
         <CardContent>
             <AuthForm mode="signup" />

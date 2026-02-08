@@ -16,7 +16,7 @@ function AuthGatedVendorLayout({ children }: { children: React.ReactNode }) {
     }
 
     if (user.status === 'unauthenticated') {
-      router.replace(`/join/vendor?redirect=${encodeURIComponent(pathname)}`);
+      router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
       return;
     }
 
@@ -37,10 +37,22 @@ function AuthGatedVendorLayout({ children }: { children: React.ReactNode }) {
     );
   }
 
+  if (user.status === 'unauthenticated') {
+    // This state should be handled by the redirect, but as a fallback:
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center">
+        <p>Redirecting to login...</p>
+      </div>
+    );
+  }
+
+
   if (user.profile?.roles?.includes('vendor')) {
     return <>{children}</>;
   }
 
+  // This case handles users who are logged in but not vendors.
+  // They get redirected in the useEffect, but we need a fallback UI.
   return (
     <div className="flex min-h-screen flex-col items-center justify-center">
       <p>Verifying permissions...</p>

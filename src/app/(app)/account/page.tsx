@@ -1,6 +1,6 @@
 'use client';
 
-import { useUser, UserProfile } from '@/firebase/auth/use-user';
+import { useUser } from '@/firebase';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -8,6 +8,8 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Globe } from 'lucide-react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 function ProfileLoadingSkeleton() {
   return (
@@ -43,31 +45,20 @@ function ProfileLoadingSkeleton() {
 
 export default function AccountPage() {
   const user = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (user.status === 'unauthenticated') {
+      router.replace('/login?redirect=/account');
+    }
+  }, [user, router]);
 
   if (user.status === 'loading' || (user.status === 'authenticated' && user.profile === undefined)) {
     return <ProfileLoadingSkeleton />;
   }
 
   if (user.status === 'unauthenticated' || !user.profile) {
-    return (
-      <div className="container mx-auto px-4 py-8 md:py-12">
-        <div className="max-w-3xl mx-auto text-center">
-          <Card>
-            <CardHeader>
-              <CardTitle>Please Log In</CardTitle>
-              <CardDescription>
-                You need to be logged in to view your profile.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button asChild>
-                <Link href="/login">Log In</Link>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
+    return <ProfileLoadingSkeleton />;
   }
 
   const { profile } = user;
