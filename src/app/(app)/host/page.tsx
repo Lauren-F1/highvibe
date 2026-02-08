@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
@@ -15,12 +15,13 @@ import { Separator } from '@/components/ui/separator';
 import { placeholderImages } from '@/lib/placeholder-images';
 import { PaywallModal } from '@/components/paywall-modal';
 import { RequestConnectionModal } from '@/components/request-connection-modal';
-import { vendors } from '@/lib/mock-data';
+import { vendors, type Vendor } from '@/lib/mock-data';
 import { VendorCard } from '@/components/vendor-card';
-import { VendorFilters } from '@/components/vendor-filters';
+import { VendorFilters, type VendorFiltersState } from '@/components/vendor-filters';
 import { GuideCard, type Guide } from '@/components/guide-card';
 import { GuideFilters } from '@/components/guide-filters';
 import { enableGuideDiscovery, enableVendorDiscovery } from '@/firebase/config';
+import { getDistanceInMiles } from '@/lib/geo';
 
 
 const genericImage = placeholderImages.find(p => p.id === 'generic-placeholder')!;
@@ -37,8 +38,6 @@ const matchingGuides: Guide[] = [
   { id: 'g3', name: 'Isabella Rossi', specialty: 'Culinary & Wellness', rating: 4.8, reviewCount: 60, upcomingRetreatsCount: 4, avatar: placeholderImages.find(p => p.id === 'vendor-chef-profile')! },
 ];
 
-const localVendors = vendors.slice(0, 3);
-
 const connectionRequests = [
     { id: 'cr1', name: 'Asha Sharma', role: 'Guide', forSpace: 'The Glass House', status: 'New Request' },
     { id: 'cr2', name: 'Local Caterers', role: 'Vendor', forSpace: 'The Glass House', status: 'Awaiting Response' }
@@ -54,6 +53,18 @@ interface StatCardProps {
   icon: React.ReactNode;
   description: string;
 }
+
+const initialVendorFilters: VendorFiltersState = {
+  categories: [],
+  locationPreference: 'local',
+  budget: 5000,
+  planningWindow: 'anytime',
+  availabilityTypes: [],
+  showNearMatches: false,
+  showExactDates: false,
+  radius: 50,
+};
+
 
 function StatCard({ title, value, icon, description }: StatCardProps) {
   return (
@@ -75,6 +86,11 @@ export default function HostPage() {
   const [isPaywallOpen, setPaywallOpen] = useState(false);
   const [connectionModal, setConnectionModal] = useState<{isOpen: boolean, name: string, role: 'Host' | 'Vendor' | 'Guide'}>({isOpen: false, name: '', role: 'Guide'});
   const [groupSize, setGroupSize] = useState(20);
+  
+  // Vendor filter state
+  const [vendorFilters, setVendorFilters] = useState<VendorFiltersState>(initialVendorFilters);
+  const [showVendorResults, setShowVendorResults] = useState(false);
+  const [filteredVendors, setFilteredVendors] = useState<Vendor[]>([]);
 
 
   const handleConnectClick = (name: string, role: 'Host' | 'Vendor' | 'Guide') => {
@@ -88,6 +104,42 @@ export default function HostPage() {
   const activeSpace = hostSpaces.find(s => s.id === activeSpaceId);
   const spaceConnectionRequests = connectionRequests.filter(c => c.forSpace === activeSpace?.name);
   const spaceConfirmedBookings = confirmedBookings.filter(c => c.forSpace === activeSpace?.name);
+
+  const handleFindVendors = () => {
+    let vendorsToFilter = [...vendors];
+
+    if (activeSpace?.hostLat && activeSpace.hostLng) {
+      const radius = vendorFilters.radius;
+      vendorsToFilter = vendorsToFilter.filter(vendor => {
+        if (!vendor.vendorLat || !vendor.vendorLng) {
+            // Include vendors that can travel or are remote if that's what's selected
+            if (vendorFilters.locationPreference === 'travel' && vendor.location === 'Global') return true;
+            if (vendorFilters.locationPreference === 'remote' && vendor.location === 'Remote') return true;
+            return false;
+        }
+
+        const distance = getDistanceInMiles(activeSpace.hostLat!, activeSpace.hostLng!, vendor.vendorLat, vendor.vendorLng);
+        const isInRadius = distance <= radius;
+
+        if (vendor.vendorServiceRadiusMiles) {
+          return isInRadius && distance <= vendor.vendorServiceRadiusMiles;
+        }
+        return isInRadius;
+      });
+    }
+
+    if (vendorFilters.categories.length > 0) {
+        vendorsToFilter = vendorsToFilter.filter(vendor => vendorFilters.categories.includes(vendor.category));
+    }
+    
+    if (vendorFilters.budget < 5000) {
+        vendorsToFilter = vendorsToFilter.filter(vendor => vendor.startingPrice ? vendor.startingPrice <= vendorFilters.budget : true);
+    }
+    
+    setFilteredVendors(vendorsToFilter);
+    setShowVendorResults(true);
+  };
+
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -260,57 +312,64 @@ export default function HostPage() {
                                     </div>
                                 </TabsContent>
                                 <TabsContent value="vendors" className="mt-6">
-                                <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                                        <div className="lg:col-span-1">
-                                            <VendorFilters />
-                                        </div>
-                                        <div className="lg:col-span-3">
-                                            {activeSpace && (!activeSpace.hostLat || !activeSpace.hostLng) ? (
-                                                <Card className="flex items-center justify-center text-center py-12 h-full">
-                                                    <p className="text-destructive text-sm max-w-xs">Add a location to this space to enable local vendor matching.</p>
-                                                </Card>
-                                            ) : enableVendorDiscovery && localVendors.length > 0 ? (
-                                                <>
-                                                    <div className="flex justify-between items-center mb-4">
-                                                        <h3 className="font-headline text-2xl">{localVendors.length} Matching {localVendors.length === 1 ? 'Vendor' : 'Vendors'}</h3>
-                                                        <Select defaultValue="recommended">
-                                                            <SelectTrigger className="w-[180px]">
-                                                                <SelectValue placeholder="Sort by" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                <SelectItem value="recommended">Recommended</SelectItem>
-                                                                <SelectItem value="price-asc">Price (low to high)</SelectItem>
-                                                                <SelectItem value="price-desc">Price (high to low)</SelectItem>
-                                                                <SelectItem value="rating">Highest rated</SelectItem>
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </div>
-                                                    <p className="text-muted-foreground mb-4">Discover local vendors to elevate your guests' experience.</p>
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                        {localVendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} onConnect={() => handleConnectClick(vendor.name, 'Vendor')} />)}
-                                                    </div>
-                                                </>
-                                            ) : (
-                                                <Card className="text-center text-muted-foreground py-8">
-                                                    <CardHeader>
-                                                        <CardTitle className="text-2xl text-foreground">Begin building your vendor partnerships.</CardTitle>
-                                                        <CardDescription className="text-sm max-w-md mx-auto">
-                                                            Create curated, vibe-aligned vendor pairings so guides can build aligned retreat experiences faster.
-                                                        </CardDescription>
-                                                    </CardHeader>
-                                                    <CardContent>
-                                                        <p className="mt-4 text-sm max-w-md mx-auto">
-                                                          No vendors are available yet. Once vendors join, you’ll be able to find nearby options for this property and save favorites.
-                                                        </p>
-                                                        <div className="mt-6">
-                                                            <Button disabled>Find Local Vendors</Button>
-                                                            <p className="text-xs text-muted-foreground mt-2">Vendor discovery will unlock at launch.</p>
-                                                        </div>
-                                                    </CardContent>
-                                                </Card>
-                                            )}
-                                        </div>
+                                  <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                                    <div className="lg:col-span-1">
+                                      <VendorFilters filters={vendorFilters} onFiltersChange={(newFilters) => setVendorFilters(prev => ({...prev, ...newFilters}))} />
                                     </div>
+                                    <div className="lg:col-span-3">
+                                      {activeSpace && (!activeSpace.hostLat || !activeSpace.hostLng) ? (
+                                        <Card className="flex items-center justify-center text-center py-12 h-full">
+                                          <p className="text-destructive text-sm max-w-xs">Add a location to this space to enable local vendor matching.</p>
+                                        </Card>
+                                      ) : showVendorResults ? (
+                                        <div>
+                                          <div className="flex justify-between items-center mb-4">
+                                            <h3 className="font-headline text-2xl">{filteredVendors.length} Matching {filteredVendors.length === 1 ? 'Vendor' : 'Vendors'}</h3>
+                                            <p className="text-xs text-muted-foreground">Preview mode — sample listings.</p>
+                                            <Select defaultValue="recommended">
+                                              <SelectTrigger className="w-[180px]">
+                                                <SelectValue placeholder="Sort by" />
+                                              </SelectTrigger>
+                                              <SelectContent>
+                                                <SelectItem value="recommended">Recommended</SelectItem>
+                                                <SelectItem value="price-asc">Price (low to high)</SelectItem>
+                                                <SelectItem value="price-desc">Price (high to low)</SelectItem>
+                                                <SelectItem value="rating">Highest rated</SelectItem>
+                                              </SelectContent>
+                                            </Select>
+                                          </div>
+                                          {filteredVendors.length > 0 ? (
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                              {filteredVendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} onConnect={() => handleConnectClick(vendor.name, 'Vendor')} />)}
+                                            </div>
+                                          ) : (
+                                            <Card className="text-center py-12">
+                                              <CardHeader><CardTitle className="font-headline text-xl">No matches for these filters yet.</CardTitle></CardHeader>
+                                              <CardContent><CardDescription>Try a different category or widening your filters.</CardDescription></CardContent>
+                                            </Card>
+                                          )}
+                                        </div>
+                                      ) : (
+                                        <Card className="text-center text-muted-foreground py-8">
+                                          <CardHeader>
+                                            <CardTitle className="text-2xl text-foreground">Begin building your vendor partnerships.</CardTitle>
+                                            <CardDescription className="text-sm max-w-md mx-auto">
+                                              Create curated, vibe-aligned vendor pairings so guides can build aligned retreat experiences faster.
+                                            </CardDescription>
+                                          </CardHeader>
+                                          <CardContent>
+                                            <p className="mt-4 text-sm max-w-md mx-auto">
+                                              No vendors are available yet. Once vendors join, you’ll be able to find nearby options for this property and save favorites.
+                                            </p>
+                                            <div className="mt-6">
+                                              <Button onClick={handleFindVendors}>Find Local Vendors</Button>
+                                              <p className="text-xs text-muted-foreground mt-2">Preview the vendor experience (sample listings).</p>
+                                            </div>
+                                          </CardContent>
+                                        </Card>
+                                      )}
+                                    </div>
+                                  </div>
                                 </TabsContent>
                             </Tabs>
                         </div>

@@ -275,6 +275,14 @@
             "type": "string"
           },
           "description": "Tags describing the vendor's vibe or style."
+        },
+        "startingPrice": {
+          "type": "number",
+          "description": "The starting price for the vendor's services."
+        },
+        "isSample": {
+          "type": "boolean",
+          "description": "Indicates if this is a sample vendor for preview purposes."
         }
       },
       "required": [

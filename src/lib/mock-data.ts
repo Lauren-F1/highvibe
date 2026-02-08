@@ -66,13 +66,19 @@ export interface Vendor {
     vendorServiceRadiusMiles?: number;
     vendorBaseLocationLabel?: string;
     vendorVibeTags?: string[];
+    startingPrice?: number;
+    isSample?: boolean;
 }
 
 export const vendors: Vendor[] = [
-  { id: 'v1', name: 'Elena Ray', category: 'Catering & Nutrition', rating: 4.9, reviewCount: 88, avatar: placeholderImages.find(p => p.id === 'vendor-chef-profile')!, luxApproved: true, location: 'Bali, Indonesia' },
-  { id: 'v2', name: 'Sam Kolder', category: 'Photography & Videography', rating: 5.0, reviewCount: 120, avatar: placeholderImages.find(p => p.id === 'vendor-photographer')!, luxApproved: true, location: 'Global' },
-  { id: 'v3', name: 'Kyoto Wellness Collective', category: 'Yoga & Meditation', rating: 4.8, reviewCount: 75, avatar: placeholderImages.find(p => p.id === 'vendor-yoga-teacher-profile')!, luxApproved: false, location: 'Kyoto, Japan' },
-  { id: 'v4', name: 'Andean Spirit Guides', category: 'Outdoor Adventure', rating: 4.9, reviewCount: 95, avatar: placeholderImages.find(p => p.id === 'friendly-host-portrait')!, luxApproved: false, location: 'Cusco, Peru' },
+  { id: 'v1', name: 'Elena Ray', category: 'Catering & Nutrition', rating: 4.9, reviewCount: 88, avatar: placeholderImages.find(p => p.id === 'vendor-chef-profile')!, luxApproved: true, location: 'Bali, Indonesia', vendorLat: -8.5, vendorLng: 115.26, startingPrice: 2000, isSample: true },
+  { id: 'v2', name: 'Sam Kolder', category: 'Photography & Videography', rating: 5.0, reviewCount: 120, avatar: placeholderImages.find(p => p.id === 'vendor-photographer')!, luxApproved: true, location: 'Global', vendorServiceRadiusMiles: 10000, startingPrice: 4500, isSample: true },
+  { id: 'v3', name: 'Kyoto Wellness Collective', category: 'Yoga & Meditation', rating: 4.8, reviewCount: 75, avatar: placeholderImages.find(p => p.id === 'vendor-yoga-teacher-profile')!, luxApproved: false, location: 'Kyoto, Japan', vendorLat: 35.01, vendorLng: 135.76, startingPrice: 1000, isSample: true },
+  { id: 'v4', name: 'Andean Spirit Guides', category: 'Outdoor Adventure', rating: 4.9, reviewCount: 95, avatar: placeholderImages.find(p => p.id === 'friendly-host-portrait')!, luxApproved: false, location: 'Cusco, Peru', vendorLat: -13.53, vendorLng: -71.96, startingPrice: 1500, isSample: true },
+  { id: 'v5', name: 'The Sound Sanctuary', category: 'Sound healing', rating: 4.9, reviewCount: 60, avatar: placeholderImages.find(p => p.id === 'generic-placeholder')!, luxApproved: true, location: 'California, USA', vendorLat: 34.05, vendorLng: -118.24, vendorServiceRadiusMiles: 100, startingPrice: 800, isSample: true },
+  { id: 'v6', name: 'Breathwork Journeys', category: 'Breathwork', rating: 4.7, reviewCount: 40, avatar: placeholderImages.find(p => p.id === 'profile-avatar-placeholder')!, luxApproved: false, location: 'Remote', startingPrice: 500, isSample: true },
+  { id: 'v7', name: 'Tuscan Tastings', category: 'Private chef / Catering', rating: 5.0, reviewCount: 72, avatar: placeholderImages.find(p => p.id === 'vendor-chef-profile')!, luxApproved: true, location: 'Tuscany, Italy', vendorLat: 43.77, vendorLng: 11.25, vendorServiceRadiusMiles: 50, startingPrice: 3000, isSample: true },
+  { id: 'v8', name: 'Bali Bodywork', category: 'Massage / Spa', rating: 4.8, reviewCount: 110, avatar: placeholderImages.find(p => p.id === 'spa-massage')!, luxApproved: false, location: 'Bali, Indonesia', vendorLat: -8.65, vendorLng: 115.21, startingPrice: 400, isSample: true }
 ];
 
 export const yourServices = [

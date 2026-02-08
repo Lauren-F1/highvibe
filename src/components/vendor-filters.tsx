@@ -31,19 +31,6 @@ function FilterGroup({ title, children }: { title: string, children: React.React
     )
 }
 
-function CheckboxFilter({ item, description }: { item: string, description?: string }) {
-    const id = `filter-vendor-${item.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
-    return (
-        <div className="flex items-start space-x-3">
-            <Checkbox id={id} className="mt-0.5" />
-            <div className="grid gap-1.5 leading-none">
-                <Label htmlFor={id} className="font-normal leading-tight">{item}</Label>
-                {description && <p className="text-xs text-muted-foreground">{description}</p>}
-            </div>
-        </div>
-    )
-}
-
 const planningWindowOptions = [
     { value: 'anytime', label: 'Anytime' },
     { value: '1-3-months', label: '1–3 months' },
@@ -59,12 +46,52 @@ const availabilityTypes = [
     "Waitlist / inquiry"
 ];
 
-export function VendorFilters() {
-    const [startDate, setStartDate] = React.useState<Date>();
-    const [endDate, setEndDate] = React.useState<Date>();
-    const [showExactDates, setShowExactDates] = React.useState(false);
-    const [showNearMatches, setShowNearMatches] = React.useState(false);
-    const [budget, setBudget] = React.useState(1500);
+export interface VendorFiltersState {
+  categories: string[];
+  locationPreference: 'local' | 'travel' | 'remote';
+  budget: number;
+  planningWindow: string;
+  availabilityTypes: string[];
+  showNearMatches: boolean;
+  showExactDates: boolean;
+  startDate?: Date;
+  endDate?: Date;
+  radius: number;
+}
+
+interface VendorFiltersProps {
+    filters: VendorFiltersState;
+    onFiltersChange: (filters: Partial<VendorFiltersState>) => void;
+}
+
+
+export function VendorFilters({ filters, onFiltersChange }: VendorFiltersProps) {
+
+    const handleCategoryChange = (category: string, checked: boolean) => {
+        const newCategories = checked
+            ? [...filters.categories, category]
+            : filters.categories.filter(c => c !== category);
+        onFiltersChange({ categories: newCategories });
+    };
+
+    const CheckboxFilter = ({ item, description }: { item: string, description?: string }) => {
+        const id = `filter-vendor-${item.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+        return (
+            <div className="flex items-start space-x-3">
+                <Checkbox 
+                    id={id} 
+                    className="mt-0.5" 
+                    checked={filters.categories.includes(item)}
+                    onCheckedChange={(checked) => handleCategoryChange(item, !!checked)}
+                />
+                <div className="grid gap-1.5 leading-none">
+                    <Label htmlFor={id} className="font-normal leading-tight">{item}</Label>
+                    {description && <p className="text-xs text-muted-foreground">{description}</p>}
+                </div>
+            </div>
+        )
+    };
+
 
     return (
          <Card className="lg:sticky lg:top-24">
@@ -72,7 +99,7 @@ export function VendorFilters() {
                  <CardTitle className="text-xl font-headline font-bold">Filter Services</CardTitle>
             </CardHeader>
             <CardContent>
-                 <Accordion type="multiple" defaultValue={["Vendor Category", "Location", "Budget Range", "Availability"]} className="w-full">
+                 <Accordion type="multiple" defaultValue={["Vendor Category", "Location", "Budget Range", "Availability", "Service Radius"]} className="w-full">
                     <FilterGroup title="Vendor Category">
                         {vendorCategories.map(category => <CheckboxFilter key={category.name} item={category.name} description={category.description} />)}
                     </FilterGroup>
@@ -80,7 +107,10 @@ export function VendorFilters() {
                     <FilterGroup title="Location">
                         <div className="space-y-2">
                             <Label>Where should the vendor be?</Label>
-                            <Select defaultValue="local">
+                            <Select 
+                                value={filters.locationPreference} 
+                                onValueChange={(value) => onFiltersChange({ locationPreference: value as VendorFiltersState['locationPreference'] })}
+                            >
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select location preference" />
                                 </SelectTrigger>
@@ -93,15 +123,35 @@ export function VendorFilters() {
                         </div>
                     </FilterGroup>
 
-                    <FilterGroup title="Budget Range">
+                     <FilterGroup title="Service Radius">
                         <div className="space-y-4 px-1 pt-2">
-                            <div className="flex justify-between items-center">
-                                <p className="text-sm text-foreground font-medium">Up to ${budget.toLocaleString()}{budget >= 5000 ? '+' : ''}</p>
+                             <div className="flex justify-between items-center">
+                                <p className="text-sm text-foreground font-medium">Within {filters.radius} miles</p>
                             </div>
                             <div className="py-3">
                                 <Slider
-                                    value={[budget]}
-                                    onValueChange={(value) => setBudget(value[0])}
+                                    value={[filters.radius]}
+                                    onValueChange={(value) => onFiltersChange({ radius: value[0] })}
+                                    max={200}
+                                    step={10}
+                                />
+                            </div>
+                            <div className="flex justify-between text-xs text-muted-foreground -mt-2">
+                                <span>10 mi</span>
+                                <span>200 mi</span>
+                            </div>
+                        </div>
+                    </FilterGroup>
+
+                    <FilterGroup title="Budget Range">
+                        <div className="space-y-4 px-1 pt-2">
+                            <div className="flex justify-between items-center">
+                                <p className="text-sm text-foreground font-medium">Up to ${filters.budget.toLocaleString()}{filters.budget >= 5000 ? '+' : ''}</p>
+                            </div>
+                            <div className="py-3">
+                                <Slider
+                                    value={[filters.budget]}
+                                    onValueChange={(value) => onFiltersChange({ budget: value[0]})}
                                     max={5000}
                                     step={100}
                                 />
@@ -120,7 +170,10 @@ export function VendorFilters() {
                         <div className="space-y-4">
                             <div className="space-y-2">
                                 <Label>Planning Window</Label>
-                                <Select defaultValue="anytime">
+                                <Select 
+                                    value={filters.planningWindow}
+                                    onValueChange={(value) => onFiltersChange({ planningWindow: value })}
+                                >
                                     <SelectTrigger>
                                         <SelectValue placeholder="Anytime" />
                                     </SelectTrigger>
@@ -134,23 +187,29 @@ export function VendorFilters() {
                                     This helps you find vendors who are a fit for your planning window. Exact dates can be finalized together.
                                 </p>
                             </div>
-                             <div className="space-y-3 pt-2">
-                                <Label>Availability Type</Label>
-                                {availabilityTypes.map(item => <CheckboxFilter key={item} item={item} />)}
-                            </div>
-                            <div className="flex items-start space-x-3 pt-2">
-                                <Switch id="near-matches-toggle-vendor" onCheckedChange={setShowNearMatches} checked={showNearMatches} className="mt-0.5" />
+                             <div className="flex items-start space-x-3 pt-2">
+                                <Switch 
+                                    id="near-matches-toggle-vendor" 
+                                    onCheckedChange={(checked) => onFiltersChange({ showNearMatches: checked })} 
+                                    checked={filters.showNearMatches} 
+                                    className="mt-0.5" 
+                                />
                                 <div className="grid gap-1.5 leading-none">
                                     <Label htmlFor="near-matches-toggle-vendor" className="font-normal">Show near matches</Label>
                                     <p className="text-xs text-muted-foreground">We’ll include vendors that are close to your ideal window.</p>
                                 </div>
                             </div>
                             <div className="flex items-start space-x-3 pt-2">
-                                <Switch id="exact-dates-toggle-vendor" onCheckedChange={setShowExactDates} checked={showExactDates} className="mt-0.5" />
+                                <Switch 
+                                    id="exact-dates-toggle-vendor" 
+                                    onCheckedChange={(checked) => onFiltersChange({ showExactDates: checked })} 
+                                    checked={filters.showExactDates} 
+                                    className="mt-0.5" 
+                                />
                                 <Label htmlFor="exact-dates-toggle-vendor" className="font-normal">I have exact dates (optional)</Label>
                             </div>
 
-                            {showExactDates && (
+                            {filters.showExactDates && (
                                 <div className="space-y-4 pt-4 mt-4 border-t">
                                     <div className="space-y-2">
                                         <Label htmlFor="start-date-vendor">Start Date</Label>
@@ -161,18 +220,18 @@ export function VendorFilters() {
                                                     variant={"outline"}
                                                     className={cn(
                                                         "w-full justify-start text-left font-normal",
-                                                        !startDate && "text-muted-foreground"
+                                                        !filters.startDate && "text-muted-foreground"
                                                     )}
                                                 >
                                                     <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {startDate ? format(startDate, "PPP") : <span>Pick a date</span>}
+                                                    {filters.startDate ? format(filters.startDate, "PPP") : <span>Pick a date</span>}
                                                 </Button>
                                             </PopoverTrigger>
                                             <PopoverContent className="w-auto p-0">
                                                 <Calendar
                                                     mode="single"
-                                                    selected={startDate}
-                                                    onSelect={setStartDate}
+                                                    selected={filters.startDate}
+                                                    onSelect={(date) => onFiltersChange({ startDate: date as Date })}
                                                     initialFocus
                                                 />
                                             </PopoverContent>
@@ -187,20 +246,20 @@ export function VendorFilters() {
                                                     variant={"outline"}
                                                     className={cn(
                                                         "w-full justify-start text-left font-normal",
-                                                        !endDate && "text-muted-foreground"
+                                                        !filters.endDate && "text-muted-foreground"
                                                     )}
                                                 >
                                                     <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {endDate ? format(endDate, "PPP") : <span>Pick a date</span>}
+                                                    {filters.endDate ? format(filters.endDate, "PPP") : <span>Pick a date</span>}
                                                 </Button>
                                             </PopoverTrigger>
                                             <PopoverContent className="w-auto p-0">
                                                 <Calendar
                                                     mode="single"
-                                                    selected={endDate}
-                                                    onSelect={setEndDate}
+                                                    selected={filters.endDate}
+                                                    onSelect={(date) => onFiltersChange({ endDate: date as Date })}
                                                     disabled={(date) =>
-                                                        startDate ? date < startDate : false
+                                                        filters.startDate ? date < filters.startDate : false
                                                     }
                                                     initialFocus
                                                 />
