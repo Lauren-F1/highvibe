@@ -9,7 +9,7 @@
     {
       "id": "meditation-forest",
       "description": "A person meditating in a lush, green forest with sunlight filtering through the trees.",
-      "imageUrl": "https://images.unsplash.com/photo-1693298122617-59b9a569e5cd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxtZWRpdGF0aW9uJTIwZm9yZXN0fGVufDB8fHx8MTc3MDA3MDAyMXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1693298122617-59b9a569e5cd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxtZWRpdGF0aW9uJTIwZm9yZXN0fGVufDB8fHx8fDE3NzAwNzAwMjF8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "meditation forest"
     },
     {
@@ -33,7 +33,7 @@
     {
       "id": "spa-massage",
       "description": "A person receiving a relaxing massage at a spa.",
-      "imageUrl": "https://images.unsplash.com/photo-1639162906614-0603b0ae95fd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxzcGElMjBtYXNzYWdlfGVufDB8fHx8MTc3MDA1MDU1NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1639162906614-0603b0ae95fd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxzcGElMjBtYXNzYWdlfGVufDB8fHx8fDE3NzAwNTA1NTV8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "spa massage"
     },
     {
@@ -85,7 +85,7 @@
       "imageHint": "bali villa"
     },
     {
-      "id": "host-peru-hacienda-bright",
+      "id": "hacienda-leather-interior",
       "description": "A spacious, high-end living room with leather couches, a fireplace, and a rustic, old-world feel.",
       "imageUrl": "https://images.unsplash.com/photo-1600585152220-90363fe7e115?q=80&w=1080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       "imageHint": "hacienda interior"
@@ -125,6 +125,12 @@
       "description": "A rustic but charming winery in Tuscany at sunset, with warm light over the vineyards.",
       "imageUrl": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxydXN0aWMlMjB0dXNjYW4lMjB3aW5lcnklMjBzdW5zZXR8ZW58MHx8fHwxNzA3NTYwMDIzfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "tuscan winery sunset"
+    },
+    {
+      "id": "spanish-villa-sunset",
+      "description": "A large Spanish-style villa with a pool at sunset.",
+      "imageUrl": "https://images.unsplash.com/photo-1588806528773-6789a463ce82?q=80&w=1080&auto=format&fit=crop",
+      "imageHint": "spanish villa"
     }
   ]
 }
