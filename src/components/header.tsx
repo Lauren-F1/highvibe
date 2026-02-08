@@ -31,7 +31,7 @@ export function Header() {
   };
 
   const userInitial = user.status === 'authenticated'
-    ? user.data.displayName?.charAt(0) || user.data.email?.charAt(0) || 'U'
+    ? user.profile?.displayName?.charAt(0) || user.data.email?.charAt(0) || 'U'
     : '';
 
   return (
@@ -71,8 +71,8 @@ export function Header() {
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                            <Avatar className="h-10 w-10">
-                            <AvatarImage src={user.data.photoURL || undefined} alt="User avatar" />
+                            <Avatar className="h-10 w-10 border">
+                            <AvatarImage src={user.profile?.avatarUrl} alt={user.profile?.displayName} />
                             <AvatarFallback>{userInitial}</AvatarFallback>
                             </Avatar>
                         </Button>
@@ -80,7 +80,7 @@ export function Header() {
                         <DropdownMenuContent className="w-56" align="end" forceMount>
                         <DropdownMenuLabel className="font-normal">
                             <div className="flex flex-col space-y-1">
-                            <p className="text-sm font-medium leading-none">{user.data.displayName || 'User'}</p>
+                            <p className="text-sm font-medium leading-none">{user.profile?.displayName || 'User'}</p>
                             <p className="text-xs leading-none text-muted-foreground">
                                 {user.data.email}
                             </p>

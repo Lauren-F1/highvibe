@@ -5,16 +5,14 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { PlusCircle, Eye, Users, MessageSquare, CheckCircle, DollarSign, MoreHorizontal } from 'lucide-react';
-import { PaywallModal } from '@/components/paywall-modal';
-import { RequestConnectionModal } from '@/components/request-connection-modal';
 import { yourServices, matchingGuidesForVendor, matchingHostsForVendor } from '@/lib/mock-data';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { GuideCard, type Guide } from '@/components/guide-card';
-import { HostCard, type Host } from '@/components/host-card';
+import { GuideCard } from '@/components/guide-card';
+import { HostCard } from '@/components/host-card';
 import { VendorGuideFilters } from '@/components/vendor-guide-filters';
 import { VendorHostFilters } from '@/components/vendor-host-filters';
 import { useToast } from '@/hooks/use-toast';
@@ -51,13 +49,7 @@ const confirmedBookings = [
 
 export default function VendorPage() {
   const router = useRouter();
-  const [isPaywallOpen, setPaywallOpen] = useState(false);
-  const [connectionModal, setConnectionModal] = useState<{isOpen: boolean, name: string, role: 'Host' | 'Vendor' | 'Guide'}>({isOpen: false, name: '', role: 'Guide'});
   const { toast } = useToast();
-
-  const handleConnectClick = (name: string, role: 'Host' | 'Vendor' | 'Guide') => {
-    setConnectionModal({ isOpen: true, name, role });
-  }
 
   const handleAddNewService = () => {
     alert("Navigate to 'Add New Service' page.");
@@ -65,7 +57,7 @@ export default function VendorPage() {
 
   const handleViewMessage = (threadId?: string) => {
     if (threadId) {
-        router.push(`/inbox?threadId=${threadId}`);
+        router.push(`/inbox?c=${threadId}`);
     } else {
         router.push('/inbox');
         toast({
@@ -77,13 +69,6 @@ export default function VendorPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
-      <PaywallModal isOpen={isPaywallOpen} onOpenChange={setPaywallOpen} />
-      <RequestConnectionModal 
-        isOpen={connectionModal.isOpen} 
-        onOpenChange={(val) => setConnectionModal({...connectionModal, isOpen: val})} 
-        name={connectionModal.name} 
-        role={connectionModal.role} 
-      />
       
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div>
@@ -186,7 +171,7 @@ export default function VendorPage() {
                                     </Select>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {matchingGuidesForVendor.map(guide => <GuideCard key={guide.id} guide={guide} onConnect={() => handleConnectClick(guide.name, 'Guide')} />)}
+                                    {matchingGuidesForVendor.map(guide => <GuideCard key={guide.id} guide={guide} />)}
                                 </div>
                             </div>
                         </div>
@@ -213,7 +198,7 @@ export default function VendorPage() {
                                     </Select>
                                  </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {matchingHostsForVendor.map(host => <HostCard key={host.id} host={host} onConnect={() => handleConnectClick(host.name, 'Host')} />)}
+                                    {matchingHostsForVendor.map(host => <HostCard key={host.id} host={host} />)}
                                 </div>
                             </div>
                         </div>

@@ -13,10 +13,24 @@ export interface UserProfile extends DocumentData {
   uid: string;
   email: string;
   displayName?: string;
-  photoURL?: string;
+  headline?: string;
+  bio?: string;
+  profileSlug?: string;
+  profileComplete?: boolean;
+  avatarUrl?: string;
+  galleryUrls?: string[];
   roles: ('guide' | 'host' | 'vendor' | 'seeker')[];
   primaryRole?: 'guide' | 'host' | 'vendor' | 'seeker';
-  onboardingComplete: boolean;
+  locationLabel?: string;
+  locationLat?: number;
+  locationLng?: number;
+  isWillingToTravel?: boolean;
+  travelRadiusMiles?: number;
+  vendorCategories?: string[];
+  vendorWebsite?: string;
+  hostVibe?: string;
+  hostAmenities?: string[];
+  guideRetreatTypes?: string[];
   createdAt?: any;
   lastLoginAt?: any;
 }
@@ -77,10 +91,13 @@ export function useUser(): AuthState {
     const userDocRef = doc(firestore, 'users', authState.data!.uid);
     const unsubscribe = onSnapshot(userDocRef, docSnap => {
       if (docSnap.exists()) {
-        setProfileState(docSnap.data() as UserProfile);
+        setProfileState({ uid: docSnap.id, ...docSnap.data() } as UserProfile);
       } else {
         setProfileState(null); // Profile does not exist
       }
+    }, (error) => {
+        console.error("Error fetching user profile:", error);
+        setProfileState(null);
     });
     return () => unsubscribe();
   }, [authState, firestore]);

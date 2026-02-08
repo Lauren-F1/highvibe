@@ -12,9 +12,28 @@
         "displayName": {
           "type": "string"
         },
-        "photoURL": {
+        "headline": {
+          "type": "string"
+        },
+        "bio": {
+          "type": "string"
+        },
+        "profileSlug": {
+          "type": "string"
+        },
+        "profileComplete": {
+          "type": "boolean"
+        },
+        "avatarUrl": {
           "type": "string",
           "format": "uri"
+        },
+        "galleryUrls": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
         },
         "roles": {
           "type": "array",
@@ -37,47 +56,60 @@
             "seeker"
           ]
         },
+        "locationLabel": {
+          "type": "string"
+        },
+        "locationLat": {
+          "type": "number"
+        },
+        "locationLng": {
+          "type": "number"
+        },
+        "isWillingToTravel": {
+          "type": "boolean"
+        },
+        "travelRadiusMiles": {
+          "type": "number"
+        },
+        "vendorCategories": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "vendorWebsite": {
+          "type": "string",
+          "format": "uri"
+        },
+        "hostVibe": {
+          "type": "string"
+        },
+        "hostAmenities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "guideRetreatTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time"
         },
         "lastLoginAt": {
-            "type": "string",
-            "format": "date-time"
-        },
-        "onboardingComplete": {
-            "type": "boolean"
-        },
-        "guideHomeBaseLabel": {
           "type": "string",
-          "description": "Label for the guide's home base location (e.g., 'Bali, Indonesia')."
-        },
-        "guideCanTravel": {
-          "type": "boolean",
-          "description": "Whether the guide is willing to travel for retreats."
-        },
-        "guideTravelRadiusMiles": {
-          "type": "number",
-          "description": "The maximum distance in miles a guide is willing to travel."
-        },
-        "guideRemotePlanningOK": {
-          "type": "boolean",
-          "description": "Whether the guide is open to remote planning."
-        },
-        "guideBaseLat": {
-          "type": "number",
-          "description": "Latitude of the guide's home base."
-        },
-        "guideBaseLng": {
-          "type": "number",
-          "description": "Longitude of the guide's home base."
+          "format": "date-time"
         }
       },
       "required": [
         "email",
         "createdAt",
         "roles",
-        "onboardingComplete"
+        "profileComplete"
       ]
     },
     "WaitlistSeeker": {
@@ -177,118 +209,59 @@
         "createdAt"
       ]
     },
-    "Host": {
-      "title": "Host",
-      "description": "A user who lists a space for retreats.",
+    "Conversation": {
+      "title": "Conversation",
+      "description": "A conversation thread between two or more users.",
       "type": "object",
       "properties": {
-        "userId": {
-          "$ref": "#/backend/entities/User"
-        },
-        "name": {
-          "type": "string"
-        },
-        "location": {
-          "type": "string"
-        },
-        "capacity": {
-          "type": "number"
-        },
-        "bedrooms": {
-          "type": "number"
-        },
-        "bathrooms": {
-          "type": "number"
-        },
-        "pricePerNight": {
-          "type": "number"
-        },
-        "propertyType": {
-          "type": "string"
-        },
-        "hostLat": {
-          "type": "number",
-          "description": "Latitude of the host property."
-        },
-        "hostLng": {
-          "type": "number",
-          "description": "Longitude of the host property."
-        },
-        "hostAddress": {
-          "type": "string",
-          "description": "Full address of the host property."
-        },
-        "hostCity": {
-          "type": "string",
-          "description": "City of the host property."
-        },
-        "hostStateRegion": {
-          "type": "string",
-          "description": "State or region of the host property."
-        }
-      },
-      "required": [
-        "userId",
-        "name",
-        "location"
-      ]
-    },
-    "Vendor": {
-      "title": "Vendor",
-      "description": "A user who provides services for retreats.",
-      "type": "object",
-      "properties": {
-        "userId": {
-          "$ref": "#/backend/entities/User"
-        },
-        "name": {
-          "type": "string"
-        },
-        "vendorCategory": {
-          "type": "string",
-          "description": "The primary category of service offered by the vendor."
-        },
-        "location": {
-          "type": "string"
-        },
-        "vendorLat": {
-          "type": "number",
-          "description": "Latitude of the vendor's base location."
-        },
-        "vendorLng": {
-          "type": "number",
-          "description": "Longitude of the vendor's base location."
-        },
-        "vendorServiceRadiusMiles": {
-          "type": "number",
-          "description": "Service radius in miles from the base location."
-        },
-        "vendorBaseLocationLabel": {
-          "type": "string",
-          "description": "Label for the vendor's base location (e.g., 'Bali, Indonesia')."
-        },
-        "vendorVibeTags": {
+        "participants": {
           "type": "array",
           "items": {
             "type": "string"
           },
-          "description": "Tags describing the vendor's vibe or style."
+          "description": "Array of user UIDs participating in the conversation."
         },
-        "startingPrice": {
-          "type": "number",
-          "description": "The starting price for the vendor's services."
+        "participantInfo": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "displayName": { "type": "string" },
+              "avatarUrl": { "type": "string", "format": "uri" }
+            }
+          }
         },
-        "isSample": {
-          "type": "boolean",
-          "description": "Indicates if this is a sample vendor for preview purposes."
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lastMessageAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lastMessageSnippet": {
+          "type": "string"
         }
       },
-      "required": [
-        "userId",
-        "name",
-        "vendorCategory",
-        "location"
-      ]
+      "required": ["participants", "createdAt", "lastMessageAt"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "A single message within a conversation.",
+      "type": "object",
+      "properties": {
+        "senderId": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["senderId", "text", "createdAt"]
     }
   },
   "auth": {
@@ -300,33 +273,33 @@
   "firestore": {
     "/users/{userId}": {
       "schema": {
-        "$ref": "#/backend/entities/User"
+        "$ref": "#/entities/User"
       },
       "description": "User profile information."
     },
     "/waitlist_seekers/{seekerId}": {
       "schema": {
-        "$ref": "#/backend/entities/WaitlistSeeker"
+        "$ref": "#/entities/WaitlistSeeker"
       },
       "description": "Collection of users who have signed up for the waitlist."
     },
     "/contact_submissions/{submissionId}": {
       "schema": {
-        "$ref": "#/backend/entities/ContactSubmission"
+        "$ref": "#/entities/ContactSubmission"
       },
       "description": "Collection of contact form submissions."
     },
-    "/hosts/{hostId}": {
+    "/conversations/{conversationId}": {
       "schema": {
-        "$ref": "#/backend/entities/Host"
+        "$ref": "#/entities/Conversation"
       },
-      "description": "Host profile and space listings."
+      "description": "Conversation threads between users."
     },
-    "/vendors/{vendorId}": {
+    "/conversations/{conversationId}/messages/{messageId}": {
       "schema": {
-        "$ref": "#/backend/entities/Vendor"
+        "$ref": "#/entities/Message"
       },
-      "description": "Vendor profile and service listings."
+      "description": "Messages within a conversation."
     }
   }
 }

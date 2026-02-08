@@ -6,12 +6,14 @@ import { MapPin, Users, Bed, Bath } from 'lucide-react';
 import type { ImagePlaceholder } from '@/lib/placeholder-images';
 import { Button } from './ui/button';
 import { placeholderImages } from '@/lib/placeholder-images';
+import Link from 'next/link';
 
 export interface Host {
   id: string;
   name: string;
   location: string;
   capacity: number;
+  eventCapacity?: number;
   bedrooms: number;
   bathrooms: number;
   pricePerNight: number;
@@ -26,17 +28,18 @@ export interface Host {
   cateringAllowed?: boolean;
   privateChefAllowed?: boolean;
   policyTags?: string[];
+  profileSlug?: string;
 }
 
 interface HostCardProps {
   host: Host;
-  onConnect: () => void;
+  onConnect?: () => void;
 }
 
 const defaultImage = placeholderImages.find(p => p.id === 'generic-placeholder')!;
 
 
-export function HostCard({ host, onConnect }: HostCardProps) {
+export function HostCard({ host }: HostCardProps) {
   const image = host.image || defaultImage;
   return (
     <Card className="w-full overflow-hidden transition-shadow duration-300 hover:shadow-xl flex flex-col h-full">
@@ -92,7 +95,9 @@ export function HostCard({ host, onConnect }: HostCardProps) {
         </div>
       </CardContent>
       <div className="p-4 pt-0 mt-auto">
-         <Button onClick={onConnect} className="w-full">Request to Connect</Button>
+         <Button asChild className="w-full">
+            <Link href={host.profileSlug ? `/u/${host.profileSlug}` : '#'}>View Profile</Link>
+         </Button>
       </div>
     </Card>
   );

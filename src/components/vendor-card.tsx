@@ -9,6 +9,7 @@ import { Button } from './ui/button';
 import type { Vendor } from '@/lib/mock-data';
 import { placeholderImages } from '@/lib/placeholder-images';
 import { Badge } from './ui/badge';
+import Link from 'next/link';
 
 
 export interface VendorCardProps {
@@ -18,7 +19,7 @@ export interface VendorCardProps {
 
 const defaultAvatar = placeholderImages.find(p => p.id === 'friendly-host-portrait')!;
 
-export function VendorCard({ vendor, onConnect }: VendorCardProps) {
+export function VendorCard({ vendor }: VendorCardProps) {
   const avatar = vendor.avatar || defaultAvatar;
 
   return (
@@ -47,11 +48,11 @@ export function VendorCard({ vendor, onConnect }: VendorCardProps) {
           </div>
         </div>
       </CardContent>
-      {onConnect && (
         <CardFooter className="p-4 pt-0">
-          <Button onClick={onConnect} className="w-full">Request to Connect</Button>
+          <Button asChild className="w-full">
+            <Link href={vendor.profileSlug ? `/u/${vendor.profileSlug}` : '#'}>View Profile</Link>
+          </Button>
         </CardFooter>
-      )}
     </Card>
   );
 }

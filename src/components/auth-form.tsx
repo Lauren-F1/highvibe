@@ -6,15 +6,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import {
   getAuth,
-  GoogleAuthProvider,
-  signInWithPopup,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  getAdditionalUserInfo,
   sendPasswordResetEmail,
 } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
-import { doc, setDoc, serverTimestamp, arrayUnion } from 'firebase/firestore';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -31,30 +28,25 @@ import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from './ui/checkbox';
 
-const formSchema = z.object({
-  firstName: z.string().optional(),
+const formSchemaSignup = z.object({
+  firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().optional(),
   email: z.string().email({ message: 'Please enter a valid email.' }),
   password: z.string().min(8, { message: 'Password must be at least 8 characters.' }),
-  confirmPassword: z.string().optional(),
-  terms: z.boolean().optional(),
-}).refine(data => {
-    if (data.confirmPassword) {
-        return data.password === data.confirmPassword
-    }
-    return true;
-}, {
+  confirmPassword: z.string(),
+  terms: z.literal(true, {
+    errorMap: () => ({ message: 'You must accept the terms and conditions.' })
+  }),
+}).refine(data => data.password === data.confirmPassword, {
     message: "Passwords don't match",
     path: ["confirmPassword"],
-}).refine(data => {
-    if (data.terms !== undefined) {
-        return data.terms === true;
-    }
-    return true;
-}, {
-    message: 'You must accept the terms and conditions.',
-    path: ['terms'],
 });
+
+const formSchemaLogin = z.object({
+  email: z.string().email({ message: 'Please enter a valid email.' }),
+  password: z.string().min(1, { message: 'Password is required.' }),
+});
+
 
 type AuthFormProps = {
   mode: 'login' | 'signup';
@@ -63,62 +55,58 @@ type AuthFormProps = {
 
 export function AuthForm({ mode, role }: AuthFormProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const app = useFirebaseApp();
   const firestore = useFirestore();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: { email: '', password: '' },
+  const form = useForm({
+    resolver: zodResolver(mode === 'signup' ? formSchemaSignup : formSchemaLogin),
+    defaultValues: { email: '', password: '', firstName: '', confirmPassword: '', terms: false },
   });
 
-  const redirectPath = role ? `/${role}` : '/guide';
-
-  const createUserProfileDocument = async (user: import('firebase/auth').User, data: z.infer<typeof formSchema>) => {
+  const createUserProfileDocument = async (user: import('firebase/auth').User, data: z.infer<typeof formSchemaSignup>) => {
     if (!firestore) return;
     const userRef = doc(firestore, 'users', user.uid);
     
-    const displayName = [data.firstName, data.lastName].filter(Boolean).join(' ') || user.displayName || '';
+    const displayName = [data.firstName, data.lastName].filter(Boolean).join(' ');
+    const profileSlug = displayName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
     
     const userData = {
       uid: user.uid,
       email: user.email?.toLowerCase(),
       displayName,
-      photoURL: user.photoURL || '',
+      profileSlug: `${profileSlug}-${user.uid.substring(0, 4)}`, // basic uniqueness
+      avatarUrl: user.photoURL || '',
       roles: role ? [role] : [],
       primaryRole: role || null,
-      onboardingComplete: !!role,
+      profileComplete: false, // Onboarding is now multi-step, this is set after profile edit
       createdAt: serverTimestamp(),
       lastLoginAt: serverTimestamp(),
     };
-    await setDoc(userRef, userData, { merge: true });
+    await setDoc(userRef, userData);
   };
 
-  const handleEmailSubmit = async (values: z.infer<typeof formSchema>) => {
+  const handleEmailSubmit = async (values: any) => {
     if (!app || !firestore) return;
     setLoading(true);
     setError(null);
     const auth = getAuth(app);
+    const redirectUrl = searchParams.get('redirect') || (role ? `/${role}` : '/onboarding/role');
 
     try {
       if (mode === 'signup') {
         const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
         await createUserProfileDocument(userCredential.user, values);
         toast({ title: 'Account created!', description: "Let's get started." });
-        if (role) {
-            router.push(redirectPath);
-        } else {
-            router.push('/onboarding/role');
-        }
+        router.push(role ? `/account/edit` : '/onboarding/role');
       } else { // login
         const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
         const userDocRef = doc(firestore, 'users', userCredential.user.uid);
         await setDoc(userDocRef, { lastLoginAt: serverTimestamp() }, { merge: true });
-        
-        // This part is handled by the login page useEffect now
-        // router.push(redirectPath); 
+        router.push(redirectUrl);
       }
     } catch (err: any) {
       setError(err.message);

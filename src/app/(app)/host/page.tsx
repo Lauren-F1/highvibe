@@ -15,8 +15,6 @@ import { Separator } from '@/components/ui/separator';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 import { placeholderImages } from '@/lib/placeholder-images';
-import { PaywallModal } from '@/components/paywall-modal';
-import { RequestConnectionModal } from '@/components/request-connection-modal';
 import { vendors, type Vendor, matchingGuidesForVendor } from '@/lib/mock-data';
 import { VendorCard } from '@/components/vendor-card';
 import { VendorFilters, type VendorFiltersState } from '@/components/vendor-filters';
@@ -88,8 +86,6 @@ function StatCard({ title, value, icon, description }: StatCardProps) {
 export default function HostPage() {
   const router = useRouter();
   const [activeSpaceId, setActiveSpaceId] = useState<string | null>(hostSpaces[0]?.id || null);
-  const [isPaywallOpen, setPaywallOpen] = useState(false);
-  const [connectionModal, setConnectionModal] = useState<{isOpen: boolean, name: string, role: 'Host' | 'Vendor' | 'Guide'}>({isOpen: false, name: '', role: 'Guide'});
   
   const [activeTab, setActiveTab] = useState<'guides' | 'vendors'>('guides');
 
@@ -105,10 +101,6 @@ export default function HostPage() {
   const [vendorSortOption, setVendorSortOption] = useState('recommended');
   const [vendorFiltersDirty, setVendorFiltersDirty] = useState(false);
   const { toast } = useToast();
-
-  const handleConnectClick = (name: string, role: 'Host' | 'Vendor' | 'Guide') => {
-    setConnectionModal({ isOpen: true, name, role });
-  }
 
   const handleAddNewSpace = () => {
       alert("Navigate to 'Add New Space' page.");
@@ -230,7 +222,7 @@ export default function HostPage() {
   
   const handleViewMessage = (threadId?: string) => {
     if (threadId) {
-        router.push(`/inbox?threadId=${threadId}`);
+        router.push(`/inbox?c=${threadId}`);
     } else {
         router.push('/inbox');
         toast({
@@ -242,14 +234,7 @@ export default function HostPage() {
   
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
-      <PaywallModal isOpen={isPaywallOpen} onOpenChange={setPaywallOpen} />
-      <RequestConnectionModal 
-        isOpen={connectionModal.isOpen} 
-        onOpenChange={(val) => setConnectionModal({...connectionModal, isOpen: val})} 
-        name={connectionModal.name} 
-        role={connectionModal.role} 
-      />
-
+      
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div>
           <h1 className="font-headline text-4xl md:text-5xl font-bold">Host Dashboard</h1>
@@ -400,7 +385,7 @@ export default function HostPage() {
                                                 </div>
                                                 {displayedGuides.length > 0 ? (
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                        {displayedGuides.map(guide => <GuideCard key={guide.id} guide={guide} onConnect={() => handleConnectClick(guide.name, 'Guide')} />)}
+                                                        {displayedGuides.map(guide => <GuideCard key={guide.id} guide={guide} />)}
                                                     </div>
                                                 ) : (
                                                     <Card className="text-center py-12">
@@ -478,7 +463,7 @@ export default function HostPage() {
                                             </div>
                                             {displayedVendors.length > 0 ? (
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                {displayedVendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} onConnect={() => handleConnectClick(vendor.name, 'Vendor')} />)}
+                                                {displayedVendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} />)}
                                                 </div>
                                             ) : (
                                                 <Card className="text-center py-12">
@@ -581,9 +566,3 @@ export default function HostPage() {
     </div>
   );
 }
-
-    
-
-
-
-

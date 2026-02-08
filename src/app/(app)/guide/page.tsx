@@ -11,18 +11,17 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { yourRetreats, hosts, vendors, UserSubscriptionStatus, destinations } from '@/lib/mock-data';
-import { PaywallModal } from '@/components/paywall-modal';
-import { RequestConnectionModal } from '@/components/request-connection-modal';
-import { HostCard } from '@/components/host-card';
-import { VendorCard } from '@/components/vendor-card';
-import { HostFilters, type HostFiltersState } from '@/components/host-filters';
-import { VendorFilters } from '@/components/vendor-filters';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { placeholderImages } from '@/lib/placeholder-images';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { HostCard } from '@/components/host-card';
+import { VendorCard } from '@/components/vendor-card';
+import { HostFilters, type HostFiltersState } from '@/components/host-filters';
+import { VendorFilters, type VendorFiltersState as VendorFiltersStateType } from '@/components/vendor-filters';
+
 
 const genericImage = placeholderImages.find(p => p.id === 'generic-placeholder')!;
 
@@ -62,19 +61,14 @@ export default function GuidePage() {
   const router = useRouter();
   const [activeRetreatId, setActiveRetreatId] = useState<string | null>(yourRetreats[0]?.id || null);
   const [subscriptionStatus] = useState<UserSubscriptionStatus>('active'); // mock status
-  const [isPaywallOpen, setPaywallOpen] = useState(false);
-  const [connectionModal, setConnectionModal] = useState<{isOpen: boolean, name: string, role: 'Host' | 'Vendor'}>({isOpen: false, name: '', role: 'Host'});
-
+  const { toast } = useToast();
+  
   const [hostFilters, setHostFilters] = useState<HostFiltersState>(initialHostFilters);
   const [sortOption, setSortOption] = useState('recommended');
-  const { toast } = useToast();
+
 
   const handleCreateRetreatClick = () => {
-    if (subscriptionStatus === 'active') {
-      router.push('/guide/retreats/new');
-    } else {
-      setPaywallOpen(true);
-    }
+    router.push('/guide/retreats/new');
   };
 
   const handleViewPartnersClick = (retreatId: string) => {
@@ -85,17 +79,9 @@ export default function GuidePage() {
     }
   }
 
-  const handleConnectClick = (name: string, role: 'Host' | 'Vendor') => {
-     if (subscriptionStatus !== 'active') {
-        setPaywallOpen(true);
-        return;
-    }
-    setConnectionModal({ isOpen: true, name, role });
-  }
-
   const handleViewMessage = (threadId?: string) => {
     if (threadId) {
-        router.push(`/inbox?threadId=${threadId}`);
+        router.push(`/inbox?c=${threadId}`);
     } else {
         router.push('/inbox');
         toast({
@@ -160,8 +146,6 @@ export default function GuidePage() {
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
-      <PaywallModal isOpen={isPaywallOpen} onOpenChange={setPaywallOpen} />
-      <RequestConnectionModal isOpen={connectionModal.isOpen} onOpenChange={(val) => setConnectionModal({...connectionModal, isOpen: val})} name={connectionModal.name} role={connectionModal.role} />
       
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div>
@@ -319,7 +303,7 @@ export default function GuidePage() {
                                                 </Card>
                                             ) : (
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                    {displayHosts.map(host => <HostCard key={host.id} host={host} onConnect={() => handleConnectClick(host.name, 'Host')} />)}
+                                                    {displayHosts.map(host => <HostCard key={host.id} host={host} />)}
                                                 </div>
                                             )}
                                         </div>
@@ -328,7 +312,7 @@ export default function GuidePage() {
                                 <TabsContent value="vendors" className="mt-6">
                                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                                         <div className="lg:col-span-1">
-                                            <VendorFilters />
+                                            <VendorFilters onApply={()=>{}} onReset={()=>{}} isDirty={false} onFiltersChange={()=>{}} filters={{} as VendorFiltersStateType} />
                                         </div>
                                         <div className="lg:col-span-3">
                                             <div className="flex justify-between items-center mb-4">
@@ -348,7 +332,7 @@ export default function GuidePage() {
                                             </div>
                                             {vendors.length > 0 ? (
                                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                    {vendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} onConnect={() => handleConnectClick(vendor.name, 'Vendor')} />)}
+                                                    {vendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} />)}
                                                 </div>
                                             ) : (
                                                 <div className="text-center py-12 rounded-lg bg-secondary/50">

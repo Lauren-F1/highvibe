@@ -9,6 +9,7 @@ import { Button } from './ui/button';
 import type { ImagePlaceholder } from '@/lib/placeholder-images';
 import { placeholderImages } from '@/lib/placeholder-images';
 import { Badge } from './ui/badge';
+import Link from 'next/link';
 
 export interface Guide {
   id: string;
@@ -22,16 +23,17 @@ export interface Guide {
   vibeTags?: string[];
   premiumMembership?: boolean;
   isSample?: boolean;
+  profileSlug?: string;
 }
 
 export interface GuideCardProps {
   guide: Guide;
-  onConnect: () => void;
+  onConnect?: () => void;
 }
 
 const defaultAvatar = placeholderImages.find(p => p.id === 'profile-avatar-placeholder')!;
 
-export function GuideCard({ guide, onConnect }: GuideCardProps) {
+export function GuideCard({ guide }: GuideCardProps) {
   const avatar = guide.avatar || defaultAvatar;
 
   return (
@@ -59,7 +61,9 @@ export function GuideCard({ guide, onConnect }: GuideCardProps) {
         </div>
       </CardContent>
       <CardFooter className="p-4 pt-0">
-        <Button onClick={onConnect} className="w-full">Request to Connect</Button>
+        <Button asChild className="w-full">
+            <Link href={guide.profileSlug ? `/u/${guide.profileSlug}` : '#'}>View Profile</Link>
+        </Button>
       </CardFooter>
     </Card>
   );
