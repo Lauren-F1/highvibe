@@ -369,6 +369,25 @@ export default function HostPage() {
                 </div>
             </CardContent>
         </Card>
+
+        <Card>
+            <CardHeader>
+                <CardTitle>Local Guides</CardTitle>
+                <CardDescription>
+                    Create curated, vibe-aligned collaborations with guides—so retreat planning starts with alignment, not logistics.
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center text-muted-foreground py-8">
+                <p className="text-base text-foreground">Begin building your guide partnerships.</p>
+                <p className="mt-4 text-sm max-w-md mx-auto">
+                    No guides are available yet. Once guides join, you’ll be able to explore aligned matches and save favorites.
+                </p>
+                <div className="mt-6">
+                    <Button disabled>Find Guides</Button>
+                    <p className="text-xs text-muted-foreground mt-2">Guide discovery will unlock at launch.</p>
+                </div>
+            </CardContent>
+        </Card>
       </div>
 
     </div>

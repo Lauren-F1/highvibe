@@ -19,3 +19,5 @@ export const isFirebaseEnabled = !!(
 export const isBuilderMode = process.env.NEXT_PUBLIC_BUILDER_MODE === 'true';
 
 export const enableVendorDiscovery = process.env.NEXT_PUBLIC_ENABLE_VENDOR_DISCOVERY === 'true';
+
+export const enableGuideDiscovery = process.env.NEXT_PUBLIC_ENABLE_GUIDE_DISCOVERY === 'true';

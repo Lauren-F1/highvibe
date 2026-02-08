@@ -49,6 +49,30 @@
         "createdAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "guideHomeBaseLabel": {
+          "type": "string",
+          "description": "Label for the guide's home base location (e.g., 'Bali, Indonesia')."
+        },
+        "guideCanTravel": {
+          "type": "boolean",
+          "description": "Whether the guide is willing to travel for retreats."
+        },
+        "guideTravelRadiusMiles": {
+          "type": "number",
+          "description": "The maximum distance in miles a guide is willing to travel."
+        },
+        "guideRemotePlanningOK": {
+          "type": "boolean",
+          "description": "Whether the guide is open to remote planning."
+        },
+        "guideBaseLat": {
+          "type": "number",
+          "description": "Latitude of the guide's home base."
+        },
+        "guideBaseLng": {
+          "type": "number",
+          "description": "Longitude of the guide's home base."
         }
       },
       "required": [
