@@ -24,6 +24,7 @@ import { GuideCard, type Guide } from '@/components/guide-card';
 import { GuideFilters, type GuideFiltersState } from '@/components/guide-filters';
 import { enableGuideDiscovery, enableVendorDiscovery, isBuilderMode } from '@/firebase/config';
 import { getDistanceInMiles } from '@/lib/geo';
+import { useToast } from '@/hooks/use-toast';
 
 
 const genericImage = placeholderImages.find(p => p.id === 'generic-placeholder')!;
@@ -96,11 +97,14 @@ export default function HostPage() {
   const [guideFilters, setGuideFilters] = useState<GuideFiltersState>(initialGuideFilters);
   const [appliedGuideFilters, setAppliedGuideFilters] = useState<GuideFiltersState>(initialGuideFilters);
   const [guideSortOption, setGuideSortOption] = useState('recommended');
+  const [guideFiltersDirty, setGuideFiltersDirty] = useState(false);
   
   // Vendor filter state
   const [vendorFilters, setVendorFilters] = useState<VendorFiltersState>(initialVendorFilters);
   const [appliedVendorFilters, setAppliedVendorFilters] = useState<VendorFiltersState>(initialVendorFilters);
   const [vendorSortOption, setVendorSortOption] = useState('recommended');
+  const [vendorFiltersDirty, setVendorFiltersDirty] = useState(false);
+  const { toast } = useToast();
 
   const handleConnectClick = (name: string, role: 'Host' | 'Vendor' | 'Guide') => {
     setConnectionModal({ isOpen: true, name, role });
@@ -116,13 +120,16 @@ export default function HostPage() {
   
   const handleGuideFilterChange = (newFilters: Partial<GuideFiltersState>) => {
     setGuideFilters(prev => ({...prev, ...newFilters}));
+    setGuideFiltersDirty(true);
   };
   const handleApplyGuideFilters = () => {
     setAppliedGuideFilters(guideFilters);
+    setGuideFiltersDirty(false);
   };
   const handleResetGuideFilters = () => {
     setGuideFilters(initialGuideFilters);
     setAppliedGuideFilters(initialGuideFilters);
+    setGuideFiltersDirty(false);
   };
   
   const areGuideFiltersDefault = JSON.stringify(appliedGuideFilters) === JSON.stringify(initialGuideFilters);
@@ -168,13 +175,16 @@ export default function HostPage() {
 
   const handleVendorFilterChange = (newFilters: Partial<VendorFiltersState>) => {
     setVendorFilters(prev => ({...prev, ...newFilters}));
+    setVendorFiltersDirty(true);
   };
   const handleApplyVendorFilters = () => {
     setAppliedVendorFilters(vendorFilters);
+    setVendorFiltersDirty(false);
   };
   const handleResetVendorFilters = () => {
     setVendorFilters(initialVendorFilters);
     setAppliedVendorFilters(initialVendorFilters);
+    setVendorFiltersDirty(false);
   };
 
   const displayedVendors = useMemo(() => {
@@ -217,6 +227,18 @@ export default function HostPage() {
     return filtered;
 
   }, [activeSpace, appliedVendorFilters, vendorSortOption]);
+  
+  const handleViewMessage = (threadId?: string) => {
+    if (threadId) {
+        router.push(`/inbox?threadId=${threadId}`);
+    } else {
+        router.push('/inbox');
+        toast({
+            title: 'Opening Inbox',
+            description: 'Could not find a specific thread.',
+        });
+    }
+  };
   
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -341,7 +363,7 @@ export default function HostPage() {
                                 <TabsContent value="guides" className="mt-6">
                                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                                         <div className="lg:col-span-1">
-                                            <GuideFilters filters={guideFilters} onFiltersChange={handleGuideFilterChange} onApply={handleApplyGuideFilters} onReset={handleResetGuideFilters} />
+                                            <GuideFilters filters={guideFilters} onFiltersChange={handleGuideFilterChange} onApply={handleApplyGuideFilters} onReset={handleResetGuideFilters} isDirty={guideFiltersDirty}/>
                                         </div>
                                         <div className="lg:col-span-3">
                                         {!enableGuideDiscovery && !isBuilderMode ? (
@@ -382,8 +404,13 @@ export default function HostPage() {
                                                     </div>
                                                 ) : (
                                                     <Card className="text-center py-12">
-                                                        <CardHeader><CardTitle className="font-headline text-xl">No matches for these filters yet.</CardTitle></CardHeader>
-                                                        <CardContent><CardDescription>Try changing or resetting your filters.</CardDescription></CardContent>
+                                                        <CardHeader>
+                                                            <CardTitle className="font-headline text-xl">No matches yet.</CardTitle>
+                                                            <CardDescription>Try resetting filters.</CardDescription>
+                                                        </CardHeader>
+                                                        <CardContent>
+                                                            <Button onClick={handleResetGuideFilters}>Reset Filters</Button>
+                                                        </CardContent>
                                                     </Card>
                                                 )}
                                             </>
@@ -399,6 +426,7 @@ export default function HostPage() {
                                             onFiltersChange={handleVendorFilterChange}
                                             onApply={handleApplyVendorFilters}
                                             onReset={handleResetVendorFilters}
+                                            isDirty={vendorFiltersDirty}
                                         />
                                         </div>
                                         <div className="lg:col-span-3">
@@ -454,8 +482,13 @@ export default function HostPage() {
                                                 </div>
                                             ) : (
                                                 <Card className="text-center py-12">
-                                                <CardHeader><CardTitle className="font-headline text-xl">No matches for these filters yet.</CardTitle></CardHeader>
-                                                <CardContent><CardDescription>Try a different category or widening your filters.</CardDescription></CardContent>
+                                                    <CardHeader>
+                                                        <CardTitle className="font-headline text-xl">No matches yet.</CardTitle>
+                                                        <CardDescription>Try resetting filters.</CardDescription>
+                                                    </CardHeader>
+                                                    <CardContent>
+                                                        <Button onClick={handleResetVendorFilters}>Reset Filters</Button>
+                                                    </CardContent>
                                                 </Card>
                                             )}
                                             </div>
@@ -488,7 +521,7 @@ export default function HostPage() {
                                                 <TableCell>{req.role}</TableCell>
                                                 <TableCell><Badge variant={req.status === 'New Request' ? 'default' : 'secondary'}>{req.status}</Badge></TableCell>
                                                 <TableCell className="text-right">
-                                                    <Button variant="outline" size="sm" onClick={() => router.push(`/inbox?threadId=${req.id}`)}>View Message</Button>
+                                                    <Button variant="outline" size="sm" onClick={() => handleViewMessage(req.id)}>View Message</Button>
                                                 </TableCell>
                                             </TableRow>
                                         ))}
@@ -550,5 +583,6 @@ export default function HostPage() {
 }
 
     
+
 
 

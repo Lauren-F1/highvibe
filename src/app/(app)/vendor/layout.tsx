@@ -62,7 +62,7 @@ export default function VendorLayout({ children }: { children: React.ReactNode }
   if (isBuilderMode) {
     return (
       <>
-        <BuilderModeBanner pageName="Vendor Dashboard" />
+        <BuilderModeBanner />
         {children}
       </>
     );

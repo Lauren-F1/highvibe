@@ -20,6 +20,7 @@ interface GuideFiltersProps {
   onFiltersChange: (filters: Partial<GuideFiltersState>) => void;
   onApply: () => void;
   onReset: () => void;
+  isDirty: boolean;
 }
 
 const experienceTypes = [
@@ -46,7 +47,7 @@ function FilterGroup({ title, children }: { title: string, children: React.React
     )
 }
 
-export function GuideFilters({ filters, onFiltersChange, onApply, onReset }: GuideFiltersProps) {
+export function GuideFilters({ filters, onFiltersChange, onApply, onReset, isDirty }: GuideFiltersProps) {
 
     const handleCheckboxChange = (group: 'experienceTypes' | 'vibes', item: string, checked: boolean) => {
         const currentValues = filters[group] || [];
@@ -130,7 +131,7 @@ export function GuideFilters({ filters, onFiltersChange, onApply, onReset }: Gui
                 </Accordion>
             </CardContent>
             <CardFooter className="flex flex-col gap-2 p-4">
-                <Button onClick={onApply} className="w-full">Apply Filters</Button>
+                <Button onClick={onApply} className="w-full" disabled={!isDirty}>Apply Filters</Button>
                 <Button onClick={onReset} variant="ghost" className="w-full">Reset</Button>
             </CardFooter>
         </Card>

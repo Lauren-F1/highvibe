@@ -62,7 +62,7 @@ export default function GuideLayout({ children }: { children: React.ReactNode })
   if (isBuilderMode) {
     return (
       <>
-        <BuilderModeBanner pageName="Guide Dashboard" />
+        <BuilderModeBanner />
         {children}
       </>
     );

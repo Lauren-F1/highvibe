@@ -58,10 +58,11 @@ interface VendorFiltersProps {
     onFiltersChange: (filters: Partial<VendorFiltersState>) => void;
     onApply: () => void;
     onReset: () => void;
+    isDirty: boolean;
 }
 
 
-export function VendorFilters({ filters, onFiltersChange, onApply, onReset }: VendorFiltersProps) {
+export function VendorFilters({ filters, onFiltersChange, onApply, onReset, isDirty }: VendorFiltersProps) {
 
     const handleCategoryChange = (category: string, checked: boolean) => {
         const newCategories = checked
@@ -269,7 +270,7 @@ export function VendorFilters({ filters, onFiltersChange, onApply, onReset }: Ve
                 </Accordion>
             </CardContent>
             <CardFooter className="flex flex-col gap-2 p-4">
-                <Button onClick={onApply} className="w-full">Apply Filters</Button>
+                <Button onClick={onApply} className="w-full" disabled={!isDirty}>Apply Filters</Button>
                 <Button onClick={onReset} variant="ghost" className="w-full">Reset</Button>
             </CardFooter>
         </Card>

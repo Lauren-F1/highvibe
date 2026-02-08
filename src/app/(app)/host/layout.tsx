@@ -61,7 +61,7 @@ export default function HostLayout({ children }: { children: React.ReactNode }) 
   if (isBuilderMode) {
     return (
       <>
-        <BuilderModeBanner pageName="Host Dashboard" />
+        <BuilderModeBanner />
         {children}
       </>
     );

@@ -17,6 +17,7 @@ import { GuideCard, type Guide } from '@/components/guide-card';
 import { HostCard, type Host } from '@/components/host-card';
 import { VendorGuideFilters } from '@/components/vendor-guide-filters';
 import { VendorHostFilters } from '@/components/vendor-host-filters';
+import { useToast } from '@/hooks/use-toast';
 
 interface StatCardProps {
   title: string;
@@ -52,6 +53,7 @@ export default function VendorPage() {
   const router = useRouter();
   const [isPaywallOpen, setPaywallOpen] = useState(false);
   const [connectionModal, setConnectionModal] = useState<{isOpen: boolean, name: string, role: 'Host' | 'Vendor' | 'Guide'}>({isOpen: false, name: '', role: 'Guide'});
+  const { toast } = useToast();
 
   const handleConnectClick = (name: string, role: 'Host' | 'Vendor' | 'Guide') => {
     setConnectionModal({ isOpen: true, name, role });
@@ -60,6 +62,18 @@ export default function VendorPage() {
   const handleAddNewService = () => {
     alert("Navigate to 'Add New Service' page.");
   }
+
+  const handleViewMessage = (threadId?: string) => {
+    if (threadId) {
+        router.push(`/inbox?threadId=${threadId}`);
+    } else {
+        router.push('/inbox');
+        toast({
+            title: 'Opening Inbox',
+            description: 'Could not find a specific thread.',
+        });
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -233,7 +247,7 @@ export default function VendorPage() {
                                     <TableCell>{req.regarding}</TableCell>
                                     <TableCell><Badge variant={req.status === 'New Request' ? 'default' : 'secondary'}>{req.status}</Badge></TableCell>
                                     <TableCell className="text-right">
-                                        <Button variant="outline" size="sm" onClick={() => router.push(`/inbox?threadId=${req.id}`)}>View Message</Button>
+                                        <Button variant="outline" size="sm" onClick={() => handleViewMessage(req.id)}>View Message</Button>
                                     </TableCell>
                                 </TableRow>
                             ))}

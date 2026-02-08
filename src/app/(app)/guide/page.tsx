@@ -22,6 +22,7 @@ import { placeholderImages } from '@/lib/placeholder-images';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
 
 const genericImage = placeholderImages.find(p => p.id === 'generic-placeholder')!;
 
@@ -66,6 +67,7 @@ export default function GuidePage() {
 
   const [hostFilters, setHostFilters] = useState<HostFiltersState>(initialHostFilters);
   const [sortOption, setSortOption] = useState('recommended');
+  const { toast } = useToast();
 
   const handleCreateRetreatClick = () => {
     if (subscriptionStatus === 'active') {
@@ -90,6 +92,18 @@ export default function GuidePage() {
     }
     setConnectionModal({ isOpen: true, name, role });
   }
+
+  const handleViewMessage = (threadId?: string) => {
+    if (threadId) {
+        router.push(`/inbox?threadId=${threadId}`);
+    } else {
+        router.push('/inbox');
+        toast({
+            title: 'Opening Inbox',
+            description: 'Could not find a specific thread.',
+        });
+    }
+  };
 
   const activeRetreat = yourRetreats.find(r => r.id === activeRetreatId);
   const subscriptionBadge = {
@@ -370,7 +384,7 @@ export default function GuidePage() {
                                                 <TableCell>{req.role}</TableCell>
                                                 <TableCell><Badge variant={req.status === 'Conversation Started' ? 'default' : 'secondary'}>{req.status}</Badge></TableCell>
                                                 <TableCell className="text-right">
-                                                    <Button variant="outline" size="sm" className="mr-2" onClick={() => router.push(`/inbox?threadId=${req.id}`)}>View Message</Button>
+                                                    <Button variant="outline" size="sm" className="mr-2" onClick={() => handleViewMessage(req.id)}>View Message</Button>
                                                 </TableCell>
                                             </TableRow>
                                         ))}
