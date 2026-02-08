@@ -19,8 +19,18 @@ import { HostFilters } from '@/components/host-filters';
 import { VendorFilters } from '@/components/vendor-filters';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { placeholderImages } from '@/lib/placeholder-images';
+import { Separator } from '@/components/ui/separator';
 
 const genericImage = placeholderImages.find(p => p.id === 'generic-placeholder')!;
+
+const connectionRequests = [
+  { id: 'cr1', name: 'Ubud Jungle Haven', role: 'Host', forRetreat: 'Sunrise Yoga in Bali', status: 'Awaiting Response' },
+  { id: 'cr2', name: 'Elena Ray', role: 'Vendor', forRetreat: 'Sunrise Yoga in Bali', status: 'Responded' },
+];
+
+const confirmedBookings = [
+  { id: 'cb1', partnerName: 'Sacred Valley Hacienda', role: 'Host', forRetreat: 'Andes Hiking Adventure', dates: 'Oct 15-22, 2024' },
+];
 
 export default function GuidePage() {
   const router = useRouter();
@@ -37,8 +47,12 @@ export default function GuidePage() {
     }
   };
 
-  const handleViewMatchesClick = (retreatId: string) => {
+  const handleViewPartnersClick = (retreatId: string) => {
     setActiveRetreatId(retreatId);
+    const element = document.getElementById('partnership-dashboard');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
   }
 
   const handleConnectClick = (name: string, role: 'Host' | 'Vendor') => {
@@ -56,6 +70,9 @@ export default function GuidePage() {
       past_due: { variant: 'destructive', label: 'Past Due', icon: <XCircle className="mr-2 h-4 w-4" /> },
       trial: { variant: 'secondary', label: 'Trial', icon: <CheckCircle className="mr-2 h-4 w-4" /> },
   }[subscriptionStatus];
+
+  const retreatConnectionRequests = connectionRequests.filter(c => c.forRetreat === activeRetreat?.name);
+  const retreatConfirmedBookings = confirmedBookings.filter(c => c.forRetreat === activeRetreat?.name);
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -82,7 +99,7 @@ export default function GuidePage() {
       <Card className="mb-12">
         <CardHeader>
           <CardTitle>Your Retreats</CardTitle>
-          <CardDescription>A summary of your created retreats. Select one to find matches below.</CardDescription>
+          <CardDescription>A summary of your created retreats. Select one to find partners below.</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -117,7 +134,7 @@ export default function GuidePage() {
                   <TableCell className="text-right">{retreat.bookings}</TableCell>
                   <TableCell className="text-right">${retreat.income.toLocaleString()}</TableCell>
                   <TableCell className="text-center space-x-2">
-                    <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); handleViewMatchesClick(retreat.id); }}>Find Partners</Button>
+                    <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); handleViewPartnersClick(retreat.id); }}>Find Partners</Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}><MoreHorizontal className="h-4 w-4"/></Button>
@@ -137,15 +154,15 @@ export default function GuidePage() {
         </CardContent>
       </Card>
 
-      <div id="matches-section">
+      <div id="partnership-dashboard">
         <Card>
             <CardHeader>
-                <CardTitle className="font-headline text-3xl">Matches for Your Retreat</CardTitle>
+                <CardTitle className="font-headline text-3xl">Partnership Dashboard for {activeRetreat ? `"${activeRetreat.name}"` : 'Your Retreat'}</CardTitle>
                 <CardDescription className="font-body text-base">The right people, in the right place—without the back-and-forth.</CardDescription>
                 <div className="!mt-6 max-w-sm">
                     <Select onValueChange={setActiveRetreatId} value={activeRetreatId || ''}>
                         <SelectTrigger id="retreat-selector" className="text-lg py-6">
-                            <SelectValue placeholder="Select a retreat to find matches..." />
+                            <SelectValue placeholder="Select a retreat to see matches..." />
                         </SelectTrigger>
                         <SelectContent>
                             {yourRetreats.map(retreat => (
@@ -155,78 +172,154 @@ export default function GuidePage() {
                     </Select>
                 </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-12">
                 {activeRetreat ? (
-                     <Tabs defaultValue="hosts">
-                        <TabsList className="grid w-full grid-cols-2 bg-primary text-primary-foreground">
-                            <TabsTrigger value="hosts">Hosts (Spaces)</TabsTrigger>
-                            <TabsTrigger value="vendors">Vendors (Services)</TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="hosts" className="mt-6">
-                            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                                <div className="lg:col-span-1">
-                                    <HostFilters />
-                                </div>
-                                <div className="lg:col-span-3">
-                                    <div className="flex justify-between items-center mb-4">
-                                        <h3 className="font-headline text-2xl">{hosts.length} Matching {hosts.length === 1 ? 'Space' : 'Spaces'}</h3>
-                                        <Select defaultValue="recommended">
-                                            <SelectTrigger className="w-[180px]">
-                                                <SelectValue placeholder="Sort by" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="recommended">Recommended</SelectItem>
-                                                <SelectItem value="price-asc">Price (low to high)</SelectItem>
-                                                <SelectItem value="price-desc">Price (high to low)</SelectItem>
-                                                <SelectItem value="rating">Highest rated</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        {hosts.map(host => <HostCard key={host.id} host={host} onConnect={() => handleConnectClick(host.name, 'Host')} />)}
-                                    </div>
-                                </div>
-                            </div>
-                        </TabsContent>
-                        <TabsContent value="vendors" className="mt-6">
-                            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                                <div className="lg:col-span-1">
-                                    <VendorFilters />
-                                </div>
-                                <div className="lg:col-span-3">
-                                     <div className="flex justify-between items-center mb-4">
-                                        <h3 className="font-headline text-2xl">{vendors.length} Matching {vendors.length === 1 ? 'Vendor' : 'Vendors'}</h3>
-                                        <Select defaultValue="recommended">
-                                            <SelectTrigger className="w-[180px]">
-                                                <SelectValue placeholder="Sort by" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="recommended">Recommended</SelectItem>
-                                                <SelectItem value="price-asc">Price (low to high)</SelectItem>
-                                                <SelectItem value="price-desc">Price (high to low)</SelectItem>
-                                                <SelectItem value="rating">Highest rated</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                     </div>
-                                     <p className="text-muted-foreground mb-4">Find the people who elevate the experience.</p>
-                                    {vendors.length > 0 ? (
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                            {vendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} onConnect={() => handleConnectClick(vendor.name, 'Vendor')} />)}
+                    <>
+                        {/* Matches Available */}
+                        <div>
+                            <h3 className="font-headline text-2xl mb-2">Matches Available</h3>
+                            <p className="text-muted-foreground mb-4">These are spaces and vendors that fit what you’re looking for.</p>
+                            <Tabs defaultValue="hosts">
+                                <TabsList className="grid w-full grid-cols-2 bg-primary text-primary-foreground">
+                                    <TabsTrigger value="hosts">Hosts (Spaces)</TabsTrigger>
+                                    <TabsTrigger value="vendors">Vendors (Services)</TabsTrigger>
+                                </TabsList>
+                                <TabsContent value="hosts" className="mt-6">
+                                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                                        <div className="lg:col-span-1">
+                                            <HostFilters />
                                         </div>
-                                    ) : (
-                                        <div className="text-center py-12 rounded-lg bg-secondary/50">
-                                            <p className="text-muted-foreground max-w-md mx-auto">
-                                                We’re expanding this network. If you don’t see the perfect match yet, we’ll surface new vendors as they join.
-                                            </p>
+                                        <div className="lg:col-span-3">
+                                            <div className="flex justify-between items-center mb-4">
+                                                <h3 className="font-headline text-2xl">{hosts.length} Matching {hosts.length === 1 ? 'Space' : 'Spaces'}</h3>
+                                                <Select defaultValue="recommended">
+                                                    <SelectTrigger className="w-[180px]">
+                                                        <SelectValue placeholder="Sort by" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="recommended">Recommended</SelectItem>
+                                                        <SelectItem value="price-asc">Price (low to high)</SelectItem>
+                                                        <SelectItem value="price-desc">Price (high to low)</SelectItem>
+                                                        <SelectItem value="rating">Highest rated</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                {hosts.map(host => <HostCard key={host.id} host={host} onConnect={() => handleConnectClick(host.name, 'Host')} />)}
+                                            </div>
                                         </div>
-                                    )}
+                                    </div>
+                                </TabsContent>
+                                <TabsContent value="vendors" className="mt-6">
+                                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                                        <div className="lg:col-span-1">
+                                            <VendorFilters />
+                                        </div>
+                                        <div className="lg:col-span-3">
+                                            <div className="flex justify-between items-center mb-4">
+                                                <h3 className="font-headline text-2xl">{vendors.length} Matching {vendors.length === 1 ? 'Vendor' : 'Vendors'}</h3>
+                                                <Select defaultValue="recommended">
+                                                    <SelectTrigger className="w-[180px]">
+                                                        <SelectValue placeholder="Sort by" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="recommended">Recommended</SelectItem>
+                                                        <SelectItem value="price-asc">Price (low to high)</SelectItem>
+                                                        <SelectItem value="price-desc">Price (high to low)</SelectItem>
+                                                        <SelectItem value="rating">Highest rated</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            {vendors.length > 0 ? (
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                    {vendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} onConnect={() => handleConnectClick(vendor.name, 'Vendor')} />)}
+                                                </div>
+                                            ) : (
+                                                <div className="text-center py-12 rounded-lg bg-secondary/50">
+                                                    <p className="text-muted-foreground max-w-md mx-auto">We’re expanding this network. If you don’t see the perfect match yet, we’ll surface new vendors as they join.</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </TabsContent>
+                            </Tabs>
+                        </div>
+                        
+                        <Separator />
+
+                        {/* Connections Requested */}
+                        <div>
+                            <h3 className="font-headline text-2xl mb-2">Connections Requested</h3>
+                            <p className="text-muted-foreground mb-4">These are people you’ve reached out to or who have requested to connect with you.</p>
+                             {retreatConnectionRequests.length > 0 ? (
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Name</TableHead>
+                                            <TableHead>Role</TableHead>
+                                            <TableHead>Status</TableHead>
+                                            <TableHead className="text-right">Actions</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {retreatConnectionRequests.map(req => (
+                                            <TableRow key={req.id}>
+                                                <TableCell className="font-medium">{req.name}</TableCell>
+                                                <TableCell>{req.role}</TableCell>
+                                                <TableCell><Badge variant={req.status === 'Responded' ? 'default' : 'secondary'}>{req.status}</Badge></TableCell>
+                                                <TableCell className="text-right">
+                                                    <Button variant="outline" size="sm" className="mr-2">View Message</Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            ) : (
+                                <div className="text-center py-12 rounded-lg bg-secondary/50">
+                                    <p className="text-muted-foreground">No connection requests yet for this retreat.</p>
                                 </div>
-                            </div>
-                        </TabsContent>
-                    </Tabs>
+                            )}
+                        </div>
+                        
+                        <Separator />
+
+                        {/* Confirmed Bookings */}
+                        <div>
+                            <h3 className="font-headline text-2xl mb-2">Confirmed Bookings</h3>
+                            <p className="text-muted-foreground mb-4">These are your confirmed retreat relationships and bookings.</p>
+                            {retreatConfirmedBookings.length > 0 ? (
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Partner</TableHead>
+                                            <TableHead>Role</TableHead>
+                                            <TableHead>Dates</TableHead>
+                                            <TableHead className="text-right">Actions</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {retreatConfirmedBookings.map(booking => (
+                                            <TableRow key={booking.id}>
+                                                <TableCell className="font-medium">{booking.partnerName}</TableCell>
+                                                <TableCell>{booking.role}</TableCell>
+                                                <TableCell>{booking.dates}</TableCell>
+                                                <TableCell className="text-right">
+                                                    <Button variant="outline" size="sm" className="mr-2">Manage</Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            ) : (
+                                <div className="text-center py-12 rounded-lg bg-secondary/50">
+                                    <p className="text-muted-foreground">No confirmed bookings yet for this retreat. Keep building!</p>
+                                </div>
+                            )}
+                        </div>
+                    </>
                 ) : (
                     <div className="text-center py-12">
-                        <p className="text-muted-foreground">Please select a retreat to see matches.</p>
+                        <p className="text-muted-foreground">Please select a retreat to see its partnership dashboard.</p>
                     </div>
                 )}
             </CardContent>

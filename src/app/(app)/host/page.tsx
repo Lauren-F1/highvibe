@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Separator } from '@/components/ui/separator';
 
 import { placeholderImages } from '@/lib/placeholder-images';
 import { PaywallModal } from '@/components/paywall-modal';
@@ -36,6 +37,15 @@ const matchingGuides: Guide[] = [
 ];
 
 const localVendors = vendors.slice(0, 3);
+
+const connectionRequests = [
+    { id: 'cr1', name: 'Asha Sharma', role: 'Guide', forSpace: 'The Glass House', status: 'New Request' },
+    { id: 'cr2', name: 'Local Caterers', role: 'Vendor', forSpace: 'The Glass House', status: 'Awaiting Response' }
+];
+
+const confirmedBookings = [
+    { id: 'cb1', guideName: 'Marcus Green', retreatName: 'Adventure & Leadership Summit', forSpace: 'The Glass House', dates: 'Nov 5-10, 2024' }
+];
 
 interface StatCardProps {
   title: string;
@@ -72,6 +82,10 @@ export default function HostPage() {
       alert("Navigate to 'Add New Space' page.");
   }
   
+  const activeSpace = hostSpaces.find(s => s.id === activeSpaceId);
+  const spaceConnectionRequests = connectionRequests.filter(c => c.forSpace === activeSpace?.name);
+  const spaceConfirmedBookings = confirmedBookings.filter(c => c.forSpace === activeSpace?.name);
+
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
       <PaywallModal isOpen={isPaywallOpen} onOpenChange={setPaywallOpen} />
@@ -146,7 +160,7 @@ export default function HostPage() {
                   <TableCell className="text-right">${space.rate}/night</TableCell>
                   <TableCell className="text-center">{space.bookings}</TableCell>
                   <TableCell className="text-center space-x-2">
-                    <Button variant="outline" size="sm" onClick={() => setActiveSpaceId(space.id)}>Find Partners</Button>
+                    <Button variant="outline" size="sm" onClick={() => setActiveSpaceId(space.id)}>Partners Dashboard</Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4"/></Button>
@@ -165,15 +179,15 @@ export default function HostPage() {
         </CardContent>
       </Card>
       
-       <div id="matches-section" className="mb-12">
+       <div id="partnership-dashboard" className="space-y-12">
         <Card>
             <CardHeader>
-                <CardTitle className="font-headline text-3xl">Matches for Your Space</CardTitle>
+                <CardTitle className="font-headline text-3xl">Partnership Dashboard for {activeSpace ? `"${activeSpace.name}"` : 'Your Space'}</CardTitle>
                 <CardDescription className="font-body text-base">Find the right guides and local vendors to partner with.</CardDescription>
                 <div className="!mt-6 max-w-sm">
                     <Select onValueChange={setActiveSpaceId} value={activeSpaceId || ''}>
                         <SelectTrigger id="space-selector" className="text-lg py-6">
-                            <SelectValue placeholder="Select a space to find matches..." />
+                            <SelectValue placeholder="Select a space to see matches..." />
                         </SelectTrigger>
                         <SelectContent>
                             {hostSpaces.map(space => (
@@ -183,85 +197,165 @@ export default function HostPage() {
                     </Select>
                 </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-12">
                 {activeSpaceId ? (
-                     <Tabs defaultValue="guides">
-                        <TabsList className="grid w-full grid-cols-2 bg-primary text-primary-foreground">
-                            <TabsTrigger value="guides">Guides (Retreat Leaders)</TabsTrigger>
-                            <TabsTrigger value="vendors">Vendors (Local Partners)</TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="guides" className="mt-6">
-                            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                                <div className="lg:col-span-1">
-                                    <GuideFilters />
-                                </div>
-                                <div className="lg:col-span-3">
-                                    <div className="flex justify-between items-center mb-4">
-                                        <h3 className="font-headline text-2xl">{matchingGuides.length} Matching {matchingGuides.length === 1 ? 'Guide' : 'Guides'}</h3>
-                                        <Select defaultValue="recommended">
-                                            <SelectTrigger className="w-[180px]">
-                                                <SelectValue placeholder="Sort by" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="recommended">Recommended</SelectItem>
-                                                <SelectItem value="rating">Highest rated</SelectItem>
-                                                <SelectItem value="newest">Newest</SelectItem>
-                                            </SelectContent>
-                                        </Select>
+                    <>
+                        {/* Matches Available */}
+                        <div>
+                             <h3 className="font-headline text-2xl mb-2">Matches Available</h3>
+                            <p className="text-muted-foreground mb-4">These are guides and vendors that fit what you’re looking for.</p>
+                            <Tabs defaultValue="guides">
+                                <TabsList className="grid w-full grid-cols-2 bg-primary text-primary-foreground">
+                                    <TabsTrigger value="guides">Guides (Retreat Leaders)</TabsTrigger>
+                                    <TabsTrigger value="vendors">Vendors (Local Partners)</TabsTrigger>
+                                </TabsList>
+                                <TabsContent value="guides" className="mt-6">
+                                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                                        <div className="lg:col-span-1">
+                                            <GuideFilters />
+                                        </div>
+                                        <div className="lg:col-span-3">
+                                            <div className="flex justify-between items-center mb-4">
+                                                <h3 className="font-headline text-2xl">{matchingGuides.length} Matching {matchingGuides.length === 1 ? 'Guide' : 'Guides'}</h3>
+                                                <Select defaultValue="recommended">
+                                                    <SelectTrigger className="w-[180px]">
+                                                        <SelectValue placeholder="Sort by" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="recommended">Recommended</SelectItem>
+                                                        <SelectItem value="rating">Highest rated</SelectItem>
+                                                        <SelectItem value="newest">Newest</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                {matchingGuides.map(guide => <GuideCard key={guide.id} guide={guide} onConnect={() => handleConnectClick(guide.name, 'Guide')} />)}
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                        {matchingGuides.map(guide => <GuideCard key={guide.id} guide={guide} onConnect={() => handleConnectClick(guide.name, 'Guide')} />)}
+                                </TabsContent>
+                                <TabsContent value="vendors" className="mt-6">
+                                <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                                        <div className="lg:col-span-1">
+                                            <VendorFilters />
+                                        </div>
+                                        <div className="lg:col-span-3">
+                                            <div className="flex justify-between items-center mb-4">
+                                                <h3 className="font-headline text-2xl">{localVendors.length} Matching {localVendors.length === 1 ? 'Vendor' : 'Vendors'}</h3>
+                                                <Select defaultValue="recommended">
+                                                    <SelectTrigger className="w-[180px]">
+                                                        <SelectValue placeholder="Sort by" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="recommended">Recommended</SelectItem>
+                                                        <SelectItem value="price-asc">Price (low to high)</SelectItem>
+                                                        <SelectItem value="price-desc">Price (high to low)</SelectItem>
+                                                        <SelectItem value="rating">Highest rated</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            <p className="text-muted-foreground mb-4">Discover local vendors to elevate your guests' experience.</p>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                {localVendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} onConnect={() => handleConnectClick(vendor.name, 'Vendor')} />)}
+                                            </div>
+                                        </div>
                                     </div>
+                                </TabsContent>
+                            </Tabs>
+                        </div>
+                        
+                        <Separator />
+
+                        {/* Connections Requested */}
+                        <div>
+                            <h3 className="font-headline text-2xl mb-2">Connections Requested</h3>
+                            <p className="text-muted-foreground mb-4">These are people you’ve reached out to or who have requested to connect with you.</p>
+                             {spaceConnectionRequests.length > 0 ? (
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Name</TableHead>
+                                            <TableHead>Role</TableHead>
+                                            <TableHead>Status</TableHead>
+                                            <TableHead className="text-right">Actions</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {spaceConnectionRequests.map(req => (
+                                            <TableRow key={req.id}>
+                                                <TableCell className="font-medium">{req.name}</TableCell>
+                                                <TableCell>{req.role}</TableCell>
+                                                <TableCell><Badge variant={req.status === 'New Request' ? 'default' : 'secondary'}>{req.status}</Badge></TableCell>
+                                                <TableCell className="text-right">
+                                                    <Button variant="outline" size="sm" className="mr-2">View Message</Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            ) : (
+                                <div className="text-center py-12 rounded-lg bg-secondary/50">
+                                    <p className="text-muted-foreground">No connection requests yet for this space.</p>
                                 </div>
-                            </div>
-                        </TabsContent>
-                        <TabsContent value="vendors" className="mt-6">
-                           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                                <div className="lg:col-span-1">
-                                    <VendorFilters />
+                            )}
+                        </div>
+                        
+                        <Separator />
+
+                        {/* Confirmed Bookings */}
+                        <div>
+                            <h3 className="font-headline text-2xl mb-2">Confirmed Bookings</h3>
+                            <p className="text-muted-foreground mb-4">These are your confirmed retreat relationships and bookings.</p>
+                            {spaceConfirmedBookings.length > 0 ? (
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Guide</TableHead>
+                                            <TableHead>Retreat</TableHead>
+                                            <TableHead>Dates</TableHead>
+                                            <TableHead className="text-right">Actions</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {spaceConfirmedBookings.map(booking => (
+                                            <TableRow key={booking.id}>
+                                                <TableCell className="font-medium">{booking.guideName}</TableCell>
+                                                <TableCell>{booking.retreatName}</TableCell>
+                                                <TableCell>{booking.dates}</TableCell>
+                                                <TableCell className="text-right">
+                                                    <Button variant="outline" size="sm" className="mr-2">View Details</Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            ) : (
+                                <div className="text-center py-12 rounded-lg bg-secondary/50">
+                                    <p className="text-muted-foreground">No confirmed bookings yet. You're building momentum!</p>
                                 </div>
-                                <div className="lg:col-span-3">
-                                     <div className="flex justify-between items-center mb-4">
-                                        <h3 className="font-headline text-2xl">{localVendors.length} Matching {localVendors.length === 1 ? 'Vendor' : 'Vendors'}</h3>
-                                        <Select defaultValue="recommended">
-                                            <SelectTrigger className="w-[180px]">
-                                                <SelectValue placeholder="Sort by" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="recommended">Recommended</SelectItem>
-                                                <SelectItem value="price-asc">Price (low to high)</SelectItem>
-                                                <SelectItem value="price-desc">Price (high to low)</SelectItem>
-                                                <SelectItem value="rating">Highest rated</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                     </div>
-                                     <p className="text-muted-foreground mb-4">Discover local vendors to elevate your guests' experience.</p>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                        {localVendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} onConnect={() => handleConnectClick(vendor.name, 'Vendor')} />)}
-                                    </div>
-                                </div>
-                            </div>
-                        </TabsContent>
-                    </Tabs>
+                            )}
+                        </div>
+                    </>
                 ) : (
                     <div className="text-center py-12">
-                        <p className="text-muted-foreground">Please select a space to see matches.</p>
+                        <p className="text-muted-foreground">Please select a space to see its partnership dashboard.</p>
                     </div>
                 )}
             </CardContent>
         </Card>
+
+        <Card>
+            <CardHeader>
+                <CardTitle>Local Partnerships</CardTitle>
+                <CardDescription>Create suggested retreat packages for guides by bundling your space with preferred local vendors.</CardDescription>
+            </CardHeader>
+            <CardContent className="text-center text-muted-foreground py-12">
+                <p>(Coming Soon)</p>
+                <Button className="mt-4" variant="secondary">Manage Preferred Partners</Button>
+            </CardContent>
+        </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-            <CardTitle>Local Partnerships</CardTitle>
-            <CardDescription>Create suggested retreat packages for guides by bundling your space with preferred local vendors.</CardDescription>
-        </CardHeader>
-        <CardContent className="text-center text-muted-foreground py-12">
-            <p>(Coming Soon)</p>
-            <Button className="mt-4" variant="secondary">Manage Preferred Partners</Button>
-        </CardContent>
-      </Card>
     </div>
   );
 }

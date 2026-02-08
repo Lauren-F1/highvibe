@@ -39,6 +39,13 @@ function StatCard({ title, value, icon, description }: StatCardProps) {
   );
 }
 
+const connectionRequests = [
+    { id: 'cr1', name: 'Isabella Rossi', role: 'Guide', regarding: 'Holistic Catering', status: 'Awaiting Response' },
+    { id: 'cr2', name: 'The Glass House', role: 'Host', regarding: 'Holistic Catering', status: 'New Request' }
+];
+const confirmedBookings = [
+    { id: 'cb1', clientName: 'Asha Sharma', clientRole: 'Guide', service: 'Holistic Catering', dates: 'Dec 1-5, 2024' }
+];
 
 export default function VendorPage() {
   const [isPaywallOpen, setPaywallOpen] = useState(false);
@@ -129,12 +136,12 @@ export default function VendorPage() {
           </Table>
         </CardContent>
       </Card>
-
-      <div id="matches-section" className="mb-12">
-        <Card>
+      
+      <div className="space-y-12">
+        <Card id="matches-section">
             <CardHeader>
-                <CardTitle className="font-headline text-3xl">Matches for You</CardTitle>
-                <CardDescription className="font-body text-base">Find the right guides and hosts to partner with.</CardDescription>
+                <CardTitle className="font-headline text-3xl">Matches Available</CardTitle>
+                <CardDescription className="font-body text-base">These are guides and hosts that fit what you’re looking for.</CardDescription>
             </CardHeader>
             <CardContent>
                  <Tabs defaultValue="guides">
@@ -197,18 +204,96 @@ export default function VendorPage() {
                 </Tabs>
             </CardContent>
         </Card>
-      </div>
+
+        <Card>
+            <CardHeader>
+                <CardTitle className="font-headline text-3xl">Connections Requested</CardTitle>
+                <CardDescription className="font-body text-base">These are people you’ve reached out to or who have requested to connect with you.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                {connectionRequests.length > 0 ? (
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Name</TableHead>
+                                <TableHead>Role</TableHead>
+                                <TableHead>Regarding</TableHead>
+                                <TableHead>Status</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {connectionRequests.map(req => (
+                                <TableRow key={req.id}>
+                                    <TableCell className="font-medium">{req.name}</TableCell>
+                                    <TableCell>{req.role}</TableCell>
+                                    <TableCell>{req.regarding}</TableCell>
+                                    <TableCell><Badge variant={req.status === 'New Request' ? 'default' : 'secondary'}>{req.status}</Badge></TableCell>
+                                    <TableCell className="text-right">
+                                        <Button variant="outline" size="sm">View Message</Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                ) : (
+                    <div className="text-center py-12 rounded-lg bg-secondary/50">
+                        <p className="text-muted-foreground">No connection requests yet.</p>
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+
+        <Card>
+            <CardHeader>
+                <CardTitle className="font-headline text-3xl">Confirmed Bookings</CardTitle>
+                <CardDescription className="font-body text-base">These are your confirmed retreat relationships and bookings.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                 {confirmedBookings.length > 0 ? (
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Client</TableHead>
+                                <TableHead>Role</TableHead>
+                                <TableHead>Service</TableHead>
+                                <TableHead>Dates</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {confirmedBookings.map(booking => (
+                                <TableRow key={booking.id}>
+                                    <TableCell className="font-medium">{booking.clientName}</TableCell>
+                                    <TableCell>{booking.clientRole}</TableCell>
+                                    <TableCell>{booking.service}</TableCell>
+                                    <TableCell>{booking.dates}</TableCell>
+                                    <TableCell className="text-right">
+                                        <Button variant="outline" size="sm">View Details</Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                ) : (
+                     <div className="text-center py-12 rounded-lg bg-secondary/50">
+                        <p className="text-muted-foreground">No confirmed bookings yet — you’re building momentum.</p>
+                    </div>
+                )}
+            </CardContent>
+        </Card>
       
-       <Card>
-        <CardHeader>
-            <CardTitle>Local Partnerships</CardTitle>
-            <CardDescription>Create suggested retreat packages for guides by bundling your services with preferred local hosts.</CardDescription>
-        </CardHeader>
-        <CardContent className="text-center text-muted-foreground py-12">
-            <p>(Coming Soon)</p>
-            <Button className="mt-4" variant="secondary">Manage Packaged Services</Button>
-        </CardContent>
-      </Card>
+        <Card>
+            <CardHeader>
+                <CardTitle>Local Partnerships</CardTitle>
+                <CardDescription>Create suggested retreat packages for guides by bundling your services with preferred local hosts.</CardDescription>
+            </CardHeader>
+            <CardContent className="text-center text-muted-foreground py-12">
+                <p>(Coming Soon)</p>
+                <Button className="mt-4" variant="secondary">Manage Packaged Services</Button>
+            </CardContent>
+        </Card>
+      </div>
 
     </div>
   );
