@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -195,7 +194,7 @@ export default function GuidePage() {
                                         </div>
                                         <div className="lg:col-span-3">
                                             <div className="flex justify-between items-center mb-4">
-                                                <h3 className="font-headline text-2xl">{hosts.length} Matching {hosts.length === 1 ? 'Space' : 'Spaces'}</h3>
+                                                <h3 className="font-headline text-2xl">{hosts.length} potential {hosts.length === 1 ? 'space' : 'spaces'} found</h3>
                                                 <p className="text-xs text-muted-foreground">Counts update as you filter.</p>
                                                 <Select defaultValue="recommended">
                                                     <SelectTrigger className="w-[180px]">
@@ -254,7 +253,7 @@ export default function GuidePage() {
                                         </div>
                                         <div className="lg:col-span-3">
                                             <div className="flex justify-between items-center mb-4">
-                                                <h3 className="font-headline text-2xl">{vendors.length} Matching {vendors.length === 1 ? 'Vendor' : 'Vendors'}</h3>
+                                                <h3 className="font-headline text-2xl">{vendors.length} potential {vendors.length === 1 ? 'vendor' : 'vendors'} found</h3>
                                                 <p className="text-xs text-muted-foreground">Counts update as you filter.</p>
                                                 <Select defaultValue="recommended">
                                                     <SelectTrigger className="w-[180px]">

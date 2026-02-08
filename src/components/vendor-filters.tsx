@@ -47,6 +47,7 @@ export function VendorFilters() {
     const [startDate, setStartDate] = React.useState<Date>();
     const [endDate, setEndDate] = React.useState<Date>();
     const [showExactDates, setShowExactDates] = React.useState(false);
+    const [showNearMatches, setShowNearMatches] = React.useState(false);
 
     return (
          <Card className="lg:sticky lg:top-24">
@@ -66,27 +67,33 @@ export function VendorFilters() {
                     <FilterGroup title="Availability">
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <Label>Availability Window</Label>
+                                <Label>Planning Window</Label>
                                 <Select defaultValue="anytime">
                                     <SelectTrigger>
                                         <SelectValue placeholder="Anytime" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="anytime">Anytime</SelectItem>
-                                        <SelectItem value="3-months">Within 3 months</SelectItem>
+                                        <SelectItem value="1-3-months">Next 1–3 months</SelectItem>
                                         <SelectItem value="3-6-months">3–6 months</SelectItem>
-                                        <SelectItem value="6-9-months">6–9 months</SelectItem>
-                                        <SelectItem value="9-12-months">9–12 months</SelectItem>
-                                        <SelectItem value="12-plus-months">12+ months</SelectItem>
+                                        <SelectItem value="6-12-months">6–12 months</SelectItem>
+                                        <SelectItem value="12-plus-months">12+ months (Long-range planning)</SelectItem>
                                     </SelectContent>
                                 </Select>
                                 <p className="text-xs text-muted-foreground pt-1">
-                                    Most retreats are planned months in advance. Choose a general timeframe to see vendors that fit your planning window.
+                                    Most retreats are planned months in advance. Choose a general timeframe to see spaces and collaborators that fit your planning window. You can confirm exact dates directly with hosts and vendors.
                                 </p>
                             </div>
-                            <div className="flex items-center space-x-2 pt-2">
-                                <Switch id="exact-dates-toggle-vendor" onCheckedChange={setShowExactDates} checked={showExactDates} />
-                                <Label htmlFor="exact-dates-toggle-vendor">I have exact dates.</Label>
+                            <div className="flex items-start space-x-3 pt-2">
+                                <Switch id="near-matches-toggle-vendor" onCheckedChange={setShowNearMatches} checked={showNearMatches} className="mt-0.5" />
+                                <div className="grid gap-1.5 leading-none">
+                                    <Label htmlFor="near-matches-toggle-vendor" className="font-normal">Show near matches</Label>
+                                    <p className="text-xs text-muted-foreground">We’ll also show options that are close to your planning window if exact matches are limited.</p>
+                                </div>
+                            </div>
+                            <div className="flex items-start space-x-3 pt-2">
+                                <Switch id="exact-dates-toggle-vendor" onCheckedChange={setShowExactDates} checked={showExactDates} className="mt-0.5" />
+                                <Label htmlFor="exact-dates-toggle-vendor" className="font-normal">I have exact dates (optional)</Label>
                             </div>
 
                             {showExactDates && (
