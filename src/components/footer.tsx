@@ -18,13 +18,13 @@ export function Footer() {
             © {new Date().getFullYear()} High Vibe Retreats Inc. All rights reserved.
           </p>
           <div className="mt-4 flex space-x-6 sm:mt-0">
-            <Link href="#" className="text-sm text-muted-foreground hover:text-foreground">
+            <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground">
               About
             </Link>
-            <Link href="#" className="text-sm text-muted-foreground hover:text-foreground">
+            <Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground">
               Contact
             </Link>
-            <Link href="#" className="text-sm text-muted-foreground hover:text-foreground">
+            <Link href="/terms" className="text-sm text-muted-foreground hover:text-foreground">
               Terms of Service
             </Link>
           </div>

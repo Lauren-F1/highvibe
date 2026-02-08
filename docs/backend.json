@@ -111,6 +111,49 @@
         "createdAt",
         "status"
       ]
+    },
+    "ContactSubmission": {
+      "title": "Contact Submission",
+      "description": "A message submitted through the contact form.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "Seeker",
+            "Guide",
+            "Host",
+            "Vendor",
+            "Other"
+          ]
+        },
+        "message": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "userId": {
+          "type": "string"
+        },
+        "pageContext": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "email",
+        "message",
+        "createdAt"
+      ]
     }
   },
   "auth": {
@@ -131,6 +174,12 @@
         "$ref": "#/backend/entities/WaitlistSeeker"
       },
       "description": "Collection of users who have signed up for the waitlist."
+    },
+    "/contact_submissions/{submissionId}": {
+      "schema": {
+        "$ref": "#/backend/entities/ContactSubmission"
+      },
+      "description": "Collection of contact form submissions."
     }
   }
 }

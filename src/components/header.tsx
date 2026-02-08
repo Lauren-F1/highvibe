@@ -95,7 +95,7 @@ export function Header() {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild><Link href="/account">Account Settings</Link></DropdownMenuItem>
                         <DropdownMenuItem asChild><Link href="/payouts">Payouts</Link></DropdownMenuItem>
-                        <DropdownMenuItem asChild><Link href="/support">Support</Link></DropdownMenuItem>
+                        <DropdownMenuItem asChild><Link href="/contact">Support</Link></DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={handleLogout}>
                             Log out
@@ -104,9 +104,14 @@ export function Header() {
                     </DropdownMenu>
                 </>
             ) : user.status === 'unauthenticated' ? (
-                <Button asChild>
-                    <Link href="/login">Login</Link>
-                </Button>
+                 <>
+                    <Button variant="ghost" asChild>
+                        <Link href="/login">Login</Link>
+                    </Button>
+                    <Button asChild>
+                        <Link href="/join/guide">Sign Up</Link>
+                    </Button>
+                </>
             ) : null }
         </div>
       </div>

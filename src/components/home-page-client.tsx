@@ -1,10 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/icons/logo';
 import { SeekerIcon } from '@/components/icons/seeker-icon';
 import { HostIcon } from '@/components/icons/host-icon';
@@ -12,7 +10,6 @@ import { VendorIcon } from '@/components/icons/vendor-icon';
 import { SpaceOwnerIcon } from '@/components/icons/space-owner-icon';
 import { placeholderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
-import { CheckCircle } from 'lucide-react';
 import React from 'react';
 
 interface Role {
@@ -63,25 +60,18 @@ const roles: Role[] = [
 export default function HomePageClient() {
   const router = useRouter();
   const heroImage = placeholderImages.find((img) => img.id === 'resort-hero');
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   
-  const handleSelectRole = (role: Role) => {
-    setSelectedRole(role);
+  const handleRoleClick = (href: string) => {
+    router.push(href);
   };
   
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>, role: Role) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>, href: string) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      handleSelectRole(role);
+      handleRoleClick(href);
     }
   };
   
-  const handleContinue = () => {
-    if (selectedRole) {
-      router.push(selectedRole.href);
-    }
-  };
-
   return (
     <main className="flex min-h-screen w-full flex-col items-center bg-background p-4 sm:p-6 md:p-8">
       <div className="w-full max-w-7xl text-center mb-8">
@@ -110,34 +100,26 @@ export default function HomePageClient() {
 
       <div 
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full max-w-7xl mb-8"
-        role="radiogroup"
-        aria-label="Select your role"
       >
         {roles.map((role) => {
-          const isSelected = selectedRole?.id === role.id;
           return (
             <div
               key={role.id}
-              role="radio"
-              aria-checked={isSelected}
               tabIndex={0}
-              onClick={() => handleSelectRole(role)}
-              onKeyDown={(e) => handleKeyDown(e, role)}
+              onClick={() => handleRoleClick(role.href)}
+              onKeyDown={(e) => handleKeyDown(e, role.href)}
               className="group cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg"
             >
               <Card className={cn(
-                  "h-full w-full transition-all duration-200 ease-in-out relative p-6",
-                  "hover:shadow-xl hover:border-primary/50",
-                  isSelected ? 'border-primary shadow-xl bg-accent/50' : 'border-border',
-                  selectedRole && !isSelected ? 'opacity-70 hover:opacity-100' : ''
+                  "h-full w-full transition-all duration-200 ease-in-out p-6",
+                  "hover:shadow-xl hover:border-primary/50 border-border",
               )}>
-                {isSelected && <CheckCircle className="absolute top-3 right-3 h-5 w-5 text-primary" />}
                 <CardHeader className="items-center text-center p-0">
-                  <CardTitle className="font-headline text-4xl text-beige tracking-wider mb-3">{role.primaryLabel}</CardTitle>
+                  <CardTitle className="font-headline text-5xl text-beige tracking-wider mb-3">{role.primaryLabel}</CardTitle>
                   <div className="flex items-center justify-center mb-3">
                     {React.cloneElement(role.icon as React.ReactElement, { className: cn("text-primary", role.id === 'seeker' ? "w-24 h-24" : "w-20 h-20") })}
                   </div>
-                  <h3 className="font-body text-xl text-foreground font-semibold">{role.title}</h3>
+                  <h3 className="font-body text-2xl text-foreground font-semibold">{role.title}</h3>
                 </CardHeader>
                 <CardContent className="text-center px-2 pb-2 pt-4">
                   <CardDescription className="font-body text-sm leading-snug text-muted-foreground">{role.description}</CardDescription>
@@ -147,18 +129,6 @@ export default function HomePageClient() {
           )
         })}
       </div>
-      
-      <div className="w-full max-w-sm">
-        <Button
-          size="lg"
-          className="w-full"
-          disabled={!selectedRole}
-          onClick={handleContinue}
-        >
-          {selectedRole ? `Continue as ${selectedRole.primaryLabel}` : 'Continue'}
-        </Button>
-      </div>
-
     </main>
   );
 }

@@ -194,7 +194,7 @@ export default function SeekerPage() {
             <CardHeader>
               <CardTitle className="text-2xl">You’re on the list.</CardTitle>
               <CardDescription>
-                We’ll notify you when retreats like this become available. Email delivery will be enabled soon — for now, your spot is saved.
+                We’ll notify you when experiences like this become available.
               </CardDescription>
             </CardHeader>
           </Card>

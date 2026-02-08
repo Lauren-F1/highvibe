@@ -31,5 +31,16 @@ service cloud.firestore {
       // Only admins can read, update, or delete waitlist entries.
       allow read, update, delete: if isAdmin();
     }
+
+    match /contact_submissions/{submissionId} {
+      // Anyone can submit the contact form.
+      allow create: if request.resource.data.email is string &&
+                     request.resource.data.name is string &&
+                     request.resource.data.message is string &&
+                     request.resource.data.createdAt == request.time;
+      
+      // Only admins can read, update, or delete submissions.
+      allow read, update, delete: if isAdmin();
+    }
   }
 }
