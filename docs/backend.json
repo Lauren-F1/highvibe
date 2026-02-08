@@ -154,6 +154,103 @@
         "message",
         "createdAt"
       ]
+    },
+    "Host": {
+      "title": "Host",
+      "description": "A user who lists a space for retreats.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "$ref": "#/backend/entities/User"
+        },
+        "name": {
+          "type": "string"
+        },
+        "location": {
+          "type": "string"
+        },
+        "capacity": {
+          "type": "number"
+        },
+        "bedrooms": {
+          "type": "number"
+        },
+        "bathrooms": {
+          "type": "number"
+        },
+        "pricePerNight": {
+          "type": "number"
+        },
+        "propertyType": {
+          "type": "string"
+        },
+        "hostLat": {
+          "type": "number",
+          "description": "Latitude of the host property."
+        },
+        "hostLng": {
+          "type": "number",
+          "description": "Longitude of the host property."
+        },
+        "hostAddress": {
+          "type": "string",
+          "description": "Full address of the host property."
+        },
+        "hostCity": {
+          "type": "string",
+          "description": "City of the host property."
+        },
+        "hostStateRegion": {
+          "type": "string",
+          "description": "State or region of the host property."
+        }
+      },
+      "required": [
+        "userId",
+        "name",
+        "location"
+      ]
+    },
+    "Vendor": {
+      "title": "Vendor",
+      "description": "A user who provides services for retreats.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "$ref": "#/backend/entities/User"
+        },
+        "name": {
+          "type": "string"
+        },
+        "service": {
+          "type": "string"
+        },
+        "location": {
+          "type": "string"
+        },
+        "vendorLat": {
+          "type": "number",
+          "description": "Latitude of the vendor's base location."
+        },
+        "vendorLng": {
+          "type": "number",
+          "description": "Longitude of the vendor's base location."
+        },
+        "vendorServiceRadiusMiles": {
+          "type": "number",
+          "description": "Service radius in miles from the base location."
+        },
+        "vendorBaseLocationLabel": {
+          "type": "string",
+          "description": "Label for the vendor's base location (e.g., 'Bali, Indonesia')."
+        }
+      },
+      "required": [
+        "userId",
+        "name",
+        "service",
+        "location"
+      ]
     }
   },
   "auth": {
@@ -180,6 +277,18 @@
         "$ref": "#/backend/entities/ContactSubmission"
       },
       "description": "Collection of contact form submissions."
+    },
+    "/hosts/{hostId}": {
+      "schema": {
+        "$ref": "#/backend/entities/Host"
+      },
+      "description": "Host profile and space listings."
+    },
+    "/vendors/{vendorId}": {
+      "schema": {
+        "$ref": "#/backend/entities/Vendor"
+      },
+      "description": "Vendor profile and service listings."
     }
   }
 }

@@ -349,11 +349,24 @@ export default function HostPage() {
         <Card>
             <CardHeader>
                 <CardTitle>Local Partnerships</CardTitle>
-                <CardDescription>Create suggested retreat packages for guides by bundling your space with preferred local vendors.</CardDescription>
+                <CardDescription>
+                    Create curated, vibe-aligned vendor pairings so guides can build aligned retreat experiences faster.
+                </CardDescription>
             </CardHeader>
-            <CardContent className="text-center text-muted-foreground py-12">
-                <p>(Coming Soon)</p>
-                <Button className="mt-4" variant="secondary">Manage Preferred Partners</Button>
+            <CardContent className="text-center text-muted-foreground py-8">
+                {activeSpace && (!activeSpace.hostLat || !activeSpace.hostLng) && (
+                    <p className="text-destructive text-sm mb-4">
+                        Add your location to enable local vendor matching.
+                    </p>
+                )}
+                <p className="text-base text-foreground">Begin building your vendor partnerships.</p>
+                <p className="mt-4 text-sm max-w-md mx-auto">
+                    No vendors are available yet. Once vendors join, you’ll be able to find nearby options and save favorites.
+                </p>
+                <div className="mt-6">
+                    <Button disabled>Find Local Vendors</Button>
+                    <p className="text-xs text-muted-foreground mt-2">Vendor discovery will unlock at launch.</p>
+                </div>
             </CardContent>
         </Card>
       </div>

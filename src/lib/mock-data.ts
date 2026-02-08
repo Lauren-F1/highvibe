@@ -23,6 +23,11 @@ export interface Host {
   cateringAllowed?: boolean;
   privateChefAllowed?: boolean;
   policyTags?: string[];
+  hostLat?: number;
+  hostLng?: number;
+  hostAddress?: string;
+  hostCity?: string;
+  hostStateRegion?: string;
 }
 
 export type { Guide } from '@/components/guide-card';
@@ -56,6 +61,10 @@ export interface Vendor {
     avatar?: ImagePlaceholder;
     luxApproved: boolean;
     location: string;
+    vendorLat?: number;
+    vendorLng?: number;
+    vendorServiceRadiusMiles?: number;
+    vendorBaseLocationLabel?: string;
 }
 
 export const vendors: Vendor[] = [
