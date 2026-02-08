@@ -26,8 +26,8 @@ import { Input } from '@/components/ui/input';
 const genericImage = placeholderImages.find(p => p.id === 'generic-placeholder')!;
 
 const connectionRequests = [
-  { id: 'cr1', name: 'Ubud Jungle Haven', role: 'Host', forRetreat: 'Sunrise Yoga in Bali', status: 'Awaiting Response' },
-  { id: 'cr2', name: 'Elena Ray', role: 'Vendor', forRetreat: 'Sunrise Yoga in Bali', status: 'Responded' },
+  { id: 'cr1', name: 'Ubud Jungle Haven', role: 'Host', forRetreat: 'Sunrise Yoga in Bali', status: 'Waiting to Connect' },
+  { id: 'cr2', name: 'Elena Ray', role: 'Vendor', forRetreat: 'Sunrise Yoga in Bali', status: 'Conversation Started' },
 ];
 
 const confirmedBookings = [
@@ -352,7 +352,7 @@ export default function GuidePage() {
                         {/* Connections Requested */}
                         <div>
                             <h3 className="font-headline text-2xl mb-2">Connections Requested</h3>
-                            <p className="text-muted-foreground mb-4">These are people you’ve reached out to or who have requested to connect with you.</p>
+                            <p className="text-muted-foreground mb-4">Connections you’ve initiated or received.</p>
                              {retreatConnectionRequests.length > 0 ? (
                                 <Table>
                                     <TableHeader>
@@ -368,7 +368,7 @@ export default function GuidePage() {
                                             <TableRow key={req.id}>
                                                 <TableCell className="font-medium">{req.name}</TableCell>
                                                 <TableCell>{req.role}</TableCell>
-                                                <TableCell><Badge variant={req.status === 'Responded' ? 'default' : 'secondary'}>{req.status}</Badge></TableCell>
+                                                <TableCell><Badge variant={req.status === 'Conversation Started' ? 'default' : 'secondary'}>{req.status}</Badge></TableCell>
                                                 <TableCell className="text-right">
                                                     <Button variant="outline" size="sm" className="mr-2">View Message</Button>
                                                 </TableCell>
@@ -414,7 +414,8 @@ export default function GuidePage() {
                                 </Table>
                             ) : (
                                 <div className="text-center py-12 rounded-lg bg-secondary/50">
-                                    <p className="text-muted-foreground">No confirmed bookings yet for this retreat. Keep building!</p>
+                                    <p className="text-muted-foreground">Nothing confirmed just yet. This is the space where aligned partnerships become official. Once details are finalized, confirmed bookings will appear here.</p>
+                                    <p className="text-xs text-muted-foreground mt-4">Start by reaching out to hosts or vendors that feel aligned — connection comes before confirmation.</p>
                                 </div>
                             )}
                         </div>
