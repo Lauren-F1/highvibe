@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 import { placeholderImages } from '@/lib/placeholder-images';
 import { PaywallModal } from '@/components/paywall-modal';
@@ -158,7 +159,7 @@ export default function HostPage() {
         break;
     }
     
-    if (areGuideFiltersDefault) {
+    if (areGuideFiltersDefault && !isBuilderMode) {
       return filtered.slice(0, 6);
     }
     
@@ -217,9 +218,6 @@ export default function HostPage() {
 
   }, [activeSpace, appliedVendorFilters, vendorSortOption]);
   
-  const showGuideResults = isBuilderMode || (enableGuideDiscovery && matchingGuidesForVendor.length > 0);
-  const showVendorResults = isBuilderMode || (enableVendorDiscovery && vendors.length > 0);
-
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
       <PaywallModal isOpen={isPaywallOpen} onOpenChange={setPaywallOpen} />
@@ -315,10 +313,10 @@ export default function HostPage() {
       
        <div id="partnership-dashboard" className="space-y-6">
         <Card>
-            <CardHeader>
+            <CardHeader className="!pb-2">
                 <CardTitle className="font-headline text-3xl">Partnership Dashboard for {activeSpace ? `"${activeSpace.name}"` : 'Your Space'}</CardTitle>
                 <CardDescription className="font-body text-base">Find the right guides and local vendors to partner with.</CardDescription>
-                <div className="!mt-6 max-w-sm">
+                <div className="!mt-4 max-w-sm">
                     <Select onValueChange={setActiveSpaceId} value={activeSpaceId || ''}>
                         <SelectTrigger id="space-selector" className="text-lg py-6">
                             <SelectValue placeholder="Select a space to see matches..." />
@@ -331,7 +329,7 @@ export default function HostPage() {
                     </Select>
                 </div>
             </CardHeader>
-            <CardContent className="space-y-8">
+            <CardContent className="space-y-6">
                 {activeSpaceId ? (
                     <>
                         <div className="pt-4">
@@ -341,29 +339,25 @@ export default function HostPage() {
                                     <TabsTrigger value="vendors">Vendors (Local Partners)</TabsTrigger>
                                 </TabsList>
                                 <TabsContent value="guides" className="mt-6">
-                                    {!enableGuideDiscovery && (
-                                        <Card className="text-center py-8">
-                                            <CardHeader className="pb-2">
-                                                <CardTitle className="font-headline text-xl">Start building your guide partnerships.</CardTitle>
-                                                <CardDescription className="max-w-md mx-auto">
-                                                    Find guides who fit the vibe of this space—and the kind of experience you want people to leave with.
-                                                </CardDescription>
-                                            </CardHeader>
-                                            <CardContent>
-                                                <p className="text-muted-foreground text-sm mb-4">
-                                                    No guides are listed yet. When guides join, you’ll be able to browse profiles, save favorites, and start a conversation.
-                                                </p>
-                                                <Button disabled>Find Guides</Button>
-                                                <p className="text-xs text-muted-foreground mt-2">Guide discovery unlocks at launch.</p>
-                                            </CardContent>
-                                        </Card>
-                                    )}
-                                    {enableGuideDiscovery && (
-                                        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                                            <div className="lg:col-span-1">
-                                                <GuideFilters filters={guideFilters} onFiltersChange={handleGuideFilterChange} onApply={handleApplyGuideFilters} onReset={handleResetGuideFilters} />
-                                            </div>
-                                            <div className="lg:col-span-3">
+                                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                                        <div className="lg:col-span-1">
+                                            <GuideFilters filters={guideFilters} onFiltersChange={handleGuideFilterChange} onApply={handleApplyGuideFilters} onReset={handleResetGuideFilters} />
+                                        </div>
+                                        <div className="lg:col-span-3">
+                                        {!enableGuideDiscovery && !isBuilderMode ? (
+                                            <Card className="text-center py-6">
+                                                <CardHeader className="pb-2">
+                                                    <CardTitle className="font-headline text-xl">Start building your guide partnerships.</CardTitle>
+                                                    <CardDescription className="max-w-md mx-auto">Find guides who fit the vibe of this space—and the kind of experience you want people to leave with.</CardDescription>
+                                                </CardHeader>
+                                                <CardContent>
+                                                    <p className="text-muted-foreground text-sm mb-4">No guides are listed yet. When guides join, you’ll be able to browse profiles, save favorites, and start a conversation.</p>
+                                                    <Button disabled>Find Guides</Button>
+                                                    <p className="text-xs text-muted-foreground mt-2">Guide discovery unlocks at launch.</p>
+                                                </CardContent>
+                                            </Card>
+                                        ) : (
+                                            <>
                                                 <div>
                                                     <h3 className="font-headline text-2xl">Suggested Guides</h3>
                                                     <p className="text-sm text-muted-foreground mt-1">A starting point. Refine with filters anytime.</p>
@@ -383,7 +377,7 @@ export default function HostPage() {
                                                     </Select>
                                                 </div>
                                                 {displayedGuides.length > 0 ? (
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                         {displayedGuides.map(guide => <GuideCard key={guide.id} guide={guide} onConnect={() => handleConnectClick(guide.name, 'Guide')} />)}
                                                     </div>
                                                 ) : (
@@ -392,84 +386,87 @@ export default function HostPage() {
                                                         <CardContent><CardDescription>Try changing or resetting your filters.</CardDescription></CardContent>
                                                     </Card>
                                                 )}
-                                            </div>
+                                            </>
+                                        )}
                                         </div>
-                                    )}
+                                    </div>
                                 </TabsContent>
                                 <TabsContent value="vendors" className="mt-6">
-                                     {!enableVendorDiscovery && (
-                                        <Card className="text-center py-8">
-                                            <CardHeader className="pb-2">
-                                                <CardTitle className="font-headline text-xl">Start building your vendor partnerships.</CardTitle>
-                                                <CardDescription className="max-w-md mx-auto">
-                                                Discover local vendors who elevate the retreat experience—food, wellness, music, logistics, and everything in between.
-                                                </CardDescription>
-                                            </CardHeader>
-                                            <CardContent>
-                                                <p className="text-muted-foreground text-sm mb-4">
-                                                No vendors are listed yet. When vendors join, you’ll be able to browse nearby options for this property, save favorites, and start a conversation.
-                                                </p>
-                                                <Button disabled>Find Local Vendors</Button>
-                                                <p className="text-xs text-muted-foreground mt-2">Vendor discovery unlocks at launch.</p>
-                                            </CardContent>
-                                        </Card>
-                                    )}
-                                    {enableVendorDiscovery && (
-                                        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                                            <div className="lg:col-span-1">
-                                            <VendorFilters 
-                                                filters={vendorFilters} 
-                                                onFiltersChange={handleVendorFilterChange}
-                                                onApply={handleApplyVendorFilters}
-                                                onReset={handleResetVendorFilters}
-                                            />
+                                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                                        <div className="lg:col-span-1">
+                                        <VendorFilters 
+                                            filters={vendorFilters} 
+                                            onFiltersChange={handleVendorFilterChange}
+                                            onApply={handleApplyVendorFilters}
+                                            onReset={handleResetVendorFilters}
+                                        />
+                                        </div>
+                                        <div className="lg:col-span-3">
+                                        {!enableVendorDiscovery && !isBuilderMode ? (
+                                             <Card className="text-center py-6">
+                                                <CardHeader className="pb-2">
+                                                    <CardTitle className="font-headline text-xl">Start building your vendor partnerships.</CardTitle>
+                                                    <CardDescription className="max-w-md mx-auto">
+                                                    Discover local vendors who elevate the retreat experience—food, wellness, music, logistics, and everything in between.
+                                                    </CardDescription>
+                                                </CardHeader>
+                                                <CardContent>
+                                                    <p className="text-muted-foreground text-sm mb-4">
+                                                    No vendors are listed yet. When vendors join, you’ll be able to browse nearby options for this property, save favorites, and start a conversation.
+                                                    </p>
+                                                    <Button disabled>Find Local Vendors</Button>
+                                                    <p className="text-xs text-muted-foreground mt-2">Vendor discovery unlocks at launch.</p>
+                                                </CardContent>
+                                            </Card>
+                                        ) : (
+                                            <div>
+                                            {activeSpace && (!activeSpace.hostLat || !activeSpace.hostLng) && (
+                                                <Alert variant="default" className="mb-4">
+                                                    <AlertTitle>Location Missing</AlertTitle>
+                                                    <AlertDescription>
+                                                        Add a location to this space to enable local vendor suggestions.
+                                                        {isBuilderMode && <span className="block text-xs mt-1">Previewing non-location-filtered vendors.</span>}
+                                                    </AlertDescription>
+                                                </Alert>
+                                            )}
+                                            <div>
+                                                <h3 className="font-headline text-2xl">Suggested Vendors near {activeSpace?.name}</h3>
+                                                <p className="text-sm text-muted-foreground mt-1">Based on this property’s location. Refine with filters anytime.</p>
                                             </div>
-                                            <div className="lg:col-span-3">
-                                            {activeSpace && (!activeSpace.hostLat || !activeSpace.hostLng) ? (
-                                                <Card className="flex items-center justify-center text-center py-12 h-full">
-                                                    <p className="text-destructive text-sm max-w-xs">Add a location to this space to enable local vendor matching.</p>
-                                                </Card>
+                                            <div className="flex justify-between items-center mb-4 mt-4">
+                                                {isBuilderMode && <p className="text-xs text-muted-foreground">Preview mode — sample listings.</p>}
+                                                <div className="flex-grow"></div>
+                                                <Select value={vendorSortOption} onValueChange={setVendorSortOption}>
+                                                <SelectTrigger className="w-[180px]">
+                                                    <SelectValue placeholder="Sort by" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="recommended">Recommended</SelectItem>
+                                                    <SelectItem value="price-asc">Price (low to high)</SelectItem>
+                                                    <SelectItem value="price-desc">Price (high to low)</SelectItem>
+                                                    <SelectItem value="rating">Highest rated</SelectItem>
+                                                </SelectContent>
+                                                </Select>
+                                            </div>
+                                            {displayedVendors.length > 0 ? (
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                {displayedVendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} onConnect={() => handleConnectClick(vendor.name, 'Vendor')} />)}
+                                                </div>
                                             ) : (
-                                                <div>
-                                                <div>
-                                                    <h3 className="font-headline text-2xl">Suggested Vendors near {activeSpace?.name}</h3>
-                                                    <p className="text-sm text-muted-foreground mt-1">Based on this property’s location. Refine with filters anytime.</p>
-                                                </div>
-                                                <div className="flex justify-between items-center mb-4 mt-4">
-                                                    {isBuilderMode && <p className="text-xs text-muted-foreground">Preview mode — sample listings.</p>}
-                                                    <div className="flex-grow"></div>
-                                                    <Select value={vendorSortOption} onValueChange={setVendorSortOption}>
-                                                    <SelectTrigger className="w-[180px]">
-                                                        <SelectValue placeholder="Sort by" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="recommended">Recommended</SelectItem>
-                                                        <SelectItem value="price-asc">Price (low to high)</SelectItem>
-                                                        <SelectItem value="price-desc">Price (high to low)</SelectItem>
-                                                        <SelectItem value="rating">Highest rated</SelectItem>
-                                                    </SelectContent>
-                                                    </Select>
-                                                </div>
-                                                {displayedVendors.length > 0 ? (
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                    {displayedVendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} onConnect={() => handleConnectClick(vendor.name, 'Vendor')} />)}
-                                                    </div>
-                                                ) : (
-                                                    <Card className="text-center py-12">
-                                                    <CardHeader><CardTitle className="font-headline text-xl">No matches for these filters yet.</CardTitle></CardHeader>
-                                                    <CardContent><CardDescription>Try a different category or widening your filters.</CardDescription></CardContent>
-                                                    </Card>
-                                                )}
-                                                </div>
+                                                <Card className="text-center py-12">
+                                                <CardHeader><CardTitle className="font-headline text-xl">No matches for these filters yet.</CardTitle></CardHeader>
+                                                <CardContent><CardDescription>Try a different category or widening your filters.</CardDescription></CardContent>
+                                                </Card>
                                             )}
                                             </div>
+                                        )}
                                         </div>
-                                    )}
+                                    </div>
                                 </TabsContent>
                             </Tabs>
                         </div>
                         
-                        <Separator className="my-2" />
+                        <Separator className="my-6" />
 
                         <div>
                             <h3 className="font-headline text-2xl mb-2">Connections Requested</h3>
@@ -504,7 +501,7 @@ export default function HostPage() {
                             )}
                         </div>
                         
-                        <Separator className="my-2" />
+                        <Separator className="my-6" />
 
                         <div>
                             <h3 className="font-headline text-2xl mb-2">Confirmed Bookings</h3>
@@ -553,4 +550,5 @@ export default function HostPage() {
 }
 
     
+
 
