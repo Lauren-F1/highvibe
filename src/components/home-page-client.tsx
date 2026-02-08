@@ -133,11 +133,11 @@ export default function HomePageClient() {
               )}>
                 {isSelected && <CheckCircle className="absolute top-3 right-3 h-5 w-5 text-primary" />}
                 <CardHeader className="items-center text-center p-0">
-                  <CardTitle className="font-headline text-3xl text-beige tracking-wider mb-3">{role.primaryLabel}</CardTitle>
+                  <CardTitle className="font-headline text-4xl text-beige tracking-wider mb-3">{role.primaryLabel}</CardTitle>
                   <div className="flex items-center justify-center mb-3">
-                    {React.cloneElement(role.icon as React.ReactElement, { className: cn("text-primary", role.id === 'seeker' ? "w-20 h-20" : "w-16 h-16") })}
+                    {React.cloneElement(role.icon as React.ReactElement, { className: cn("text-primary", role.id === 'seeker' ? "w-24 h-24" : "w-20 h-20") })}
                   </div>
-                  <h3 className="font-body text-sm text-foreground font-semibold">{role.title}</h3>
+                  <h3 className="font-body text-base text-foreground font-semibold">{role.title}</h3>
                 </CardHeader>
                 <CardContent className="text-center px-2 pb-2 pt-4">
                   <CardDescription className="font-body text-[13px] leading-snug text-muted-foreground">{role.description}</CardDescription>
