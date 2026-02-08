@@ -1,9 +1,10 @@
+
 'use client';
 
 import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardFooter, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Star } from 'lucide-react';
+import { Star, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 import type { Vendor } from '@/lib/mock-data';
@@ -15,11 +16,12 @@ import Link from 'next/link';
 export interface VendorCardProps {
   vendor: Vendor;
   onConnect?: () => void;
+  distance?: number;
 }
 
 const defaultAvatar = placeholderImages.find(p => p.id === 'friendly-host-portrait')!;
 
-export function VendorCard({ vendor }: VendorCardProps) {
+export function VendorCard({ vendor, distance }: VendorCardProps) {
   const avatar = vendor.avatar || defaultAvatar;
 
   return (
@@ -46,6 +48,14 @@ export function VendorCard({ vendor }: VendorCardProps) {
             <Rating value={vendor.rating} />
             <span className="ml-2 text-xs text-muted-foreground">({vendor.reviewCount} reviews)</span>
           </div>
+          {distance !== undefined && distance !== Infinity && (
+              <div className="flex items-center text-xs text-muted-foreground mt-1">
+                <MapPin className="mr-1.5 h-3 w-3" />
+                <span>
+                  {distance < 10 ? distance.toFixed(1) : Math.round(distance)} miles away
+                </span>
+              </div>
+            )}
         </div>
       </CardContent>
         <CardFooter className="p-4 pt-0">

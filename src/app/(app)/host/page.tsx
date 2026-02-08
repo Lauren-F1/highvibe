@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -171,28 +172,39 @@ export default function HostPage() {
   };
 
   const displayedVendors = useMemo(() => {
-    let filtered = [...vendors];
-    
-    if (activeSpace?.hostLat && activeSpace.hostLng) {
-      filtered = filtered.filter(vendor => {
-          if (!vendor.vendorLat || !vendor.vendorLng) return vendor.location === 'Global' || vendor.location === 'Remote';
-          const distance = getDistanceInMiles(activeSpace.hostLat!, activeSpace.hostLng!, vendor.vendorLat, vendor.vendorLng);
-          const isInRadius = distance <= appliedVendorFilters.radius;
+    // 1. Augment vendors with distance information
+    const vendorsWithDistance = vendors.map(vendor => {
+      if (activeSpace?.hostLat && activeSpace.hostLng && vendor.vendorLat && vendor.vendorLng) {
+        const distance = getDistanceInMiles(activeSpace.hostLat, activeSpace.hostLng, vendor.vendorLat, vendor.vendorLng);
+        return { ...vendor, distance };
+      }
+      return { ...vendor, distance: Infinity }; // No location data, effectively infinite distance
+    });
 
-          if (vendor.vendorServiceRadiusMiles) {
-            return isInRadius && distance <= vendor.vendorServiceRadiusMiles;
-          }
-          return isInRadius;
-        });
-    }
+    // 2. Filter the augmented list
+    let filtered = vendorsWithDistance.filter(vendor => {
+      // Location filter
+      if (activeSpace?.hostLat && activeSpace.hostLng) {
+        if (vendor.distance === Infinity) return false; // Exclude vendors without location if space has one
+        
+        const isInRadius = vendor.distance <= appliedVendorFilters.radius;
+        const canService = !vendor.vendorServiceRadiusMiles || vendor.distance <= vendor.vendorServiceRadiusMiles;
+        
+        if (!isInRadius || !canService) return false;
+      }
 
-    if (appliedVendorFilters.categories.length > 0) {
-        filtered = filtered.filter(vendor => appliedVendorFilters.categories.includes(vendor.category));
-    }
-    if (appliedVendorFilters.budget < 5000) {
-        filtered = filtered.filter(vendor => vendor.startingPrice ? vendor.startingPrice <= appliedVendorFilters.budget : true);
-    }
-    
+      // Other filters
+      if (appliedVendorFilters.categories.length > 0 && !appliedVendorFilters.categories.includes(vendor.category)) {
+        return false;
+      }
+      if (appliedVendorFilters.budget < 5000 && (vendor.startingPrice ?? Infinity) > appliedVendorFilters.budget) {
+        return false;
+      }
+
+      return true;
+    });
+
+    // 3. Sort the filtered list
     switch (vendorSortOption) {
       case 'price-asc':
         filtered.sort((a, b) => (a.startingPrice || Infinity) - (b.startingPrice || Infinity));
@@ -202,7 +214,22 @@ export default function HostPage() {
         break;
       case 'recommended':
       default:
-        filtered.sort((a, b) => (b.premiumMembership ? 1 : 0) - (a.premiumMembership ? 1 : 0) || (b.rating ?? 0) - (a.rating ?? 0) || (b.reviewCount ?? 0) - (a.reviewCount ?? 0));
+        filtered.sort((a, b) => {
+          // Premium first
+          if (a.premiumMembership !== b.premiumMembership) {
+            return b.premiumMembership ? 1 : -1;
+          }
+          // Rating
+          if ((b.rating ?? 0) !== (a.rating ?? 0)) {
+            return (b.rating ?? 0) - (a.rating ?? 0);
+          }
+          // Review Count
+          if ((b.reviewCount ?? 0) !== (a.reviewCount ?? 0)) {
+            return (b.reviewCount ?? 0) - (a.reviewCount ?? 0);
+          }
+          // Distance
+          return (a.distance ?? Infinity) - (b.distance ?? Infinity);
+        });
         break;
     }
     
@@ -418,7 +445,7 @@ export default function HostPage() {
                                                 </div>
                                                 {displayedVendors.length > 0 ? (
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                    {displayedVendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} />)}
+                                                    {displayedVendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} distance={vendor.distance} />)}
                                                     </div>
                                                 ) : (
                                                     <Card className="text-center py-12">

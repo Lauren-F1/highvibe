@@ -71,6 +71,7 @@ export interface Vendor {
     startingPrice?: number;
     isSample?: boolean;
     profileSlug?: string;
+    distance?: number;
 }
 
 export const vendors: Vendor[] = [
