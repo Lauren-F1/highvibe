@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -52,7 +52,7 @@ interface StatCardProps {
 
 const initialGuideFilters: GuideFiltersState = {
   experienceTypes: [],
-  groupSize: 20,
+  groupSize: 100,
   vibes: [],
   timing: 'anytime',
 };
@@ -94,14 +94,11 @@ export default function HostPage() {
   const [guideFilters, setGuideFilters] = useState<GuideFiltersState>(initialGuideFilters);
   const [appliedGuideFilters, setAppliedGuideFilters] = useState<GuideFiltersState>(initialGuideFilters);
   const [guideSortOption, setGuideSortOption] = useState('recommended');
-  const [guideFiltersDirty, setGuideFiltersDirty] = useState(false);
   
   // Vendor filter state
   const [vendorFilters, setVendorFilters] = useState<VendorFiltersState>(initialVendorFilters);
   const [appliedVendorFilters, setAppliedVendorFilters] = useState<VendorFiltersState>(initialVendorFilters);
   const [vendorSortOption, setVendorSortOption] = useState('recommended');
-  const [vendorFiltersDirty, setVendorFiltersDirty] = useState(false);
-
 
   const handleConnectClick = (name: string, role: 'Host' | 'Vendor' | 'Guide') => {
     setConnectionModal({ isOpen: true, name, role });
@@ -117,94 +114,91 @@ export default function HostPage() {
   
   const handleGuideFilterChange = (newFilters: Partial<GuideFiltersState>) => {
     setGuideFilters(prev => ({...prev, ...newFilters}));
-    setGuideFiltersDirty(true);
   };
   const handleApplyGuideFilters = () => {
     setAppliedGuideFilters(guideFilters);
-    setGuideFiltersDirty(false);
   };
   const handleResetGuideFilters = () => {
     setGuideFilters(initialGuideFilters);
     setAppliedGuideFilters(initialGuideFilters);
-    setGuideFiltersDirty(false);
   };
   
+  const areGuideFiltersDefault = JSON.stringify(appliedGuideFilters) === JSON.stringify(initialGuideFilters);
+
   const displayedGuides = useMemo(() => {
     let filtered = [...matchingGuidesForVendor];
     
-    // Apply filters from `appliedGuideFilters`
-    if (appliedGuideFilters.groupSize < 100) {
-        // Mock filtering logic - in a real app this would be more complex
-        filtered = filtered.filter(guide => (guide.upcomingRetreatsCount + 1) * 5 <= appliedGuideFilters.groupSize);
+    if (!areGuideFiltersDefault) {
+      if (appliedGuideFilters.experienceTypes.length > 0) {
+        filtered = filtered.filter(guide => 
+            guide.retreatTypes?.some(type => appliedGuideFilters.experienceTypes.includes(type))
+        );
+      }
+      if (appliedGuideFilters.groupSize < 100) {
+          filtered = filtered.filter(guide => (guide.upcomingRetreatsCount + 1) * 5 <= appliedGuideFilters.groupSize);
+      }
+      if (appliedGuideFilters.vibes.length > 0) {
+          filtered = filtered.filter(guide =>
+              guide.vibeTags?.some(tag => appliedGuideFilters.vibes.includes(tag))
+          );
+      }
     }
     
-    // Sort
     switch (guideSortOption) {
       case 'rating':
-        filtered.sort((a, b) => b.rating - a.rating);
+        filtered.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
         break;
       case 'newest':
-         filtered.sort((a, b) => b.reviewCount - a.reviewCount);
+         filtered.sort((a, b) => (b.reviewCount ?? 0) - (a.reviewCount ?? 0));
         break;
       case 'recommended':
       default:
-         filtered.sort((a, b) => (b.premiumMembership ? 1 : 0) - (a.premiumMembership ? 1 : 0) || b.rating - a.rating);
+         filtered.sort((a, b) => (b.premiumMembership ? 1 : 0) - (a.premiumMembership ? 1 : 0) || (b.rating ?? 0) - (a.rating ?? 0));
         break;
     }
     
+    if (areGuideFiltersDefault) {
+      return filtered.slice(0, 6);
+    }
+    
     return filtered;
-  }, [appliedGuideFilters, guideSortOption]);
+  }, [appliedGuideFilters, guideSortOption, areGuideFiltersDefault]);
 
   const handleVendorFilterChange = (newFilters: Partial<VendorFiltersState>) => {
     setVendorFilters(prev => ({...prev, ...newFilters}));
-    setVendorFiltersDirty(true);
   };
   const handleApplyVendorFilters = () => {
     setAppliedVendorFilters(vendorFilters);
-    setVendorFiltersDirty(false);
   };
   const handleResetVendorFilters = () => {
     setVendorFilters(initialVendorFilters);
     setAppliedVendorFilters(initialVendorFilters);
-    setVendorFiltersDirty(false);
   };
 
   const displayedVendors = useMemo(() => {
-    if (!activeSpace?.hostLat || !activeSpace.hostLng) {
-      // With no location, we can't filter by distance, but we can show non-local results for preview
-      let filtered = [...vendors];
-       if (appliedVendorFilters.categories.length > 0) {
-          filtered = filtered.filter(vendor => appliedVendorFilters.categories.includes(vendor.category));
-      }
-      return filtered;
-    }
-
     let filtered = [...vendors];
     const radius = appliedVendorFilters.radius;
     
-    // Initial location filter
-    filtered = filtered.filter(vendor => {
-        if (!vendor.vendorLat || !vendor.vendorLng) return vendor.location === 'Global' || vendor.location === 'Remote'; // Include non-geo vendors
-        const distance = getDistanceInMiles(activeSpace.hostLat!, activeSpace.hostLng!, vendor.vendorLat, vendor.vendorLng);
-        const isInRadius = distance <= radius;
+    if (activeSpace?.hostLat && activeSpace.hostLng) {
+      filtered = filtered.filter(vendor => {
+          if (!vendor.vendorLat || !vendor.vendorLng) return vendor.location === 'Global' || vendor.location === 'Remote';
+          const distance = getDistanceInMiles(activeSpace.hostLat!, activeSpace.hostLng!, vendor.vendorLat, vendor.vendorLng);
+          const isInRadius = distance <= radius;
 
-        if (vendor.vendorServiceRadiusMiles) {
-          return isInRadius && distance <= vendor.vendorServiceRadiusMiles;
-        }
-        return isInRadius;
-      });
+          if (vendor.vendorServiceRadiusMiles) {
+            return isInRadius && distance <= vendor.vendorServiceRadiusMiles;
+          }
+          return isInRadius;
+        });
+    }
 
-    // Filter by categories
     if (appliedVendorFilters.categories.length > 0) {
         filtered = filtered.filter(vendor => appliedVendorFilters.categories.includes(vendor.category));
     }
-    
-    // Filter by budget
     if (appliedVendorFilters.budget < 5000) {
         filtered = filtered.filter(vendor => vendor.startingPrice ? vendor.startingPrice <= appliedVendorFilters.budget : true);
     }
     
-    // Sort
     switch (vendorSortOption) {
       case 'price-asc':
         filtered.sort((a, b) => (a.startingPrice || Infinity) - (b.startingPrice || Infinity));
@@ -213,16 +207,15 @@ export default function HostPage() {
         filtered.sort((a, b) => (b.startingPrice || 0) - (a.startingPrice || 0));
         break;
       case 'recommended':
-         filtered.sort((a, b) => (b.premiumMembership ? 1 : 0) - (a.premiumMembership ? 1 : 0) || (b.luxApproved ? 1 : 0) - (a.luxApproved ? 1 : 0) || (a.startingPrice || Infinity) - (b.startingPrice || Infinity));
-        break;
       default:
+        filtered.sort((a, b) => (b.premiumMembership ? 1 : 0) - (a.premiumMembership ? 1 : 0) || (b.luxApproved ? 1 : 0) - (a.luxApproved ? 1 : 0) || (a.startingPrice || Infinity) - (b.startingPrice || Infinity));
         break;
     }
     
     return filtered;
 
   }, [activeSpace, appliedVendorFilters, vendorSortOption]);
-
+  
   const showGuideResults = isBuilderMode || (enableGuideDiscovery && matchingGuidesForVendor.length > 0);
   const showVendorResults = isBuilderMode || (enableVendorDiscovery && vendors.length > 0);
 
@@ -347,112 +340,92 @@ export default function HostPage() {
                                     <TabsTrigger value="vendors">Vendors (Local Partners)</TabsTrigger>
                                 </TabsList>
                                 <TabsContent value="guides" className="mt-6">
-                                    {!showGuideResults ? (
-                                        <Card className="text-center py-12">
-                                            <CardHeader>
-                                                <CardTitle className="font-headline text-xl">Start building your guide partnerships.</CardTitle>
-                                                <CardDescription>Find guides who fit the vibe of this space—and the kind of experience you want people to leave with.</CardDescription>
-                                            </CardHeader>
-                                            <CardContent>
-                                                <p className="mb-4">No guides are listed yet. When guides join, you’ll be able to browse profiles, save favorites, and start a conversation.</p>
-                                                <Button disabled>Find Guides</Button>
-                                                <p className="text-xs text-muted-foreground mt-2">Guide discovery unlocks at launch.</p>
-                                            </CardContent>
-                                        </Card>
-                                    ) : (
-                                        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                                            <div className="lg:col-span-1">
-                                                <GuideFilters filters={guideFilters} onFiltersChange={handleGuideFilterChange} onApply={handleApplyGuideFilters} onReset={handleResetGuideFilters} />
-                                            </div>
-                                            <div className="lg:col-span-3">
-                                                <div className="flex justify-between items-center mb-4">
-                                                    <h3 className="font-headline text-2xl">Suggested Guides</h3>
-                                                    {isBuilderMode && <p className="text-xs text-muted-foreground">Preview mode — sample listings.</p>}
-                                                    <Select value={guideSortOption} onValueChange={setGuideSortOption}>
-                                                        <SelectTrigger className="w-[180px]">
-                                                            <SelectValue placeholder="Sort by" />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectItem value="recommended">Recommended</SelectItem>
-                                                            <SelectItem value="rating">Highest rated</SelectItem>
-                                                            <SelectItem value="newest">Newest</SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-                                                </div>
-                                                {displayedGuides.length > 0 ? (
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                        {displayedGuides.map(guide => <GuideCard key={guide.id} guide={guide} onConnect={() => handleConnectClick(guide.name, 'Guide')} />)}
-                                                    </div>
-                                                ) : (
-                                                    <Card className="text-center py-12">
-                                                    <CardHeader><CardTitle className="font-headline text-xl">No matches for these filters yet.</CardTitle></CardHeader>
-                                                    <CardContent><CardDescription>Try changing or resetting your filters.</CardDescription></CardContent>
-                                                    </Card>
-                                                )}
-                                            </div>
+                                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                                        <div className="lg:col-span-1">
+                                            <GuideFilters filters={guideFilters} onFiltersChange={handleGuideFilterChange} onApply={handleApplyGuideFilters} onReset={handleResetGuideFilters} />
                                         </div>
-                                    )}
-                                </TabsContent>
-                                <TabsContent value="vendors" className="mt-6">
-                                    {!showVendorResults ? (
-                                         <Card className="text-center py-12">
-                                            <CardHeader>
-                                                <CardTitle className="font-headline text-xl">Start building your vendor partnerships.</CardTitle>
-                                                <CardDescription>Discover local vendors who elevate the retreat experience—food, wellness, music, logistics, and everything in between.</CardDescription>
-                                            </CardHeader>
-                                            <CardContent>
-                                                <p className="mb-4">No vendors are listed yet. When vendors join, you’ll be able to browse nearby options for this property, save favorites, and start a conversation.</p>
-                                                <Button disabled>Find Local Vendors</Button>
-                                                <p className="text-xs text-muted-foreground mt-2">Vendor discovery unlocks at launch.</p>
-                                            </CardContent>
-                                        </Card>
-                                    ) : (
-                                        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                                          <div className="lg:col-span-1">
-                                            <VendorFilters 
-                                              filters={vendorFilters} 
-                                              onFiltersChange={handleVendorFilterChange}
-                                              onApply={handleApplyVendorFilters}
-                                              onReset={handleResetVendorFilters}
-                                            />
-                                          </div>
-                                          <div className="lg:col-span-3">
-                                            {activeSpace && (!activeSpace.hostLat || !activeSpace.hostLng) ? (
-                                              <Card className="flex items-center justify-center text-center py-12 h-full">
-                                                <p className="text-destructive text-sm max-w-xs">Add a location to this space to enable local vendor matching.</p>
-                                              </Card>
-                                            ) : (
-                                              <div>
-                                                <div className="flex justify-between items-center mb-4">
-                                                  <h3 className="font-headline text-2xl">Suggested Vendors near {activeSpace?.name}</h3>
-                                                  {isBuilderMode && <p className="text-xs text-muted-foreground">Preview mode — sample listings.</p>}
-                                                  <Select value={vendorSortOption} onValueChange={setVendorSortOption}>
+                                        <div className="lg:col-span-3">
+                                            <div>
+                                                <h3 className="font-headline text-2xl">Suggested Guides</h3>
+                                                <p className="text-sm text-muted-foreground mt-1">A starting point. Refine with filters anytime.</p>
+                                            </div>
+                                            <div className="flex justify-between items-center mb-4 mt-4">
+                                                {isBuilderMode && <p className="text-xs text-muted-foreground">Preview mode — sample listings.</p>}
+                                                <div className="flex-grow"></div>
+                                                <Select value={guideSortOption} onValueChange={setGuideSortOption}>
                                                     <SelectTrigger className="w-[180px]">
-                                                      <SelectValue placeholder="Sort by" />
+                                                        <SelectValue placeholder="Sort by" />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                      <SelectItem value="recommended">Recommended</SelectItem>
-                                                      <SelectItem value="price-asc">Price (low to high)</SelectItem>
-                                                      <SelectItem value="price-desc">Price (high to low)</SelectItem>
-                                                      <SelectItem value="rating">Highest rated</SelectItem>
+                                                        <SelectItem value="recommended">Recommended</SelectItem>
+                                                        <SelectItem value="rating">Highest rated</SelectItem>
+                                                        <SelectItem value="newest">Newest</SelectItem>
                                                     </SelectContent>
-                                                  </Select>
+                                                </Select>
+                                            </div>
+                                            {displayedGuides.length > 0 ? (
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                    {displayedGuides.map(guide => <GuideCard key={guide.id} guide={guide} onConnect={() => handleConnectClick(guide.name, 'Guide')} />)}
                                                 </div>
-                                                {displayedVendors.length > 0 ? (
-                                                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                    {displayedVendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} onConnect={() => handleConnectClick(vendor.name, 'Vendor')} />)}
-                                                  </div>
-                                                ) : (
-                                                  <Card className="text-center py-12">
+                                            ) : (
+                                                <Card className="text-center py-12">
                                                     <CardHeader><CardTitle className="font-headline text-xl">No matches for these filters yet.</CardTitle></CardHeader>
-                                                    <CardContent><CardDescription>Try a different category or widening your filters.</CardDescription></CardContent>
-                                                  </Card>
-                                                )}
-                                              </div>
+                                                    <CardContent><CardDescription>Try changing or resetting your filters.</CardDescription></CardContent>
+                                                </Card>
                                             )}
-                                          </div>
                                         </div>
-                                    )}
+                                    </div>
+                                </TabsContent>
+                                <TabsContent value="vendors" className="mt-6">
+                                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                                        <div className="lg:col-span-1">
+                                        <VendorFilters 
+                                            filters={vendorFilters} 
+                                            onFiltersChange={handleVendorFilterChange}
+                                            onApply={handleApplyVendorFilters}
+                                            onReset={handleResetVendorFilters}
+                                        />
+                                        </div>
+                                        <div className="lg:col-span-3">
+                                        {activeSpace && (!activeSpace.hostLat || !activeSpace.hostLng) ? (
+                                            <Card className="flex items-center justify-center text-center py-12 h-full">
+                                                <p className="text-destructive text-sm max-w-xs">Add a location to this space to enable local vendor matching.</p>
+                                            </Card>
+                                        ) : (
+                                            <div>
+                                            <div>
+                                                <h3 className="font-headline text-2xl">Suggested Vendors near {activeSpace?.name}</h3>
+                                                <p className="text-sm text-muted-foreground mt-1">Based on this property’s location. Refine with filters anytime.</p>
+                                            </div>
+                                            <div className="flex justify-between items-center mb-4 mt-4">
+                                                {isBuilderMode && <p className="text-xs text-muted-foreground">Preview mode — sample listings.</p>}
+                                                <div className="flex-grow"></div>
+                                                <Select value={vendorSortOption} onValueChange={setVendorSortOption}>
+                                                <SelectTrigger className="w-[180px]">
+                                                    <SelectValue placeholder="Sort by" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="recommended">Recommended</SelectItem>
+                                                    <SelectItem value="price-asc">Price (low to high)</SelectItem>
+                                                    <SelectItem value="price-desc">Price (high to low)</SelectItem>
+                                                    <SelectItem value="rating">Highest rated</SelectItem>
+                                                </SelectContent>
+                                                </Select>
+                                            </div>
+                                            {displayedVendors.length > 0 ? (
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                {displayedVendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} onConnect={() => handleConnectClick(vendor.name, 'Vendor')} />)}
+                                                </div>
+                                            ) : (
+                                                <Card className="text-center py-12">
+                                                <CardHeader><CardTitle className="font-headline text-xl">No matches for these filters yet.</CardTitle></CardHeader>
+                                                <CardContent><CardDescription>Try a different category or widening your filters.</CardDescription></CardContent>
+                                                </Card>
+                                            )}
+                                            </div>
+                                        )}
+                                        </div>
+                                    </div>
                                 </TabsContent>
                             </Tabs>
                         </div>

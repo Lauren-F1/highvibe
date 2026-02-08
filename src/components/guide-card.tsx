@@ -21,6 +21,7 @@ export interface Guide {
   retreatTypes?: string[];
   vibeTags?: string[];
   premiumMembership?: boolean;
+  isSample?: boolean;
 }
 
 export interface GuideCardProps {
