@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -106,6 +105,7 @@ export default function HostPage() {
   const [vendorFilters, setVendorFilters] = useState<VendorFiltersState>(initialVendorFilters);
   const [appliedVendorFilters, setAppliedVendorFilters] = useState<VendorFiltersState>(initialVendorFilters);
   const [vendorSortOption, setVendorSortOption] = useState('recommended');
+  const [vendorFiltersDirty, setVendorFiltersDirty] = useState(false);
 
 
   const handleConnectClick = (name: string, role: 'Host' | 'Vendor' | 'Guide') => {
@@ -120,6 +120,9 @@ export default function HostPage() {
   const spaceConnectionRequests = connectionRequests.filter(c => c.forSpace === activeSpace?.name);
   const spaceConfirmedBookings = confirmedBookings.filter(c => c.forSpace === activeSpace?.name);
   
+  const handleGuideFilterChange = (newFilters: Partial<GuideFiltersState>) => {
+    setGuideFilters(prev => ({...prev, ...newFilters}));
+  };
   const handleApplyGuideFilters = () => setAppliedGuideFilters(guideFilters);
   const handleResetGuideFilters = () => {
     setGuideFilters(initialGuideFilters);
@@ -152,10 +155,15 @@ export default function HostPage() {
     return filtered;
   }, [appliedGuideFilters, guideSortOption]);
 
+  const handleVendorFilterChange = (newFilters: Partial<VendorFiltersState>) => {
+    setVendorFilters(prev => ({...prev, ...newFilters}));
+    setVendorFiltersDirty(true);
+  };
   const handleApplyVendorFilters = () => setAppliedVendorFilters(vendorFilters);
   const handleResetVendorFilters = () => {
     setVendorFilters(initialVendorFilters);
     setAppliedVendorFilters(initialVendorFilters);
+    setVendorFiltersDirty(false);
   };
 
   const displayedVendors = useMemo(() => {
@@ -337,7 +345,7 @@ export default function HostPage() {
                                   {enableGuideDiscovery ? (
                                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                                         <div className="lg:col-span-1">
-                                            <GuideFilters filters={guideFilters} onFiltersChange={setGuideFilters} onApply={handleApplyGuideFilters} onReset={handleResetGuideFilters} />
+                                            <GuideFilters filters={guideFilters} onFiltersChange={handleGuideFilterChange} onApply={handleApplyGuideFilters} onReset={handleResetGuideFilters} />
                                         </div>
                                         <div className="lg:col-span-3">
                                             <div className="flex justify-between items-center mb-4">
@@ -375,7 +383,7 @@ export default function HostPage() {
                                             </CardHeader>
                                             <CardContent>
                                                 <p className="mt-2 text-sm max-w-md mx-auto">
-                                                  No guides are available yet. When guides join, you’ll be able to browse profiles, save favorites, and start a conversation.
+                                                  No guides are listed yet. When guides join, you’ll be able to browse profiles, save favorites, and start a conversation.
                                                 </p>
                                                 <div className="mt-4">
                                                     <Button disabled>Find Guides</Button>
@@ -386,12 +394,11 @@ export default function HostPage() {
                                     )}
                                 </TabsContent>
                                 <TabsContent value="vendors" className="mt-6">
-                                  {enableVendorDiscovery ? (
                                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                                       <div className="lg:col-span-1">
                                         <VendorFilters 
                                           filters={vendorFilters} 
-                                          onFiltersChange={setVendorFilters}
+                                          onFiltersChange={handleVendorFilterChange}
                                           onApply={handleApplyVendorFilters}
                                           onReset={handleResetVendorFilters}
                                         />
@@ -432,25 +439,6 @@ export default function HostPage() {
                                         )}
                                       </div>
                                     </div>
-                                  ) : (
-                                    <Card className="text-center text-muted-foreground py-4">
-                                        <CardHeader>
-                                            <CardTitle className="text-2xl text-foreground">Start building your vendor partnerships.</CardTitle>
-                                            <CardDescription className="text-sm max-w-md mx-auto">
-                                                Discover local vendors who elevate the retreat experience—food, wellness, music, logistics, and everything in between.
-                                            </CardDescription>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <p className="mt-2 text-sm max-w-md mx-auto">
-                                                No vendors are available yet. When vendors join, you’ll be able to browse nearby options for this property, save favorites, and start a conversation.
-                                            </p>
-                                            <div className="mt-4">
-                                                <Button disabled>Find Local Vendors</Button>
-                                                <p className="text-xs text-muted-foreground mt-2">Vendor discovery will unlock at launch.</p>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                  )}
                                 </TabsContent>
                             </Tabs>
                         </div>
@@ -537,5 +525,3 @@ export default function HostPage() {
     </div>
   );
 }
-
-    
