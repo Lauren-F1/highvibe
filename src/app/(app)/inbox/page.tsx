@@ -5,6 +5,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUser } from "@/firebase";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Info } from "lucide-react";
+import { useSearchParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { cn } from '@/lib/utils';
 
 const conversations = [
   { id: 'cr1', name: 'Asha Sharma', role: 'Guide', retreat: 'The Glass House Inquiry', lastMessage: 'This looks like a great fit! Can you confirm availability for November?', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200', unread: true },
@@ -14,7 +17,22 @@ const conversations = [
 
 export default function InboxPage() {
   const user = useUser();
+  const searchParams = useSearchParams();
   const isPreview = user.status === 'unauthenticated';
+  
+  const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const threadId = searchParams.get('threadId');
+    if (threadId) {
+      setSelectedThreadId(threadId);
+      // Optional: scroll the selected thread into view
+      setTimeout(() => {
+        const element = document.getElementById(`thread-${threadId}`);
+        element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
+    }
+  }, [searchParams]);
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -33,7 +51,14 @@ export default function InboxPage() {
           <CardContent className="p-0">
             <ul className="divide-y">
               {conversations.map((convo) => (
-                <li key={convo.id} className="p-4 hover:bg-accent cursor-pointer flex items-center gap-4">
+                <li 
+                  key={convo.id}
+                  id={`thread-${convo.id}`}
+                  className={cn(
+                    "p-4 hover:bg-accent cursor-pointer flex items-center gap-4 transition-colors",
+                    selectedThreadId === convo.id && 'bg-accent'
+                  )}
+                >
                     {convo.unread && <div className="h-2.5 w-2.5 rounded-full bg-primary shrink-0"></div>}
                   <div className="flex items-start gap-4 flex-grow">
                     <Avatar className="h-12 w-12">
@@ -58,5 +83,3 @@ export default function InboxPage() {
     </div>
   );
 }
-
-    

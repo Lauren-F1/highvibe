@@ -5,7 +5,7 @@ import { useState, useMemo, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PlusCircle, MoreHorizontal, BarChart, Users, DollarSign, Briefcase } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -452,7 +452,7 @@ export default function HostPage() {
                                                 <TableCell>{req.role}</TableCell>
                                                 <TableCell><Badge variant={req.status === 'New Request' ? 'default' : 'secondary'}>{req.status}</Badge></TableCell>
                                                 <TableCell className="text-right">
-                                                    <Button variant="outline" size="sm" className="mr-2" onClick={() => router.push('/inbox')}>View Message</Button>
+                                                    <Button variant="outline" size="sm" className="mr-2" onClick={() => router.push(`/inbox?threadId=${req.id}`)}>View Message</Button>
                                                 </TableCell>
                                             </TableRow>
                                         ))}

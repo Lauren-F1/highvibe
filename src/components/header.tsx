@@ -33,12 +33,12 @@ export function Header() {
     }
   };
   
-  const handlePreviewClick = (e: React.MouseEvent) => {
+  const handlePreviewClick = (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
     e.preventDefault();
     toast({
         title: "Preview Mode",
         description: "Account sign-up isn’t available in this build yet. You can still explore the full experience in preview.",
-        action: <ToastAction altText="Continue in Preview Mode">Continue in Preview Mode</ToastAction>,
+        action: <ToastAction altText="Continue in Preview Mode" onClick={() => {}}>Continue in Preview Mode</ToastAction>,
     })
   }
 

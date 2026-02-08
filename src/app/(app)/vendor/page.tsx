@@ -1,6 +1,7 @@
 
 "use client";
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { PlusCircle, Eye, Users, MessageSquare, CheckCircle, DollarSign, MoreHorizontal } from 'lucide-react';
@@ -48,6 +49,7 @@ const confirmedBookings = [
 ];
 
 export default function VendorPage() {
+  const router = useRouter();
   const [isPaywallOpen, setPaywallOpen] = useState(false);
   const [connectionModal, setConnectionModal] = useState<{isOpen: boolean, name: string, role: 'Host' | 'Vendor' | 'Guide'}>({isOpen: false, name: '', role: 'Guide'});
 
@@ -231,7 +233,7 @@ export default function VendorPage() {
                                     <TableCell>{req.regarding}</TableCell>
                                     <TableCell><Badge variant={req.status === 'New Request' ? 'default' : 'secondary'}>{req.status}</Badge></TableCell>
                                     <TableCell className="text-right">
-                                        <Button variant="outline" size="sm">View Message</Button>
+                                        <Button variant="outline" size="sm" onClick={() => router.push(`/inbox?threadId=${req.id}`)}>View Message</Button>
                                     </TableCell>
                                 </TableRow>
                             ))}
