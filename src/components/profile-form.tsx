@@ -1,6 +1,6 @@
 'use client';
 
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { UserProfile } from '@/firebase/auth/use-user';
@@ -16,8 +16,9 @@ import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { ImageUpload } from '@/components/image-upload';
-import { vendorCategories } from '@/lib/mock-data';
+import { vendorCategories, hostAmenities, hostVibes } from '@/lib/mock-data';
 import { Checkbox } from './ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 const profileSchema = z.object({
     displayName: z.string().min(2, 'Display name is required'),
@@ -27,11 +28,22 @@ const profileSchema = z.object({
     locationLabel: z.string().optional(),
     isWillingToTravel: z.boolean().default(false),
     travelRadiusMiles: z.number().min(0).max(500).default(0),
-    avatarUrl: z.string().url().optional(),
+    avatarUrl: z.string().url().optional().or(z.literal('')),
     galleryUrls: z.array(z.string().url()).max(6).optional(),
     
     // Vendor fields
     vendorCategories: z.array(z.string()).optional(),
+    vendorWebsite: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
+    instagramUrl: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
+    offerings: z.string().optional(),
+    portfolioUrls: z.array(z.string().url()).max(8).optional(),
+    serviceRadiusMiles: z.number().min(0).max(1000).optional(),
+
+    // Host fields
+    hostAmenities: z.array(z.string()).optional(),
+    hostVibe: z.string().optional(),
+    propertyShowcaseUrls: z.array(z.string().url()).max(10).optional(),
+    typicalCapacity: z.coerce.number().min(0).optional(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -59,20 +71,33 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
             avatarUrl: userProfile.avatarUrl || '',
             galleryUrls: userProfile.galleryUrls || [],
             vendorCategories: userProfile.vendorCategories || [],
+            vendorWebsite: userProfile.vendorWebsite || '',
+            instagramUrl: userProfile.instagramUrl || '',
+            offerings: userProfile.offerings?.join(', ') || '',
+            portfolioUrls: userProfile.portfolioUrls || [],
+            serviceRadiusMiles: userProfile.serviceRadiusMiles || 0,
+            hostAmenities: userProfile.hostAmenities || [],
+            hostVibe: userProfile.hostVibe || '',
+            propertyShowcaseUrls: userProfile.propertyShowcaseUrls || [],
+            typicalCapacity: userProfile.typicalCapacity || 0,
         },
     });
 
     const onSubmit = async (data: ProfileFormValues) => {
         if (!firestore) return;
+        
+        const offeringsArray = data.offerings ? data.offerings.split(',').map(s => s.trim()).filter(Boolean) : [];
 
         const userDocRef = doc(firestore, 'users', userId);
         try {
             await updateDoc(userDocRef, {
                 ...data,
+                offerings: offeringsArray,
                 profileComplete: true,
             });
             toast({ title: 'Profile updated successfully!' });
             router.push('/account');
+            router.refresh(); // to ensure server components get new data
         } catch (error) {
             console.error('Error updating profile:', error);
             toast({
@@ -84,6 +109,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
     };
 
     const isVendor = userProfile.roles?.includes('vendor');
+    const isHost = userProfile.roles?.includes('host');
     
     return (
         <Form {...form}>
@@ -212,7 +238,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                     name="galleryUrls"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Gallery (up to 6 images)</FormLabel>
+                            <FormLabel>Personal Gallery (up to 6 images)</FormLabel>
                             <FormControl>
                                 <ImageUpload
                                     value={field.value || []}
@@ -228,9 +254,8 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                 />
 
                 {isVendor && (
-                  <div>
-                    <h3 className="text-lg font-medium">Vendor Profile</h3>
-                    <div className="mt-4 space-y-8">
+                  <div className="space-y-8 pt-8 border-t">
+                    <h3 className="text-xl font-medium font-headline">Vendor Profile</h3>
                        <FormField
                           control={form.control}
                           name="vendorCategories"
@@ -239,49 +264,209 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                               <div className="mb-4">
                                 <FormLabel className="text-base">Vendor Categories</FormLabel>
                               </div>
-                              {vendorCategories.map((item) => (
-                                <FormField
-                                  key={item.name}
-                                  control={form.control}
-                                  name="vendorCategories"
-                                  render={({ field }) => {
-                                    return (
-                                      <FormItem
-                                        key={item.name}
-                                        className="flex flex-row items-start space-x-3 space-y-0"
-                                      >
-                                        <FormControl>
-                                          <Checkbox
-                                            checked={field.value?.includes(item.name)}
-                                            onCheckedChange={(checked) => {
-                                              return checked
-                                                ? field.onChange([...(field.value || []), item.name])
-                                                : field.onChange(
-                                                    field.value?.filter(
-                                                      (value) => value !== item.name
+                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {vendorCategories.map((item) => (
+                                    <FormField
+                                    key={item.name}
+                                    control={form.control}
+                                    name="vendorCategories"
+                                    render={({ field }) => {
+                                        return (
+                                        <FormItem
+                                            key={item.name}
+                                            className="flex flex-row items-start space-x-3 space-y-0"
+                                        >
+                                            <FormControl>
+                                            <Checkbox
+                                                checked={field.value?.includes(item.name)}
+                                                onCheckedChange={(checked) => {
+                                                return checked
+                                                    ? field.onChange([...(field.value || []), item.name])
+                                                    : field.onChange(
+                                                        field.value?.filter(
+                                                        (value) => value !== item.name
+                                                        )
                                                     )
-                                                  )
-                                            }}
-                                          />
-                                        </FormControl>
-                                        <FormLabel className="font-normal">
-                                          {item.name}
-                                        </FormLabel>
-                                      </FormItem>
-                                    )
-                                  }}
-                                />
-                              ))}
+                                                }}
+                                            />
+                                            </FormControl>
+                                            <FormLabel className="font-normal">
+                                            {item.name}
+                                            </FormLabel>
+                                        </FormItem>
+                                        )
+                                    }}
+                                    />
+                                ))}
+                               </div>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
-                    </div>
+                        <FormField
+                            control={form.control}
+                            name="offerings"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Specific Offerings (up to 10)</FormLabel>
+                                    <FormControl><Textarea {...field} placeholder="e.g. Vinyasa Yoga, Sound Baths, Vegan Catering" /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="vendorWebsite"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Website</FormLabel>
+                                    <FormControl><Input {...field} placeholder="https://yourwebsite.com" /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="instagramUrl"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Instagram</FormLabel>
+                                    <FormControl><Input {...field} placeholder="https://instagram.com/yourhandle" /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={form.control}
+                            name="serviceRadiusMiles"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Service Radius: {field.value || 0} miles</FormLabel>
+                                    <FormControl>
+                                        <Slider
+                                            value={[field.value || 0]}
+                                            onValueChange={(value) => field.onChange(value[0])}
+                                            max={1000}
+                                            step={25}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="portfolioUrls"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Portfolio (up to 8 images)</FormLabel>
+                                    <FormControl>
+                                        <ImageUpload
+                                            value={field.value || []}
+                                            onChange={field.onChange}
+                                            storagePath={`users/${userId}/portfolio/`}
+                                            multiple
+                                            maxFiles={8}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                   </div>
                 )}
 
+                {isHost && (
+                    <div className="space-y-8 pt-8 border-t">
+                        <h3 className="text-xl font-medium font-headline">Host Profile</h3>
+                        <FormField
+                            control={form.control}
+                            name="typicalCapacity"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Typical Guest Capacity</FormLabel>
+                                    <FormControl><Input type="number" {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="hostVibe"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Hosting Vibe</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger><SelectValue placeholder="Select a vibe..." /></SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {hostVibes.map(vibe => (
+                                                <SelectItem key={vibe.name} value={vibe.name}>{vibe.name}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="hostAmenities"
+                          render={() => (
+                            <FormItem>
+                              <div className="mb-4"><FormLabel className="text-base">Amenities</FormLabel></div>
+                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {hostAmenities.map((item) => (
+                                    <FormField
+                                    key={item}
+                                    control={form.control}
+                                    name="hostAmenities"
+                                    render={({ field }) => (
+                                        <FormItem key={item} className="flex flex-row items-start space-x-3 space-y-0">
+                                            <FormControl>
+                                                <Checkbox
+                                                    checked={field.value?.includes(item)}
+                                                    onCheckedChange={(checked) => {
+                                                    return checked
+                                                        ? field.onChange([...(field.value || []), item])
+                                                        : field.onChange(field.value?.filter((value) => value !== item))
+                                                    }}
+                                                />
+                                            </FormControl>
+                                            <FormLabel className="font-normal">{item}</FormLabel>
+                                        </FormItem>
+                                    )}
+                                    />
+                                ))}
+                               </div>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="propertyShowcaseUrls"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Property Showcase (up to 10 images)</FormLabel>
+                                    <FormControl>
+                                        <ImageUpload
+                                            value={field.value || []}
+                                            onChange={field.onChange}
+                                            storagePath={`users/${userId}/properties/`}
+                                            multiple
+                                            maxFiles={10}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                )}
 
-                <Button type="submit" disabled={form.formState.isSubmitting}>
+                <Button type="submit" size="lg" disabled={form.formState.isSubmitting}>
                     {form.formState.isSubmitting ? 'Saving...' : 'Save Profile'}
                 </Button>
             </form>

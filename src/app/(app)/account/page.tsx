@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Globe } from 'lucide-react';
+import { MapPin, Globe, Link as LinkIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -72,7 +72,16 @@ export default function AccountPage() {
     travelRadiusMiles, 
     avatarUrl, 
     galleryUrls,
-    profileSlug
+    profileSlug,
+    vendorCategories,
+    vendorWebsite,
+    instagramUrl,
+    offerings,
+    portfolioUrls,
+    hostAmenities,
+    hostVibe,
+    propertyShowcaseUrls,
+    typicalCapacity,
   } = profile;
 
   const userInitial = displayName?.charAt(0) || user.data.email?.charAt(0) || 'U';
@@ -100,26 +109,36 @@ export default function AccountPage() {
             </div>
           </CardHeader>
           <CardContent className="space-y-8">
-            {(locationLabel || isWillingToTravel) && (
-              <div className="flex flex-wrap gap-x-6 gap-y-2 text-muted-foreground">
-                {locationLabel && (
-                  <div className="flex items-center">
-                    <MapPin className="mr-2 h-4 w-4" />
-                    <span>{locationLabel}</span>
-                  </div>
+            <div className="flex flex-wrap gap-x-6 gap-y-2 text-muted-foreground">
+              {locationLabel && (
+                <div className="flex items-center">
+                  <MapPin className="mr-2 h-4 w-4" />
+                  <span>{locationLabel}</span>
+                </div>
+              )}
+              {isWillingToTravel && (
+                <div className="flex items-center">
+                  <Globe className="mr-2 h-4 w-4" />
+                  <span>
+                    {travelRadiusMiles && travelRadiusMiles > 0
+                      ? `Willing to travel up to ${travelRadiusMiles} miles`
+                      : 'Willing to travel'}
+                  </span>
+                </div>
+              )}
+               {vendorWebsite && (
+                  <a href={vendorWebsite} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-primary">
+                    <LinkIcon className="mr-2 h-4 w-4" />
+                    <span>Website</span>
+                  </a>
                 )}
-                {isWillingToTravel && (
-                  <div className="flex items-center">
-                    <Globe className="mr-2 h-4 w-4" />
-                    <span>
-                      {travelRadiusMiles && travelRadiusMiles > 0
-                        ? `Willing to travel up to ${travelRadiusMiles} miles`
-                        : 'Willing to travel'}
-                    </span>
-                  </div>
+                 {instagramUrl && (
+                  <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-primary">
+                    <svg className="mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                    <span>Instagram</span>
+                  </a>
                 )}
-              </div>
-            )}
+            </div>
             
             {bio && (
                 <div>
@@ -140,6 +159,50 @@ export default function AccountPage() {
                   </div>
               </div>
             )}
+
+            {/* Vendor Section */}
+            {roles?.includes('vendor') && (
+              <div className="space-y-4 pt-4 border-t">
+                <h3 className="font-semibold text-lg">Vendor Details</h3>
+                {vendorCategories && vendorCategories.length > 0 && <div><h4 className="font-medium mb-2">Categories</h4><div className="flex flex-wrap gap-2">{vendorCategories.map(cat => <Badge key={cat} variant="outline">{cat}</Badge>)}</div></div>}
+                {offerings && offerings.length > 0 && <div><h4 className="font-medium mb-2">Offerings</h4><p>{offerings.join(', ')}</p></div>}
+                {portfolioUrls && portfolioUrls.length > 0 && (
+                  <div>
+                      <h4 className="font-medium mb-2">Portfolio</h4>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          {portfolioUrls.map((url, index) => (
+                              <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-muted">
+                                  <Image src={url} alt={`Portfolio image ${index + 1}`} fill className="object-cover" />
+                              </div>
+                          ))}
+                      </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+             {/* Host Section */}
+            {roles?.includes('host') && (
+              <div className="space-y-4 pt-4 border-t">
+                <h3 className="font-semibold text-lg">Host Details</h3>
+                {typicalCapacity && <div><h4 className="font-medium mb-2">Typical Capacity</h4><p>{typicalCapacity} guests</p></div>}
+                {hostVibe && <div><h4 className="font-medium mb-2">Vibe</h4><p>{hostVibe}</p></div>}
+                {hostAmenities && hostAmenities.length > 0 && <div><h4 className="font-medium mb-2">Amenities</h4><p>{hostAmenities.join(', ')}</p></div>}
+                {propertyShowcaseUrls && propertyShowcaseUrls.length > 0 && (
+                  <div>
+                      <h4 className="font-medium mb-2">Property Showcase</h4>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                          {propertyShowcaseUrls.map((url, index) => (
+                              <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-muted">
+                                  <Image src={url} alt={`Property image ${index + 1}`} fill className="object-cover" />
+                              </div>
+                          ))}
+                      </div>
+                  </div>
+                )}
+              </div>
+            )}
+
           </CardContent>
           <CardFooter className="gap-2">
             <Button asChild><Link href="/account/edit">Edit Profile</Link></Button>

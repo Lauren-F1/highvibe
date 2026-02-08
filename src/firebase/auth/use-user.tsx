@@ -26,11 +26,24 @@ export interface UserProfile extends DocumentData {
   locationLng?: number;
   isWillingToTravel?: boolean;
   travelRadiusMiles?: number;
+  
+  // Vendor fields
   vendorCategories?: string[];
   vendorWebsite?: string;
+  instagramUrl?: string;
+  offerings?: string[];
+  portfolioUrls?: string[];
+  serviceRadiusMiles?: number;
+
+  // Host fields
   hostVibe?: string;
   hostAmenities?: string[];
+  propertyShowcaseUrls?: string[];
+  typicalCapacity?: number;
+
+  // Guide fields
   guideRetreatTypes?: string[];
+
   createdAt?: any;
   lastLoginAt?: any;
 }

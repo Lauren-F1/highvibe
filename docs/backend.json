@@ -33,7 +33,8 @@
           "items": {
             "type": "string",
             "format": "uri"
-          }
+          },
+          "description": "A small, personal photo gallery (max 6 images)."
         },
         "roles": {
           "type": "array",
@@ -75,20 +76,58 @@
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "description": "Categories for vendor services."
         },
         "vendorWebsite": {
           "type": "string",
           "format": "uri"
         },
+        "instagramUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "Link to vendor's Instagram profile."
+        },
+        "offerings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Short list of specific services or offerings for a vendor."
+        },
+        "portfolioUrls": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          },
+          "description": "Image gallery for a vendor's portfolio (max 8 images)."
+        },
+        "serviceRadiusMiles": {
+          "type": "number",
+          "description": "Specific service radius for a vendor."
+        },
         "hostVibe": {
-          "type": "string"
+          "type": "string",
+          "description": "The general vibe or aesthetic of a host's space."
         },
         "hostAmenities": {
           "type": "array",
           "items": {
             "type": "string"
           }
+        },
+        "propertyShowcaseUrls": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          },
+          "description": "Image gallery for a host's property showcase (max 10 images)."
+        },
+        "typicalCapacity": {
+          "type": "number",
+          "description": "Typical guest capacity for a host's property."
         },
         "guideRetreatTypes": {
           "type": "array",
