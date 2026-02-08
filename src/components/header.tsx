@@ -15,15 +15,12 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/firebase';
 import { getAuth } from 'firebase/auth';
-import { useToast } from '@/hooks/use-toast';
-import { isBuilderMode } from '@/firebase/config';
-import { ToastAction } from './ui/toast';
+
 
 export function Header() {
   const router = useRouter();
   const user = useUser();
-  const { toast } = useToast();
-
+  
   const handleLogout = () => {
     if (user.status === 'authenticated') {
         const auth = getAuth(user.app!);
@@ -32,22 +29,12 @@ export function Header() {
         });
     }
   };
-  
-  const handlePreviewClick = (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
-    e.preventDefault();
-    toast({
-        title: "Preview Mode",
-        description: "Account sign-up isn’t available in this build yet. You can still explore the full experience in preview.",
-        action: <ToastAction altText="Continue in Preview Mode" onClick={() => {}}>Continue in Preview Mode</ToastAction>,
-    })
-  }
 
   const userInitial = user.status === 'authenticated'
     ? user.data.displayName?.charAt(0) || user.data.email?.charAt(0) || 'U'
     : '';
     
   const getNavLink = (role: 'guide' | 'host' | 'vendor') => {
-    if (isBuilderMode) return `/${role}`;
     return user.status === 'authenticated' && user.profile?.roles?.[role] ? `/${role}` : `/join/${role}`;
   }
 
@@ -68,13 +55,13 @@ export function Header() {
             <Link href="/seeker" className="transition-colors hover:text-foreground/80 text-foreground/60">
               Seeker
             </Link>
-            <Link href={getNavLink('guide')} onClick={isBuilderMode ? handlePreviewClick : undefined} className="transition-colors hover:text-foreground/80 text-foreground/60">
+            <Link href='/guide' className="transition-colors hover:text-foreground/80 text-foreground/60">
               For Guides
             </Link>
-            <Link href={getNavLink('host')} onClick={isBuilderMode ? handlePreviewClick : undefined} className="transition-colors hover:text-foreground/80 text-foreground/60">
+            <Link href='/host' className="transition-colors hover:text-foreground/80 text-foreground/60">
               For Hosts
             </Link>
-             <Link href={getNavLink('vendor')} onClick={isBuilderMode ? handlePreviewClick : undefined} className="transition-colors hover:text-foreground/80 text-foreground/60">
+             <Link href='/vendor' className="transition-colors hover:text-foreground/80 text-foreground/60">
               For Vendors
             </Link>
              <Link href="/inbox" className="transition-colors hover:text-foreground/80 text-foreground/60">
@@ -117,25 +104,16 @@ export function Header() {
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </>
-            ) : user.status === 'unauthenticated' ? (
+            ) : (
                  <>
-                    {isBuilderMode ? (
-                        <>
-                            <Button variant="ghost" onClick={handlePreviewClick}>Login</Button>
-                            <Button onClick={handlePreviewClick}>Sign Up</Button>
-                        </>
-                    ) : (
-                        <>
-                            <Button variant="ghost" asChild>
-                                <Link href="/login">Login</Link>
-                            </Button>
-                            <Button asChild>
-                                <Link href="/join/guide">Sign Up</Link>
-                            </Button>
-                        </>
-                    )}
+                    <Button variant="ghost" asChild>
+                        <Link href="/login">Login</Link>
+                    </Button>
+                    <Button asChild>
+                        <Link href="/join/guide">Sign Up</Link>
+                    </Button>
                 </>
-            ) : null }
+            )}
         </div>
       </div>
     </header>

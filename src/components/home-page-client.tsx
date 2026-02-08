@@ -32,7 +32,7 @@ const roles: Role[] = [
     },
     {
       id: 'guide',
-      href: "/join/guide",
+      href: "/guide",
       icon: <HostIcon />,
       primaryLabel: "Guide",
       title: "I’m Leading a Retreat",
@@ -40,7 +40,7 @@ const roles: Role[] = [
     },
     {
       id: 'vendor',
-      href: "/join/vendor",
+      href: "/vendor",
       icon: <VendorIcon />,
       primaryLabel: "Vendor",
       title: "I’m Offering Retreat Services",
@@ -48,7 +48,7 @@ const roles: Role[] = [
     },
     {
       id: 'host',
-      href: "/join/host",
+      href: "/host",
       icon: <SpaceOwnerIcon />,
       primaryLabel: "Host",
       title: "I’m Listing a Retreat Space",

@@ -22,7 +22,7 @@ import { VendorCard } from '@/components/vendor-card';
 import { VendorFilters, type VendorFiltersState } from '@/components/vendor-filters';
 import { GuideCard, type Guide } from '@/components/guide-card';
 import { GuideFilters, type GuideFiltersState } from '@/components/guide-filters';
-import { enableGuideDiscovery, enableVendorDiscovery, isBuilderMode } from '@/firebase/config';
+import { enableGuideDiscovery, enableVendorDiscovery } from '@/firebase/config';
 import { getDistanceInMiles } from '@/lib/geo';
 import { useToast } from '@/hooks/use-toast';
 
@@ -166,7 +166,7 @@ export default function HostPage() {
         break;
     }
     
-    if (areGuideFiltersDefault && !isBuilderMode) {
+    if (areGuideFiltersDefault) {
       return filtered.slice(0, 6);
     }
     
@@ -366,7 +366,7 @@ export default function HostPage() {
                                             <GuideFilters filters={guideFilters} onFiltersChange={handleGuideFilterChange} onApply={handleApplyGuideFilters} onReset={handleResetGuideFilters} isDirty={guideFiltersDirty}/>
                                         </div>
                                         <div className="lg:col-span-3">
-                                        {!enableGuideDiscovery && !isBuilderMode ? (
+                                        {!enableGuideDiscovery ? (
                                             <Card className="text-center py-6">
                                                 <CardHeader className="pb-2">
                                                     <CardTitle className="font-headline text-xl">Start building your guide partnerships.</CardTitle>
@@ -385,7 +385,7 @@ export default function HostPage() {
                                                     <p className="text-sm text-muted-foreground mt-1">A starting point. Refine with filters anytime.</p>
                                                 </div>
                                                 <div className="flex justify-between items-center mb-4 mt-4">
-                                                    {isBuilderMode && <p className="text-xs text-muted-foreground">Preview mode — sample listings.</p>}
+                                                    
                                                     <div className="flex-grow"></div>
                                                     <Select value={guideSortOption} onValueChange={setGuideSortOption}>
                                                         <SelectTrigger className="w-[180px]">
@@ -430,7 +430,7 @@ export default function HostPage() {
                                         />
                                         </div>
                                         <div className="lg:col-span-3">
-                                        {!enableVendorDiscovery && !isBuilderMode ? (
+                                        {!enableVendorDiscovery ? (
                                              <Card className="text-center py-6">
                                                 <CardHeader className="pb-2">
                                                     <CardTitle className="font-headline text-xl">Start building your vendor partnerships.</CardTitle>
@@ -453,7 +453,7 @@ export default function HostPage() {
                                                     <AlertTitle>Location Missing</AlertTitle>
                                                     <AlertDescription>
                                                         Add a location to this space to enable local vendor suggestions.
-                                                        {isBuilderMode && <span className="block text-xs mt-1">Previewing non-location-filtered vendors.</span>}
+                                                        
                                                     </AlertDescription>
                                                 </Alert>
                                             )}
@@ -462,7 +462,7 @@ export default function HostPage() {
                                                 <p className="text-sm text-muted-foreground mt-1">Based on this property’s location. Refine with filters anytime.</p>
                                             </div>
                                             <div className="flex justify-between items-center mb-4 mt-4">
-                                                {isBuilderMode && <p className="text-xs text-muted-foreground">Preview mode — sample listings.</p>}
+                                                
                                                 <div className="flex-grow"></div>
                                                 <Select value={vendorSortOption} onValueChange={setVendorSortOption}>
                                                 <SelectTrigger className="w-[180px]">
@@ -583,6 +583,7 @@ export default function HostPage() {
 }
 
     
+
 
 
 
