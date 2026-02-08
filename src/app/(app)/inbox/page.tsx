@@ -3,9 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUser } from "@/firebase";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Info } from "lucide-react";
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -17,34 +15,37 @@ const conversations = [
 
 export default function InboxPage() {
   const user = useUser();
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const isPreview = user.status === 'unauthenticated';
   
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
 
   useEffect(() => {
-    const threadId = searchParams.get('c'); // Updated to use 'c'
+    if (user.status === 'loading') {
+      return;
+    }
+    if (user.status === 'unauthenticated') {
+      const currentPath = `/inbox?${searchParams.toString()}`;
+      router.replace(`/login?redirect=${encodeURIComponent(currentPath)}`);
+      return;
+    }
+
+    const threadId = searchParams.get('c');
     if (threadId) {
       setSelectedThreadId(threadId);
-      // Optional: scroll the selected thread into view
       setTimeout(() => {
         const element = document.getElementById(`thread-${threadId}`);
         element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 100);
     }
-  }, [searchParams]);
+  }, [user.status, searchParams, router]);
+
+  if (user.status === 'loading' || user.status === 'unauthenticated') {
+    return <div className="container mx-auto px-4 py-12 text-center">Loading...</div>;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
-      {isPreview && (
-        <Alert className="mb-8 bg-blue-50 border-blue-500 text-blue-700">
-          <Info className="h-4 w-4 !text-blue-500" />
-          <AlertTitle className="font-bold">Preview Mode</AlertTitle>
-          <AlertDescription>
-            You are currently in preview mode. This page is showing sample conversations.
-          </AlertDescription>
-        </Alert>
-      )}
       <div className="max-w-3xl mx-auto">
         <h1 className="font-headline text-4xl md:text-5xl font-bold mb-8">Inbox</h1>
         <Card>
@@ -58,6 +59,7 @@ export default function InboxPage() {
                     "p-4 hover:bg-accent cursor-pointer flex items-center gap-4 transition-colors",
                     selectedThreadId === convo.id && 'bg-accent'
                   )}
+                   onClick={() => router.push(`/inbox?c=${convo.id}`)}
                 >
                     {convo.unread && <div className="h-2.5 w-2.5 rounded-full bg-primary shrink-0"></div>}
                   <div className="flex items-start gap-4 flex-grow">

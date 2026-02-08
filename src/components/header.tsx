@@ -60,14 +60,14 @@ export function Header() {
              <Link href='/vendor' className="transition-colors hover:text-foreground/80 text-foreground/60">
               For Vendors
             </Link>
+             <Link href='/inbox' className="transition-colors hover:text-foreground/80 text-foreground/60">
+              Inbox
+            </Link>
           </nav>
         </div>
         <div className="flex items-center space-x-2">
             {user.status === 'authenticated' ? (
                 <>
-                    <Button variant="ghost" asChild>
-                        <Link href="/inbox">Inbox</Link>
-                    </Button>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
