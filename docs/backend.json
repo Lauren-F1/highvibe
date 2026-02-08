@@ -9,18 +9,54 @@
           "type": "string",
           "format": "email"
         },
-        "isAdmin": {
-          "type": "boolean",
-          "description": "Whether the user is an administrator."
-        },
         "displayName": {
           "type": "string"
         },
         "photoURL": {
           "type": "string",
           "format": "uri"
+        },
+        "roles": {
+          "type": "object",
+          "properties": {
+            "guide": {
+              "type": "boolean"
+            },
+            "host": {
+              "type": "boolean"
+            },
+            "vendor": {
+              "type": "boolean"
+            }
+          }
+        },
+        "primaryRole": {
+          "type": "string",
+          "enum": [
+            "guide",
+            "host",
+            "vendor"
+          ]
+        },
+        "profileStatus": {
+          "type": "string",
+          "enum": [
+            "incomplete",
+            "pending_review",
+            "active"
+          ]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
         }
-      }
+      },
+      "required": [
+        "email",
+        "createdAt",
+        "roles",
+        "profileStatus"
+      ]
     },
     "WaitlistSeeker": {
       "title": "Waitlist Seeker",
@@ -79,7 +115,8 @@
   },
   "auth": {
     "providers": [
-      "google.com"
+      "google.com",
+      "password"
     ]
   },
   "firestore": {

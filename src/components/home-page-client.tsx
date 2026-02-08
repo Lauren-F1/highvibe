@@ -35,7 +35,7 @@ const roles: Role[] = [
     },
     {
       id: 'guide',
-      href: "/guide",
+      href: "/join/guide",
       icon: <HostIcon />,
       primaryLabel: "Guide",
       title: "I’m Leading a Retreat",
@@ -43,7 +43,7 @@ const roles: Role[] = [
     },
     {
       id: 'vendor',
-      href: "/vendor",
+      href: "/join/vendor",
       icon: <VendorIcon />,
       primaryLabel: "Vendor",
       title: "I’m Offering Retreat Services",
@@ -51,7 +51,7 @@ const roles: Role[] = [
     },
     {
       id: 'host',
-      href: "/host",
+      href: "/join/host",
       icon: <SpaceOwnerIcon />,
       primaryLabel: "Host",
       title: "I’m Listing a Retreat Space",
@@ -137,10 +137,10 @@ export default function HomePageClient() {
                   <div className="flex items-center justify-center mb-3">
                     {React.cloneElement(role.icon as React.ReactElement, { className: cn("text-primary", role.id === 'seeker' ? "w-24 h-24" : "w-20 h-20") })}
                   </div>
-                  <h3 className="font-body text-base text-foreground font-semibold">{role.title}</h3>
+                  <h3 className="font-body text-xl text-foreground font-semibold">{role.title}</h3>
                 </CardHeader>
                 <CardContent className="text-center px-2 pb-2 pt-4">
-                  <CardDescription className="font-body text-[13px] leading-snug text-muted-foreground">{role.description}</CardDescription>
+                  <CardDescription className="font-body text-sm leading-snug text-muted-foreground">{role.description}</CardDescription>
                 </CardContent>
               </Card>
             </div>

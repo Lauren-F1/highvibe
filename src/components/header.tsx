@@ -23,12 +23,16 @@ export function Header() {
 
   const handleLogout = () => {
     if (user.status === 'authenticated') {
-        const auth = getAuth(user.app);
+        const auth = getAuth(user.app!);
         auth.signOut().then(() => {
             router.push('/');
         });
     }
   };
+
+  const userInitial = user.status === 'authenticated'
+    ? user.data.displayName?.charAt(0) || user.data.email?.charAt(0) || 'U'
+    : '';
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -47,13 +51,13 @@ export function Header() {
             <Link href="/seeker" className="transition-colors hover:text-foreground/80 text-foreground/60">
               Seeker
             </Link>
-            <Link href="/guide" className="transition-colors hover:text-foreground/80 text-foreground/60">
+            <Link href={user.status === 'authenticated' && user.profile?.roles?.guide ? "/guide" : "/join/guide"} className="transition-colors hover:text-foreground/80 text-foreground/60">
               For Guides
             </Link>
-            <Link href="/host" className="transition-colors hover:text-foreground/80 text-foreground/60">
+            <Link href={user.status === 'authenticated' && user.profile?.roles?.host ? "/host" : "/join/host"} className="transition-colors hover:text-foreground/80 text-foreground/60">
               For Hosts
             </Link>
-            <Link href="/vendor" className="transition-colors hover:text-foreground/80 text-foreground/60">
+             <Link href={user.status === 'authenticated' && user.profile?.roles?.vendor ? "/vendor" : "/join/vendor"} className="transition-colors hover:text-foreground/80 text-foreground/60">
               For Vendors
             </Link>
           </nav>
@@ -75,7 +79,7 @@ export function Header() {
                         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                             <Avatar className="h-10 w-10">
                             <AvatarImage src={user.data.photoURL || undefined} alt="User avatar" />
-                            <AvatarFallback>{user.data.displayName?.charAt(0) || user.data.email?.charAt(0) || 'U'}</AvatarFallback>
+                            <AvatarFallback>{userInitial}</AvatarFallback>
                             </Avatar>
                         </Button>
                         </DropdownMenuTrigger>
@@ -99,11 +103,11 @@ export function Header() {
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </>
-            ) : (
+            ) : user.status === 'unauthenticated' ? (
                 <Button asChild>
                     <Link href="/login">Login</Link>
                 </Button>
-            )}
+            ) : null }
         </div>
       </div>
     </header>
