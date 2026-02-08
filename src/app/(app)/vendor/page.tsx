@@ -156,7 +156,8 @@ export default function VendorPage() {
                             </div>
                             <div className="lg:col-span-3">
                                 <div className="flex justify-between items-center mb-4">
-                                    <h3 className="font-headline text-2xl">Recommended Guides</h3>
+                                    <h3 className="font-headline text-2xl">{matchingGuidesForVendor.length} Matching {matchingGuidesForVendor.length === 1 ? 'Guide' : 'Guides'}</h3>
+                                    <p className="text-xs text-muted-foreground">Counts update as you filter.</p>
                                     <Select defaultValue="recommended">
                                         <SelectTrigger className="w-[180px]">
                                             <SelectValue placeholder="Sort by" />
@@ -181,7 +182,8 @@ export default function VendorPage() {
                             </div>
                             <div className="lg:col-span-3">
                                  <div className="flex justify-between items-center mb-4">
-                                    <h3 className="font-headline text-2xl">Find Local Space Partners</h3>
+                                     <h3 className="font-headline text-2xl">{matchingHostsForVendor.length} Matching {matchingHostsForVendor.length === 1 ? 'Host' : 'Hosts'}</h3>
+                                     <p className="text-xs text-muted-foreground">Counts update as you filter.</p>
                                     <Select defaultValue="recommended">
                                         <SelectTrigger className="w-[180px]">
                                             <SelectValue placeholder="Sort by" />
@@ -194,7 +196,6 @@ export default function VendorPage() {
                                         </SelectContent>
                                     </Select>
                                  </div>
-                                 <p className="text-muted-foreground mb-4">Discover local spaces to partner with.</p>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {matchingHostsForVendor.map(host => <HostCard key={host.id} host={host} onConnect={() => handleConnectClick(host.name, 'Host')} />)}
                                 </div>

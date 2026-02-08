@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -267,7 +268,7 @@ export function HostFilters() {
                             <div className="flex justify-between items-center">
                                 <p className="text-sm text-foreground font-medium">Up to ${budget.toLocaleString()}{budget >= 20000 ? '+' : ''} / night</p>
                             </div>
-                            <div className="py-2">
+                            <div className="py-3">
                                 <Slider
                                     value={[budget]}
                                     onValueChange={(value) => setBudget(value[0])}
