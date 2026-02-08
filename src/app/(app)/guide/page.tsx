@@ -1,10 +1,11 @@
+
 'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PlusCircle, MoreHorizontal, CheckCircle, XCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -20,6 +21,8 @@ import { VendorFilters } from '@/components/vendor-filters';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { placeholderImages } from '@/lib/placeholder-images';
 import { Separator } from '@/components/ui/separator';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 
 const genericImage = placeholderImages.find(p => p.id === 'generic-placeholder')!;
 
@@ -73,6 +76,7 @@ export default function GuidePage() {
 
   const retreatConnectionRequests = connectionRequests.filter(c => c.forRetreat === activeRetreat?.name);
   const retreatConfirmedBookings = confirmedBookings.filter(c => c.forRetreat === activeRetreat?.name);
+  const noHostsFound = hosts.length === 0;
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -192,6 +196,7 @@ export default function GuidePage() {
                                         <div className="lg:col-span-3">
                                             <div className="flex justify-between items-center mb-4">
                                                 <h3 className="font-headline text-2xl">{hosts.length} Matching {hosts.length === 1 ? 'Space' : 'Spaces'}</h3>
+                                                <p className="text-xs text-muted-foreground">Counts update as you filter.</p>
                                                 <Select defaultValue="recommended">
                                                     <SelectTrigger className="w-[180px]">
                                                         <SelectValue placeholder="Sort by" />
@@ -204,9 +209,41 @@ export default function GuidePage() {
                                                     </SelectContent>
                                                 </Select>
                                             </div>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                {hosts.map(host => <HostCard key={host.id} host={host} onConnect={() => handleConnectClick(host.name, 'Host')} />)}
-                                            </div>
+                                            {noHostsFound ? (
+                                                <Card className="text-center py-12">
+                                                    <CardHeader>
+                                                        <CardTitle className="font-headline text-2xl mb-2">No spaces match these filters yet.</CardTitle>
+                                                        <CardDescription>
+                                                            Try widening location, budget, or timeframe. You can also turn on "Show near matches" to see more options.
+                                                        </CardDescription>
+                                                    </CardHeader>
+                                                    <CardContent>
+                                                        <form onSubmit={(e) => { e.preventDefault(); alert('You will be notified!'); }}>
+                                                            <Card className="mt-8 text-left bg-secondary/50 max-w-sm mx-auto">
+                                                                <CardHeader>
+                                                                    <CardTitle className="text-xl">Get notified when matches appear</CardTitle>
+                                                                    <CardDescription>
+                                                                    We’ll only reach out when something matches what you’re looking for.
+                                                                    </CardDescription>
+                                                                </CardHeader>
+                                                                <CardContent className="space-y-4">
+                                                                    <div className="space-y-2">
+                                                                    <Label htmlFor="email-notify">Email Address</Label>
+                                                                    <Input id="email-notify" type="email" placeholder="you@example.com" required />
+                                                                    </div>
+                                                                </CardContent>
+                                                                <CardFooter>
+                                                                    <Button type="submit" className="w-full">Notify Me</Button>
+                                                                </CardFooter>
+                                                            </Card>
+                                                        </form>
+                                                    </CardContent>
+                                                </Card>
+                                            ) : (
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    {hosts.map(host => <HostCard key={host.id} host={host} onConnect={() => handleConnectClick(host.name, 'Host')} />)}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </TabsContent>
@@ -218,6 +255,7 @@ export default function GuidePage() {
                                         <div className="lg:col-span-3">
                                             <div className="flex justify-between items-center mb-4">
                                                 <h3 className="font-headline text-2xl">{vendors.length} Matching {vendors.length === 1 ? 'Vendor' : 'Vendors'}</h3>
+                                                <p className="text-xs text-muted-foreground">Counts update as you filter.</p>
                                                 <Select defaultValue="recommended">
                                                     <SelectTrigger className="w-[180px]">
                                                         <SelectValue placeholder="Sort by" />

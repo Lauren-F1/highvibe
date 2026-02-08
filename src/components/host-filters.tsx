@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "./ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { hostSpaceTypes, hostAmenities, hostVibes, hosts } from "@/lib/mock-data";
+import { popularAmenities, otherAmenities, hostVibes, destinations, continents } from "@/lib/mock-data";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Button } from './ui/button';
@@ -23,7 +23,7 @@ function FilterGroup({ title, children }: { title: string, children: React.React
         <AccordionItem value={title}>
             <AccordionTrigger className="text-base font-semibold py-3">{title}</AccordionTrigger>
             <AccordionContent>
-                <div className="space-y-3 pt-2">
+                <div className="space-y-4 pt-2">
                     {children}
                 </div>
             </AccordionContent>
@@ -31,18 +31,21 @@ function FilterGroup({ title, children }: { title: string, children: React.React
     )
 }
 
-function CheckboxFilter({ item }: { item: string }) {
+function CheckboxFilter({ item, description }: { item: string, description?: string }) {
     const id = `filter-${item.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
     return (
-        <div className="flex items-center space-x-2">
-            <Checkbox id={id} />
-            <Label htmlFor={id} className="font-normal leading-tight">{item}</Label>
+        <div className="flex items-start space-x-3">
+            <Checkbox id={id} className="mt-0.5" />
+            <div className="grid gap-1.5 leading-none">
+                <Label htmlFor={id} className="font-normal leading-tight">{item}</Label>
+                {description && <p className="text-xs text-muted-foreground">{description}</p>}
+            </div>
         </div>
     )
 }
 
-const locations = ["Anywhere", ...new Set(hosts.map(h => h.location))];
 const sleepingCapacityOptions = ["6+", "10+", "14+", "18+", "24+", "30+"];
+const eventCapacityOptions = ["Any", "10+", "20+", "30+", "50+", "100+"];
 const bedroomOptions = ["Any", "2+", "4+", "6+", "8+", "10+"];
 const bathroomOptions = ["Any", "2+", "4+", "6+", "8+"];
 const roomStyleOptions = ["Private rooms available", "Shared rooms available", "Mixed (private + shared)"];
@@ -54,6 +57,10 @@ export function HostFilters() {
     const [endDate, setEndDate] = React.useState<Date>();
     const [showExactDates, setShowExactDates] = React.useState(false);
     const [budget, setBudget] = React.useState(20000);
+    const [selectedContinent, setSelectedContinent] = React.useState('anywhere');
+    const [showNearMatches, setShowNearMatches] = React.useState(false);
+
+    const showRegionFilter = selectedContinent && selectedContinent !== 'anywhere' && destinations[selectedContinent];
 
     return (
         <Card className="lg:sticky lg:top-24">
@@ -61,117 +68,139 @@ export function HostFilters() {
                 <CardTitle className="text-xl font-headline font-bold">Filter Spaces</CardTitle>
             </CardHeader>
             <CardContent>
-                <Accordion type="multiple" defaultValue={["Location", "Availability", "Capacity & Layout", "Budget", "Space Type", "Must-Have Amenities", "Retreat Suitability", "Vibe"]} className="w-full">
+                <Accordion type="multiple" defaultValue={["Location", "Availability", "Capacity & Layout", "Nightly Rate", "Amenities", "Retreat Suitability", "Vibe"]} className="w-full">
                     
                     <FilterGroup title="Location">
-                        <Select defaultValue="anywhere">
-                            <SelectTrigger>
-                                <SelectValue placeholder="Anywhere" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {locations.map(location => (
-                                    <SelectItem key={location} value={location === 'Anywhere' ? 'anywhere' : location.toLowerCase().replace(/ /g, '-')}>{location}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </FilterGroup>
-
-                    <FilterGroup title="Availability">
-                        <div className="space-y-4">
-                            <div className="space-y-2">
-                                <Label>Availability Window</Label>
-                                <Select defaultValue="anytime">
+                        <div className="space-y-2">
+                             <p className="text-xs text-muted-foreground">Start broad, then narrow. You can also choose “Anywhere”.</p>
+                            <Label>Continent</Label>
+                            <Select defaultValue="anywhere" onValueChange={setSelectedContinent}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Anywhere" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {continents.map(continent => (
+                                        <SelectItem key={continent.value} value={continent.value}>{continent.label}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        {showRegionFilter && (
+                             <div className="space-y-2">
+                                <Label>Country/Region</Label>
+                                <Select>
                                     <SelectTrigger>
-                                        <SelectValue placeholder="Anytime" />
+                                        <SelectValue placeholder="Select Country/Region" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="anytime">Anytime</SelectItem>
-                                        <SelectItem value="3-months">Within 3 months</SelectItem>
-                                        <SelectItem value="3-6-months">3–6 months</SelectItem>
-                                        <SelectItem value="6-9-months">6–9 months</SelectItem>
-                                        <SelectItem value="9-12-months">9–12 months</SelectItem>
-                                        <SelectItem value="12-plus-months">12+ months</SelectItem>
+                                        {(destinations[selectedContinent] || []).map(region => (
+                                            <SelectItem key={region} value={region.toLowerCase().replace(/\s/g, '-')}>{region}</SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <div className="flex items-center space-x-2 pt-2">
-                                <Switch id="exact-dates-toggle" onCheckedChange={setShowExactDates} checked={showExactDates} />
-                                <Label htmlFor="exact-dates-toggle">I have exact dates.</Label>
-                            </div>
+                        )}
+                    </FilterGroup>
 
-                            {showExactDates && (
-                                <div className="space-y-4 pt-4 mt-4 border-t">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="start-date">Start Date</Label>
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <Button
-                                                    id="start-date"
-                                                    variant={"outline"}
-                                                    className={cn(
-                                                        "w-full justify-start text-left font-normal",
-                                                        !startDate && "text-muted-foreground"
-                                                    )}
-                                                >
-                                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {startDate ? format(startDate, "PPP") : <span>Pick a date</span>}
-                                                </Button>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0">
-                                                <Calendar
-                                                    mode="single"
-                                                    selected={startDate}
-                                                    onSelect={setStartDate}
-                                                    initialFocus
-                                                />
-                                            </PopoverContent>
-                                        </Popover>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="end-date">End Date</Label>
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <Button
-                                                    id="end-date"
-                                                    variant={"outline"}
-                                                    className={cn(
-                                                        "w-full justify-start text-left font-normal",
-                                                        !endDate && "text-muted-foreground"
-                                                    )}
-                                                >
-                                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {endDate ? format(endDate, "PPP") : <span>Pick a date</span>}
-                                                </Button>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0">
-                                                <Calendar
-                                                    mode="single"
-                                                    selected={endDate}
-                                                    onSelect={setEndDate}
-                                                    disabled={(date) =>
-                                                        startDate ? date < startDate : false
-                                                    }
-                                                    initialFocus
-                                                />
-                                            </PopoverContent>
-                                        </Popover>
-                                    </div>
-                                    <div className="pt-2">
-                                        <div className="flex items-center space-x-2">
-                                            <Checkbox id="flexible-dates" />
-                                            <Label htmlFor="flexible-dates" className="font-normal leading-tight">My dates are flexible</Label>
-                                        </div>
-                                        <p className="text-xs text-muted-foreground mt-1 ml-6">We’ll show spaces that are available close to your dates.</p>
-                                    </div>
+                    <FilterGroup title="Availability">
+                         <div className="space-y-2">
+                            <p className="text-xs text-muted-foreground">Most retreats are planned months in advance. Choose a general timeframe to see spaces that fit your planning window.</p>
+                            <Label>Availability Window</Label>
+                            <Select defaultValue="anytime">
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Anytime" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="anytime">Anytime</SelectItem>
+                                    <SelectItem value="3-months">Within 3 months</SelectItem>
+                                    <SelectItem value="3-6-months">3–6 months</SelectItem>
+                                    <SelectItem value="6-9-months">6–9 months</SelectItem>
+                                    <SelectItem value="9-12-months">9–12 months</SelectItem>
+                                    <SelectItem value="12-plus-months">12+ months</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="flex items-center space-x-2 pt-2">
+                            <Switch id="exact-dates-toggle" onCheckedChange={setShowExactDates} checked={showExactDates} />
+                            <Label htmlFor="exact-dates-toggle">I have exact dates.</Label>
+                        </div>
+
+                        {showExactDates && (
+                            <div className="space-y-4 pt-4 mt-4 border-t">
+                                <div className="space-y-2">
+                                    <Label htmlFor="start-date">Start Date</Label>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                id="start-date"
+                                                variant={"outline"}
+                                                className={cn(
+                                                    "w-full justify-start text-left font-normal",
+                                                    !startDate && "text-muted-foreground"
+                                                )}
+                                            >
+                                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                                {startDate ? format(startDate, "PPP") : <span>Pick a date</span>}
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0">
+                                            <Calendar
+                                                mode="single"
+                                                selected={startDate}
+                                                onSelect={setStartDate}
+                                                initialFocus
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
                                 </div>
-                            )}
+                                <div className="space-y-2">
+                                    <Label htmlFor="end-date">End Date</Label>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                id="end-date"
+                                                variant={"outline"}
+                                                className={cn(
+                                                    "w-full justify-start text-left font-normal",
+                                                    !endDate && "text-muted-foreground"
+                                                )}
+                                            >
+                                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                                {endDate ? format(endDate, "PPP") : <span>Pick a date</span>}
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0">
+                                            <Calendar
+                                                mode="single"
+                                                selected={endDate}
+                                                onSelect={setEndDate}
+                                                disabled={(date) =>
+                                                    startDate ? date < startDate : false
+                                                }
+                                                initialFocus
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+                                <div className="pt-2">
+                                    <div className="flex items-center space-x-2">
+                                        <Checkbox id="flexible-dates" />
+                                        <Label htmlFor="flexible-dates" className="font-normal leading-tight">My dates are flexible</Label>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground mt-1 ml-6">We’ll show spaces that are available close to your dates.</p>
+                                </div>
+                            </div>
+                        )}
+                         <div className="flex items-center space-x-2 pt-2">
+                            <Switch id="near-matches-toggle" onCheckedChange={setShowNearMatches} checked={showNearMatches} />
+                            <Label htmlFor="near-matches-toggle">Show near matches</Label>
                         </div>
                     </FilterGroup>
 
                     <FilterGroup title="Capacity & Layout">
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <Label>Sleeping Capacity</Label>
+                                <Label>Sleeping capacity (guests)</Label>
                                 <Select defaultValue="any">
                                     <SelectTrigger>
                                         <SelectValue placeholder="Any capacity" />
@@ -183,6 +212,22 @@ export function HostFilters() {
                                         ))}
                                     </SelectContent>
                                 </Select>
+                                <p className="text-xs text-muted-foreground">Beds/rooms available overnight.</p>
+                            </div>
+                             <div className="space-y-2">
+                                <Label>Event capacity (day use)</Label>
+                                <Select defaultValue="any">
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Any capacity" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="any">Any capacity</SelectItem>
+                                        {eventCapacityOptions.map(option => (
+                                            <SelectItem key={option} value={option === 'Any' ? 'any' : option.replace('+', '')}>{option}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <p className="text-xs text-muted-foreground">Max people for workshops/dining, including off-site lodging.</p>
                             </div>
                              <div className="space-y-2">
                                 <Label>Bedrooms</Label>
@@ -217,7 +262,7 @@ export function HostFilters() {
                         </div>
                     </FilterGroup>
 
-                    <FilterGroup title="Budget">
+                    <FilterGroup title="Nightly Rate">
                         <div className="space-y-4 px-1 pt-2">
                             <div className="flex justify-between items-center">
                                 <p className="text-sm text-foreground font-medium">Up to ${budget.toLocaleString()}{budget >= 20000 ? '+' : ''} / night</p>
@@ -240,37 +285,27 @@ export function HostFilters() {
                         </div>
                     </FilterGroup>
 
-                    <FilterGroup title="Space Type">
-                        {hostSpaceTypes.map(type => <CheckboxFilter key={type} item={type} />)}
-                    </FilterGroup>
-
-                    <FilterGroup title="Must-Have Amenities">
-                        {hostAmenities.map(amenity => <CheckboxFilter key={amenity} item={amenity} />)}
+                    <FilterGroup title="Amenities">
+                        <div className="space-y-2">
+                            <h4 className="font-semibold text-sm">Popular</h4>
+                            <div className="space-y-3">
+                                {popularAmenities.map(type => <CheckboxFilter key={type} item={type} />)}
+                            </div>
+                        </div>
+                        <div className="space-y-2 pt-4">
+                            <h4 className="font-semibold text-sm">Other</h4>
+                            <div className="space-y-3">
+                                {otherAmenities.map(amenity => <CheckboxFilter key={amenity} item={amenity} />)}
+                            </div>
+                        </div>
                     </FilterGroup>
                     
                     <FilterGroup title="Retreat Suitability">
                         <div className="space-y-4">
-                             <div className="items-top flex space-x-2">
-                                <Checkbox id="filter-retreat-ready" />
-                                <div className="grid gap-1.5 leading-none">
-                                    <Label htmlFor="filter-retreat-ready" className="font-normal leading-tight">Retreat-ready spaces</Label>
-                                    <p className="text-xs text-muted-foreground">Spaces that explicitly support retreats, workshops, and group experiences.</p>
-                                </div>
-                            </div>
-                             <div className="items-top flex space-x-2">
-                                <Checkbox id="filter-gathering-space" />
-                                <div className="grid gap-1.5 leading-none">
-                                    <Label htmlFor="filter-gathering-space" className="font-normal leading-tight">Dedicated gathering space</Label>
-                                    <p className="text-xs text-muted-foreground">Indoor or covered space suitable for group sessions.</p>
-                                </div>
-                            </div>
-                             <div className="items-top flex space-x-2">
-                                <Checkbox id="filter-quiet-setting" />
-                                <div className="grid gap-1.5 leading-none">
-                                    <Label htmlFor="filter-quiet-setting" className="font-normal leading-tight">Quiet setting</Label>
-                                    <p className="text-xs text-muted-foreground">Good for meditation, rest, and low-noise evenings.</p>
-                                </div>
-                            </div>
+                            <CheckboxFilter item="Retreat-ready spaces" description="Spaces that explicitly support retreats, workshops, and group experiences." />
+                            <CheckboxFilter item="Dedicated gathering space" description="Indoor or covered space suitable for group sessions." />
+                            <CheckboxFilter item="Quiet setting" description="Good for meditation, rest, and low-noise evenings." />
+                            
                             <div className="space-y-2">
                                 <Label>Kitchen + meal-friendly</Label>
                                 <Select defaultValue="any">
@@ -294,7 +329,10 @@ export function HostFilters() {
                     </FilterGroup>
 
                     <FilterGroup title="Vibe">
-                        {hostVibes.map(vibe => <CheckboxFilter key={vibe} item={vibe} />)}
+                        <div className="space-y-4">
+                            {hostVibes.map(vibe => <CheckboxFilter key={vibe.name} item={vibe.name} description={vibe.description} />)}
+                            <p className="text-xs text-muted-foreground pt-1">Vibe helps us match aesthetics and energy—select all that fit.</p>
+                        </div>
                     </FilterGroup>
                 </Accordion>
             </CardContent>

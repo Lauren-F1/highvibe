@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,7 @@ import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Users } from 'lucide-react';
+import { continents, destinations } from '@/lib/mock-data';
 
 // Original Data - should not be mutated
 const retreats = [
@@ -38,27 +40,6 @@ const experienceTypes = [
     { value: 'nature-immersion', label: 'Nature Immersion' },
     { value: 'transformation', label: 'Transformation' },
 ];
-
-const continents = [
-    { value: 'anywhere', label: 'Anywhere' },
-    { value: 'africa', label: 'Africa' },
-    { value: 'asia', label: 'Asia' },
-    { value: 'europe', label: 'Europe' },
-    { value: 'north-america', label: 'North America' },
-    { value: 'south-america', label: 'South America' },
-    { value: 'oceania', label: 'Oceania' },
-    { value: 'middle-east', label: 'Middle East' },
-];
-
-const destinations: Record<string, string[]> = {
-  africa: ['Morocco', 'South Africa', 'Kenya', 'Tanzania', 'Egypt', 'Namibia', 'Rwanda', 'Seychelles'],
-  asia: ['Bali, Indonesia', 'Thailand', 'Japan', 'India', 'Nepal', 'Sri Lanka', 'Vietnam', 'Cambodia', 'Philippines', 'Bhutan', 'Phuket, Thailand', 'Kyoto, Japan'],
-  europe: ['Italy', 'France', 'Portugal', 'Spain', 'Greece', 'Switzerland', 'Austria', 'Iceland', 'Croatia', 'United Kingdom', 'Tuscany, Italy'],
-  'north-america': ['California, USA', 'Utah, USA', 'Arizona, USA', 'Colorado, USA', 'Vermont, USA', 'British Columbia, Canada', 'Baja California, Mexico', 'Costa Rica'],
-  'south-america': ['Peru', 'Colombia', 'Brazil', 'Argentina', 'Chile', 'Ecuador', 'Patagonia (Region)', 'Cusco, Peru'],
-  oceania: ['New Zealand', 'Australia', 'Fiji', 'Tahiti (French Polynesia)', 'Hawaii, USA'],
-  'middle-east': ['Jordan', 'Oman', 'United Arab Emirates', 'Turkey', 'Israel', 'Lebanon'],
-};
 
 const investmentRanges = [
   { value: "any", label: "Any Range" },
