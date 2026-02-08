@@ -415,7 +415,6 @@ export default function GuidePage() {
                             ) : (
                                 <div className="text-center py-12 rounded-lg bg-secondary/50">
                                     <p className="text-muted-foreground">Nothing confirmed just yet. This is the space where aligned partnerships become official. Once details are finalized, confirmed bookings will appear here.</p>
-                                    <p className="text-xs text-muted-foreground mt-4">Start by reaching out to hosts or vendors that feel aligned — connection comes before confirmation.</p>
                                 </div>
                             )}
                         </div>
