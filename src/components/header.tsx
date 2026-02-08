@@ -15,6 +15,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/firebase';
 import { getAuth } from 'firebase/auth';
+import { isFirebaseEnabled } from '@/firebase/config';
 
 
 export function Header() {
@@ -22,8 +23,18 @@ export function Header() {
   const user = useUser();
   
   const handleLogout = () => {
-    if (user.status === 'authenticated') {
-        const auth = getAuth(user.app!);
+    if (!isFirebaseEnabled) {
+      // DEV AUTH MODE
+      localStorage.removeItem('devUser');
+      localStorage.removeItem('devProfile');
+      router.push('/');
+      router.refresh();
+      return;
+    }
+
+    // PROD FIREBASE MODE
+    if (user.status === 'authenticated' && user.app) {
+        const auth = getAuth(user.app);
         auth.signOut().then(() => {
             router.push('/');
         });

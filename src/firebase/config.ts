@@ -11,8 +11,12 @@ export const firebaseConfig = {
 
 export const isFirebaseEnabled = !!(
   firebaseConfig.apiKey &&
+  firebaseConfig.authDomain &&
   firebaseConfig.projectId &&
-  firebaseConfig.apiKey !== 'REPLACE_WITH_YOUR_API_KEY' &&
+  firebaseConfig.storageBucket &&
+  firebaseConfig.messagingSenderId &&
+  firebaseConfig.appId &&
+  !firebaseConfig.apiKey.includes('REPLACE_WITH') &&
   !firebaseConfig.apiKey.includes('your-api-key')
 );
 

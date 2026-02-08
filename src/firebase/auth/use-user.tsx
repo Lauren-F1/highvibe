@@ -5,8 +5,13 @@ import { useEffect, useState } from 'react';
 import { useAuth, useFirebaseApp, useFirestore } from '../provider';
 import { FirebaseApp } from 'firebase/app';
 import { doc, onSnapshot, DocumentData } from 'firebase/firestore';
+import { isFirebaseEnabled } from '../config';
 
-export type User = FirebaseUser;
+export type User = FirebaseUser | {
+  uid: string;
+  email: string;
+  displayName: string;
+};
 
 // This mirrors the User entity in docs/backend.json
 export interface UserProfile extends DocumentData {
@@ -73,58 +78,92 @@ export function useUser(): AuthState {
   const auth = useAuth();
   const firestore = useFirestore();
 
-  const [authState, setAuthState] = useState<{
-    status: 'loading' | 'authenticated' | 'unauthenticated';
-    data: User | null;
-  }>({
+  const [userState, setUserState] = useState<Omit<AuthState, 'app'>>({
     status: 'loading',
     data: null,
+    profile: undefined,
   });
 
-  const [profileState, setProfileState] = useState<UserProfile | null | undefined>(undefined);
-
   useEffect(() => {
-    if (!auth) {
-      setAuthState({ status: 'unauthenticated', data: null });
-      return;
-    }
-    const unsubscribe = onAuthStateChanged(auth, user => {
-      setAuthState({ status: user ? 'authenticated' : 'unauthenticated', data: user });
-    });
-    return () => unsubscribe();
-  }, [auth]);
+    if (!isFirebaseEnabled) {
+      // DEV AUTH MODE
+      try {
+        const devUserStr = localStorage.getItem('devUser');
+        const devProfileStr = localStorage.getItem('devProfile');
 
-  useEffect(() => {
-    if (authState.status !== 'authenticated' || !firestore) {
-      setProfileState(null);
-      return;
-    }
-
-    setProfileState(undefined); // Set profile to loading state
-    const userDocRef = doc(firestore, 'users', authState.data!.uid);
-    const unsubscribe = onSnapshot(userDocRef, docSnap => {
-      if (docSnap.exists()) {
-        setProfileState({ uid: docSnap.id, ...docSnap.data() } as UserProfile);
-      } else {
-        setProfileState(null); // Profile does not exist
+        if (devUserStr && devProfileStr) {
+          setUserState({
+            status: 'authenticated',
+            data: JSON.parse(devUserStr),
+            profile: JSON.parse(devProfileStr),
+          });
+        } else {
+          setUserState({
+            status: 'unauthenticated',
+            data: null,
+            profile: null,
+          });
+        }
+      } catch (e) {
+        console.error('Error reading dev auth from localStorage', e);
+        setUserState({ status: 'unauthenticated', data: null, profile: null });
       }
-    }, (error) => {
-        console.error("Error fetching user profile:", error);
-        setProfileState(null);
-    });
-    return () => unsubscribe();
-  }, [authState, firestore]);
+      return; // Stop here for dev mode
+    }
 
-  if (authState.status === 'loading') {
-    return { status: 'loading', data: null, profile: undefined, app };
-  }
-  if (authState.status === 'unauthenticated') {
-    return { status: 'unauthenticated', data: null, profile: null, app };
-  }
-  return {
-    status: 'authenticated',
-    data: authState.data!,
-    profile: profileState,
-    app: app,
-  };
+    // FIREBASE PROD MODE
+    if (!auth || !firestore) {
+      setUserState({ status: 'unauthenticated', data: null, profile: null });
+      return;
+    }
+
+    const authUnsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        setUserState({ status: 'unauthenticated', data: null, profile: null });
+        return;
+      }
+
+      // User is authenticated, now listen for profile changes
+      setUserState(prevState => ({
+          ...prevState,
+          status: 'authenticated',
+          data: user,
+          profile: prevState.profile === null ? null : undefined, // set profile to loading
+      }));
+
+      const profileUnsubscribe = onSnapshot(doc(firestore, 'users', user.uid), 
+        (docSnap) => {
+          if (docSnap.exists()) {
+            setUserState({
+              status: 'authenticated',
+              data: user,
+              profile: { uid: docSnap.id, ...docSnap.data() } as UserProfile,
+            });
+          } else {
+            setUserState({
+              status: 'authenticated',
+              data: user,
+              profile: null, // Profile does not exist
+            });
+          }
+        },
+        (error) => {
+          console.error("Error fetching user profile:", error);
+          setUserState({
+            status: 'authenticated',
+            data: user,
+            profile: null, // Error fetching profile
+          });
+        }
+      );
+      
+      // Return a cleanup function that unsubscribes from the profile listener
+      return () => profileUnsubscribe();
+    });
+
+    return () => authUnsubscribe();
+
+  }, [auth, firestore]);
+
+  return { ...userState, app };
 }

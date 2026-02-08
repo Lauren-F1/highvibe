@@ -112,17 +112,55 @@ export function AuthForm({ mode, role }: AuthFormProps) {
   };
 
   const handleEmailSubmit = async (values: any) => {
-    if (!isFirebaseEnabled || !app || !firestore) {
+    if (!isFirebaseEnabled) {
+      // DEV AUTH MODE
+      setLoading(true);
+      setError(null);
+      
+      const displayName = mode === 'signup' 
+        ? [values.firstName, values.lastName].filter(Boolean).join(' ') 
+        : 'Dev User';
+
+      const devUser = {
+        uid: 'dev-user-01',
+        email: values.email,
+        displayName: displayName,
+      };
+
+      const devProfile = {
+        uid: 'dev-user-01',
+        email: values.email,
+        displayName: displayName,
+        roles: role ? [role] : ['guide'],
+        primaryRole: role || 'guide',
+        onboardingComplete: true,
+        profileComplete: true,
+      };
+
+      localStorage.setItem('devUser', JSON.stringify(devUser));
+      localStorage.setItem('devProfile', JSON.stringify(devProfile));
+
       toast({
-        variant: 'destructive',
-        title: 'Firebase Not Configured',
-        description: 'Authentication is currently disabled. Please contact an administrator.',
+        title: mode === 'signup' ? 'Dev Account Created' : 'Logged in (Dev Mode)',
+        description: `Welcome, ${displayName}!`,
       });
+      
+      // Redirect so useUser hook re-evaluates
+      const redirect = searchParams.get('redirect');
+      if (redirect) {
+        router.push(redirect);
+      } else {
+        router.push(devProfile.primaryRole ? `/${devProfile.primaryRole}` : '/');
+      }
+
       return;
     }
+
+    // PRODUCTION FIREBASE MODE
     setLoading(true);
     setError(null);
-    const auth = getAuth(app);
+    const auth = getAuth(app!);
+    const firestoreDb = useFirestore();
 
     try {
       if (mode === 'signup') {
@@ -132,8 +170,10 @@ export function AuthForm({ mode, role }: AuthFormProps) {
         // Redirection is handled by the useEffect on the calling page (e.g., /join/[role])
       } else { // login
         const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
-        const userDocRef = doc(firestore, 'users', userCredential.user.uid);
-        await setDoc(userDocRef, { lastLoginAt: serverTimestamp() }, { merge: true });
+        if (firestoreDb) {
+            const userDocRef = doc(firestoreDb, 'users', userCredential.user.uid);
+            await setDoc(userDocRef, { lastLoginAt: serverTimestamp() }, { merge: true });
+        }
         // Redirection is handled by the useEffect on the /login page
       }
     } catch (err: any) {
@@ -144,20 +184,21 @@ export function AuthForm({ mode, role }: AuthFormProps) {
   };
 
   const handlePasswordReset = () => {
+    if (!isFirebaseEnabled) {
+      toast({
+          variant: "default",
+          title: "Dev Mode",
+          description: "Password reset is not applicable in dev mode.",
+      });
+      return;
+    }
     const email = form.getValues('email');
     if (!email) {
         toast({ variant: 'destructive', title: 'Please enter your email address to reset your password.' });
         return;
     }
-    if (!isFirebaseEnabled || !app) {
-        toast({
-            variant: "destructive",
-            title: "Firebase Not Configured",
-            description: "Password reset is currently disabled.",
-        });
-        return;
-    }
-    const auth = getAuth(app);
+    
+    const auth = getAuth(app!);
     sendPasswordResetEmail(auth, email)
         .then(() => {
             toast({ title: 'Password Reset Email Sent', description: 'Check your inbox for a link to reset your password.' });
