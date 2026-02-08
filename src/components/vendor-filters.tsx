@@ -15,6 +15,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./
 import { vendorCategories, vendorPricingTiers } from "@/lib/mock-data";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Switch } from './ui/switch';
+import { Slider } from './ui/slider';
 
 
 function FilterGroup({ title, children }: { title: string, children: React.ReactNode }) {
@@ -43,11 +44,27 @@ function CheckboxFilter({ item, description }: { item: string, description?: str
     )
 }
 
+const planningWindowOptions = [
+    { value: 'anytime', label: 'Anytime' },
+    { value: '1-3-months', label: '1–3 months' },
+    { value: '3-6-months', label: '3–6 months' },
+    { value: '6-9-months', label: '6–9 months' },
+    { value: '9-12-months', label: '9–12 months' },
+    { value: '12-plus-months', label: '12+ months' },
+];
+
+const availabilityTypes = [
+    "Available within my planning window",
+    "Limited availability",
+    "Waitlist / inquiry"
+];
+
 export function VendorFilters() {
     const [startDate, setStartDate] = React.useState<Date>();
     const [endDate, setEndDate] = React.useState<Date>();
     const [showExactDates, setShowExactDates] = React.useState(false);
     const [showNearMatches, setShowNearMatches] = React.useState(false);
+    const [budget, setBudget] = React.useState(1500);
 
     return (
          <Card className="lg:sticky lg:top-24">
@@ -55,13 +72,48 @@ export function VendorFilters() {
                  <CardTitle className="text-xl font-headline font-bold">Filter Services</CardTitle>
             </CardHeader>
             <CardContent>
-                 <Accordion type="multiple" defaultValue={["Vendor Category", "Pricing Tier", "Availability"]} className="w-full">
+                 <Accordion type="multiple" defaultValue={["Vendor Category", "Location", "Budget Range", "Availability"]} className="w-full">
                     <FilterGroup title="Vendor Category">
                         {vendorCategories.map(category => <CheckboxFilter key={category.name} item={category.name} description={category.description} />)}
                     </FilterGroup>
 
-                    <FilterGroup title="Pricing Tier">
-                        {vendorPricingTiers.map(tier => <CheckboxFilter key={tier} item={tier} />)}
+                    <FilterGroup title="Location">
+                        <div className="space-y-2">
+                            <Label>Where should the vendor be?</Label>
+                            <Select defaultValue="local">
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select location preference" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="local">Local to my destination</SelectItem>
+                                    <SelectItem value="travel">Will travel to my destination</SelectItem>
+                                    <SelectItem value="remote">Remote/virtual only</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </FilterGroup>
+
+                    <FilterGroup title="Budget Range">
+                        <div className="space-y-4 px-1 pt-2">
+                            <div className="flex justify-between items-center">
+                                <p className="text-sm text-foreground font-medium">Up to ${budget.toLocaleString()}{budget >= 5000 ? '+' : ''}</p>
+                            </div>
+                            <div className="py-3">
+                                <Slider
+                                    value={[budget]}
+                                    onValueChange={(value) => setBudget(value[0])}
+                                    max={5000}
+                                    step={100}
+                                />
+                            </div>
+                            <div className="flex justify-between text-xs text-muted-foreground -mt-2">
+                                <span>$0</span>
+                                <span>$5,000+</span>
+                            </div>
+                            <p className="text-xs text-muted-foreground pt-1">
+                                Filter by per-day rate or total package cost.
+                            </p>
+                        </div>
                     </FilterGroup>
 
                     <FilterGroup title="Availability">
@@ -73,22 +125,24 @@ export function VendorFilters() {
                                         <SelectValue placeholder="Anytime" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="anytime">Anytime</SelectItem>
-                                        <SelectItem value="1-3-months">Next 1–3 months</SelectItem>
-                                        <SelectItem value="3-6-months">3–6 months</SelectItem>
-                                        <SelectItem value="6-12-months">6–12 months</SelectItem>
-                                        <SelectItem value="12-plus-months">12+ months (Long-range planning)</SelectItem>
+                                        {planningWindowOptions.map(option => (
+                                            <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
                                 <p className="text-xs text-muted-foreground pt-1">
-                                    Most retreats are planned months in advance. Choose a general timeframe to see spaces and collaborators that fit your planning window. You can confirm exact dates directly with hosts and vendors.
+                                    This helps you find vendors who are a fit for your planning window. Exact dates can be finalized together.
                                 </p>
+                            </div>
+                             <div className="space-y-3 pt-2">
+                                <Label>Availability Type</Label>
+                                {availabilityTypes.map(item => <CheckboxFilter key={item} item={item} />)}
                             </div>
                             <div className="flex items-start space-x-3 pt-2">
                                 <Switch id="near-matches-toggle-vendor" onCheckedChange={setShowNearMatches} checked={showNearMatches} className="mt-0.5" />
                                 <div className="grid gap-1.5 leading-none">
                                     <Label htmlFor="near-matches-toggle-vendor" className="font-normal">Show near matches</Label>
-                                    <p className="text-xs text-muted-foreground">We’ll also show options that are close to your planning window if exact matches are limited.</p>
+                                    <p className="text-xs text-muted-foreground">We’ll include vendors that are close to your ideal window.</p>
                                 </div>
                             </div>
                             <div className="flex items-start space-x-3 pt-2">

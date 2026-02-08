@@ -52,6 +52,14 @@ const bathroomOptions = ["Any", "2+", "4+", "6+", "8+"];
 const roomStyleOptions = ["Private rooms available", "Shared rooms available", "Mixed (private + shared)"];
 const retreatPolicies = ["Alcohol allowed", "Wellness activities allowed (yoga / sound / breathwork)", "Outdoor fires allowed (if applicable)"];
 
+const planningWindowOptions = [
+    { value: 'anytime', label: 'Anytime' },
+    { value: '1-3-months', label: '1–3 months' },
+    { value: '3-6-months', label: '3–6 months' },
+    { value: '6-9-months', label: '6–9 months' },
+    { value: '9-12-months', label: '9–12 months' },
+    { value: '12-plus-months', label: '12+ months' },
+];
 
 export function HostFilters() {
     const [startDate, setStartDate] = React.useState<Date>();
@@ -104,27 +112,37 @@ export function HostFilters() {
                     </FilterGroup>
 
                     <FilterGroup title="Availability">
-                         <div className="space-y-2">
+                        <div className="space-y-2">
                             <Label>Planning Window</Label>
                             <Select defaultValue="anytime">
                                 <SelectTrigger>
-                                    <SelectValue placeholder="Anytime" />
+                                <SelectValue placeholder="Anytime" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="anytime">Anytime</SelectItem>
-                                    <SelectItem value="1-3-months">Next 1–3 months</SelectItem>
-                                    <SelectItem value="3-6-months">3–6 months</SelectItem>
-                                    <SelectItem value="6-12-months">6–12 months</SelectItem>
-                                    <SelectItem value="12-plus-months">12+ months (Long-range planning)</SelectItem>
+                                {planningWindowOptions.map((option) => (
+                                    <SelectItem key={option.value} value={option.value}>
+                                    {option.label}
+                                    </SelectItem>
+                                ))}
                                 </SelectContent>
                             </Select>
-                             <p className="text-xs text-muted-foreground pt-1">Most retreats are planned months in advance. Choose a general timeframe to see spaces and collaborators that fit your planning window. You can confirm exact dates directly with hosts and vendors.</p>
+                            <p className="text-xs text-muted-foreground pt-1">
+                                Most retreats are planned months in advance. Choose a general
+                                timeframe to see spaces that fit your planning window.
+                            </p>
+                        </div>
+                        <div className="flex items-start space-x-3 pt-2">
+                            <Checkbox id="flexible-dates-host" />
+                            <div className="grid gap-1.5 leading-none">
+                                <Label htmlFor="flexible-dates-host" className="font-normal">My dates are flexible</Label>
+                                <p className="text-xs text-muted-foreground">Helpful if you’re choosing the location first and locking dates second.</p>
+                            </div>
                         </div>
                         <div className="flex items-start space-x-3 pt-2">
                             <Switch id="near-matches-toggle" onCheckedChange={setShowNearMatches} checked={showNearMatches} className="mt-0.5" />
                             <div className="grid gap-1.5 leading-none">
                                 <Label htmlFor="near-matches-toggle" className="font-normal">Show near matches</Label>
-                                <p className="text-xs text-muted-foreground">We’ll also show options that are close to your planning window if exact matches are limited.</p>
+                                <p className="text-xs text-muted-foreground">We’ll include spaces that are close to your ideal window.</p>
                             </div>
                         </div>
 
@@ -203,6 +221,7 @@ export function HostFilters() {
 
                     <FilterGroup title="Capacity & Layout">
                         <div className="space-y-4">
+                            <p className="text-xs text-muted-foreground">Some spaces sleep fewer than they can host for daytime sessions.</p>
                             <div className="space-y-2">
                                 <Label>Sleeping capacity (guests)</Label>
                                 <Select defaultValue="any">

@@ -180,7 +180,6 @@ export default function GuidePage() {
                     <>
                         {/* Matches Available */}
                         <div>
-                            <h3 className="font-headline text-2xl mb-2">Matches Available</h3>
                             <p className="text-muted-foreground mb-4">These are spaces and vendors that fit what you’re looking for.</p>
                             <Tabs defaultValue="hosts">
                                 <TabsList className="grid w-full grid-cols-2 bg-primary text-primary-foreground">
