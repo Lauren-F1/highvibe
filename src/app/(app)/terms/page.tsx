@@ -10,27 +10,27 @@ export default function TermsPage() {
           </CardHeader>
           <CardContent className="space-y-6 text-base font-body text-foreground/80">
             <p>
-              By using RETREAT, you agree to the terms below. These terms are designed to protect users, providers, and the integrity of the platform while we grow.
+              By using HighVibe Retreats, you agree to the terms below. These terms are designed to protect users, providers, and the integrity of the platform while we grow.
             </p>
             
             <div className="space-y-2">
                 <h3 className="font-headline text-2xl pt-4">Platform role</h3>
-                <p>RETREAT is a marketplace that helps Seekers, Guides, Hosts, and Vendors discover and connect with one another. RETREAT is not the retreat operator unless explicitly stated for a specific experience.</p>
+                <p>HighVibe Retreats is a marketplace that helps Seekers, Guides, Hosts, and Vendors discover and connect with one another. HighVibe Retreats is not the retreat operator unless explicitly stated for a specific experience.</p>
             </div>
 
             <div className="space-y-2">
                 <h3 className="font-headline text-2xl pt-4">Listings and accuracy</h3>
-                <p>Users who list retreats, spaces, or services are responsible for ensuring their information is accurate, current, and lawful. RETREAT may remove listings that violate platform standards.</p>
+                <p>Users who list retreats, spaces, or services are responsible for ensuring their information is accurate, current, and lawful. HighVibe Retreats may remove listings that violate platform standards.</p>
             </div>
 
             <div className="space-y-2">
                 <h3 className="font-headline text-2xl pt-4">Connections and bookings</h3>
-                <p>RETREAT may offer tools to request connections, communicate, or submit booking inquiries. Actual booking terms (pricing, availability, contracts, cancellation policies) are determined by the parties involved unless RETREAT explicitly provides booking infrastructure for that listing.</p>
+                <p>HighVibe Retreats may offer tools to request connections, communicate, or submit booking inquiries. Actual booking terms (pricing, availability, contracts, cancellation policies) are determined by the parties involved unless HighVibe Retreats explicitly provides booking infrastructure for that listing.</p>
             </div>
 
             <div className="space-y-2">
                 <h3 className="font-headline text-2xl pt-4">Payments</h3>
-                <p>If RETREAT processes payments or charges fees for certain services, those terms will be presented clearly at the point of purchase or booking.</p>
+                <p>If HighVibe Retreats processes payments or charges fees for certain services, those terms will be presented clearly at the point of purchase or booking.</p>
             </div>
 
             <div className="space-y-2">
@@ -40,21 +40,21 @@ export default function TermsPage() {
 
             <div className="space-y-2">
                 <h3 className="font-headline text-2xl pt-4">Intellectual property</h3>
-                <p>RETREAT’s brand, design, and platform content are protected. You may not copy or reproduce platform materials without permission.</p>
+                <p>HighVibe Retreats’s brand, design, and platform content are protected. You may not copy or reproduce platform materials without permission.</p>
             </div>
 
             <div className="space-y-2">
                 <h3 className="font-headline text-2xl pt-4">Liability</h3>
-                <p>RETREAT is not liable for outcomes resulting from retreats, services, or third-party interactions arranged through the platform. Users are responsible for their decisions and agreements.</p>
+                <p>HighVibe Retreats is not liable for outcomes resulting from retreats, services, or third-party interactions arranged through the platform. Users are responsible for their decisions and agreements.</p>
             </div>
 
             <div className="space-y-2">
                 <h3 className="font-headline text-2xl pt-4">Updates</h3>
-                <p>These terms may be updated as the platform evolves. Continued use of RETREAT means you accept the latest version of these terms.</p>
+                <p>These terms may be updated as the platform evolves. Continued use of HighVibe Retreats means you accept the latest version of these terms.</p>
             </div>
 
             <p className="pt-8 text-sm text-muted-foreground">
-              Questions? Contact us at support@retreat.com.
+              Questions? Contact us at support@highviberetreats.com.
             </p>
           </CardContent>
         </Card>

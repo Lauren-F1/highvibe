@@ -102,7 +102,7 @@ export default function PublicProfilePage({ params }: { params: { slug: string }
       // Add initial message
       await addDoc(collection(newConversationRef, 'messages'), {
           senderId: currentUser.data.uid,
-          text: `Hi ${profile.displayName}, I found your profile on RETREAT and I’d like to connect.`,
+          text: `Hi ${profile.displayName}, I found your profile on HighVibe Retreats and I’d like to connect.`,
           createdAt: serverTimestamp(),
       });
       

@@ -38,7 +38,7 @@ export default function JoinPage() {
     <div className="container mx-auto flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-2xl">
         <CardHeader className="text-center">
-          <CardTitle className="font-headline text-4xl">Join RETREAT</CardTitle>
+          <CardTitle className="font-headline text-4xl">Join HighVibe Retreats</CardTitle>
           <CardDescription>
             Choose the role that best describes how you want to participate.
           </CardDescription>

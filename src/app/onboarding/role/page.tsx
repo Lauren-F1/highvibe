@@ -87,7 +87,7 @@ export default function RoleOnboardingPage() {
     <div className="container mx-auto flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-2xl">
         <CardHeader className="text-center">
-          <CardTitle className="font-headline text-4xl">How are you showing up on RETREAT?</CardTitle>
+          <CardTitle className="font-headline text-4xl">How are you showing up on HighVibe Retreats?</CardTitle>
           <CardDescription className="text-lg">
             Choose the role that matches why you’re here. You can add more later.
           </CardDescription>

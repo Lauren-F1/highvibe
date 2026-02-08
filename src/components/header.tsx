@@ -41,7 +41,7 @@ export function Header() {
           <Link href="/" className="mr-6">
             <Image
               src="/logo.svg"
-              alt="RETREAT"
+              alt="HighVibe Retreats"
               width={252}
               height={90}
               priority

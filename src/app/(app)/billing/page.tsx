@@ -293,7 +293,7 @@ export default function BillingPage() {
         )}
       <div className="max-w-5xl mx-auto space-y-12">
         <div className="text-center">
-            <h1 className="font-headline text-4xl font-bold tracking-tight">RETREAT Partnership</h1>
+            <h1 className="font-headline text-4xl font-bold tracking-tight">HighVibe Retreats Partnership</h1>
             <p className="text-muted-foreground mt-2 text-lg">Everything you need to build, connect, and get booked.</p>
              <Tabs value={role} onValueChange={(value) => setRole(value as UserRole)} className="mt-6 max-w-sm mx-auto">
                 <TabsList className="grid w-full grid-cols-3">
@@ -328,7 +328,7 @@ export default function BillingPage() {
             </div>
             
             <p className="text-sm text-muted-foreground px-1">
-                RETREAT is your platform partner in protecting your standards and preserving your margins, so you can focus on delivering experiences that actually matter.
+                HighVibe Retreats is your platform partner in protecting your standards and preserving your margins, so you can focus on delivering experiences that actually matter.
             </p>
 
              <div className="space-y-2">
@@ -368,14 +368,14 @@ export default function BillingPage() {
         <Card>
             <CardHeader>
                 <CardTitle>Platform Success Fees</CardTitle>
-                 <CardDescription>RETREAT only wins when you win. Instead of taking a big cut upfront like most platforms, we keep the fee simple and small—so you keep more margin while we do the behind-the-scenes work that helps you get booked more often.</CardDescription>
+                 <CardDescription>HighVibe Retreats only wins when you win. Instead of taking a big cut upfront like most platforms, we keep the fee simple and small—so you keep more margin while we do the behind-the-scenes work that helps you get booked more often.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
                  <div className="text-base p-4 bg-secondary rounded-md space-y-2">
                     {role === 'host' ? (
                        <p>• <strong>2% platform fee</strong> on bookings confirmed through the platform.</p>
                     ) : role === 'guide' ? (
-                       <p>• <strong>7.5% success fee</strong> charged on Day 1 of the retreat start date (only for retreats booked through RETREAT).</p>
+                       <p>• <strong>7.5% success fee</strong> charged on Day 1 of the retreat start date (only for retreats booked through HighVibe Retreats).</p>
                     ) : (
                        <p>• <strong>No transaction fees.</strong> Your subscription covers discovery, matching, and lead generation.</p>
                     )}
@@ -404,7 +404,7 @@ export default function BillingPage() {
                 <p className="text-muted-foreground leading-relaxed">
                     LUX is not an upgrade. It is not a tier. It is not something you can purchase.<br/>
                     LUX is an earned distinction, reserved for experiences that demonstrate exceptional care, quality, thoughtfulness, and delivery. It reflects not how expensive something is, but how intentionally it is designed and how consistently it exceeds expectations.<br/><br/>
-                    Guides, Hosts, and Vendors may be quietly and periodically evaluated based on real experiences, participant feedback, operational excellence, and the overall integrity of what they deliver. When awarded, the LUX badge signals to seekers that this experience meets RETREAT’s highest standard of excellence.
+                    Guides, Hosts, and Vendors may be quietly and periodically evaluated based on real experiences, participant feedback, operational excellence, and the overall integrity of what they deliver. When awarded, the LUX badge signals to seekers that this experience meets HighVibe Retreats’s highest standard of excellence.
                 </p>
                  <div className="pt-2">
                     <Button onClick={() => setLuxRequested(true)} disabled={luxRequested} variant={luxRequested ? "secondary" : "default"}>

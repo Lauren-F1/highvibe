@@ -37,7 +37,7 @@ export default function JoinRolePage() {
       <Card className="w-full max-w-md mx-4">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-headline">Create your {displayName} Account</CardTitle>
-          <CardDescription>Welcome! Let's get you set up on RETREAT.</CardDescription>
+          <CardDescription>Welcome! Let's get you set up on HighVibe Retreats.</CardDescription>
         </CardHeader>
         <CardContent>
           <AuthForm mode="signup" role={role as 'guide' | 'host' | 'vendor' | 'seeker'}/>

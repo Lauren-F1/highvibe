@@ -300,7 +300,7 @@ export default function HostPage() {
       
       await addDoc(collection(newConversationRef, 'messages'), {
           senderId: currentUser.data.uid,
-          text: `Hi ${targetProfile.name}, I found your profile on RETREAT and I’d like to connect about my space, "${activeSpace?.name}".`,
+          text: `Hi ${targetProfile.name}, I found your profile on HighVibe Retreats and I’d like to connect about my space, "${activeSpace?.name}".`,
           createdAt: serverTimestamp(),
       });
       
