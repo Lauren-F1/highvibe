@@ -27,6 +27,7 @@ import { useFirebaseApp, useFirestore } from '@/firebase';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from './ui/checkbox';
+import { isFirebaseEnabled } from '@/firebase/config';
 
 const formSchemaSignup = z.object({
   firstName: z.string().min(1, 'First name is required'),
@@ -73,13 +74,14 @@ export function AuthForm({ mode, role }: AuthFormProps) {
     switch (errorCode) {
       case 'auth/user-not-found':
       case 'auth/wrong-password':
+      case 'auth/invalid-credential':
         return 'Invalid email or password. Please try again.';
       case 'auth/invalid-email':
         return 'Please enter a valid email address.';
       case 'auth/email-already-in-use':
         return 'An account with this email already exists. Please log in.';
       case 'auth/weak-password':
-        return 'Your password must be at least 6 characters long.';
+        return 'Your password must be at least 8 characters long.';
       default:
         return 'An unexpected error occurred. Please try again.';
     }
@@ -110,35 +112,29 @@ export function AuthForm({ mode, role }: AuthFormProps) {
   };
 
   const handleEmailSubmit = async (values: any) => {
-    if (!app || !firestore) return;
+    if (!isFirebaseEnabled || !app || !firestore) {
+      toast({
+        variant: 'destructive',
+        title: 'Firebase Not Configured',
+        description: 'Authentication is currently disabled. Please contact an administrator.',
+      });
+      return;
+    }
     setLoading(true);
     setError(null);
     const auth = getAuth(app);
-    const redirectParam = searchParams.get('redirect');
 
     try {
       if (mode === 'signup') {
         const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
         await createUserProfileDocument(userCredential.user, values);
         toast({ title: 'Account created!', description: "Let's get started." });
-
-        if (redirectParam) {
-            router.push(redirectParam);
-        } else if (role) {
-            router.push('/account/edit'); // New user with role, go to edit profile
-        } else {
-            router.push('/onboarding/role'); // New user, no role, go pick one
-        }
-
+        // Redirection is handled by the useEffect on the calling page (e.g., /join/[role])
       } else { // login
-        await signInWithEmailAndPassword(auth, values.email, values.password);
         const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
         const userDocRef = doc(firestore, 'users', userCredential.user.uid);
         await setDoc(userDocRef, { lastLoginAt: serverTimestamp() }, { merge: true });
-        
-        // The useUser hook and layouts will handle redirection after state change
-        // but we can give it a push
-        router.push(redirectParam || '/');
+        // Redirection is handled by the useEffect on the /login page
       }
     } catch (err: any) {
       setError(getFriendlyErrorMessage(err.code));
@@ -153,7 +149,14 @@ export function AuthForm({ mode, role }: AuthFormProps) {
         toast({ variant: 'destructive', title: 'Please enter your email address to reset your password.' });
         return;
     }
-    if (!app) return;
+    if (!isFirebaseEnabled || !app) {
+        toast({
+            variant: "destructive",
+            title: "Firebase Not Configured",
+            description: "Password reset is currently disabled.",
+        });
+        return;
+    }
     const auth = getAuth(app);
     sendPasswordResetEmail(auth, email)
         .then(() => {

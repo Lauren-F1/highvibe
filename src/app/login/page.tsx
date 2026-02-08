@@ -19,13 +19,18 @@ export default function LoginPage() {
                 return;
             }
 
-            const primaryRole = user.profile?.primaryRole;
-            if (primaryRole) {
-                router.push(`/${primaryRole}`);
-            } else if (user.profile && !user.profile.onboardingComplete) {
-                router.push('/onboarding/role');
+            // If profile exists and is complete, go to dashboard
+            if (user.profile && user.profile.onboardingComplete) {
+                const primaryRole = user.profile.primaryRole;
+                if (primaryRole) {
+                    router.push(`/${primaryRole}`);
+                } else {
+                    // This is an edge case, but if they have a profile without a primary role, send them to pick one.
+                    router.push('/onboarding/role');
+                }
             } else {
-                router.push('/'); // Fallback to home
+                // If profile doesn't exist, or is incomplete, send to onboarding.
+                router.push('/onboarding/role');
             }
         }
     }, [user, router, searchParams]);
