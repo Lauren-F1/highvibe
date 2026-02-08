@@ -91,7 +91,7 @@ export function VendorGuideFilters() {
                     </FilterGroup>
 
                     <FilterGroup title="Service Needed">
-                        {vendorCategories.slice(0,5).map(service => <CheckboxFilter key={service} item={service} />)}
+                        {vendorCategories.slice(0,5).map(service => <CheckboxFilter key={service.name} item={service.name} />)}
                     </FilterGroup>
 
                 </Accordion>
@@ -99,4 +99,3 @@ export function VendorGuideFilters() {
         </Card>
     )
 }
-

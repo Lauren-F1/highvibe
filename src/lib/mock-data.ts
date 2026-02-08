@@ -116,10 +116,23 @@ export const hostVibes = [
     { name: "Adventure-friendly", description: "A great home base for outdoor activities." },
 ];
 
-export const vendorCategories = [
-    "Yoga / Meditation", "Breathwork", "Somatics / Bodywork", "Massage / Spa", "Sound healing", 
-    "Plant medicine facilitator (where legal)", "Integration coach", "Private chef / Catering", 
-    "Nutrition", "Photography / Videography", "Transportation", "Adventure guide", "Musician / DJ",
-    "Art / Creative facilitation", "Decor / Styling / Rentals", "Security (for high-end)"
+export const vendorCategories: { name: string; description?: string }[] = [
+    { name: "Yoga / Meditation" },
+    { name: "Breathwork" },
+    { name: "Somatics / Bodywork" },
+    { name: "Massage / Spa" },
+    { name: "Sound healing" },
+    { name: "Plant medicine facilitator (where legal)" },
+    { name: "Integration coach" },
+    { name: "Private chef / Catering" },
+    { name: "Nutrition" },
+    { name: "Photography / Videography" },
+    { name: "Transportation" },
+    { name: "Adventure guide" },
+    { name: "Musician / DJ" },
+    { name: "Art / Creative facilitation" },
+    { name: "Decor / Styling / Rentals" },
+    { name: "Security (for high-end)" },
+    { name: "Other (out-of-the-box offerings)", description: "For offerings that don’t fit neatly into a category but still elevate retreat experiences." },
 ];
 export const vendorPricingTiers = ["Budget", "Mid-range", "Premium", "Luxury"];

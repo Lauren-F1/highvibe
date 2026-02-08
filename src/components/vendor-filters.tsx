@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -29,12 +30,15 @@ function FilterGroup({ title, children }: { title: string, children: React.React
     )
 }
 
-function CheckboxFilter({ item }: { item: string }) {
+function CheckboxFilter({ item, description }: { item: string, description?: string }) {
     const id = `filter-vendor-${item.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
     return (
-        <div className="flex items-center space-x-2">
-            <Checkbox id={id} />
-            <Label htmlFor={id} className="font-normal leading-tight">{item}</Label>
+        <div className="flex items-start space-x-3">
+            <Checkbox id={id} className="mt-0.5" />
+            <div className="grid gap-1.5 leading-none">
+                <Label htmlFor={id} className="font-normal leading-tight">{item}</Label>
+                {description && <p className="text-xs text-muted-foreground">{description}</p>}
+            </div>
         </div>
     )
 }
@@ -52,7 +56,7 @@ export function VendorFilters() {
             <CardContent>
                  <Accordion type="multiple" defaultValue={["Vendor Category", "Pricing Tier", "Availability"]} className="w-full">
                     <FilterGroup title="Vendor Category">
-                        {vendorCategories.map(category => <CheckboxFilter key={category} item={category} />)}
+                        {vendorCategories.map(category => <CheckboxFilter key={category.name} item={category.name} description={category.description} />)}
                     </FilterGroup>
 
                     <FilterGroup title="Pricing Tier">
