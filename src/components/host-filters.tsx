@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -52,6 +53,7 @@ export function HostFilters() {
     const [startDate, setStartDate] = React.useState<Date>();
     const [endDate, setEndDate] = React.useState<Date>();
     const [showExactDates, setShowExactDates] = React.useState(false);
+    const [budget, setBudget] = React.useState(20000);
 
     return (
         <Card className="lg:sticky lg:top-24">
@@ -216,10 +218,25 @@ export function HostFilters() {
                     </FilterGroup>
 
                     <FilterGroup title="Budget">
-                         <Slider defaultValue={[2500]} max={5000} step={100} />
-                        <div className="flex justify-between text-xs text-muted-foreground">
-                            <span>$0 / night</span>
-                            <span>$5000+</span>
+                        <div className="space-y-4 px-1 pt-2">
+                            <div className="flex justify-between items-center">
+                                <p className="text-sm text-foreground font-medium">Up to ${budget.toLocaleString()}{budget >= 20000 ? '+' : ''} / night</p>
+                            </div>
+                            <div className="py-2">
+                                <Slider
+                                    value={[budget]}
+                                    onValueChange={(value) => setBudget(value[0])}
+                                    max={20000}
+                                    step={100}
+                                />
+                            </div>
+                            <div className="flex justify-between text-xs text-muted-foreground -mt-2">
+                                <span>$0 / night</span>
+                                <span>$20,000+</span>
+                            </div>
+                            <p className="text-xs text-muted-foreground pt-1">
+                                We’ll show spaces at or below this nightly rate.
+                            </p>
                         </div>
                     </FilterGroup>
 
