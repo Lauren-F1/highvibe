@@ -16,7 +16,7 @@ import { useRouter } from 'next/navigation';
 import { useUser } from '@/firebase';
 import { getAuth } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
-import { isFirebaseEnabled } from '@/firebase/config';
+import { isBuilderMode } from '@/firebase/config';
 import { ToastAction } from './ui/toast';
 
 export function Header() {
@@ -33,17 +33,23 @@ export function Header() {
     }
   };
   
-  const handlePreviewClick = () => {
+  const handlePreviewClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     toast({
-        title: "Account setup is coming soon.",
-        description: "You’re currently in Preview Mode.",
-        action: <ToastAction altText="Continue">Continue</ToastAction>,
+        title: "Preview Mode",
+        description: "Account sign-up isn’t available in this build yet. You can still explore the full experience in preview.",
+        action: <ToastAction altText="Continue in Preview Mode">Continue in Preview Mode</ToastAction>,
     })
   }
 
   const userInitial = user.status === 'authenticated'
     ? user.data.displayName?.charAt(0) || user.data.email?.charAt(0) || 'U'
     : '';
+    
+  const getNavLink = (role: 'guide' | 'host' | 'vendor') => {
+    if (isBuilderMode) return `/${role}`;
+    return user.status === 'authenticated' && user.profile?.roles?.[role] ? `/${role}` : `/join/${role}`;
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -62,13 +68,13 @@ export function Header() {
             <Link href="/seeker" className="transition-colors hover:text-foreground/80 text-foreground/60">
               Seeker
             </Link>
-            <Link href={user.status === 'authenticated' && user.profile?.roles?.guide ? "/guide" : "/join/guide"} className="transition-colors hover:text-foreground/80 text-foreground/60">
+            <Link href={getNavLink('guide')} onClick={isBuilderMode ? handlePreviewClick : undefined} className="transition-colors hover:text-foreground/80 text-foreground/60">
               For Guides
             </Link>
-            <Link href={user.status === 'authenticated' && user.profile?.roles?.host ? "/host" : "/join/host"} className="transition-colors hover:text-foreground/80 text-foreground/60">
+            <Link href={getNavLink('host')} onClick={isBuilderMode ? handlePreviewClick : undefined} className="transition-colors hover:text-foreground/80 text-foreground/60">
               For Hosts
             </Link>
-             <Link href={user.status === 'authenticated' && user.profile?.roles?.vendor ? "/vendor" : "/join/vendor"} className="transition-colors hover:text-foreground/80 text-foreground/60">
+             <Link href={getNavLink('vendor')} onClick={isBuilderMode ? handlePreviewClick : undefined} className="transition-colors hover:text-foreground/80 text-foreground/60">
               For Vendors
             </Link>
              <Link href="/inbox" className="transition-colors hover:text-foreground/80 text-foreground/60">
@@ -113,7 +119,7 @@ export function Header() {
                 </>
             ) : user.status === 'unauthenticated' ? (
                  <>
-                    {!isFirebaseEnabled ? (
+                    {isBuilderMode ? (
                         <>
                             <Button variant="ghost" onClick={handlePreviewClick}>Login</Button>
                             <Button onClick={handlePreviewClick}>Sign Up</Button>
@@ -135,5 +141,3 @@ export function Header() {
     </header>
   );
 }
-
-    
