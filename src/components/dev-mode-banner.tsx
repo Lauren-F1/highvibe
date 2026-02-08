@@ -1,9 +1,4 @@
-'use client';
-
+// This component is no longer used and has been deprecated to remove all "Preview Mode" UI.
 export function DevModeBanner() {
-  return (
-    <div className="bg-yellow-100 border-b border-yellow-200 text-yellow-800 text-center p-2 text-sm">
-      Dev Mode: Auth disabled (Firebase not configured).
-    </div>
-  );
+  return null;
 }
