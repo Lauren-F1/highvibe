@@ -16,7 +16,7 @@ import { Separator } from '@/components/ui/separator';
 import { placeholderImages } from '@/lib/placeholder-images';
 import { PaywallModal } from '@/components/paywall-modal';
 import { RequestConnectionModal } from '@/components/request-connection-modal';
-import { vendors, type Vendor } from '@/lib/mock-data';
+import { vendors, type Vendor, matchingGuides } from '@/lib/mock-data';
 import { VendorCard } from '@/components/vendor-card';
 import { VendorFilters, type VendorFiltersState } from '@/components/vendor-filters';
 import { GuideCard, type Guide } from '@/components/guide-card';
@@ -31,13 +31,6 @@ const hostSpaces = [
   { id: 'space1', name: 'The Glass House', location: 'Topanga, California', capacity: 25, rate: 2200, status: 'Published', bookings: 3, image: placeholderImages.find(p => p.id === 'modern-event-space')!, hostLat: 34.09, hostLng: -118.6 },
   { id: 'space2', name: 'Sacred Valley Hacienda', location: 'Cusco, Peru', capacity: 18, rate: 1500, status: 'Published', bookings: 5, image: placeholderImages.find(p => p.id === 'spanish-villa-sunset')!, hostLat: -13.53, hostLng: -71.96 },
   { id: 'space3', name: 'Mountain View Lodge', location: 'Asheville, North Carolina', capacity: 40, rate: 3500, status: 'Draft', bookings: 0, image: placeholderImages.find(p => p.id === 'mountain-hike')!, hostLat: 35.59, hostLng: -82.55 },
-];
-
-const matchingGuides: Guide[] = [
-  { id: 'g1', name: 'Asha Sharma', specialty: 'Yoga & Meditation', rating: 4.9, reviewCount: 45, upcomingRetreatsCount: 3, avatar: placeholderImages.find(p => p.id === 'vendor-yoga-teacher-profile')!, premiumMembership: true },
-  { id: 'g2', name: 'Marcus Green', specialty: 'Adventure & Leadership', rating: 5.0, reviewCount: 32, upcomingRetreatsCount: 2, avatar: placeholderImages.find(p => p.id === 'vendor-photographer')! },
-  { id: 'g3', name: 'Isabella Rossi', specialty: 'Culinary & Wellness', rating: 4.8, reviewCount: 60, upcomingRetreatsCount: 4, avatar: placeholderImages.find(p => p.id === 'vendor-chef-profile')! },
-  { id: 'g4', name: 'Liam Harrison', specialty: 'Personal Growth', rating: 4.7, reviewCount: 28, upcomingRetreatsCount: 1, avatar: placeholderImages.find(p => p.id === 'profile-avatar-placeholder')! },
 ];
 
 const connectionRequests = [
@@ -100,6 +93,7 @@ export default function HostPage() {
   const [guideFilters, setGuideFilters] = useState<GuideFiltersState>(initialGuideFilters);
   const [appliedGuideFilters, setAppliedGuideFilters] = useState<GuideFiltersState>(initialGuideFilters);
   const [guideSortOption, setGuideSortOption] = useState('recommended');
+  const [guideFiltersDirty, setGuideFiltersDirty] = useState(false);
   
   // Vendor filter state
   const [vendorFilters, setVendorFilters] = useState<VendorFiltersState>(initialVendorFilters);
@@ -122,11 +116,16 @@ export default function HostPage() {
   
   const handleGuideFilterChange = (newFilters: Partial<GuideFiltersState>) => {
     setGuideFilters(prev => ({...prev, ...newFilters}));
+    setGuideFiltersDirty(true);
   };
-  const handleApplyGuideFilters = () => setAppliedGuideFilters(guideFilters);
+  const handleApplyGuideFilters = () => {
+    setAppliedGuideFilters(guideFilters);
+    setGuideFiltersDirty(false);
+  };
   const handleResetGuideFilters = () => {
     setGuideFilters(initialGuideFilters);
     setAppliedGuideFilters(initialGuideFilters);
+    setGuideFiltersDirty(false);
   };
   
   const displayedGuides = useMemo(() => {
@@ -159,7 +158,10 @@ export default function HostPage() {
     setVendorFilters(prev => ({...prev, ...newFilters}));
     setVendorFiltersDirty(true);
   };
-  const handleApplyVendorFilters = () => setAppliedVendorFilters(vendorFilters);
+  const handleApplyVendorFilters = () => {
+    setAppliedVendorFilters(vendorFilters);
+    setVendorFiltersDirty(false);
+  };
   const handleResetVendorFilters = () => {
     setVendorFilters(initialVendorFilters);
     setAppliedVendorFilters(initialVendorFilters);
@@ -295,7 +297,7 @@ export default function HostPage() {
                   <TableCell className="text-right">${space.rate}/night</TableCell>
                   <TableCell className="text-center">{space.bookings}</TableCell>
                   <TableCell className="text-center space-x-2">
-                    <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); setActiveSpaceId(space.id)}}>Partners Dashboard</Button>
+                    <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); document.getElementById('partnership-dashboard')?.scrollIntoView({ behavior: 'smooth' }); }}>Partners Dashboard</Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}><MoreHorizontal className="h-4 w-4"/></Button>
@@ -342,56 +344,37 @@ export default function HostPage() {
                                     <TabsTrigger value="vendors">Vendors (Local Partners)</TabsTrigger>
                                 </TabsList>
                                 <TabsContent value="guides" className="mt-6">
-                                  {enableGuideDiscovery ? (
-                                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                                        <div className="lg:col-span-1">
-                                            <GuideFilters filters={guideFilters} onFiltersChange={handleGuideFilterChange} onApply={handleApplyGuideFilters} onReset={handleResetGuideFilters} />
-                                        </div>
-                                        <div className="lg:col-span-3">
-                                            <div className="flex justify-between items-center mb-4">
-                                                <h3 className="font-headline text-2xl">{displayedGuides.length} Suggested {displayedGuides.length === 1 ? 'Guide' : 'Guides'}</h3>
-                                                <Select value={guideSortOption} onValueChange={setGuideSortOption}>
-                                                    <SelectTrigger className="w-[180px]">
-                                                        <SelectValue placeholder="Sort by" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="recommended">Recommended</SelectItem>
-                                                        <SelectItem value="rating">Highest rated</SelectItem>
-                                                        <SelectItem value="newest">Newest</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                            {displayedGuides.length > 0 ? (
-                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                    {displayedGuides.map(guide => <GuideCard key={guide.id} guide={guide} onConnect={() => handleConnectClick(guide.name, 'Guide')} />)}
-                                                </div>
-                                            ) : (
-                                              <Card className="text-center py-12">
-                                                <CardHeader><CardTitle className="font-headline text-xl">No matches for these filters yet.</CardTitle></CardHeader>
-                                                <CardContent><CardDescription>Try changing or resetting your filters.</CardDescription></CardContent>
-                                              </Card>
-                                            )}
-                                        </div>
-                                    </div>
-                                    ) : (
-                                        <Card className="text-center text-muted-foreground py-4">
-                                            <CardHeader>
-                                                <CardTitle className="text-2xl text-foreground">Start building your guide partnerships.</CardTitle>
-                                                <CardDescription className="text-sm max-w-md mx-auto">
-                                                    Find guides who fit the vibe of this space—and the kind of experience you want people to leave with.
-                                                </CardDescription>
-                                            </CardHeader>
-                                            <CardContent>
-                                                <p className="mt-2 text-sm max-w-md mx-auto">
-                                                  No guides are listed yet. When guides join, you’ll be able to browse profiles, save favorites, and start a conversation.
-                                                </p>
-                                                <div className="mt-4">
-                                                    <Button disabled>Find Guides</Button>
-                                                    <p className="text-xs text-muted-foreground mt-2">Guide discovery unlocks at launch.</p>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    )}
+                                  <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                                      <div className="lg:col-span-1">
+                                          <GuideFilters filters={guideFilters} onFiltersChange={handleGuideFilterChange} onApply={handleApplyGuideFilters} onReset={handleResetGuideFilters} />
+                                      </div>
+                                      <div className="lg:col-span-3">
+                                          <div className="flex justify-between items-center mb-4">
+                                              <h3 className="font-headline text-2xl">{displayedGuides.length} Suggested {displayedGuides.length === 1 ? 'Guide' : 'Guides'}</h3>
+                                              <p className="text-xs text-muted-foreground">Preview mode — sample listings.</p>
+                                              <Select value={guideSortOption} onValueChange={setGuideSortOption}>
+                                                  <SelectTrigger className="w-[180px]">
+                                                      <SelectValue placeholder="Sort by" />
+                                                  </SelectTrigger>
+                                                  <SelectContent>
+                                                      <SelectItem value="recommended">Recommended</SelectItem>
+                                                      <SelectItem value="rating">Highest rated</SelectItem>
+                                                      <SelectItem value="newest">Newest</SelectItem>
+                                                  </SelectContent>
+                                              </Select>
+                                          </div>
+                                          {displayedGuides.length > 0 ? (
+                                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                  {displayedGuides.map(guide => <GuideCard key={guide.id} guide={guide} onConnect={() => handleConnectClick(guide.name, 'Guide')} />)}
+                                              </div>
+                                          ) : (
+                                            <Card className="text-center py-12">
+                                              <CardHeader><CardTitle className="font-headline text-xl">No matches for these filters yet.</CardTitle></CardHeader>
+                                              <CardContent><CardDescription>Try changing or resetting your filters.</CardDescription></CardContent>
+                                            </Card>
+                                          )}
+                                      </div>
+                                  </div>
                                 </TabsContent>
                                 <TabsContent value="vendors" className="mt-6">
                                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
