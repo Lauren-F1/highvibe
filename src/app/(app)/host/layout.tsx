@@ -4,6 +4,8 @@ import { useUser } from '@/firebase';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import { isFirebaseEnabled } from '@/firebase/config';
+import { AddRolePrompt } from '@/components/add-role-prompt';
+
 
 function AuthGatedHostLayout({ children }: { children: React.ReactNode }) {
   const user = useUser();
@@ -11,7 +13,7 @@ function AuthGatedHostLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (user.status === 'loading' || (user.status === 'authenticated' && user.profile === undefined)) {
+    if (user.status === 'loading') {
       return; 
     }
 
@@ -20,10 +22,8 @@ function AuthGatedHostLayout({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    if (user.status === 'authenticated') {
-      if (!user.profile?.roles?.includes('host')) {
-        router.replace('/onboarding/role');
-      } else if (!user.profile.profileComplete && !pathname.includes('/account/edit')) {
+    if (user.status === 'authenticated' && user.profile) {
+       if (user.profile.roles?.includes('host') && !user.profile.profileComplete && !pathname.includes('/account/edit')) {
         router.replace('/account/edit');
       }
     }
@@ -38,7 +38,7 @@ function AuthGatedHostLayout({ children }: { children: React.ReactNode }) {
   }
   
   if (user.status === 'unauthenticated') {
-    // This state should be handled by the redirect, but as a fallback:
+    // This state is a fallback, as the useEffect should have redirected.
     return (
       <div className="flex min-h-screen flex-col items-center justify-center">
         <p>Redirecting to login...</p>
@@ -46,12 +46,14 @@ function AuthGatedHostLayout({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (user.profile?.roles?.includes('host')) {
+  if (user.status === 'authenticated' && user.profile) {
+    if (!user.profile.roles?.includes('host')) {
+      return <AddRolePrompt role="host" />;
+    }
     return <>{children}</>;
   }
 
-  // This case handles users who are logged in but not hosts.
-  // They get redirected in the useEffect, but we need a fallback UI.
+  // Fallback for profile not existing or other errors
   return (
     <div className="flex min-h-screen flex-col items-center justify-center">
       <p>Verifying permissions...</p>
