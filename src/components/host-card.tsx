@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { MapPin, Users, Bed, Bath } from 'lucide-react';
 import type { ImagePlaceholder } from '@/lib/placeholder-images';
 import { Button } from './ui/button';
@@ -29,17 +29,23 @@ export interface Host {
   privateChefAllowed?: boolean;
   policyTags?: string[];
   profileSlug?: string;
+  hostLat?: number;
+  hostLng?: number;
+  hostAddress?: string;
+  hostCity?: string;
+  hostStateRegion?: string;
 }
 
 interface HostCardProps {
   host: Host;
-  onConnect?: () => void;
+  onConnect?: (host: Host) => void;
+  isInvited?: boolean;
 }
 
 const defaultImage = placeholderImages.find(p => p.id === 'generic-placeholder')!;
 
 
-export function HostCard({ host }: HostCardProps) {
+export function HostCard({ host, onConnect, isInvited }: HostCardProps) {
   const image = host.image || defaultImage;
   return (
     <Card className="w-full overflow-hidden transition-shadow duration-300 hover:shadow-xl flex flex-col h-full">
@@ -94,11 +100,18 @@ export function HostCard({ host }: HostCardProps) {
             </div>
         </div>
       </CardContent>
-      <div className="p-4 pt-0 mt-auto">
-         <Button asChild className="w-full">
-            <Link href={host.profileSlug ? `/u/${host.profileSlug}` : '#'}>View Profile</Link>
+      <CardFooter className="p-4 pt-0 flex items-center gap-2">
+         <Button asChild variant="outline" className="w-full">
+            <Link href={host.profileSlug ? `/u/${host.profileSlug}` : '#'}>Profile</Link>
          </Button>
-      </div>
+         {onConnect && (
+            <Button onClick={() => onConnect(host)} className="w-full" disabled={isInvited}>
+                {isInvited ? 'Invited' : 'Invite'}
+            </Button>
+         )}
+      </CardFooter>
     </Card>
   );
 }
+
+    

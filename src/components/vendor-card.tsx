@@ -17,11 +17,12 @@ export interface VendorCardProps {
   vendor: Vendor;
   onConnect?: (vendor: Vendor) => void;
   distance?: number;
+  isInvited?: boolean;
 }
 
 const defaultAvatar = placeholderImages.find(p => p.id === 'friendly-host-portrait')!;
 
-export function VendorCard({ vendor, onConnect, distance }: VendorCardProps) {
+export function VendorCard({ vendor, onConnect, distance, isInvited }: VendorCardProps) {
   const avatar = vendor.avatar || defaultAvatar;
 
   return (
@@ -62,7 +63,11 @@ export function VendorCard({ vendor, onConnect, distance }: VendorCardProps) {
             <Button asChild variant="outline" className="w-full">
               <Link href={vendor.profileSlug ? `/u/${vendor.profileSlug}` : '#'}>Profile</Link>
             </Button>
-            {onConnect && <Button onClick={() => onConnect(vendor)} className="w-full">Connect</Button>}
+            {onConnect && (
+              <Button onClick={() => onConnect(vendor)} className="w-full" disabled={isInvited}>
+                {isInvited ? 'Invited' : 'Invite'}
+              </Button>
+            )}
         </CardFooter>
     </Card>
   );
@@ -89,3 +94,5 @@ function Rating({ value, max = 5, className }: RatingProps) {
     </div>
   );
 }
+
+    

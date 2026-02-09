@@ -10,7 +10,7 @@ import { PlusCircle, MoreHorizontal, CheckCircle, XCircle, Filter } from 'lucide
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { yourRetreats, hosts, vendors, UserSubscriptionStatus, destinations, connectionRequests, confirmedBookings } from '@/lib/mock-data';
+import { yourRetreats, hosts, vendors, UserSubscriptionStatus, destinations, connectionRequests, confirmedBookings, type Host, type Vendor } from '@/lib/mock-data';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { placeholderImages } from '@/lib/placeholder-images';
 import { Separator } from '@/components/ui/separator';
@@ -60,6 +60,9 @@ export default function GuidePage() {
   const [hostFilters, setHostFilters] = useState<HostFiltersState>(initialHostFilters);
   const [sortOption, setSortOption] = useState('recommended');
   const [hostFiltersVisible, setHostFiltersVisible] = useState(false);
+
+  const [invitedPartners, setInvitedPartners] = useState<string[]>([]);
+  const [currentConnectionRequests, setCurrentConnectionRequests] = useState(connectionRequests);
 
   const appliedHostFiltersCount = useMemo(() => {
     let count = 0;
@@ -112,8 +115,46 @@ export default function GuidePage() {
   };
 
   const activeRetreat = yourRetreats.find(r => r.id === activeRetreatId);
+
+  const handleInvitePartner = (partner: Host | Vendor) => {
+    if (!activeRetreat) {
+        toast({
+            title: 'Select a Retreat',
+            description: 'Please select a retreat before inviting partners.',
+            variant: 'destructive',
+        });
+        return;
+    }
+
+    if (invitedPartners.includes(partner.id)) {
+        toast({
+            title: 'Already Invited',
+            description: `You have already sent an invite to ${partner.name}.`,
+        });
+        return;
+    }
+
+    setInvitedPartners(prev => [...prev, partner.id]);
+
+    const newRequest = {
+        id: `cr-${Date.now()}`,
+        name: partner.name,
+        // @ts-ignore - a bit hacky to distinguish Host from Vendor
+        role: 'capacity' in partner ? 'Host' : 'Vendor',
+        forRetreat: activeRetreat.name,
+        status: 'Invite Sent',
+    };
+
+    // @ts-ignore
+    setCurrentConnectionRequests(prev => [...prev, newRequest]);
+    
+    toast({
+        title: 'Invite Sent!',
+        description: `${partner.name} has been invited to collaborate on "${activeRetreat.name}".`,
+    });
+  };
   
-  const retreatConnectionRequests = activeRetreat ? connectionRequests.filter(c => c.forRetreat === activeRetreat.name) : [];
+  const retreatConnectionRequests = activeRetreat ? currentConnectionRequests.filter(c => c.forRetreat === activeRetreat.name) : [];
   const retreatConfirmedBookings = activeRetreat ? confirmedBookings.filter(c => c.forRetreat === activeRetreat.name) : [];
   
   const getPartnershipStage = (retreat: (typeof yourRetreats)[0] | undefined, requests: typeof retreatConnectionRequests, bookings: typeof retreatConfirmedBookings): PartnershipStage => {
@@ -354,7 +395,7 @@ export default function GuidePage() {
                                                 </Card>
                                             ) : (
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                    {displayHosts.map(host => <HostCard key={host.id} host={host} />)}
+                                                    {displayHosts.map(host => <HostCard key={host.id} host={host} onConnect={handleInvitePartner} isInvited={invitedPartners.includes(host.id)} />)}
                                                 </div>
                                             )}
                                         </div>
@@ -383,7 +424,7 @@ export default function GuidePage() {
                                             </div>
                                             {vendors.length > 0 ? (
                                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                    {vendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} />)}
+                                                    {vendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} onConnect={handleInvitePartner} isInvited={invitedPartners.includes(vendor.id)} />)}
                                                 </div>
                                             ) : (
                                                 <div className="text-center py-12 rounded-lg bg-secondary/50">
@@ -479,5 +520,7 @@ export default function GuidePage() {
     </div>
   );
 }
+
+    
 
     
