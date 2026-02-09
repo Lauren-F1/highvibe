@@ -13,10 +13,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 import { placeholderImages } from '@/lib/placeholder-images';
-import { vendors, type Vendor, matchingGuidesForVendor } from '@/lib/mock-data';
+import { vendors as allVendors, type Vendor, matchingGuidesForVendor as allGuides } from '@/lib/mock-data';
 import { VendorCard } from '@/components/vendor-card';
 import { VendorFilters, type VendorFiltersState } from '@/components/vendor-filters';
 import { GuideCard, type Guide } from '@/components/guide-card';
@@ -35,13 +34,13 @@ const hostSpaces = [
   { id: 'space3', name: 'Mountain View Lodge', location: 'Asheville, North Carolina', capacity: 40, rate: 3500, status: 'Draft', bookings: 0, image: placeholderImages.find(p => p.id === 'mountain-hike')!, hostLat: 35.59, hostLng: -82.55 },
 ];
 
-const connectionRequests = [
-    { id: 'cr1', name: 'Asha Sharma', role: 'Guide', forSpace: 'The Glass House', status: 'New Request' },
-    { id: 'cr2', name: 'Local Caterers', role: 'Vendor', forSpace: 'The Glass House', status: 'Awaiting Response' }
+const initialConnectionRequests = [
+    { id: 'cr1', partnerId: 'g1', name: 'Asha Sharma', role: 'Guide' as const, forSpace: 'The Glass House', status: 'New Request' as const },
+    { id: 'cr2', partnerId: 'v1', name: 'Elena Ray', role: 'Vendor' as const, forSpace: 'The Glass House', status: 'Awaiting Response' as const }
 ];
 
-const confirmedBookings = [
-    { id: 'cb1', guideName: 'Marcus Green', retreatName: 'Adventure & Leadership Summit', forSpace: 'The Glass House', dates: 'Nov 5-10, 2024', partnerRole: 'Guide' }
+const initialConfirmedBookings = [
+    { id: 'cb1', partnerId: 'g2', guideName: 'Marcus Green', retreatName: 'Adventure & Leadership Summit', forSpace: 'The Glass House', dates: 'Nov 5-10, 2024', partnerRole: 'Guide' as const }
 ];
 
 interface StatCardProps {
@@ -69,6 +68,8 @@ const initialVendorFilters: VendorFiltersState = {
   radius: 50,
 };
 
+export type ConnectionStatus = 'Not Connected' | 'Connection Requested' | 'New Request' | 'In Conversation' | 'Confirmed' | 'Booked' | 'Declined';
+
 
 function StatCard({ title, value, icon, description }: StatCardProps) {
   return (
@@ -90,6 +91,9 @@ export default function HostDashboardPage() {
   const [activeSpaceId, setActiveSpaceId] = useState<string | null>(hostSpaces[0]?.id || null);
   
   const [activeTab, setActiveTab] = useState<'guides' | 'vendors'>('guides');
+
+  const [connectionRequests, setConnectionRequests] = useState(initialConnectionRequests);
+  const [confirmedBookings, setConfirmedBookings] = useState(initialConfirmedBookings);
 
   // Guide filter state
   const [guideFilters, setGuideFilters] = useState<GuideFiltersState>(initialGuideFilters);
@@ -113,8 +117,22 @@ export default function HostDashboardPage() {
   }
   
   const activeSpace = hostSpaces.find(s => s.id === activeSpaceId);
+  
   const spaceConnectionRequests = connectionRequests.filter(c => c.forSpace === activeSpace?.name);
-  const spaceConfirmedBookings = confirmedBookings.filter(c => c.forSpace === activeSpace?.name);
+  const spaceConfirmedBookings = confirmedBookings.filter(b => b.forSpace === activeSpace?.name);
+
+  const getPartnerStatus = (partnerId: string): ConnectionStatus => {
+    if (confirmedBookings.some(b => b.partnerId === partnerId)) return 'Booked';
+    const request = connectionRequests.find(r => r.partnerId === partnerId);
+    if (request) {
+        if (request.status === 'New Request') return 'New Request';
+        if (request.status === 'Awaiting Response') return 'Connection Requested';
+        // Add other statuses if they are used in your data model e.g. 'Declined', 'Confirmed'
+        return request.status as ConnectionStatus;
+    }
+    return 'Not Connected';
+  };
+
 
   const displayedConnectionRequests = useMemo(() => {
     const roleToMatch = activeTab === 'guides' ? 'Guide' : 'Vendor';
@@ -141,7 +159,7 @@ export default function HostDashboardPage() {
   };
   
   const displayedGuides = useMemo(() => {
-    let filtered = [...matchingGuidesForVendor];
+    let filtered = [...allGuides];
     
     if (appliedGuideFilters.experienceTypes.length > 0) {
       filtered = filtered.filter(guide => 
@@ -188,7 +206,7 @@ export default function HostDashboardPage() {
   };
 
   const displayedVendors = useMemo(() => {
-    const vendorsWithDistance = vendors.map(vendor => {
+    const vendorsWithDistance = allVendors.map(vendor => {
       if (activeSpace?.hostLat && activeSpace.hostLng && vendor.vendorLat && vendor.vendorLng) {
         const distance = getDistanceInMiles(activeSpace.hostLat, activeSpace.hostLng, vendor.vendorLat, vendor.vendorLng);
         return { ...vendor, distance };
@@ -238,21 +256,38 @@ export default function HostDashboardPage() {
 
   }, [activeSpace, appliedVendorFilters, vendorSortOption]);
   
-  const handleViewMessage = (threadId?: string) => {
-    if (threadId) {
-        router.push(`/inbox?c=${threadId}`);
-    } else {
-        router.push('/inbox');
-        toast({
-            title: 'Opening Inbox',
-            description: 'Could not find a specific thread.',
-        });
+  const findConversationAndNavigate = async (targetUserId: string) => {
+    if (currentUser.status !== 'authenticated' || !firestore) return null;
+    
+    const conversationsRef = collection(firestore, 'conversations');
+    const q = query(conversationsRef, where('participants', 'array-contains', currentUser.data.uid), limit(25));
+    const querySnapshot = await getDocs(q);
+    
+    let existingConversationId: string | null = null;
+    querySnapshot.forEach(doc => {
+        const data = doc.data();
+        if(data.participants.includes(targetUserId)) {
+            existingConversationId = doc.id;
+        }
+    });
+
+    if (existingConversationId) {
+        router.push(`/inbox?c=${existingConversationId}`);
+        return existingConversationId;
     }
+    return null;
+  }
+
+  const handleViewMessage = async (targetProfile: Guide | Vendor) => {
+     const found = await findConversationAndNavigate(targetProfile.uid);
+     if (!found) {
+        toast({ title: 'No message thread found', description: "Start a connection first." });
+     }
   };
 
   const handleRequestConnection = async (targetProfile: Guide | Vendor) => {
     if (currentUser.status !== 'authenticated' || !firestore) {
-      router.push(`/login?redirect=/host`);
+      router.push(`/login?redirect=/host/dashboard`);
       return;
     }
     
@@ -261,25 +296,20 @@ export default function HostDashboardPage() {
         return;
     }
 
+    const existingStatus = getPartnerStatus(targetProfile.id);
+    if (existingStatus !== 'Not Connected' && existingStatus !== 'Declined') {
+        toast({ title: 'Already Connected', description: `You are already in contact with ${targetProfile.name}.` });
+        if (existingStatus === 'In Conversation' || existingStatus === 'New Request') {
+          findConversationAndNavigate(targetProfile.uid);
+        }
+        return;
+    }
+
     setIsConnecting(true);
 
     try {
-      const conversationsRef = collection(firestore, 'conversations');
-      const q = query(conversationsRef, where('participants', 'array-contains', currentUser.data.uid), limit(10));
-      const querySnapshot = await getDocs(q);
-      
-      let existingConversationId: string | null = null;
-      querySnapshot.forEach(doc => {
-          const data = doc.data();
-          if(data.participants.includes(targetProfile.uid)) {
-              existingConversationId = doc.id;
-          }
-      });
-      
-      if (existingConversationId) {
-          router.push(`/inbox?c=${existingConversationId}`);
-          return;
-      }
+      const existingId = await findConversationAndNavigate(targetProfile.uid);
+      if (existingId) return;
 
       const newConversationRef = await addDoc(collection(firestore, 'conversations'), {
         participants: [currentUser.data.uid, targetProfile.uid],
@@ -304,7 +334,21 @@ export default function HostDashboardPage() {
           createdAt: serverTimestamp(),
       });
       
-      router.push(`/inbox?c=${newConversationRef.id}`);
+      const newRequest = {
+        id: newConversationRef.id,
+        partnerId: targetProfile.id,
+        name: targetProfile.name,
+        role: 'specialty' in targetProfile ? 'Guide' : 'Vendor',
+        forSpace: activeSpace?.name || '',
+        status: 'In Conversation' as const,
+      };
+
+      setConnectionRequests(prev => [...prev.filter(r => r.partnerId !== targetProfile.id), newRequest]);
+      
+      toast({
+        title: 'Connection Started!',
+        description: `You can now message ${targetProfile.name}.`,
+      });
 
     } catch (error) {
       console.error("Error requesting connection:", error);
@@ -451,7 +495,14 @@ export default function HostDashboardPage() {
                                                 </div>
                                                 {displayedGuides.length > 0 ? (
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                        {displayedGuides.map(guide => <GuideCard key={guide.id} guide={guide} onConnect={handleRequestConnection} />)}
+                                                        {displayedGuides.map(guide => 
+                                                          <GuideCard 
+                                                            key={guide.id} 
+                                                            guide={guide} 
+                                                            onConnect={handleRequestConnection} 
+                                                            onViewMessage={handleViewMessage}
+                                                            connectionStatus={getPartnerStatus(guide.id)}
+                                                          />)}
                                                     </div>
                                                 ) : (
                                                     <Card className="text-center py-12">
@@ -497,7 +548,15 @@ export default function HostDashboardPage() {
                                                 </div>
                                                 {displayedVendors.length > 0 ? (
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                    {displayedVendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} distance={vendor.distance} onConnect={handleRequestConnection} />)}
+                                                    {displayedVendors.map(vendor => 
+                                                      <VendorCard 
+                                                        key={vendor.id} 
+                                                        vendor={vendor} 
+                                                        distance={vendor.distance} 
+                                                        onConnect={handleRequestConnection}
+                                                        onViewMessage={handleViewMessage}
+                                                        connectionStatus={getPartnerStatus(vendor.id) as any}
+                                                      />)}
                                                     </div>
                                                 ) : (
                                                     <Card className="text-center py-12">
@@ -539,7 +598,7 @@ export default function HostDashboardPage() {
                                                 <TableCell>{req.role}</TableCell>
                                                 <TableCell><Badge variant={req.status === 'New Request' ? 'default' : 'secondary'}>{req.status}</Badge></TableCell>
                                                 <TableCell className="text-right">
-                                                    <Button variant="outline" size="sm" onClick={() => handleViewMessage(req.id)}>View Message</Button>
+                                                    <Button variant="outline" size="sm" onClick={() => handleViewMessage(allGuides.find(g=>g.id === req.partnerId) || allVendors.find(v=>v.id===req.partnerId)! )}>View Message</Button>
                                                 </TableCell>
                                             </TableRow>
                                         ))}
