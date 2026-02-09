@@ -319,7 +319,7 @@ export default function HostDashboardPage() {
       
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div>
-          <h1 className="font-headline text-4xl md:text-5xl font-bold">Host Dashboard</h1>
+          <h1 className="font-headline text-4xl md:text-5xl font-bold text-beige">Host Dashboard</h1>
           <p className="text-muted-foreground mt-2 text-lg font-body">Offer a space designed for retreat experiences.</p>
         </div>
         <Button size="lg" className="mt-4 md:mt-0" onClick={handleAddNewSpace}>
