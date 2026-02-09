@@ -10,7 +10,7 @@ import { PlusCircle, MoreHorizontal, CheckCircle, XCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { yourRetreats, hosts, vendors, UserSubscriptionStatus, destinations } from '@/lib/mock-data';
+import { yourRetreats, hosts, vendors, UserSubscriptionStatus, destinations, connectionRequests, confirmedBookings } from '@/lib/mock-data';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { placeholderImages } from '@/lib/placeholder-images';
 import { Separator } from '@/components/ui/separator';
@@ -21,18 +21,11 @@ import { HostCard } from '@/components/host-card';
 import { VendorCard } from '@/components/vendor-card';
 import { HostFilters, type HostFiltersState } from '@/components/host-filters';
 import { VendorFilters, type VendorFiltersState as VendorFiltersStateType } from '@/components/vendor-filters';
+import { PartnershipStepper, type PartnershipStage } from '@/components/partnership-stepper';
+import { NextBestAction } from '@/components/next-best-action';
 
 
 const genericImage = placeholderImages.find(p => p.id === 'generic-placeholder')!;
-
-const connectionRequests = [
-  { id: 'cr1', name: 'Ubud Jungle Haven', role: 'Host', forRetreat: 'Sunrise Yoga in Bali', status: 'Waiting to Connect' },
-  { id: 'cr2', name: 'Elena Ray', role: 'Vendor', forRetreat: 'Sunrise Yoga in Bali', status: 'Conversation Started' },
-];
-
-const confirmedBookings = [
-  { id: 'cb1', partnerName: 'Sacred Valley Hacienda', role: 'Host', forRetreat: 'Andes Hiking Adventure', dates: 'Oct 15-22, 2024' },
-];
 
 const initialHostFilters: HostFiltersState = {
   continent: 'anywhere',
@@ -92,15 +85,28 @@ export default function GuidePage() {
   };
 
   const activeRetreat = yourRetreats.find(r => r.id === activeRetreatId);
+  
+  const retreatConnectionRequests = activeRetreat ? connectionRequests.filter(c => c.forRetreat === activeRetreat.name) : [];
+  const retreatConfirmedBookings = activeRetreat ? confirmedBookings.filter(c => c.forRetreat === activeRetreat.name) : [];
+  
+  const getPartnershipStage = (retreat: (typeof yourRetreats)[0] | undefined, requests: typeof retreatConnectionRequests, bookings: typeof retreatConfirmedBookings): PartnershipStage => {
+      if (!retreat) return 'Shortlist';
+      if (retreat.status === 'Draft') return 'Draft';
+      if (bookings.length > 0) return 'Confirmed';
+      if (requests.some(r => r.status === 'Conversation Started')) return 'In Conversation';
+      if (requests.length > 0) return 'Invites Sent';
+      return 'Shortlist';
+  };
+
+  const partnershipStage = getPartnershipStage(activeRetreat, retreatConnectionRequests, retreatConfirmedBookings);
+
+
   const subscriptionBadge = {
       active: { variant: 'default', label: 'Active', icon: <CheckCircle className="mr-2 h-4 w-4" /> },
       inactive: { variant: 'destructive', label: 'Inactive', icon: <XCircle className="mr-2 h-4 w-4" /> },
       past_due: { variant: 'destructive', label: 'Past Due', icon: <XCircle className="mr-2 h-4 w-4" /> },
       trial: { variant: 'secondary', label: 'Trial', icon: <CheckCircle className="mr-2 h-4 w-4" /> },
   }[subscriptionStatus];
-
-  const retreatConnectionRequests = connectionRequests.filter(c => c.forRetreat === activeRetreat?.name);
-  const retreatConfirmedBookings = confirmedBookings.filter(c => c.forRetreat === activeRetreat?.name);
   
   const displayHosts = useMemo(() => {
     let filtered = [...hosts];
@@ -240,9 +246,15 @@ export default function GuidePage() {
                     </Select>
                 </div>
             </CardHeader>
-            <CardContent className="space-y-12">
+            <CardContent className="space-y-8">
                 {activeRetreat ? (
                     <>
+                        <div className="space-y-6">
+                            <PartnershipStepper currentStage={partnershipStage} />
+                            <NextBestAction stage={partnershipStage} />
+                        </div>
+                        <Separator />
+                        
                         {/* Matches Available */}
                         <div>
                             <Tabs defaultValue="hosts">

@@ -113,6 +113,14 @@ export const matchingGuidesForVendor: Guide[] = [
 
 export const matchingHostsForVendor: Host[] = hosts.slice(0, 4);
 
+export const connectionRequests = [
+  { id: 'cr1', name: 'Ubud Jungle Haven', role: 'Host', forRetreat: 'Sunrise Yoga in Bali', status: 'Waiting to Connect' },
+  { id: 'cr2', name: 'Elena Ray', role: 'Vendor', forRetreat: 'Sunrise Yoga in Bali', status: 'Conversation Started' },
+];
+
+export const confirmedBookings = [
+  { id: 'cb1', partnerName: 'Sacred Valley Hacienda', role: 'Host', forRetreat: 'Andes Hiking Adventure', dates: 'Oct 15-22, 2024' },
+];
 
 // Data for filters
 export const continents = [
@@ -170,3 +178,5 @@ export const vendorCategories: { name: string; description?: string }[] = [
     { name: "Other", description: "I offer something out of the box that I think would be your vibe." },
 ];
 export const vendorPricingTiers = ["Budget", "Mid-range", "Premium", "Luxury"];
+
+    
