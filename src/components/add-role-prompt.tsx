@@ -27,14 +27,12 @@ export function AddRolePrompt({ role }: { role: Role }) {
         roles: arrayUnion(role),
         // Only set primary role if it's not already set
         ...(!user.profile?.primaryRole && { primaryRole: role }),
-        onboardingComplete: true,
       });
-      // The useUser hook's onSnapshot will update the profile,
-      // and the layout will re-render to show the dashboard.
       toast({
         title: "Role Added!",
         description: `You can now access the ${role} dashboard.`,
       });
+      router.push(`/${role}`);
     } catch (error) {
       console.error("Error adding role: ", error);
       toast({
@@ -54,7 +52,7 @@ export function AddRolePrompt({ role }: { role: Role }) {
       <Card className="w-full max-w-xl">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-headline">Add the "{roleName}" Role to Continue</CardTitle>
-          <CardDescription className="mt-2 text-base">You can participate in more than one way on RETREAT.</CardDescription>
+          <CardDescription className="mt-2 text-base">You can participate in more than one way on HighVibe Retreats.</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col items-center gap-4">
           <Button onClick={handleAddRole} size="lg" disabled={loading} className="w-full max-w-xs">
