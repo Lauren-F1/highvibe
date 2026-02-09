@@ -4,18 +4,21 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Logo } from '@/components/icons/logo';
-import { SeekerIcon } from '@/components/icons/seeker-icon';
-import { HostIcon } from '@/components/icons/host-icon';
-import { VendorIcon } from '@/components/icons/vendor-icon';
-import { SpaceOwnerIcon } from '@/components/icons/space-owner-icon';
 import { placeholderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
 import React from 'react';
 
+const roleIconMap: Record<string, string> = {
+  seeker: '/seeker.svg',
+  guide: '/Guide.svg',
+  vendor: '/Vendor.svg',
+  host: '/Host.svg',
+};
+
 interface Role {
   id: 'seeker' | 'guide' | 'vendor' | 'host';
   href: string;
-  icon: React.ReactNode;
+  icon: string;
   primaryLabel: string;
   title: string;
   description: string;
@@ -25,7 +28,7 @@ const roles: Role[] = [
     {
       id: 'seeker',
       href: "/seeker",
-      icon: <SeekerIcon />,
+      icon: roleIconMap.seeker,
       primaryLabel: "Seeker",
       title: "I’m Seeking a Retreat",
       description: "Discover retreats aligned with leadership, wellness, creativity, healing, and personal growth. Get notified when experiences that match what you’re seeking become available."
@@ -33,7 +36,7 @@ const roles: Role[] = [
     {
       id: 'guide',
       href: "/guide",
-      icon: <HostIcon />,
+      icon: roleIconMap.guide,
       primaryLabel: "Guide",
       title: "I’m Leading a Retreat",
       description: "Design and lead meaningful retreat experiences. Find the right space, connect with aligned seekers, and collaborate with trusted vendors to bring your vision to life."
@@ -41,7 +44,7 @@ const roles: Role[] = [
     {
       id: 'vendor',
       href: "/vendor",
-      icon: <VendorIcon />,
+      icon: roleIconMap.vendor,
       primaryLabel: "Vendor",
       title: "I’m Offering Retreat Services",
       description: "Offer services that make retreats unforgettable — from wellness and music to food, transportation, and curated local experiences. Connect with guides and hosts looking to elevate their retreats."
@@ -49,7 +52,7 @@ const roles: Role[] = [
     {
       id: 'host',
       href: "/host",
-      icon: <SpaceOwnerIcon />,
+      icon: roleIconMap.host,
       primaryLabel: "Host",
       title: "I’m Listing a Retreat Space",
       description: "List a property designed for retreats, gatherings, and immersive experiences. Connect with guides seeking beautiful, well-suited spaces for meaningful retreat experiences."
@@ -116,8 +119,8 @@ export default function HomePageClient() {
               )}>
                 <CardHeader className="items-center text-center p-0">
                   <CardTitle className="font-headline text-5xl text-beige tracking-wider mb-3">{role.primaryLabel}</CardTitle>
-                  <div className="flex items-center justify-center mb-3">
-                    {React.cloneElement(role.icon as React.ReactElement, { className: cn("text-primary", role.id === 'seeker' ? "w-24 h-24" : "w-20 h-20") })}
+                  <div className="flex items-center justify-center mb-3 h-24 w-24">
+                     <Image src={role.icon} alt={`${role.title} icon`} width={96} height={96} className="text-primary" />
                   </div>
                   <h3 className="font-body text-2xl text-foreground font-semibold">{role.title}</h3>
                 </CardHeader>

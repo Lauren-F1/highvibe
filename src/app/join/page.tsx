@@ -1,35 +1,39 @@
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { SeekerIcon } from '@/components/icons/seeker-icon';
-import { HostIcon } from '@/components/icons/host-icon';
-import { VendorIcon } from '@/components/icons/vendor-icon';
-import { SpaceOwnerIcon } from '@/components/icons/space-owner-icon';
+import Image from 'next/image';
+
+const roleIconMap: Record<string, string> = {
+  Guide: '/Guide.svg',
+  Host: '/Host.svg',
+  Vendor: '/Vendor.svg',
+  Seeker: '/seeker.svg',
+};
 
 const roles = [
     {
       name: 'Guide',
       description: 'Design and lead retreats',
       href: '/join/guide',
-      icon: <HostIcon className="w-16 h-16 text-primary" />
+      icon: roleIconMap['Guide']
     },
     {
       name: 'Host',
       description: 'List your retreat space',
       href: '/join/host',
-      icon: <SpaceOwnerIcon className="w-16 h-16 text-primary" />
+      icon: roleIconMap['Host']
     },
     {
       name: 'Vendor',
       description: 'Offer retreat services',
       href: '/join/vendor',
-      icon: <VendorIcon className="w-16 h-16 text-primary" />
+      icon: roleIconMap['Vendor']
     },
      {
       name: 'Seeker',
       description: 'Find and book retreats',
       href: '/join/seeker',
-      icon: <SeekerIcon className="w-20 h-20 text-primary" />
+      icon: roleIconMap['Seeker']
     },
 ]
 
@@ -49,7 +53,7 @@ export default function JoinPage() {
               <Button key={role.name} variant="outline" asChild className="h-auto p-6 text-left">
                 <Link href={role.href}>
                   <div className="flex items-center gap-4">
-                    {role.icon}
+                    <Image src={role.icon} alt={`${role.name} icon`} width={64} height={64} />
                     <div>
                       <p className="font-bold text-lg">{role.name}</p>
                       <p className="text-sm text-muted-foreground">{role.description}</p>

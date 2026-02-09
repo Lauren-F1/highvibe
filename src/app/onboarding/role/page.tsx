@@ -5,37 +5,41 @@ import { Button } from '@/components/ui/button';
 import { useUser, useFirestore } from '@/firebase';
 import { doc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
-import { SeekerIcon } from '@/components/icons/seeker-icon';
-import { HostIcon } from '@/components/icons/host-icon';
-import { VendorIcon } from '@/components/icons/vendor-icon';
-import { SpaceOwnerIcon } from '@/components/icons/space-owner-icon';
+import Image from 'next/image';
 
 type Role = 'seeker' | 'guide' | 'host' | 'vendor';
 
-const roles: { id: Role, name: string, description: string, icon: React.ReactNode }[] = [
+const roleIconMap: Record<Role, string> = {
+  guide: '/Guide.svg',
+  host: '/Host.svg',
+  vendor: '/Vendor.svg',
+  seeker: '/seeker.svg',
+};
+
+const roles: { id: Role, name: string, description: string, icon: string }[] = [
     {
       id: 'guide',
       name: 'Guide',
       description: 'Design and lead retreats',
-      icon: <HostIcon className="w-16 h-16 text-primary" />
+      icon: roleIconMap.guide,
     },
     {
       id: 'host',
       name: 'Host',
       description: 'List your retreat space',
-      icon: <SpaceOwnerIcon className="w-16 h-16 text-primary" />
+      icon: roleIconMap.host,
     },
     {
       id: 'vendor',
       name: 'Vendor',
       description: 'Offer retreat services',
-      icon: <VendorIcon className="w-16 h-16 text-primary" />
+      icon: roleIconMap.vendor,
     },
      {
       id: 'seeker',
       name: 'Seeker',
       description: 'Find and book retreats',
-      icon: <SeekerIcon className="w-20 h-20 text-primary" />
+      icon: roleIconMap.seeker,
     },
 ]
 
@@ -97,7 +101,7 @@ export default function RoleOnboardingPage() {
             {roles.map(role => (
               <Button key={role.id} variant="outline" onClick={() => handleRoleSelection(role.id)} className="h-auto p-6 text-left">
                   <div className="flex items-center gap-4">
-                    {role.icon}
+                    <Image src={role.icon} alt={`${role.name} icon`} width={64} height={64} />
                     <div>
                       <p className="font-bold text-lg">{role.name}</p>
                       <p className="text-sm text-muted-foreground">{role.description}</p>
