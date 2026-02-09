@@ -534,9 +534,9 @@ export default function HostDashboardPage() {
                              <h3 className="font-headline text-2xl mb-2">Matches Available</h3>
                              <p className="text-muted-foreground mb-4">Potential connections that fit this space.</p>
                             <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'guides' | 'vendors')}>
-                                <TabsList className="grid w-full grid-cols-2 bg-primary text-primary-foreground">
-                                    <TabsTrigger value="guides">Guides (Retreat Leaders)</TabsTrigger>
-                                    <TabsTrigger value="vendors">Vendors (Local Partners)</TabsTrigger>
+                                <TabsList className="grid w-full grid-cols-2 bg-primary text-primary-foreground h-auto">
+                                    <TabsTrigger value="guides" className="text-base py-2.5">Guides (Retreat Leaders)</TabsTrigger>
+                                    <TabsTrigger value="vendors" className="text-base py-2.5">Vendors (Local Partners)</TabsTrigger>
                                 </TabsList>
                                 <TabsContent value="guides" className="mt-6">
                                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
