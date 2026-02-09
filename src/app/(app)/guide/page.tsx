@@ -223,7 +223,7 @@ export default function GuidePage() {
       
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div>
-          <h1 className="font-headline text-4xl md:text-5xl font-bold">Guide Dashboard</h1>
+          <h1 className="font-headline text-4xl md:text-5xl font-bold text-beige">Guide Dashboard</h1>
           <p className="text-muted-foreground mt-2 text-lg font-body">Design and lead meaningful retreat experiences.</p>
         </div>
         <div className="flex items-center gap-4 mt-4 md:mt-0">
@@ -520,6 +520,8 @@ export default function GuidePage() {
     </div>
   );
 }
+
+    
 
     
 
