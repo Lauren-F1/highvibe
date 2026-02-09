@@ -9,8 +9,8 @@ import { cn } from '@/lib/utils';
 import React from 'react';
 
 // Do not change icon assets or casing; icons must always load from /public and remain unmodified.
-const roleIconMap: Record<string, string> = {
-  seeker: '/seeker.svg',
+const ROLE_ICON_SRC: Record<string, string> = {
+  seeker: '/Seeker.svg',
   guide: '/Guide.svg',
   vendor: '/Vendor.svg',
   host: '/Host.svg',
@@ -29,7 +29,7 @@ const roles: Role[] = [
     {
       id: 'seeker',
       href: "/seeker",
-      icon: roleIconMap.seeker,
+      icon: ROLE_ICON_SRC.seeker,
       primaryLabel: "Seeker",
       title: "I’m Seeking a Retreat",
       description: "Discover retreats aligned with leadership, wellness, creativity, healing, and personal growth. Get notified when experiences that match what you’re seeking become available."
@@ -37,7 +37,7 @@ const roles: Role[] = [
     {
       id: 'guide',
       href: "/guide",
-      icon: roleIconMap.guide,
+      icon: ROLE_ICON_SRC.guide,
       primaryLabel: "Guide",
       title: "I’m Leading a Retreat",
       description: "Design and lead meaningful retreat experiences. Find the right space, connect with aligned seekers, and collaborate with trusted vendors to bring your vision to life."
@@ -45,7 +45,7 @@ const roles: Role[] = [
     {
       id: 'vendor',
       href: "/vendor",
-      icon: roleIconMap.vendor,
+      icon: ROLE_ICON_SRC.vendor,
       primaryLabel: "Vendor",
       title: "I’m Offering Retreat Services",
       description: "Offer services that make retreats unforgettable — from wellness and music to food, transportation, and curated local experiences. Connect with guides and hosts looking to elevate their retreats."
@@ -53,7 +53,7 @@ const roles: Role[] = [
     {
       id: 'host',
       href: "/host",
-      icon: roleIconMap.host,
+      icon: ROLE_ICON_SRC.host,
       primaryLabel: "Host",
       title: "I’m Listing a Retreat Space",
       description: "List a property designed for retreats, gatherings, and immersive experiences. Connect with guides seeking beautiful, well-suited spaces for meaningful retreat experiences."
@@ -116,12 +116,12 @@ export default function HomePageClient() {
             >
               <Card className={cn(
                   "h-full w-full transition-shadow duration-300 ease-in-out p-6 border-primary",
-                  "group-hover:shadow-xl group-hover:shadow-primary/40",
+                  "group-hover:shadow-xl group-hover:shadow-primary/40"
               )}>
                 <CardHeader className="items-center text-center p-0">
                   <CardTitle className="font-headline text-5xl text-beige tracking-wider mb-3">{role.primaryLabel}</CardTitle>
                   <div className="flex items-center justify-center mb-3 h-24 w-24">
-                     <Image src={role.icon} alt={`${role.title} icon`} width={96} height={96} />
+                     <Image src={role.icon} alt={`${role.primaryLabel} icon`} width={96} height={96} />
                   </div>
                   <h3 className="font-body text-2xl text-foreground font-semibold">{role.title}</h3>
                 </CardHeader>

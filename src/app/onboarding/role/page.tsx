@@ -10,11 +10,11 @@ import { cn } from '@/lib/utils';
 type Role = 'seeker' | 'guide' | 'host' | 'vendor';
 
 // Do not change icon assets or casing; icons must always load from /public and remain unmodified.
-const roleIconMap: Record<Role, string> = {
+const ROLE_ICON_SRC: Record<Role, string> = {
   guide: '/Guide.svg',
   host: '/Host.svg',
   vendor: '/Vendor.svg',
-  seeker: '/seeker.svg',
+  seeker: '/Seeker.svg',
 };
 
 const roles: { id: Role, name: string, description: string, icon: string }[] = [
@@ -22,25 +22,25 @@ const roles: { id: Role, name: string, description: string, icon: string }[] = [
       id: 'guide',
       name: 'Guide',
       description: 'Design and lead retreats',
-      icon: roleIconMap.guide,
+      icon: ROLE_ICON_SRC.guide,
     },
     {
       id: 'host',
       name: 'Host',
       description: 'List your retreat space',
-      icon: roleIconMap.host,
+      icon: ROLE_ICON_SRC.host,
     },
     {
       id: 'vendor',
       name: 'Vendor',
       description: 'Offer retreat services',
-      icon: roleIconMap.vendor,
+      icon: ROLE_ICON_SRC.vendor,
     },
      {
       id: 'seeker',
       name: 'Seeker',
       description: 'Find and book retreats',
-      icon: roleIconMap.seeker,
+      icon: ROLE_ICON_SRC.seeker,
     },
 ]
 
@@ -112,7 +112,7 @@ export default function RoleOnboardingPage() {
                   "group-hover:shadow-xl group-hover:shadow-primary/40"
                 )}>
                   <CardContent className="flex items-center gap-4 p-6 text-left">
-                    <Image src={role.icon} alt={`${role.name} icon`} width={64} height={64} />
+                    <Image src={role.icon} alt={`${role.name} icon`} width={96} height={96} />
                     <div>
                       <p className="font-bold text-lg">{role.name}</p>
                       <p className="text-sm text-muted-foreground">{role.description}</p>
