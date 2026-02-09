@@ -214,7 +214,7 @@ export default function VendorDashboardPage() {
           // @ts-ignore
           role: 'specialty' in partner ? 'Guide' : 'Host',
           regarding: 'Your Services', // Placeholder
-          status: 'Awaiting Response' as const,
+          status: 'Connection Requested' as const,
       };
 
       setConnectionRequests(prev => [...prev, newRequest]);
@@ -317,9 +317,9 @@ export default function VendorDashboardPage() {
             </CardHeader>
             <CardContent>
                  <Tabs defaultValue="guides">
-                    <TabsList className="grid w-full grid-cols-2 bg-primary text-primary-foreground">
-                        <TabsTrigger value="guides">Guides (Retreat Leaders)</TabsTrigger>
-                        <TabsTrigger value="hosts">Hosts (Local Spaces)</TabsTrigger>
+                    <TabsList className="grid w-full grid-cols-2 bg-primary text-primary-foreground h-auto">
+                        <TabsTrigger value="guides" className="text-base py-2.5">Guides (Retreat Leaders)</TabsTrigger>
+                        <TabsTrigger value="hosts" className="text-base py-2.5">Hosts (Local Spaces)</TabsTrigger>
                     </TabsList>
                     <TabsContent value="guides" className="mt-6">
                         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
