@@ -25,12 +25,12 @@ export function ConversationView({ conversation, onSendMessage }: ConversationVi
     
     return (
         <Card className="flex flex-col h-full">
-            <CardHeader className="flex flex-row items-center gap-4 border-b">
-                 <Avatar className="h-12 w-12">
+            <CardHeader className="flex flex-row items-start gap-4 border-b p-6">
+                 <Avatar className="h-12 w-12 shrink-0">
                     <AvatarImage src={conversation.avatar} />
                     <AvatarFallback>{conversation.name.charAt(0)}</AvatarFallback>
                 </Avatar>
-                <div>
+                <div className="flex-1 min-w-0">
                     <p className="font-bold text-lg">{conversation.name}</p>
                     <p className="text-sm text-muted-foreground">{conversation.retreat}</p>
                 </div>
