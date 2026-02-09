@@ -49,7 +49,7 @@ export function ConversationView({ conversation, onSendMessage }: ConversationVi
                         )}
                         <div className={cn(
                             "max-w-xs md:max-w-md rounded-lg p-3 text-sm",
-                             message.sender === 'me' ? 'bg-primary text-primary-foreground' : 'bg-secondary'
+                             message.sender === 'me' ? 'bg-beige text-foreground' : 'bg-secondary'
                         )}>
                             <p>{message.text}</p>
                         </div>
