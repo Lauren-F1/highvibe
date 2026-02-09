@@ -2,8 +2,16 @@
 
 import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardFooter, CardTitle } from '@/components/ui/card';
-import { MapPin, Clock, CheckCircle } from 'lucide-react';
+import { MapPin, Clock, CheckCircle, Bookmark } from 'lucide-react';
 import type { ImagePlaceholder } from '@/lib/placeholder-images';
+import { useUser, useFirestore } from '@/firebase';
+import { useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
+import { doc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { isFirebaseEnabled } from '@/firebase/config';
+import { useState } from 'react';
 
 interface RetreatCardProps {
   retreat: {
@@ -21,12 +29,92 @@ interface RetreatCardProps {
 }
 
 export function RetreatCard({ retreat, isLux = false }: RetreatCardProps) {
+  const user = useUser();
+  const firestore = useFirestore();
+  const router = useRouter();
+  const { toast } = useToast();
+  
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const isSaved = user.status === 'authenticated' && user.profile?.savedRetreatIds?.includes(retreat.id) || false;
+
+  const handleSaveClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    setIsProcessing(true);
+
+    if (user.status !== 'authenticated' || (!firestore && isFirebaseEnabled)) {
+      toast({
+        title: 'Please log in to save retreats',
+        description: 'You will be redirected to the login page.',
+        action: <Button onClick={() => router.push('/login?redirect=/seeker')}>Login</Button>,
+      });
+      setIsProcessing(false);
+      return;
+    }
+
+    if (!isFirebaseEnabled) {
+      // Dev mode handling
+      const currentSaved = JSON.parse(localStorage.getItem('devSavedRetreats') || '[]');
+      let newSaved;
+      if (currentSaved.includes(retreat.id)) {
+        newSaved = currentSaved.filter((id: string) => id !== retreat.id);
+        toast({ title: 'Retreat unsaved (Dev Mode)' });
+      } else {
+        newSaved = [...currentSaved, retreat.id];
+        toast({ title: 'Retreat saved! (Dev Mode)' });
+      }
+      localStorage.setItem('devSavedRetreats', JSON.stringify(newSaved));
+      // This is a hack to force re-render in dev mode. A proper context/state manager would be better.
+      window.dispatchEvent(new Event('storage'));
+      setIsProcessing(false);
+      return;
+    }
+
+    // Firebase mode
+    const userRef = doc(firestore, 'users', user.data.uid);
+
+    try {
+      if (isSaved) {
+        await updateDoc(userRef, {
+          savedRetreatIds: arrayRemove(retreat.id)
+        });
+        toast({ title: 'Retreat unsaved' });
+      } else {
+        await updateDoc(userRef, {
+          savedRetreatIds: arrayUnion(retreat.id)
+        });
+        toast({ title: 'Retreat saved!' });
+      }
+    } catch (error) {
+      console.error("Error updating saved retreats:", error);
+      toast({
+        variant: 'destructive',
+        title: 'Something went wrong',
+        description: 'Could not update your saved retreats.',
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   return (
-    <Card className="w-full overflow-hidden transition-shadow duration-300 hover:shadow-xl hover:shadow-primary/20">
+    <Card className="relative w-full overflow-hidden transition-shadow duration-300 hover:shadow-xl hover:shadow-primary/20">
+       <Button
+        variant="ghost"
+        size="icon"
+        className="absolute top-2 right-2 z-10 h-9 w-9 rounded-full bg-background/70 hover:bg-background disabled:opacity-70"
+        onClick={handleSaveClick}
+        disabled={isProcessing}
+        aria-label="Save retreat"
+      >
+        <Bookmark className={cn('h-5 w-5', isSaved ? 'fill-primary text-primary' : 'text-foreground/80')} />
+      </Button>
       <CardContent className="p-4">
         <div className="flex justify-between items-start gap-4 mb-4">
             <div className="flex-1">
-                <CardTitle className="font-headline text-2xl mb-2">{retreat.title}</CardTitle>
+                <CardTitle className="font-headline text-2xl mb-2 pr-10">{retreat.title}</CardTitle>
                 <CardDescription className="flex items-center text-muted-foreground">
                     <MapPin className="mr-2 h-4 w-4" />
                     {retreat.location}

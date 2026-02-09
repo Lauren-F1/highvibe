@@ -135,6 +135,13 @@
             "type": "string"
           }
         },
+        "savedRetreatIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of retreat IDs the user has saved."
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time"

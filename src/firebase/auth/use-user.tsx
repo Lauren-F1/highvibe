@@ -49,6 +49,9 @@ export interface UserProfile extends DocumentData {
   // Guide fields
   guideRetreatTypes?: string[];
 
+  // Seeker fields
+  savedRetreatIds?: string[];
+
   createdAt?: any;
   lastLoginAt?: any;
 }
@@ -87,28 +90,40 @@ export function useUser(): AuthState {
   useEffect(() => {
     if (!isFirebaseEnabled) {
       // DEV AUTH MODE
-      try {
-        const devUserStr = localStorage.getItem('devUser');
-        const devProfileStr = localStorage.getItem('devProfile');
+      const handleStorageChange = () => {
+        try {
+            const devUserStr = localStorage.getItem('devUser');
+            const devProfileStr = localStorage.getItem('devProfile');
+            const devSavedRetreatsStr = localStorage.getItem('devSavedRetreats');
 
-        if (devUserStr && devProfileStr) {
-          setUserState({
-            status: 'authenticated',
-            data: JSON.parse(devUserStr),
-            profile: JSON.parse(devProfileStr),
-          });
-        } else {
-          setUserState({
-            status: 'unauthenticated',
-            data: null,
-            profile: null,
-          });
+            if (devUserStr && devProfileStr) {
+                const profile = JSON.parse(devProfileStr);
+                if (devSavedRetreatsStr) {
+                    profile.savedRetreatIds = JSON.parse(devSavedRetreatsStr);
+                }
+                setUserState({
+                    status: 'authenticated',
+                    data: JSON.parse(devUserStr),
+                    profile: profile,
+                });
+            } else {
+                setUserState({
+                    status: 'unauthenticated',
+                    data: null,
+                    profile: null,
+                });
+            }
+        } catch (e) {
+            console.error('Error reading dev auth from localStorage', e);
+            setUserState({ status: 'unauthenticated', data: null, profile: null });
         }
-      } catch (e) {
-        console.error('Error reading dev auth from localStorage', e);
-        setUserState({ status: 'unauthenticated', data: null, profile: null });
+      };
+      
+      handleStorageChange(); // Initial load
+      window.addEventListener('storage', handleStorageChange); // Listen for changes
+      return () => {
+        window.removeEventListener('storage', handleStorageChange);
       }
-      return; // Stop here for dev mode
     }
 
     // FIREBASE PROD MODE

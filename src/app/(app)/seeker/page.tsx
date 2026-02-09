@@ -12,20 +12,11 @@ import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Users } from 'lucide-react';
-import { continents, destinations } from '@/lib/mock-data';
+import { allRetreats as retreats, continents, destinations } from '@/lib/mock-data';
 import { useFirestore } from '@/firebase';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-
-// Original Data - should not be mutated
-const retreats = [
-  { id: '1', title: 'Serene Yoga Escape', description: 'A grounding escape designed for deep rest, clarity, and reconnection.', location: 'Bali, Indonesia', price: 400, rating: 4.8, image: placeholderImages.find(p => p.id === 'yoga-beach')!, type: ['yoga-meditation', 'rest-reset', 'wellness-healing'], duration: '6 days / 5 nights', included: 'Lodging, daily yoga, breakfast' },
-  { id: '2', title: 'Forest Bathing & Mindfulness', description: 'An invitation to slow down, awaken your senses, and find presence in the heart of nature.', location: 'Kyoto, Japan', price: 550, rating: 4.9, image: placeholderImages.find(p => p.id === 'meditation-forest')!, type: ['nature-immersion', 'yoga-meditation', 'rest-reset'], duration: '4 days / 3 nights', included: 'Lodging & guided sessions' },
-  { id: '3', title: 'Andean Peaks Adventure', description: 'For those who crave altitude and challenge, this is an ascent into unforgettable landscapes.', location: 'Cusco, Peru', price: 1200, rating: 5.0, image: placeholderImages.find(p => p.id === 'mountain-hike')!, type: ['adventure-aliveness', 'nature-immersion'], duration: '8 days / 7 nights', included: 'All-inclusive' },
-  { id: '4', title: 'Cozy Writer\'s Retreat', description: 'A quiet sanctuary designed for the creative soul, where inspiration flows and your next story awaits.', location: 'Vermont, USA', price: 350, rating: 4.7, image: placeholderImages.find(p => p.id === 'cozy-cabin')!, type: ['creativity-expression', 'personal-growth-self-development'], duration: 'Weekend', included: 'Lodging & writing workshops' },
-  { id: '5', title: 'Gourmet Wellness Journey', description: 'A culinary journey to nourish and delight, designed to celebrate vibrant, wholesome food and mindful eating.', location: 'Tuscany, Italy', price: 750, rating: 4.9, image: placeholderImages.find(p => p.id === 'healthy-food-chef')!, type: ['wellness-healing', 'creativity-expression'], duration: '5 days', included: 'Lodging, cooking classes, meals' },
-  { id: '6', title: 'Ultimate Spa & Relaxation', description: 'Your permission to completely unwind. A week of pure indulgence and restorative care designed for total rejuvenation.', location: 'Phuket, Thailand', price: 600, rating: 4.8, image: placeholderImages.find(p => p.id === 'spa-massage')!, type: ['rest-reset', 'wellness-healing'], included: 'Lodging, all spa treatments' },
-];
+import Link from 'next/link';
 
 const experienceTypes = [
     { value: 'all-experiences', label: 'All Experiences' },
@@ -359,6 +350,7 @@ export default function SeekerPage() {
             </div>
           <div className="lg:col-span-full flex gap-2">
             <Button size="lg" className="w-full" onClick={handleExploreClick}>Explore Experiences</Button>
+            <Button size="lg" variant="outline" asChild><Link href="/seeker/saved">View Saved</Link></Button>
             <Button size="lg" variant="outline" onClick={handleClearFilters}>Clear Filters</Button>
           </div>
         </div>
