@@ -332,7 +332,7 @@ export default function SeekerPage() {
               </div>
           )}
           <div className="space-y-2">
-            <Label htmlFor="price">Investment Range</Label>
+            <Label htmlFor="price">Budget</Label>
             <Select value={investmentRange} onValueChange={setInvestmentRange}>
               <SelectTrigger id="price">
                 <SelectValue placeholder="Any Range" />
