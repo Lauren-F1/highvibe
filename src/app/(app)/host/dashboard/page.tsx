@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { PlusCircle, MoreHorizontal, BarChart, Users, DollarSign, Briefcase } from 'lucide-react';
+import { PlusCircle, MoreHorizontal, BarChart, Users, DollarSign, Briefcase, Filter } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -25,6 +25,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore } from '@/firebase';
 import { collection, addDoc, query, where, getDocs, limit, serverTimestamp } from 'firebase/firestore';
 import { SpaceReadinessChecklist, type SpaceReadinessProps } from '@/components/space-readiness-checklist';
+import { cn } from '@/lib/utils';
 
 
 const genericImage = placeholderImages.find(p => p.id === 'generic-placeholder')!;
@@ -116,17 +117,42 @@ export default function HostDashboardPage() {
   const [appliedGuideFilters, setAppliedGuideFilters] = useState<GuideFiltersState>(initialGuideFilters);
   const [guideSortOption, setGuideSortOption] = useState('recommended');
   const [guideFiltersDirty, setGuideFiltersDirty] = useState(false);
+  const [guideFiltersVisible, setGuideFiltersVisible] = useState(false);
   
   // Vendor filter state
   const [vendorFilters, setVendorFilters] = useState<VendorFiltersState>(initialVendorFilters);
   const [appliedVendorFilters, setAppliedVendorFilters] = useState<VendorFiltersState>(initialVendorFilters);
   const [vendorSortOption, setVendorSortOption] = useState('recommended');
   const [vendorFiltersDirty, setVendorFiltersDirty] = useState(false);
+  const [vendorFiltersVisible, setVendorFiltersVisible] = useState(false);
   
   const { toast } = useToast();
   const currentUser = useUser();
   const firestore = useFirestore();
   const [isConnecting, setIsConnecting] = useState(false);
+
+  const appliedGuideFiltersCount = useMemo(() => {
+    let count = 0;
+    if (appliedGuideFilters.experienceTypes.length > 0) count++;
+    if (appliedGuideFilters.groupSize < 100) count++;
+    if (appliedGuideFilters.vibes.length > 0) count++;
+    if (appliedGuideFilters.timing !== 'anytime') count++;
+    return count;
+  }, [appliedGuideFilters]);
+
+  const appliedVendorFiltersCount = useMemo(() => {
+      let count = 0;
+      const initial = initialVendorFilters;
+      if (appliedVendorFilters.categories.length > 0) count++;
+      if (appliedVendorFilters.locationPreference !== initial.locationPreference) count++;
+      if (appliedVendorFilters.budget < initial.budget) count++;
+      if (appliedVendorFilters.planningWindow !== initial.planningWindow) count++;
+      if (appliedVendorFilters.availabilityTypes.length > 0) count++;
+      if (appliedVendorFilters.showNearMatches) count++;
+      if (appliedVendorFilters.showExactDates) count++;
+      if (appliedVendorFilters.radius !== initial.radius) count++;
+      return count;
+  }, [appliedVendorFilters]);
 
   const handleAddNewSpace = () => {
       alert("Navigate to 'Add New Space' page.");
@@ -514,13 +540,24 @@ export default function HostDashboardPage() {
                                 </TabsList>
                                 <TabsContent value="guides" className="mt-6">
                                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                                        <div className="lg:col-span-1">
-                                            <GuideFilters filters={guideFilters} onFiltersChange={handleGuideFilterChange} onApply={handleApplyGuideFilters} onReset={handleResetGuideFilters} isDirty={guideFiltersDirty}/>
-                                        </div>
-                                        <div className="lg:col-span-3">
+                                        {guideFiltersVisible && (
+                                            <div className="lg:col-span-1">
+                                                <GuideFilters filters={guideFilters} onFiltersChange={handleGuideFilterChange} onApply={handleApplyGuideFilters} onReset={handleResetGuideFilters} isDirty={guideFiltersDirty}/>
+                                            </div>
+                                        )}
+                                        <div className={cn(guideFiltersVisible ? 'lg:col-span-3' : 'lg:col-span-4')}>
                                             <div className='space-y-4'>
-                                                <div className="flex justify-between items-center">
-                                                    <h4 className="font-headline text-xl">{displayedGuides.length} Matching Guides</h4>
+                                                <div className="flex justify-between items-center mb-4 gap-4">
+                                                    <div className='flex items-center gap-4'>
+                                                        <Button onClick={() => setGuideFiltersVisible(!guideFiltersVisible)} variant="outline">
+                                                            <Filter className="mr-2 h-4 w-4" />
+                                                            {guideFiltersVisible ? 'Hide' : 'Show'} Filters
+                                                            {!guideFiltersVisible && appliedGuideFiltersCount > 0 && (
+                                                                <Badge variant="secondary" className="ml-2">{appliedGuideFiltersCount}</Badge>
+                                                            )}
+                                                        </Button>
+                                                        <h4 className="font-headline text-xl hidden sm:block">{displayedGuides.length} Matching Guides</h4>
+                                                    </div>
                                                     <Select value={guideSortOption} onValueChange={setGuideSortOption}>
                                                         <SelectTrigger className="w-[180px]">
                                                             <SelectValue placeholder="Sort by" />
@@ -532,6 +569,7 @@ export default function HostDashboardPage() {
                                                         </SelectContent>
                                                     </Select>
                                                 </div>
+                                                <h4 className="font-headline text-xl sm:hidden mb-4">{displayedGuides.length} Matching Guides</h4>
                                                 {displayedGuides.length > 0 ? (
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                         {displayedGuides.map(guide => 
@@ -560,31 +598,44 @@ export default function HostDashboardPage() {
                                 </TabsContent>
                                 <TabsContent value="vendors" className="mt-6">
                                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                                        <div className="lg:col-span-1">
-                                            <VendorFilters 
-                                                filters={vendorFilters} 
-                                                onFiltersChange={handleVendorFilterChange}
-                                                onApply={handleApplyVendorFilters}
-                                                onReset={handleResetVendorFilters}
-                                                isDirty={vendorFiltersDirty}
-                                            />
-                                        </div>
-                                        <div className="lg:col-span-3">
+                                        {vendorFiltersVisible && (
+                                            <div className="lg:col-span-1">
+                                                <VendorFilters 
+                                                    filters={vendorFilters} 
+                                                    onFiltersChange={handleVendorFilterChange}
+                                                    onApply={handleApplyVendorFilters}
+                                                    onReset={handleResetVendorFilters}
+                                                    isDirty={vendorFiltersDirty}
+                                                />
+                                            </div>
+                                        )}
+                                        <div className={cn(vendorFiltersVisible ? 'lg:col-span-3' : 'lg:col-span-4')}>
                                             <div className="space-y-4">
-                                                <div className="flex justify-between items-center">
-                                                    <h4 className="font-headline text-xl">{displayedVendors.length} Matching Vendors</h4>
+                                                <div className="flex justify-between items-center mb-4 gap-4">
+                                                    <div className='flex items-center gap-4'>
+                                                         <Button onClick={() => setVendorFiltersVisible(!vendorFiltersVisible)} variant="outline">
+                                                            <Filter className="mr-2 h-4 w-4" />
+                                                            {vendorFiltersVisible ? 'Hide' : 'Show'} Filters
+                                                            {!vendorFiltersVisible && appliedVendorFiltersCount > 0 && (
+                                                                <Badge variant="secondary" className="ml-2">{appliedVendorFiltersCount}</Badge>
+                                                            )}
+                                                        </Button>
+                                                        <h4 className="font-headline text-xl hidden sm:block">{displayedVendors.length} Matching Vendors</h4>
+                                                    </div>
                                                     <Select value={vendorSortOption} onValueChange={setVendorSortOption}>
-                                                    <SelectTrigger className="w-[180px]">
-                                                        <SelectValue placeholder="Sort by" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="recommended">Recommended</SelectItem>
-                                                        <SelectItem value="price-asc">Price (low to high)</SelectItem>
-                                                        <SelectItem value="price-desc">Price (high to low)</SelectItem>
-                                                        <SelectItem value="rating">Highest rated</SelectItem>
-                                                    </SelectContent>
+                                                        <SelectTrigger className="w-[180px]">
+                                                            <SelectValue placeholder="Sort by" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="recommended">Recommended</SelectItem>
+                                                            <SelectItem value="price-asc">Price (low to high)</SelectItem>
+                                                            <SelectItem value="price-desc">Price (high to low)</SelectItem>
+                                                            <SelectItem value="rating">Highest rated</SelectItem>
+                                                        </SelectContent>
                                                     </Select>
                                                 </div>
+                                                 <h4 className="font-headline text-xl sm:hidden mb-4">{displayedVendors.length} Matching Vendors</h4>
+
                                                 {displayedVendors.length > 0 ? (
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                     {displayedVendors.map(vendor => 
@@ -700,4 +751,3 @@ export default function HostDashboardPage() {
     </div>
   );
 }
-
