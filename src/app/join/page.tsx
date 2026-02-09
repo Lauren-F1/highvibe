@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 
+// Do not change icon assets or casing; icons must always load from /public and remain unmodified.
 const roleIconMap: Record<string, string> = {
   Guide: '/Guide.svg',
   Host: '/Host.svg',
@@ -50,17 +50,17 @@ export default function JoinPage() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {roles.map(role => (
-              <Button key={role.name} variant="outline" asChild className="h-auto p-6 text-left">
-                <Link href={role.href}>
-                  <div className="flex items-center gap-4">
-                    <Image src={role.icon} alt={`${role.name} icon`} width={64} height={64} className="text-primary" />
+              <Link key={role.name} href={role.href} className="group block rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                <Card className="h-full cursor-pointer border border-border transition-all duration-300 ease-in-out group-hover:ring-2 group-hover:ring-primary group-hover:shadow-lg group-hover:shadow-primary/20">
+                  <CardContent className="flex items-center gap-4 p-6 text-left">
+                    <Image src={role.icon} alt={`${role.name} icon`} width={64} height={64} />
                     <div>
                       <p className="font-bold text-lg">{role.name}</p>
                       <p className="text-sm text-muted-foreground">{role.description}</p>
                     </div>
-                  </div>
-                </Link>
-              </Button>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
            <div className="mt-6 text-center text-sm text-muted-foreground">
