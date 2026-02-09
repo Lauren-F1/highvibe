@@ -10,9 +10,11 @@ import { isFirebaseEnabled } from "@/firebase/config";
 import { useInbox } from "@/context/InboxContext";
 import { ConversationView } from "@/components/conversation-view";
 import { Conversation } from "@/lib/inbox-data";
-import { MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal, Search } from 'lucide-react';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 function ConversationListItem({ convo, isSelected, onSelect, onMarkAsUnread }: { convo: Conversation, isSelected: boolean, onSelect: (id: string) => void, onMarkAsUnread: (id: string) => void }) {
   return (
@@ -70,6 +72,35 @@ export default function InboxPage() {
   
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
 
+  const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState('all');
+  const [sortOption, setSortOption] = useState('newest');
+
+  const displayedConversations = useMemo(() => {
+    let filtered = [...conversations];
+
+    if (searchTerm) {
+      const lowercasedTerm = searchTerm.toLowerCase();
+      filtered = filtered.filter(convo =>
+        convo.name.toLowerCase().includes(lowercasedTerm) ||
+        convo.retreat.toLowerCase().includes(lowercasedTerm) ||
+        convo.lastMessage.toLowerCase().includes(lowercasedTerm)
+      );
+    }
+
+    if (roleFilter !== 'all') {
+      filtered = filtered.filter(convo => convo.role.toLowerCase() === roleFilter);
+    }
+    
+    // The default order is newest first as new messages are prepended.
+    // So for 'newest', we don't need to do anything.
+    if (sortOption === 'unread') {
+      filtered.sort((a, b) => (b.unread ? 1 : 0) - (a.unread ? 1 : 0));
+    }
+    
+    return filtered;
+  }, [conversations, searchTerm, roleFilter, sortOption]);
+
   useEffect(() => {
     if (isFirebaseEnabled) {
       if (user.status === 'loading') return;
@@ -81,27 +112,37 @@ export default function InboxPage() {
     }
 
     const threadId = searchParams.get('c');
-    if (threadId && conversations.some(c => c.id === threadId)) {
-      setSelectedThreadId(threadId);
-      markAsRead(threadId);
-    } else if (conversations.length > 0) {
-        // If no valid thread is selected, select the first one.
-        const firstThreadId = conversations[0].id;
-        if (firstThreadId !== selectedThreadId) {
-            router.replace(`/inbox?c=${firstThreadId}`, { scroll: false });
+    
+    if (threadId && displayedConversations.some(c => c.id === threadId)) {
+        if (selectedThreadId !== threadId) {
+            setSelectedThreadId(threadId);
+            markAsRead(threadId);
+        }
+    } else if (displayedConversations.length > 0) {
+        const firstThreadId = displayedConversations[0].id;
+        if (selectedThreadId !== firstThreadId) {
+             router.replace(`/inbox?c=${firstThreadId}`, { scroll: false });
+        }
+    } else if (displayedConversations.length === 0) {
+        if (selectedThreadId !== null) {
+            setSelectedThreadId(null);
+            if (searchParams.has('c')) {
+                router.replace('/inbox', { scroll: false });
+            }
         }
     }
-  }, [user.status, searchParams, router, conversations, markAsRead, selectedThreadId]);
+  }, [user.status, searchParams, router, markAsRead, displayedConversations, selectedThreadId]);
 
   const handleSelectConversation = (id: string) => {
-    markAsRead(id);
-    // Update URL without a full page reload
-    router.push(`/inbox?c=${id}`, { scroll: false });
+    if (selectedThreadId !== id) {
+      markAsRead(id);
+      router.push(`/inbox?c=${id}`, { scroll: false });
+    }
   };
   
   const selectedConversation = useMemo(
-    () => conversations.find(c => c.id === selectedThreadId),
-    [conversations, selectedThreadId]
+    () => displayedConversations.find(c => c.id === selectedThreadId),
+    [displayedConversations, selectedThreadId]
   );
 
   if (isFirebaseEnabled && (user.status === 'loading' || user.status === 'unauthenticated')) {
@@ -112,30 +153,70 @@ export default function InboxPage() {
     <div className="container mx-auto px-4 py-8 md:py-12">
         <h1 className="font-headline text-4xl md:text-5xl font-bold mb-8">Inbox</h1>
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8 h-[calc(100vh-250px)]">
-            <div className="md:col-span-1 lg:col-span-1 border rounded-lg overflow-hidden">
-                <Card className="h-full shadow-none rounded-none border-none">
-                    <CardContent className="p-0 h-full overflow-y-auto">
-                        <ul className="divide-y">
-                            {conversations.map((convo) => (
-                                <ConversationListItem
-                                    key={convo.id}
-                                    convo={convo}
-                                    isSelected={selectedThreadId === convo.id}
-                                    onSelect={handleSelectConversation}
-                                    onMarkAsUnread={markAsUnread}
-                                />
-                            ))}
-                        </ul>
-                    </CardContent>
-                </Card>
+            <div className="md:col-span-1 lg:col-span-1 border rounded-lg overflow-hidden flex flex-col">
+                <div className="p-4 border-b space-y-4">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                      placeholder="Search..." 
+                      className="pl-9"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Select value={roleFilter} onValueChange={setRoleFilter}>
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder="All Roles" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Roles</SelectItem>
+                        <SelectItem value="guide">Guide</SelectItem>
+                        <SelectItem value="host">Host</SelectItem>
+                        <SelectItem value="vendor">Vendor</SelectItem>
+                      </SelectContent>
+                    </Select>
+                     <Select value={sortOption} onValueChange={setSortOption}>
+                      <SelectTrigger className="w-[150px] flex-none">
+                        <SelectValue placeholder="Sort" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="newest">Newest First</SelectItem>
+                        <SelectItem value="unread">Unread First</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="flex-1 overflow-y-auto">
+                  {displayedConversations.length > 0 ? (
+                    <ul className="divide-y">
+                        {displayedConversations.map((convo) => (
+                            <ConversationListItem
+                                key={convo.id}
+                                convo={convo}
+                                isSelected={selectedThreadId === convo.id}
+                                onSelect={handleSelectConversation}
+                                onMarkAsUnread={markAsUnread}
+                            />
+                        ))}
+                    </ul>
+                  ) : (
+                    <div className="text-center p-8 text-sm text-muted-foreground">
+                      No conversations found.
+                    </div>
+                  )}
+                </div>
             </div>
             <div className="md:col-span-2 lg:col-span-3">
                 {selectedConversation ? (
                     <ConversationView conversation={selectedConversation} onSendMessage={sendMessage} />
                 ) : (
-                    <Card className="h-full flex items-center justify-center">
+                    <Card className="h-full flex items-center justify-center bg-secondary">
                         <div className="text-center">
-                            <p className="text-muted-foreground">Select a conversation to view messages.</p>
+                            <p className="text-muted-foreground">
+                              {conversations.length > 0 ? 'Select a conversation to start messaging.' : 'You have no messages.'}
+                            </p>
                         </div>
                     </Card>
                 )}
