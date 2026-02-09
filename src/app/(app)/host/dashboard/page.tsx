@@ -24,14 +24,30 @@ import { getDistanceInMiles } from '@/lib/geo';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore } from '@/firebase';
 import { collection, addDoc, query, where, getDocs, limit, serverTimestamp } from 'firebase/firestore';
+import { SpaceReadinessChecklist, type SpaceReadinessProps } from '@/components/space-readiness-checklist';
 
 
 const genericImage = placeholderImages.find(p => p.id === 'generic-placeholder')!;
 
 const hostSpaces = [
-  { id: 'space1', name: 'The Glass House', location: 'Topanga, California', capacity: 25, rate: 2200, status: 'Published', bookings: 3, image: placeholderImages.find(p => p.id === 'modern-event-space')!, hostLat: 34.09, hostLng: -118.6 },
-  { id: 'space2', name: 'Sacred Valley Hacienda', location: 'Cusco, Peru', capacity: 18, rate: 1500, status: 'Published', bookings: 5, image: placeholderImages.find(p => p.id === 'spanish-villa-sunset')!, hostLat: -13.53, hostLng: -71.96 },
-  { id: 'space3', name: 'Mountain View Lodge', location: 'Asheville, North Carolina', capacity: 40, rate: 3500, status: 'Draft', bookings: 0, image: placeholderImages.find(p => p.id === 'mountain-hike')!, hostLat: 35.59, hostLng: -82.55 },
+  { id: 'space1', name: 'The Glass House', location: 'Topanga, California', capacity: 25, rate: 2200, status: 'Published', bookings: 3, image: placeholderImages.find(p => p.id === 'modern-event-space')!, hostLat: 34.09, hostLng: -118.6,
+    description: 'A stunning modern home with panoramic views, perfect for intimate workshops and corporate offsites.',
+    amenities: ['Pool', 'Wi-Fi', 'A/C', 'Full kitchen onsite'],
+    propertyShowcaseUrls: Array(6).fill(placeholderImages.find(p => p.id === 'modern-event-space')!.imageUrl),
+    availabilitySet: true,
+  },
+  { id: 'space2', name: 'Sacred Valley Hacienda', location: 'Cusco, Peru', capacity: 18, rate: 1500, status: 'Published', bookings: 5, image: placeholderImages.find(p => p.id === 'spanish-villa-sunset')!, hostLat: -13.53, hostLng: -71.96,
+    description: 'A historic hacienda in the heart of the Andes, offering a unique blend of culture and comfort.',
+    amenities: [], // Incomplete
+    propertyShowcaseUrls: Array(4).fill(placeholderImages.find(p => p.id === 'spanish-villa-sunset')!.imageUrl), // Incomplete
+    availabilitySet: true,
+  },
+  { id: 'space3', name: 'Mountain View Lodge', location: 'Asheville, North Carolina', capacity: 40, rate: 0, status: 'Draft', bookings: 0, image: placeholderImages.find(p => p.id === 'mountain-hike')!, hostLat: 35.59, hostLng: -82.55,
+    description: '', // Incomplete
+    amenities: [], // Incomplete
+    propertyShowcaseUrls: [], // Incomplete
+    availabilitySet: false, // Incomplete
+  },
 ];
 
 const initialConnectionRequests = [
@@ -118,6 +134,25 @@ export default function HostDashboardPage() {
   
   const activeSpace = hostSpaces.find(s => s.id === activeSpaceId);
   
+  const readinessProps: SpaceReadinessProps = useMemo(() => {
+    if (!activeSpace) {
+        return {
+            availabilitySet: false,
+            rateSet: false,
+            hasMinPhotos: false,
+            hasAmenities: false,
+            hasDescription: false,
+        };
+    }
+    return {
+        availabilitySet: activeSpace.availabilitySet || false,
+        rateSet: (activeSpace.rate || 0) > 0,
+        hasMinPhotos: (activeSpace.propertyShowcaseUrls?.length || 0) >= 6,
+        hasAmenities: (activeSpace.amenities?.length || 0) > 0,
+        hasDescription: !!activeSpace.description && activeSpace.description.length > 20,
+    };
+  }, [activeSpace]);
+
   const spaceConnectionRequests = connectionRequests.filter(c => c.forSpace === activeSpace?.name);
   const spaceConfirmedBookings = confirmedBookings.filter(b => b.forSpace === activeSpace?.name);
 
@@ -465,6 +500,10 @@ export default function HostDashboardPage() {
             <CardContent className="space-y-6">
                 {activeSpaceId ? (
                     <>
+                        <div className="space-y-6">
+                           <SpaceReadinessChecklist {...readinessProps} />
+                        </div>
+                        <Separator />
                         <div className="pt-4">
                              <h3 className="font-headline text-2xl mb-2">Matches Available</h3>
                              <p className="text-muted-foreground mb-4">Potential connections that fit this space.</p>
@@ -661,3 +700,4 @@ export default function HostDashboardPage() {
     </div>
   );
 }
+
