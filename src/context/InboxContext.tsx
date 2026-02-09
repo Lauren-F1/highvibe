@@ -12,6 +12,7 @@ interface InboxContextType {
   conversations: Conversation[];
   unreadCount: number;
   markAsRead: (conversationId: string) => void;
+  markAsUnread: (conversationId: string) => void;
   sendMessage: (conversationId: string, text: string) => void;
 }
 
@@ -46,6 +47,12 @@ export function InboxProvider({ children }: { children: ReactNode }) {
     );
   };
   
+  const markAsUnread = (conversationId: string) => {
+    setConversations(prev =>
+      prev.map(c => (c.id === conversationId ? { ...c, unread: true } : c))
+    );
+  };
+  
   const sendMessage = (conversationId: string, text: string) => {
     const newMessage: Message = {
       id: `msg-${Date.now()}`,
@@ -75,6 +82,7 @@ export function InboxProvider({ children }: { children: ReactNode }) {
     conversations,
     unreadCount,
     markAsRead,
+    markAsUnread,
     sendMessage,
   };
 

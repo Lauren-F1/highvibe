@@ -10,13 +10,16 @@ import { isFirebaseEnabled } from "@/firebase/config";
 import { useInbox } from "@/context/InboxContext";
 import { ConversationView } from "@/components/conversation-view";
 import { Conversation } from "@/lib/inbox-data";
+import { MoreHorizontal } from 'lucide-react';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
 
-function ConversationListItem({ convo, isSelected, onSelect }: { convo: Conversation, isSelected: boolean, onSelect: (id: string) => void }) {
+function ConversationListItem({ convo, isSelected, onSelect, onMarkAsUnread }: { convo: Conversation, isSelected: boolean, onSelect: (id: string) => void, onMarkAsUnread: (id: string) => void }) {
   return (
     <li
       id={`thread-${convo.id}`}
       className={cn(
-        "p-4 hover:bg-accent cursor-pointer flex items-start gap-4 transition-colors",
+        "p-4 hover:bg-accent cursor-pointer flex items-center gap-4 transition-colors",
         isSelected && 'bg-accent'
       )}
       onClick={() => onSelect(convo.id)}
@@ -25,21 +28,36 @@ function ConversationListItem({ convo, isSelected, onSelect }: { convo: Conversa
       role="button"
       aria-current={isSelected}
     >
-      {convo.unread && <div className="h-2.5 w-2.5 rounded-full bg-primary shrink-0 mt-1.5"></div>}
-      <div className={cn("flex items-start gap-4 flex-grow", convo.unread ? "" : "pl-[14px]")}>
-        <Avatar className="h-12 w-12">
-          <AvatarImage src={convo.avatar} />
-          <AvatarFallback>{convo.name.charAt(0)}</AvatarFallback>
-        </Avatar>
-        <div className="flex-1 overflow-hidden">
-          <div className="flex justify-between items-center">
-            <p className="font-bold">{convo.name} <span className="text-xs font-normal text-muted-foreground ml-1 p-1 bg-secondary rounded-sm">{convo.role}</span></p>
-            <p className="text-xs text-muted-foreground shrink-0">2h ago</p>
+      <div className={cn("flex items-start gap-4 flex-grow")}>
+        {convo.unread && <div className="h-2.5 w-2.5 rounded-full bg-beige shrink-0 mt-1.5"></div>}
+        <div className={cn("flex items-start gap-4 flex-grow", convo.unread ? "" : "pl-[14px]")}>
+          <Avatar className="h-12 w-12">
+            <AvatarImage src={convo.avatar} />
+            <AvatarFallback>{convo.name.charAt(0)}</AvatarFallback>
+          </Avatar>
+          <div className="flex-1 overflow-hidden">
+            <div className="flex justify-between items-center">
+              <p className={cn("font-bold", convo.unread ? 'text-foreground' : 'text-muted-foreground')}>{convo.name} <span className="text-xs font-normal text-muted-foreground ml-1 p-1 bg-secondary rounded-sm">{convo.role}</span></p>
+              <p className="text-xs text-muted-foreground shrink-0">2h ago</p>
+            </div>
+            <p className={cn("text-sm font-bold truncate", convo.unread ? 'text-foreground' : 'text-muted-foreground')}>{convo.retreat}</p>
+            <p className={cn("text-sm truncate", convo.unread ? "text-foreground font-medium" : "text-muted-foreground")}>{convo.lastMessage}</p>
           </div>
-          <p className="text-sm text-muted-foreground font-bold truncate">{convo.retreat}</p>
-          <p className="text-sm text-muted-foreground truncate">{convo.lastMessage}</p>
         </div>
       </div>
+       <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 -my-2 -mr-2" onClick={(e) => e.stopPropagation()}>
+            <MoreHorizontal className="h-4 w-4" />
+            <span className="sr-only">More options</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={(e) => {e.stopPropagation(); onMarkAsUnread(convo.id); }}>
+            Mark as unread
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </li>
   );
 }
@@ -48,7 +66,7 @@ export default function InboxPage() {
   const user = useUser();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { conversations, markAsRead, sendMessage } = useInbox();
+  const { conversations, markAsRead, sendMessage, markAsUnread } = useInbox();
   
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
 
@@ -104,6 +122,7 @@ export default function InboxPage() {
                                     convo={convo}
                                     isSelected={selectedThreadId === convo.id}
                                     onSelect={handleSelectConversation}
+                                    onMarkAsUnread={markAsUnread}
                                 />
                             ))}
                         </ul>
