@@ -116,7 +116,7 @@ export default function HomePageClient() {
             >
               <Card className={cn(
                   "h-full w-full transition-shadow duration-300 ease-in-out p-6 border-primary",
-                  "group-hover:shadow-xl group-hover:shadow-primary/40"
+                  "hover:shadow-2xl hover:shadow-primary/40"
               )}>
                 <CardHeader className="items-center text-center p-0">
                   <CardTitle className="font-headline text-5xl text-beige tracking-wider mb-3">{role.primaryLabel}</CardTitle>
@@ -126,7 +126,7 @@ export default function HomePageClient() {
                   <h3 className="font-body text-2xl text-foreground font-semibold">{role.title}</h3>
                 </CardHeader>
                 <CardContent className="text-center px-2 pb-2 pt-4">
-                  <CardDescription className="font-body text-sm leading-snug text-muted-foreground">{role.description}</CardDescription>
+                  <CardDescription className="font-body text-sm leading-snug text-beige-dark">{role.description}</CardDescription>
                 </CardContent>
               </Card>
             </div>

@@ -54,13 +54,13 @@ export default function JoinPage() {
               <Link key={role.name} href={role.href} className="group block rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
                 <Card className={cn(
                   "h-full cursor-pointer transition-shadow duration-300 ease-in-out border-primary",
-                  "group-hover:shadow-xl group-hover:shadow-primary/40"
+                  "hover:shadow-2xl hover:shadow-primary/40"
                 )}>
                   <CardContent className="flex items-center gap-4 p-6 text-left">
                     <Image src={ROLE_ICON_SRC[role.id]} alt={`${role.name} icon`} width={96} height={96} />
                     <div>
                       <p className="font-bold text-lg">{role.name}</p>
-                      <p className="text-sm text-muted-foreground">{role.description}</p>
+                      <p className="font-body text-sm text-beige-dark">{role.description}</p>
                     </div>
                   </CardContent>
                 </Card>
