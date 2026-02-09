@@ -98,8 +98,8 @@ export default function HomePageClient() {
       )}
 
       <div className="w-full max-w-4xl text-center mb-12">
-        <h2 className="font-headline text-3xl md:text-4xl">Every journey begins with participation.</h2>
-        <p className="text-lg text-beige-dark mt-2 max-w-3xl mx-auto">Choose the role most aligned with what brought you here. You can add more ways to participate as your path unfolds.</p>
+        <h2 className="font-headline text-3xl md:text-4xl">Choose your role. Find your people.</h2>
+        <p className="text-lg text-beige-dark mt-2 max-w-3xl mx-auto font-body">Book experiences or create them. HighVibe connects retreat leaders with aligned spaces and trusted vendors, all in one platform.</p>
       </div>
 
       <div 
@@ -126,7 +126,7 @@ export default function HomePageClient() {
                   <h3 className="font-body text-2xl text-foreground font-semibold">{role.title}</h3>
                 </CardHeader>
                 <CardContent className="text-center px-2 pb-2 pt-4">
-                  <CardDescription className="font-body text-sm leading-snug text-muted-foreground">{role.description}</CardDescription>
+                  <CardDescription className="font-body text-sm leading-snug text-beige-dark">{role.description}</CardDescription>
                 </CardContent>
               </Card>
             </div>
