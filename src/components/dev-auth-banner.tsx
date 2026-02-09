@@ -3,7 +3,9 @@
 import { isFirebaseEnabled } from '@/firebase/config';
 
 export function DevAuthBanner() {
-  if (isFirebaseEnabled) {
+  const showBanner = process.env.NEXT_PUBLIC_SHOW_DEV_AUTH_BANNER === 'true';
+
+  if (isFirebaseEnabled || !showBanner) {
     return null;
   }
 
