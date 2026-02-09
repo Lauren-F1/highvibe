@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
+import { cn } from '@/lib/utils';
 
 // Do not change icon assets or casing; icons must always load from /public and remain unmodified.
 const roleIconMap: Record<string, string> = {
@@ -51,7 +52,10 @@ export default function JoinPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {roles.map(role => (
               <Link key={role.name} href={role.href} className="group block rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
-                <Card className="h-full cursor-pointer border border-primary transition-all duration-300 ease-in-out group-hover:ring-2 group-hover:ring-primary group-hover:shadow-lg group-hover:shadow-primary/20">
+                <Card className={cn(
+                  "h-full cursor-pointer transition-shadow duration-300 ease-in-out",
+                  "group-hover:shadow-lg group-hover:shadow-primary/20"
+                )}>
                   <CardContent className="flex items-center gap-4 p-6 text-left">
                     <Image src={role.icon} alt={`${role.name} icon`} width={64} height={64} />
                     <div>
