@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { PlusCircle, MoreHorizontal, CheckCircle, XCircle } from 'lucide-react';
+import { PlusCircle, MoreHorizontal, CheckCircle, XCircle, Filter } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -23,6 +23,7 @@ import { HostFilters, type HostFiltersState } from '@/components/host-filters';
 import { VendorFilters, type VendorFiltersState as VendorFiltersStateType } from '@/components/vendor-filters';
 import { PartnershipStepper, type PartnershipStage } from '@/components/partnership-stepper';
 import { NextBestAction } from '@/components/next-best-action';
+import { cn } from '@/lib/utils';
 
 
 const genericImage = placeholderImages.find(p => p.id === 'generic-placeholder')!;
@@ -58,6 +59,32 @@ export default function GuidePage() {
   
   const [hostFilters, setHostFilters] = useState<HostFiltersState>(initialHostFilters);
   const [sortOption, setSortOption] = useState('recommended');
+  const [hostFiltersVisible, setHostFiltersVisible] = useState(false);
+
+  const appliedHostFiltersCount = useMemo(() => {
+    let count = 0;
+    const initial = initialHostFilters;
+    if (hostFilters.continent !== initial.continent) count++;
+    if (hostFilters.region && hostFilters.region !== initial.region) count++;
+    if (hostFilters.planningWindow !== initial.planningWindow) count++;
+    if (hostFilters.flexibleDates) count++;
+    if (hostFilters.showNearMatches) count++;
+    if (hostFilters.showExactDates) count++;
+    if (hostFilters.budget < initial.budget) count++;
+    if (hostFilters.sleepingCapacity !== initial.sleepingCapacity) count++;
+    if (hostFilters.eventCapacity !== initial.eventCapacity) count++;
+    if (hostFilters.bedrooms !== initial.bedrooms) count++;
+    if (hostFilters.bathrooms !== initial.bathrooms) count++;
+    count += hostFilters.roomStyles.length;
+    count += hostFilters.amenities.length;
+    if (hostFilters.retreatReady) count++;
+    if (hostFilters.gatheringSpace) count++;
+    if (hostFilters.quietSetting) count++;
+    if (hostFilters.kitchen !== initial.kitchen) count++;
+    count += hostFilters.policies.length;
+    count += hostFilters.vibes.length;
+    return count;
+  }, [hostFilters]);
 
 
   const handleCreateRetreatClick = () => {
@@ -264,13 +291,23 @@ export default function GuidePage() {
                                 </TabsList>
                                 <TabsContent value="hosts" className="mt-6">
                                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                                        <div className="lg:col-span-1">
-                                            <HostFilters filters={hostFilters} onFiltersChange={(newFilters) => setHostFilters(prev => ({...prev, ...newFilters}))} />
-                                        </div>
-                                        <div className="lg:col-span-3">
-                                            <div className="flex justify-between items-center mb-4">
-                                                <h3 className="font-headline text-2xl">{displayHosts.length} potential {displayHosts.length === 1 ? 'space' : 'spaces'} found</h3>
-                                                <p className="text-xs text-muted-foreground">Counts update as you filter.</p>
+                                        {hostFiltersVisible && (
+                                            <div className="lg:col-span-1">
+                                                <HostFilters filters={hostFilters} onFiltersChange={(newFilters) => setHostFilters(prev => ({...prev, ...newFilters}))} />
+                                            </div>
+                                        )}
+                                        <div className={cn(hostFiltersVisible ? 'lg:col-span-3' : 'lg:col-span-4')}>
+                                            <div className="flex justify-between items-center mb-4 gap-4">
+                                                <div className='flex items-center gap-4'>
+                                                    <Button onClick={() => setHostFiltersVisible(!hostFiltersVisible)} variant="outline">
+                                                        <Filter className="mr-2 h-4 w-4" />
+                                                        {hostFiltersVisible ? 'Hide' : 'Show'} Filters
+                                                        {!hostFiltersVisible && appliedHostFiltersCount > 0 && (
+                                                            <Badge variant="secondary" className="ml-2">{appliedHostFiltersCount}</Badge>
+                                                        )}
+                                                    </Button>
+                                                     <h3 className="font-headline text-2xl hidden sm:block">{displayHosts.length} potential {displayHosts.length === 1 ? 'space' : 'spaces'} found</h3>
+                                                </div>
                                                 <Select value={sortOption} onValueChange={setSortOption}>
                                                     <SelectTrigger className="w-[180px]">
                                                         <SelectValue placeholder="Sort by" />
@@ -283,6 +320,8 @@ export default function GuidePage() {
                                                     </SelectContent>
                                                 </Select>
                                             </div>
+                                            <h3 className="font-headline text-2xl sm:hidden mb-4">{displayHosts.length} potential {displayHosts.length === 1 ? 'space' : 'spaces'} found</h3>
+
                                             {noHostsFound ? (
                                                 <Card className="text-center py-12">
                                                     <CardHeader>
