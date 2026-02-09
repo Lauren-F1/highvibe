@@ -246,7 +246,7 @@ export default function VendorDashboardPage() {
           <h1 className="font-headline text-4xl md:text-5xl font-bold text-beige">Vendor Dashboard</h1>
           <p className="text-muted-foreground mt-2 text-lg font-body">Provide services that elevate retreat experiences.</p>
         </div>
-        <Button size="lg" className="mt-4 md:mt-0" onClick={handleAddNewService}>
+        <Button className="mt-4 md:mt-0" onClick={handleAddNewService}>
           <PlusCircle className="mr-2 h-5 w-5" />
           Add New Service
         </Button>
@@ -522,3 +522,5 @@ export default function VendorDashboardPage() {
     </div>
   );
 }
+
+    
