@@ -258,9 +258,9 @@ export default function GuidePage() {
                         {/* Matches Available */}
                         <div>
                             <Tabs defaultValue="hosts">
-                                <TabsList className="grid w-full grid-cols-2 bg-primary text-primary-foreground">
-                                    <TabsTrigger value="hosts">Hosts (Spaces)</TabsTrigger>
-                                    <TabsTrigger value="vendors">Vendors (Services)</TabsTrigger>
+                                <TabsList className="grid w-full grid-cols-2 bg-primary text-primary-foreground h-auto">
+                                    <TabsTrigger value="hosts" className="text-base py-2.5">Hosts (Spaces)</TabsTrigger>
+                                    <TabsTrigger value="vendors" className="text-base py-2.5">Vendors (Services)</TabsTrigger>
                                 </TabsList>
                                 <TabsContent value="hosts" className="mt-6">
                                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
