@@ -58,15 +58,15 @@ export function NextBestAction({ stage }: NextBestActionProps) {
   };
 
   return (
-    <Card className="bg-accent border-primary/20">
-      <CardHeader className="flex flex-row items-center gap-4 space-y-0 pb-3">
-        <Lightbulb className="h-6 w-6 text-primary" />
+    <Card className="bg-card border border-beige/50">
+      <CardHeader className="flex flex-row items-center gap-4 space-y-0 p-4 pb-3">
+        <Lightbulb className="h-6 w-6 text-beige" />
         <CardTitle className="text-lg font-semibold">Next Step</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 pt-0">
         <div className="flex items-center justify-between">
             <p className="text-muted-foreground max-w-lg">{action.title}</p>
-            <Button asChild>
+            <Button asChild className="bg-beige text-primary-foreground hover:bg-beige/90">
               <Link href={action.href} onClick={handleClick}>{action.cta}</Link>
             </Button>
         </div>
@@ -74,5 +74,3 @@ export function NextBestAction({ stage }: NextBestActionProps) {
     </Card>
   );
 }
-
-    
