@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -17,13 +18,14 @@ import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { HostCard } from '@/components/host-card';
+import { HostCard, type ConnectionStatus } from '@/components/host-card';
 import { VendorCard } from '@/components/vendor-card';
 import { HostFilters, type HostFiltersState } from '@/components/host-filters';
 import { VendorFilters, type VendorFiltersState as VendorFiltersStateType } from '@/components/vendor-filters';
 import { PartnershipStepper, type PartnershipStage } from '@/components/partnership-stepper';
 import { NextBestAction } from '@/components/next-best-action';
 import { cn } from '@/lib/utils';
+import { RetreatReadinessChecklist, type RetreatReadinessProps } from '@/components/retreat-readiness-checklist';
 
 
 const genericImage = placeholderImages.find(p => p.id === 'generic-placeholder')!;
@@ -61,7 +63,6 @@ export default function GuidePage() {
   const [sortOption, setSortOption] = useState('recommended');
   const [hostFiltersVisible, setHostFiltersVisible] = useState(false);
 
-  const [invitedPartners, setInvitedPartners] = useState<string[]>([]);
   const [currentConnectionRequests, setCurrentConnectionRequests] = useState(connectionRequests);
 
   const appliedHostFiltersCount = useMemo(() => {
@@ -115,6 +116,22 @@ export default function GuidePage() {
   };
 
   const activeRetreat = yourRetreats.find(r => r.id === activeRetreatId);
+  const retreatConnectionRequests = activeRetreat ? currentConnectionRequests.filter(c => c.forRetreat === activeRetreat.name) : [];
+  const retreatConfirmedBookings = activeRetreat ? confirmedBookings.filter(c => c.forRetreat === activeRetreat.name) : [];
+
+  const getPartnerStatus = (partnerId: string): ConnectionStatus => {
+    if (!activeRetreat) return 'Not Invited';
+    if (retreatConfirmedBookings.some(b => b.partnerId === partnerId)) return 'Booked';
+    
+    const request = retreatConnectionRequests.find(r => r.partnerId === partnerId);
+    if (request) {
+        if(request.status === "Declined") return 'Declined';
+        if(request.status === "Confirmed") return 'Confirmed';
+        if(request.status === "Conversation Started") return 'In Conversation';
+        if(request.status === "Invite Sent") return 'Invite Sent';
+    }
+    return 'Not Invited';
+  };
 
   const handleInvitePartner = (partner: Host | Vendor) => {
     if (!activeRetreat) {
@@ -126,47 +143,69 @@ export default function GuidePage() {
         return;
     }
 
-    if (invitedPartners.includes(partner.id)) {
+    const existingStatus = getPartnerStatus(partner.id);
+    if (existingStatus !== 'Not Invited' && existingStatus !== 'Declined') {
         toast({
-            title: 'Already Invited',
-            description: `You have already sent an invite to ${partner.name}.`,
+            title: 'Already Connected',
+            description: `You're already in contact with ${partner.name}.`,
         });
         return;
     }
 
-    setInvitedPartners(prev => [...prev, partner.id]);
-
-    const newRequest = {
-        id: `cr-${Date.now()}`,
-        name: partner.name,
-        // @ts-ignore - a bit hacky to distinguish Host from Vendor
-        role: 'capacity' in partner ? 'Host' : 'Vendor',
-        forRetreat: activeRetreat.name,
-        status: 'Invite Sent',
-    };
-
-    // @ts-ignore
-    setCurrentConnectionRequests(prev => [...prev, newRequest]);
+    const existingRequest = currentConnectionRequests.find(r => r.partnerId === partner.id && r.forRetreat === activeRetreat.name);
+    if(existingRequest) {
+        setCurrentConnectionRequests(prev => prev.map(r => r.id === existingRequest.id ? {...r, status: 'Invite Sent'} : r));
+    } else {
+        const newRequest = {
+            id: `cr-${Date.now()}`,
+            partnerId: partner.id,
+            name: partner.name,
+            // @ts-ignore
+            role: 'capacity' in partner ? 'Host' : 'Vendor',
+            forRetreat: activeRetreat.name,
+            status: 'Invite Sent' as const,
+        };
+        // @ts-ignore
+        setCurrentConnectionRequests(prev => [...prev, newRequest]);
+    }
     
     toast({
         title: 'Invite Sent!',
         description: `${partner.name} has been invited to collaborate on "${activeRetreat.name}".`,
     });
   };
-  
-  const retreatConnectionRequests = activeRetreat ? currentConnectionRequests.filter(c => c.forRetreat === activeRetreat.name) : [];
-  const retreatConfirmedBookings = activeRetreat ? confirmedBookings.filter(c => c.forRetreat === activeRetreat.name) : [];
+
+  const handleViewPartnerMessage = (partner: Host | Vendor) => {
+    const req = currentConnectionRequests.find(c => c.partnerId === partner.id && c.forRetreat === activeRetreat?.name);
+    if (req?.id) {
+        handleViewMessage(req.id);
+    } else {
+        toast({
+            title: 'No Message Thread',
+            description: "Start a conversation by inviting them first.",
+        });
+    }
+  };
   
   const getPartnershipStage = (retreat: (typeof yourRetreats)[0] | undefined, requests: typeof retreatConnectionRequests, bookings: typeof retreatConfirmedBookings): PartnershipStage => {
       if (!retreat) return 'Shortlist';
       if (retreat.status === 'Draft') return 'Draft';
-      if (bookings.length > 0) return 'Confirmed';
+      if (bookings.length > 0) return 'Booked';
+      if (requests.some(r => r.status === 'Confirmed')) return 'Confirmed';
       if (requests.some(r => r.status === 'Conversation Started')) return 'In Conversation';
       if (requests.length > 0) return 'Invites Sent';
       return 'Shortlist';
   };
 
   const partnershipStage = getPartnershipStage(activeRetreat, retreatConnectionRequests, retreatConfirmedBookings);
+
+  const readinessProps: RetreatReadinessProps = useMemo(() => ({
+    datesSet: activeRetreat?.datesSet || false,
+    capacitySet: (activeRetreat?.capacity || 0) > 0,
+    hostsShortlisted: hosts.filter(h => getPartnerStatus(h.id) !== 'Not Invited').length >= 3,
+    vendorsInvited: vendors.filter(v => ['Invite Sent', 'In Conversation', 'Confirmed', 'Booked'].includes(getPartnerStatus(v.id))).length >= 2,
+    activeConversations: retreatConnectionRequests.some(c => c.status === 'Conversation Started'),
+  }), [activeRetreat, retreatConnectionRequests, retreatConfirmedBookings]);
 
 
   const subscriptionBadge = {
@@ -320,6 +359,7 @@ export default function GuidePage() {
                         <div className="space-y-6">
                             <PartnershipStepper currentStage={partnershipStage} />
                             <NextBestAction stage={partnershipStage} />
+                            <RetreatReadinessChecklist {...readinessProps} />
                         </div>
                         <Separator />
                         
@@ -395,7 +435,15 @@ export default function GuidePage() {
                                                 </Card>
                                             ) : (
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                    {displayHosts.map(host => <HostCard key={host.id} host={host} onConnect={handleInvitePartner} isInvited={invitedPartners.includes(host.id)} />)}
+                                                    {displayHosts.map(host => 
+                                                        <HostCard 
+                                                            key={host.id} 
+                                                            host={host} 
+                                                            onConnect={handleInvitePartner} 
+                                                            connectionStatus={getPartnerStatus(host.id)}
+                                                            onViewMessage={handleViewPartnerMessage}
+                                                        />
+                                                    )}
                                                 </div>
                                             )}
                                         </div>
@@ -424,7 +472,15 @@ export default function GuidePage() {
                                             </div>
                                             {vendors.length > 0 ? (
                                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                    {vendors.map(vendor => <VendorCard key={vendor.id} vendor={vendor} onConnect={handleInvitePartner} isInvited={invitedPartners.includes(vendor.id)} />)}
+                                                    {vendors.map(vendor => 
+                                                        <VendorCard 
+                                                            key={vendor.id} 
+                                                            vendor={vendor} 
+                                                            onConnect={handleInvitePartner} 
+                                                            connectionStatus={getPartnerStatus(vendor.id)}
+                                                            onViewMessage={handleViewPartnerMessage}
+                                                        />
+                                                    )}
                                                 </div>
                                             ) : (
                                                 <div className="text-center py-12 rounded-lg bg-secondary/50">
@@ -458,7 +514,11 @@ export default function GuidePage() {
                                             <TableRow key={req.id}>
                                                 <TableCell className="font-medium">{req.name}</TableCell>
                                                 <TableCell>{req.role}</TableCell>
-                                                <TableCell><Badge variant={req.status === 'Conversation Started' ? 'default' : 'secondary'}>{req.status}</Badge></TableCell>
+                                                <TableCell><Badge variant={
+                                                    req.status === 'Conversation Started' ? 'default' : 
+                                                    req.status === 'Confirmed' ? 'default' :
+                                                    req.status === 'Declined' ? 'destructive' : 'secondary'
+                                                }>{req.status}</Badge></TableCell>
                                                 <TableCell className="text-right">
                                                     <Button variant="outline" size="sm" className="mr-2" onClick={() => handleViewMessage(req.id)}>View Message</Button>
                                                 </TableCell>

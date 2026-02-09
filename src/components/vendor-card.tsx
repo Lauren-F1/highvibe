@@ -11,19 +11,46 @@ import type { Vendor } from '@/lib/mock-data';
 import { placeholderImages } from '@/lib/placeholder-images';
 import { Badge } from './ui/badge';
 import Link from 'next/link';
+import { type ConnectionStatus } from './host-card';
 
 
 export interface VendorCardProps {
   vendor: Vendor;
   onConnect?: (vendor: Vendor) => void;
+  onViewMessage?: (partner: Vendor) => void;
   distance?: number;
-  isInvited?: boolean;
+  connectionStatus?: ConnectionStatus;
 }
 
 const defaultAvatar = placeholderImages.find(p => p.id === 'friendly-host-portrait')!;
 
-export function VendorCard({ vendor, onConnect, distance, isInvited }: VendorCardProps) {
+export function VendorCard({ vendor, onConnect, onViewMessage, distance, connectionStatus = 'Not Invited' }: VendorCardProps) {
   const avatar = vendor.avatar || defaultAvatar;
+
+  const renderActionButton = () => {
+    if (!onConnect || !onViewMessage) return null;
+
+    switch (connectionStatus) {
+      case 'In Conversation':
+        return <Button onClick={() => onViewMessage(vendor)} className="w-full">Message</Button>;
+      case 'Not Invited':
+        return <Button onClick={() => onConnect(vendor)} className="w-full">Invite</Button>;
+      case 'Declined':
+        return <Button onClick={() => onConnect(vendor)} className="w-full" variant="secondary">Re-Invite</Button>;
+      default:
+        return <Button className="w-full" disabled>{connectionStatus}</Button>;
+    }
+  };
+
+  const statusBadge = () => {
+    if (connectionStatus === 'Not Invited') return null;
+    let variant: "default" | "secondary" | "destructive" | "outline" = 'secondary';
+    if (connectionStatus === 'In Conversation' || connectionStatus === 'Confirmed' || connectionStatus === 'Booked') variant = 'default';
+    if (connectionStatus === 'Declined') variant = 'destructive';
+
+    return <Badge variant={variant} className="ml-2">{connectionStatus}</Badge>
+  }
+
 
   return (
     <Card className="w-full overflow-hidden flex flex-col h-full">
@@ -38,7 +65,7 @@ export function VendorCard({ vendor, onConnect, distance, isInvited }: VendorCar
         </Avatar>
         <div className="flex-grow">
           <div className="flex justify-between items-start">
-            <CardTitle className="text-lg">{vendor.name}</CardTitle>
+            <CardTitle className="text-lg flex items-center">{vendor.name} {statusBadge()}</CardTitle>
             <div className="flex items-center gap-2">
                 {vendor.premiumMembership && <Badge variant="secondary">Featured</Badge>}
                 {vendor.luxApproved && <Image src="/lux.png" alt="LUX Approved" width={28} height={28} />}
@@ -63,11 +90,7 @@ export function VendorCard({ vendor, onConnect, distance, isInvited }: VendorCar
             <Button asChild variant="outline" className="w-full">
               <Link href={vendor.profileSlug ? `/u/${vendor.profileSlug}` : '#'}>Profile</Link>
             </Button>
-            {onConnect && (
-              <Button onClick={() => onConnect(vendor)} className="w-full" disabled={isInvited}>
-                {isInvited ? 'Invited' : 'Invite'}
-              </Button>
-            )}
+            {renderActionButton()}
         </CardFooter>
     </Card>
   );

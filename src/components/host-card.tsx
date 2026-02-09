@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -7,6 +8,9 @@ import type { ImagePlaceholder } from '@/lib/placeholder-images';
 import { Button } from './ui/button';
 import { placeholderImages } from '@/lib/placeholder-images';
 import Link from 'next/link';
+import { Badge } from './ui/badge';
+
+export type ConnectionStatus = 'Not Invited' | 'Invite Sent' | 'In Conversation' | 'Confirmed' | 'Booked' | 'Declined';
 
 export interface Host {
   id: string;
@@ -39,14 +43,41 @@ export interface Host {
 interface HostCardProps {
   host: Host;
   onConnect?: (host: Host) => void;
-  isInvited?: boolean;
+  onViewMessage?: (partner: Host) => void;
+  connectionStatus?: ConnectionStatus;
 }
 
 const defaultImage = placeholderImages.find(p => p.id === 'generic-placeholder')!;
 
 
-export function HostCard({ host, onConnect, isInvited }: HostCardProps) {
+export function HostCard({ host, onConnect, onViewMessage, connectionStatus = 'Not Invited' }: HostCardProps) {
   const image = host.image || defaultImage;
+
+  const renderActionButton = () => {
+    if (!onConnect || !onViewMessage) return null;
+
+    switch (connectionStatus) {
+      case 'In Conversation':
+        return <Button onClick={() => onViewMessage(host)} className="w-full">Message</Button>;
+      case 'Not Invited':
+        return <Button onClick={() => onConnect(host)} className="w-full">Invite</Button>;
+      case 'Declined':
+         return <Button onClick={() => onConnect(host)} className="w-full" variant="secondary">Re-Invite</Button>;
+      default:
+        return <Button className="w-full" disabled>{connectionStatus}</Button>;
+    }
+  };
+
+  const statusBadge = () => {
+      if (connectionStatus === 'Not Invited') return null;
+      let variant: "default" | "secondary" | "destructive" | "outline" = 'secondary';
+      if (connectionStatus === 'In Conversation' || connectionStatus === 'Confirmed' || connectionStatus === 'Booked') variant = 'default';
+      if (connectionStatus === 'Declined') variant = 'destructive';
+      
+      return <Badge variant={variant} className="ml-2">{connectionStatus}</Badge>
+  }
+
+
   return (
     <Card className="w-full overflow-hidden transition-shadow duration-300 hover:shadow-xl flex flex-col h-full">
       <div className="relative aspect-[4/3] w-full">
@@ -63,7 +94,7 @@ export function HostCard({ host, onConnect, isInvited }: HostCardProps) {
             <div className="flex justify-between items-start">
                 <div>
                     <p className="text-sm text-muted-foreground">{host.propertyType}</p>
-                    <h3 className="font-headline text-xl font-bold">{host.name}</h3>
+                    <h3 className="font-headline text-xl font-bold flex items-center">{host.name} {statusBadge()}</h3>
                     <div className="flex items-center text-sm text-muted-foreground mt-1">
                         <MapPin className="mr-2 h-4 w-4" />
                         {host.location}
@@ -104,11 +135,7 @@ export function HostCard({ host, onConnect, isInvited }: HostCardProps) {
          <Button asChild variant="outline" className="w-full">
             <Link href={host.profileSlug ? `/u/${host.profileSlug}` : '#'}>Profile</Link>
          </Button>
-         {onConnect && (
-            <Button onClick={() => onConnect(host)} className="w-full" disabled={isInvited}>
-                {isInvited ? 'Invited' : 'Invite'}
-            </Button>
-         )}
+         {renderActionButton()}
       </CardFooter>
     </Card>
   );

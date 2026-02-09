@@ -39,10 +39,10 @@ export type UserSubscriptionStatus = 'active' | 'inactive' | 'past_due' | 'trial
 const genericImage = placeholderImages.find(p => p.id === 'generic-placeholder')!;
 
 export const yourRetreats = [
-  { id: '1', name: 'Sunrise Yoga in Bali', status: 'Published', bookings: 12, income: 4800, location: 'Bali, Indonesia', image: placeholderImages.find(p => p.id === 'yoga-beach')! },
-  { id: '2', name: 'Silent Meditation in Kyoto', status: 'Draft', bookings: 0, income: 0, location: 'Kyoto, Japan', image: placeholderImages.find(p => p.id === 'host-kyoto-ryokan') || genericImage },
-  { id: '3', name: 'Andes Hiking Adventure', status: 'Published', bookings: 8, income: 9600, location: 'Cusco, Peru', image: placeholderImages.find(p => p.id === 'mountain-hike')! },
-  { id: '4', name: 'Tuscan Culinary Journey', status: 'Draft', bookings: 0, income: 0, location: 'Tuscany, Italy', image: placeholderImages.find(p => p.id === 'host-tuscany-winery-sunset') || genericImage },
+  { id: '1', name: 'Sunrise Yoga in Bali', status: 'Published', bookings: 12, income: 4800, location: 'Bali, Indonesia', image: placeholderImages.find(p => p.id === 'yoga-beach')!, datesSet: true, capacity: 15 },
+  { id: '2', name: 'Silent Meditation in Kyoto', status: 'Draft', bookings: 0, income: 0, location: 'Kyoto, Japan', image: placeholderImages.find(p => p.id === 'host-kyoto-ryokan') || genericImage, datesSet: false, capacity: 0 },
+  { id: '3', name: 'Andes Hiking Adventure', status: 'Published', bookings: 8, income: 9600, location: 'Cusco, Peru', image: placeholderImages.find(p => p.id === 'mountain-hike')!, datesSet: true, capacity: 20 },
+  { id: '4', name: 'Tuscan Culinary Journey', status: 'Draft', bookings: 0, income: 0, location: 'Tuscany, Italy', image: placeholderImages.find(p => p.id === 'host-tuscany-winery-sunset') || genericImage, datesSet: false, capacity: 0 },
 ];
 
 export const allRetreats = [
@@ -114,12 +114,16 @@ export const matchingGuidesForVendor: Guide[] = [
 export const matchingHostsForVendor: Host[] = hosts.slice(0, 4);
 
 export const connectionRequests = [
-  { id: 'cr1', name: 'Ubud Jungle Haven', role: 'Host', forRetreat: 'Sunrise Yoga in Bali', status: 'Waiting to Connect' },
-  { id: 'cr2', name: 'Elena Ray', role: 'Vendor', forRetreat: 'Sunrise Yoga in Bali', status: 'Conversation Started' },
+    { id: 'cr1', partnerId: 'h2', name: 'Kyoto Serenity Center', role: 'Host', forRetreat: 'Silent Meditation in Kyoto', status: 'Invite Sent' },
+    { id: 'cr2', partnerId: 'v3', name: 'Kyoto Wellness Collective', role: 'Vendor', forRetreat: 'Silent Meditation in Kyoto', status: 'Invite Sent' },
+    { id: 'cr3', partnerId: 'h1', name: 'Ubud Jungle Haven', role: 'Host', forRetreat: 'Sunrise Yoga in Bali', status: 'Conversation Started' },
+    { id: 'cr4', partnerId: 'v1', name: 'Elena Ray', role: 'Vendor', forRetreat: 'Sunrise Yoga in Bali', status: 'Confirmed' },
+    { id: 'cr5', partnerId: 'v8', name: 'Bali Bodywork', role: 'Vendor', forRetreat: 'Sunrise Yoga in Bali', status: 'Declined' },
 ];
 
 export const confirmedBookings = [
-  { id: 'cb1', partnerName: 'Sacred Valley Hacienda', role: 'Host', forRetreat: 'Andes Hiking Adventure', dates: 'Oct 15-22, 2024' },
+  { id: 'cb1', partnerId: 'h3', partnerName: 'Sacred Valley Hacienda', role: 'Host', forRetreat: 'Andes Hiking Adventure', dates: 'Oct 15-22, 2024' },
+  { id: 'cb2', partnerId: 'v4', partnerName: 'Andean Spirit Guides', role: 'Vendor', forRetreat: 'Andes Hiking Adventure', dates: 'Oct 15-22, 2024' },
 ];
 
 // Data for filters
