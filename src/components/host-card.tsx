@@ -9,8 +9,7 @@ import { Button } from './ui/button';
 import { placeholderImages } from '@/lib/placeholder-images';
 import Link from 'next/link';
 import { Badge } from './ui/badge';
-
-export type ConnectionStatus = 'Not Invited' | 'Invite Sent' | 'In Conversation' | 'Confirmed' | 'Booked' | 'Declined';
+import { type ConnectionStatus } from './guide-card';
 
 export interface Host {
   id: string;
@@ -45,12 +44,13 @@ interface HostCardProps {
   onConnect?: (host: Host) => void;
   onViewMessage?: (partner: Host) => void;
   connectionStatus?: ConnectionStatus;
+  connectActionLabel?: string;
 }
 
 const defaultImage = placeholderImages.find(p => p.id === 'generic-placeholder')!;
 
 
-export function HostCard({ host, onConnect, onViewMessage, connectionStatus = 'Not Invited' }: HostCardProps) {
+export function HostCard({ host, onConnect, onViewMessage, connectionStatus = 'Not Invited', connectActionLabel = "Invite" }: HostCardProps) {
   const image = host.image || defaultImage;
 
   const renderActionButton = () => {
@@ -58,20 +58,25 @@ export function HostCard({ host, onConnect, onViewMessage, connectionStatus = 'N
 
     switch (connectionStatus) {
       case 'In Conversation':
+      case 'New Request':
         return <Button onClick={() => onViewMessage(host)} className="w-full">Message</Button>;
       case 'Not Invited':
-        return <Button onClick={() => onConnect(host)} className="w-full">Invite</Button>;
+      case 'Not Connected':
+        return <Button onClick={() => onConnect(host)} className="w-full">{connectActionLabel}</Button>;
       case 'Declined':
-         return <Button onClick={() => onConnect(host)} className="w-full" variant="secondary">Re-Invite</Button>;
+         return <Button onClick={() => onConnect(host)} className="w-full" variant="secondary">{connectActionLabel === 'Invite' ? 'Re-Invite' : 'Connect Again'}</Button>;
+      case 'Invite Sent':
+      case 'Connection Requested':
+        return <Button className="w-full" disabled>Requested</Button>;
       default:
         return <Button className="w-full" disabled>{connectionStatus}</Button>;
     }
   };
 
   const statusBadge = () => {
-      if (connectionStatus === 'Not Invited') return null;
+      if (connectionStatus === 'Not Invited' || connectionStatus === 'Not Connected') return null;
       let variant: "default" | "secondary" | "destructive" | "outline" = 'secondary';
-      if (connectionStatus === 'In Conversation' || connectionStatus === 'Confirmed' || connectionStatus === 'Booked') variant = 'default';
+      if (['In Conversation', 'Confirmed', 'Booked', 'New Request'].includes(connectionStatus)) variant = 'default';
       if (connectionStatus === 'Declined') variant = 'destructive';
       
       return <Badge variant={variant} className="ml-2">{connectionStatus}</Badge>
@@ -140,5 +145,3 @@ export function HostCard({ host, onConnect, onViewMessage, connectionStatus = 'N
     </Card>
   );
 }
-
-    

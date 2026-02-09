@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { PlusCircle, Eye, Users, MessageSquare, CheckCircle, DollarSign, MoreHorizontal } from 'lucide-react';
-import { yourServices, matchingGuidesForVendor, matchingHostsForVendor } from '@/lib/mock-data';
+import { yourServices, matchingGuidesForVendor, matchingHostsForVendor, type Guide, type Host } from '@/lib/mock-data';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
@@ -16,6 +16,7 @@ import { HostCard } from '@/components/host-card';
 import { VendorGuideFilters } from '@/components/vendor-guide-filters';
 import { VendorHostFilters } from '@/components/vendor-host-filters';
 import { useToast } from '@/hooks/use-toast';
+import { type ConnectionStatus } from '@/components/guide-card';
 
 interface StatCardProps {
   title: string;
@@ -39,17 +40,21 @@ function StatCard({ title, value, icon, description }: StatCardProps) {
   );
 }
 
-const connectionRequests = [
-    { id: 'cr1', name: 'Isabella Rossi', role: 'Guide', regarding: 'Holistic Catering', status: 'Awaiting Response' },
-    { id: 'cr2', name: 'The Glass House', role: 'Host', regarding: 'Holistic Catering', status: 'New Request' }
+const initialConnectionRequests = [
+    { id: 'cr1', partnerId: 'g3', name: 'Isabella Rossi', role: 'Guide' as const, regarding: 'Holistic Catering', status: 'Awaiting Response' as const },
+    { id: 'cr2', partnerId: 'h1', name: 'The Glass House', role: 'Host' as const, regarding: 'Holistic Catering', status: 'New Request' as const }
 ];
-const confirmedBookings = [
-    { id: 'cb1', clientName: 'Asha Sharma', clientRole: 'Guide', service: 'Holistic Catering', dates: 'Dec 1-5, 2024' }
+const initialConfirmedBookings = [
+    { id: 'cb1', partnerId: 'g1', clientName: 'Asha Sharma', clientRole: 'Guide' as const, service: 'Holistic Catering', dates: 'Dec 1-5, 2024' }
 ];
 
 export default function VendorDashboardPage() {
   const router = useRouter();
   const { toast } = useToast();
+
+  const [connectionRequests, setConnectionRequests] = useState(initialConnectionRequests);
+  const [confirmedBookings, setConfirmedBookings] = useState(initialConfirmedBookings);
+
 
   const handleAddNewService = () => {
     alert("Navigate to 'Add New Service' page.");
@@ -66,6 +71,57 @@ export default function VendorDashboardPage() {
         });
     }
   };
+
+  const getPartnerStatus = (partnerId: string): ConnectionStatus => {
+    if (confirmedBookings.some(b => b.partnerId === partnerId)) return 'Booked';
+    const request = connectionRequests.find(r => r.partnerId === partnerId);
+    if (request) {
+        if (request.status === 'New Request') return 'New Request';
+        if (request.status === 'Awaiting Response') return 'Connection Requested';
+    }
+    return 'Not Connected';
+  };
+  
+  const handleConnect = (partner: Guide | Host) => {
+      const existingStatus = getPartnerStatus(partner.id);
+      if (existingStatus !== 'Not Connected' && existingStatus !== 'Declined') {
+          toast({
+              title: 'Already Connected',
+              description: `You're already in contact with ${partner.name}.`,
+          });
+          return;
+      }
+      
+      const newRequest = {
+          id: `cr-${Date.now()}`,
+          partnerId: partner.id,
+          name: partner.name,
+          // @ts-ignore
+          role: 'specialty' in partner ? 'Guide' : 'Host',
+          regarding: 'Your Services', // Placeholder
+          status: 'Awaiting Response' as const,
+      };
+
+      setConnectionRequests(prev => [...prev, newRequest]);
+      
+      toast({
+          title: 'Connection Requested!',
+          description: `You've sent a connection request to ${partner.name}.`,
+      });
+  };
+  
+  const handleViewPartnerMessage = (partner: Guide | Host) => {
+      const req = connectionRequests.find(c => c.partnerId === partner.id);
+      if (req?.id) {
+          handleViewMessage(req.id);
+      } else {
+          toast({
+              title: 'No Message Thread',
+              description: "Start a conversation by connecting with them first.",
+          });
+      }
+  };
+
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -171,7 +227,15 @@ export default function VendorDashboardPage() {
                                     </Select>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {matchingGuidesForVendor.map(guide => <GuideCard key={guide.id} guide={guide} />)}
+                                    {matchingGuidesForVendor.map(guide => (
+                                        <GuideCard 
+                                            key={guide.id} 
+                                            guide={guide}
+                                            onConnect={handleConnect}
+                                            onViewMessage={handleViewPartnerMessage}
+                                            connectionStatus={getPartnerStatus(guide.id)}
+                                        />
+                                    ))}
                                 </div>
                             </div>
                         </div>
@@ -198,7 +262,16 @@ export default function VendorDashboardPage() {
                                     </Select>
                                  </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {matchingHostsForVendor.map(host => <HostCard key={host.id} host={host} />)}
+                                    {matchingHostsForVendor.map(host => (
+                                        <HostCard 
+                                            key={host.id} 
+                                            host={host}
+                                            onConnect={handleConnect}
+                                            onViewMessage={handleViewPartnerMessage}
+                                            connectionStatus={getPartnerStatus(host.id)}
+                                            connectActionLabel="Connect"
+                                        />
+                                    ))}
                                 </div>
                             </div>
                         </div>

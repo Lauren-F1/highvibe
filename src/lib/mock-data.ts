@@ -182,5 +182,3 @@ export const vendorCategories: { name: string; description?: string }[] = [
     { name: "Other", description: "I offer something out of the box that I think would be your vibe." },
 ];
 export const vendorPricingTiers = ["Budget", "Mid-range", "Premium", "Luxury"];
-
-    
