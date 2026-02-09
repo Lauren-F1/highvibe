@@ -1,11 +1,11 @@
 
 "use client";
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { PlusCircle, Eye, Users, MessageSquare, CheckCircle, DollarSign, MoreHorizontal } from 'lucide-react';
-import { yourServices, matchingGuidesForVendor, matchingHostsForVendor, type Guide, type Host } from '@/lib/mock-data';
+import { PlusCircle, Eye, Users, MessageSquare, CheckCircle, DollarSign, MoreHorizontal, Filter } from 'lucide-react';
+import { yourServices, matchingGuidesForVendor as allGuides, matchingHostsForVendor as allHosts, type Guide, type Host } from '@/lib/mock-data';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
@@ -13,10 +13,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { GuideCard } from '@/components/guide-card';
 import { HostCard } from '@/components/host-card';
-import { VendorGuideFilters } from '@/components/vendor-guide-filters';
-import { VendorHostFilters } from '@/components/vendor-host-filters';
+import { VendorGuideFilters, type VendorGuideFiltersState } from '@/components/vendor-guide-filters';
+import { VendorHostFilters, type VendorHostFiltersState } from '@/components/vendor-host-filters';
 import { useToast } from '@/hooks/use-toast';
 import { type ConnectionStatus } from '@/components/guide-card';
+import { cn } from '@/lib/utils';
 
 interface StatCardProps {
   title: string;
@@ -48,12 +49,126 @@ const initialConfirmedBookings = [
     { id: 'cb1', partnerId: 'g1', clientName: 'Asha Sharma', clientRole: 'Guide' as const, service: 'Holistic Catering', dates: 'Dec 1-5, 2024' }
 ];
 
+
+const initialGuideFilters: VendorGuideFiltersState = {
+  location: 'any',
+  retreatTypes: [],
+  dateRange: 'anytime',
+  groupSize: 100,
+  budgetTiers: [],
+  services: [],
+};
+
+const initialHostFilters: VendorHostFiltersState = {
+  location: 'any',
+  propertyTypes: [],
+  capacity: 100,
+  retreatFrequency: 'any',
+};
+
+
 export default function VendorDashboardPage() {
   const router = useRouter();
   const { toast } = useToast();
 
   const [connectionRequests, setConnectionRequests] = useState(initialConnectionRequests);
   const [confirmedBookings, setConfirmedBookings] = useState(initialConfirmedBookings);
+
+  const [guideFilters, setGuideFilters] = useState<VendorGuideFiltersState>(initialGuideFilters);
+  const [appliedGuideFilters, setAppliedGuideFilters] = useState<VendorGuideFiltersState>(initialGuideFilters);
+  const [guideFiltersDirty, setGuideFiltersDirty] = useState(false);
+  const [guideFiltersVisible, setGuideFiltersVisible] = useState(false);
+  const [guideSortOption, setGuideSortOption] = useState('recommended');
+
+  const [hostFilters, setHostFilters] = useState<VendorHostFiltersState>(initialHostFilters);
+  const [appliedHostFilters, setAppliedHostFilters] = useState<VendorHostFiltersState>(initialHostFilters);
+  const [hostFiltersDirty, setHostFiltersDirty] = useState(false);
+  const [hostFiltersVisible, setHostFiltersVisible] = useState(false);
+  const [hostSortOption, setHostSortOption] = useState('recommended');
+
+  const appliedGuideFiltersCount = useMemo(() => {
+    let count = 0;
+    if (appliedGuideFilters.location !== initialGuideFilters.location) count++;
+    if (appliedGuideFilters.retreatTypes.length > 0) count++;
+    if (appliedGuideFilters.dateRange !== initialGuideFilters.dateRange) count++;
+    if (appliedGuideFilters.groupSize < initialGuideFilters.groupSize) count++;
+    if (appliedGuideFilters.budgetTiers.length > 0) count++;
+    if (appliedGuideFilters.services.length > 0) count++;
+    return count;
+  }, [appliedGuideFilters]);
+
+  const appliedHostFiltersCount = useMemo(() => {
+    let count = 0;
+    if (appliedHostFilters.location !== initialHostFilters.location) count++;
+    if (appliedHostFilters.propertyTypes.length > 0) count++;
+    if (appliedHostFilters.capacity < initialHostFilters.capacity) count++;
+    if (appliedHostFilters.retreatFrequency !== initialHostFilters.retreatFrequency) count++;
+    return count;
+  }, [appliedHostFilters]);
+
+  const handleGuideFilterChange = (newFilters: Partial<VendorGuideFiltersState>) => {
+    setGuideFilters(prev => ({ ...prev, ...newFilters }));
+    setGuideFiltersDirty(true);
+  };
+  const handleApplyGuideFilters = () => {
+    setAppliedGuideFilters(guideFilters);
+    setGuideFiltersDirty(false);
+  };
+  const handleResetGuideFilters = () => {
+    setGuideFilters(initialGuideFilters);
+    setAppliedGuideFilters(initialGuideFilters);
+    setGuideFiltersDirty(false);
+  };
+  
+  const handleHostFilterChange = (newFilters: Partial<VendorHostFiltersState>) => {
+    setHostFilters(prev => ({ ...prev, ...newFilters }));
+    setHostFiltersDirty(true);
+  };
+  const handleApplyHostFilters = () => {
+    setAppliedHostFilters(hostFilters);
+    setHostFiltersDirty(false);
+  };
+  const handleResetHostFilters = () => {
+    setHostFilters(initialHostFilters);
+    setAppliedHostFilters(initialHostFilters);
+    setHostFiltersDirty(false);
+  };
+
+  const displayedGuides = useMemo(() => {
+    let filtered = [...allGuides];
+    // TODO: Add filtering logic based on appliedGuideFilters
+    switch (guideSortOption) {
+      case 'rating':
+        filtered.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+        break;
+      case 'newest':
+         filtered.sort((a, b) => (b.reviewCount ?? 0) - (a.reviewCount ?? 0));
+        break;
+      case 'recommended':
+      default:
+         filtered.sort((a, b) => (b.premiumMembership ? 1 : 0) - (a.premiumMembership ? 1 : 0) || (b.rating ?? 0) - (a.rating ?? 0) || (b.reviewCount ?? 0) - (a.reviewCount ?? 0));
+        break;
+    }
+    return filtered;
+  }, [appliedGuideFilters, guideSortOption]);
+
+  const displayedHosts = useMemo(() => {
+    let filtered = [...allHosts];
+    // TODO: Add filtering logic based on appliedHostFilters
+    switch (hostSortOption) {
+      case 'price-asc':
+        filtered.sort((a, b) => a.pricePerNight - b.pricePerNight);
+        break;
+      case 'price-desc':
+        filtered.sort((a, b) => b.pricePerNight - a.pricePerNight);
+        break;
+      case 'recommended':
+      default:
+         filtered.sort((a, b) => (b.luxApproved ? 1 : 0) - (a.luxApproved ? 1 : 0) || a.pricePerNight - b.pricePerNight);
+        break;
+    }
+    return filtered;
+  }, [appliedHostFilters, hostSortOption]);
 
 
   const handleAddNewService = () => {
@@ -208,14 +323,30 @@ export default function VendorDashboardPage() {
                     </TabsList>
                     <TabsContent value="guides" className="mt-6">
                         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                            <div className="lg:col-span-1">
-                                <VendorGuideFilters />
-                            </div>
-                            <div className="lg:col-span-3">
+                            {guideFiltersVisible && (
+                                <div className="lg:col-span-1">
+                                    <VendorGuideFilters 
+                                        filters={guideFilters}
+                                        onFiltersChange={handleGuideFilterChange}
+                                        onApply={handleApplyGuideFilters}
+                                        onReset={handleResetGuideFilters}
+                                        isDirty={guideFiltersDirty}
+                                    />
+                                </div>
+                            )}
+                            <div className={cn(guideFiltersVisible ? "lg:col-span-3" : "lg:col-span-4")}>
                                 <div className="flex justify-between items-center mb-4">
-                                    <h3 className="font-headline text-2xl">{matchingGuidesForVendor.length} Matching {matchingGuidesForVendor.length === 1 ? 'Guide' : 'Guides'}</h3>
-                                    <p className="text-xs text-muted-foreground">Counts update as you filter.</p>
-                                    <Select defaultValue="recommended">
+                                    <div className='flex items-center gap-4'>
+                                        <Button onClick={() => setGuideFiltersVisible(!guideFiltersVisible)} variant="outline">
+                                            <Filter className="mr-2 h-4 w-4" />
+                                            {guideFiltersVisible ? 'Hide' : 'Show'} Filters
+                                            {!guideFiltersVisible && appliedGuideFiltersCount > 0 && (
+                                                <Badge variant="secondary" className="ml-2">{appliedGuideFiltersCount}</Badge>
+                                            )}
+                                        </Button>
+                                        <h3 className="font-headline text-2xl hidden sm:block">{displayedGuides.length} Matching {displayedGuides.length === 1 ? 'Guide' : 'Guides'}</h3>
+                                    </div>
+                                    <Select value={guideSortOption} onValueChange={setGuideSortOption}>
                                         <SelectTrigger className="w-[180px]">
                                             <SelectValue placeholder="Sort by" />
                                         </SelectTrigger>
@@ -226,8 +357,9 @@ export default function VendorDashboardPage() {
                                         </SelectContent>
                                     </Select>
                                 </div>
+                                <h3 className="font-headline text-2xl sm:hidden mb-4">{displayedGuides.length} Matching {displayedGuides.length === 1 ? 'Guide' : 'Guides'}</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {matchingGuidesForVendor.map(guide => (
+                                    {displayedGuides.map(guide => (
                                         <GuideCard 
                                             key={guide.id} 
                                             guide={guide}
@@ -242,14 +374,30 @@ export default function VendorDashboardPage() {
                     </TabsContent>
                     <TabsContent value="hosts" className="mt-6">
                        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                            <div className="lg:col-span-1">
-                                <VendorHostFilters />
-                            </div>
-                            <div className="lg:col-span-3">
+                            {hostFiltersVisible && (
+                                <div className="lg:col-span-1">
+                                    <VendorHostFilters
+                                        filters={hostFilters}
+                                        onFiltersChange={handleHostFilterChange}
+                                        onApply={handleApplyHostFilters}
+                                        onReset={handleResetHostFilters}
+                                        isDirty={hostFiltersDirty}
+                                    />
+                                </div>
+                            )}
+                            <div className={cn(hostFiltersVisible ? "lg:col-span-3" : "lg:col-span-4")}>
                                  <div className="flex justify-between items-center mb-4">
-                                     <h3 className="font-headline text-2xl">{matchingHostsForVendor.length} Matching {matchingHostsForVendor.length === 1 ? 'Host' : 'Hosts'}</h3>
-                                     <p className="text-xs text-muted-foreground">Counts update as you filter.</p>
-                                    <Select defaultValue="recommended">
+                                    <div className='flex items-center gap-4'>
+                                        <Button onClick={() => setHostFiltersVisible(!hostFiltersVisible)} variant="outline">
+                                            <Filter className="mr-2 h-4 w-4" />
+                                            {hostFiltersVisible ? 'Hide' : 'Show'} Filters
+                                            {!hostFiltersVisible && appliedHostFiltersCount > 0 && (
+                                                <Badge variant="secondary" className="ml-2">{appliedHostFiltersCount}</Badge>
+                                            )}
+                                        </Button>
+                                     <h3 className="font-headline text-2xl hidden sm:block">{displayedHosts.length} Matching {displayedHosts.length === 1 ? 'Host' : 'Hosts'}</h3>
+                                    </div>
+                                    <Select value={hostSortOption} onValueChange={setHostSortOption}>
                                         <SelectTrigger className="w-[180px]">
                                             <SelectValue placeholder="Sort by" />
                                         </SelectTrigger>
@@ -261,8 +409,9 @@ export default function VendorDashboardPage() {
                                         </SelectContent>
                                     </Select>
                                  </div>
+                                 <h3 className="font-headline text-2xl sm:hidden mb-4">{displayedHosts.length} Matching {displayedHosts.length === 1 ? 'Host' : 'Hosts'}</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {matchingHostsForVendor.map(host => (
+                                    {displayedHosts.map(host => (
                                         <HostCard 
                                             key={host.id} 
                                             host={host}
