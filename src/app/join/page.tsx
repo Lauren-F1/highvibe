@@ -53,7 +53,7 @@ export default function JoinPage() {
               <Button key={role.name} variant="outline" asChild className="h-auto p-6 text-left">
                 <Link href={role.href}>
                   <div className="flex items-center gap-4">
-                    <Image src={role.icon} alt={`${role.name} icon`} width={64} height={64} />
+                    <Image src={role.icon} alt={`${role.name} icon`} width={64} height={64} className="text-primary" />
                     <div>
                       <p className="font-bold text-lg">{role.name}</p>
                       <p className="text-sm text-muted-foreground">{role.description}</p>
