@@ -16,11 +16,13 @@ import { useRouter } from 'next/navigation';
 import { useUser } from '@/firebase';
 import { getAuth } from 'firebase/auth';
 import { isFirebaseEnabled } from '@/firebase/config';
+import { useInbox } from '@/context/InboxContext';
 
 
 export function Header() {
   const router = useRouter();
   const user = useUser();
+  const { unreadCount } = useInbox();
   
   const handleLogout = () => {
     if (!isFirebaseEnabled) {
@@ -71,8 +73,13 @@ export function Header() {
              <Link href='/vendor' className="transition-colors hover:text-foreground/80 text-foreground/60">
               For Vendors
             </Link>
-             <Link href='/inbox' className="transition-colors hover:text-foreground/80 text-foreground/60">
+             <Link href='/inbox' className="relative transition-colors hover:text-foreground/80 text-foreground/60">
               Inbox
+              {unreadCount > 0 && (
+                <span className="absolute -top-1.5 -right-4 z-10 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
             </Link>
           </nav>
         </div>

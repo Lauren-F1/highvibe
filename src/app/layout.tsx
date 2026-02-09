@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
+import { InboxProvider } from '@/context/InboxContext';
 
 export const metadata: Metadata = {
   title: 'Retreat and Relax',
@@ -17,7 +18,9 @@ export default function RootLayout({
     <html lang="en" className="antialiased">
       <body className='font-body'>
         <FirebaseClientProvider>
-          {children}
+          <InboxProvider>
+            {children}
+          </InboxProvider>
         </FirebaseClientProvider>
         <Toaster />
       </body>

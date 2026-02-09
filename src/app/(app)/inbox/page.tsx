@@ -7,17 +7,13 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { isFirebaseEnabled } from "@/firebase/config";
-
-const conversations = [
-  { id: 'conv1', name: 'Asha Sharma', role: 'Guide', retreat: 'The Glass House Inquiry', lastMessage: 'This looks like a great fit! Can you confirm availability for November?', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200', unread: true },
-  { id: 'conv2', name: 'Local Caterers', role: 'Vendor', retreat: 'The Glass House Inquiry', lastMessage: 'Yes, we can provide a sample menu for 25 guests.', avatar: 'https://images.unsplash.com/photo-1606756790138-261d2b21cd75?w=200', unread: true },
-  { id: 'conv3', name: 'Ubud Jungle Haven', role: 'Host', retreat: 'Sunrise Yoga in Bali', lastMessage: 'We have availability. Let\'s discuss details.', avatar: 'https://images.unsplash.com/photo-1600585154340-be6164a83639?w=200', unread: false },
-];
+import { useInbox } from "@/context/InboxContext";
 
 export default function InboxPage() {
   const user = useUser();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { conversations, markAsRead } = useInbox();
   
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
 
@@ -43,6 +39,11 @@ export default function InboxPage() {
     }
   }, [user.status, searchParams, router]);
 
+  const handleSelectConversation = (id: string) => {
+    markAsRead(id);
+    router.push(`/inbox?c=${id}`);
+  };
+
   if (isFirebaseEnabled && (user.status === 'loading' || user.status === 'unauthenticated')) {
     return <div className="container mx-auto px-4 py-12 text-center">Loading...</div>;
   }
@@ -63,7 +64,7 @@ export default function InboxPage() {
                       "p-4 hover:bg-accent cursor-pointer flex items-center gap-4 transition-colors",
                       selectedThreadId === convo.id && 'bg-accent'
                     )}
-                     onClick={() => router.push(`/inbox?c=${convo.id}`)}
+                     onClick={() => handleSelectConversation(convo.id)}
                   >
                       {convo.unread && <div className="h-2.5 w-2.5 rounded-full bg-primary shrink-0"></div>}
                     <div className="flex items-start gap-4 flex-grow">
