@@ -31,7 +31,7 @@ function ConversationListItem({ convo, isSelected, onSelect, onMarkAsUnread }: {
       aria-current={isSelected}
     >
       <div className={cn("flex items-start gap-4 flex-grow")}>
-        {convo.unread && <div className="h-2.5 w-2.5 rounded-full bg-beige shrink-0 mt-1.5"></div>}
+        {convo.unread && <div className="h-2.5 w-2.5 rounded-full bg-primary shrink-0 mt-1.5"></div>}
         <div className={cn("flex items-start gap-4 flex-grow", convo.unread ? "" : "pl-[14px]")}>
           <Avatar className="h-12 w-12">
             <AvatarImage src={convo.avatar} />
