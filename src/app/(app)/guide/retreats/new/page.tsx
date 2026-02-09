@@ -11,6 +11,8 @@ type FormData = {
   name: string;
   destination: string;
   description: string;
+  duration: string;
+  included: string;
 };
 
 export default function NewRetreatPage() {
@@ -46,6 +48,14 @@ export default function NewRetreatPage() {
               <div className="space-y-2">
                 <Label htmlFor="description">Brief Description</Label>
                 <Textarea id="description" placeholder="A short summary of your retreat's vision..." {...register('description')} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="duration">Duration</Label>
+                <Input id="duration" placeholder="e.g., 7 days / 6 nights" {...register('duration')} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="included">What's Included</Label>
+                <Textarea id="included" placeholder="e.g., Lodging, all meals, daily yoga sessions, airport transfers" {...register('included')} />
               </div>
             </CardContent>
             <CardFooter>

@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardFooter, CardTitle } from '@/components/ui/card';
-import { MapPin } from 'lucide-react';
+import { MapPin, Clock, CheckCircle } from 'lucide-react';
 import type { ImagePlaceholder } from '@/lib/placeholder-images';
 
 interface RetreatCardProps {
@@ -14,6 +14,8 @@ interface RetreatCardProps {
     price: number;
     rating: number;
     image: ImagePlaceholder;
+    duration?: string;
+    included?: string;
   };
   isLux?: boolean;
 }
@@ -29,6 +31,18 @@ export function RetreatCard({ retreat, isLux = false }: RetreatCardProps) {
                     <MapPin className="mr-2 h-4 w-4" />
                     {retreat.location}
                 </CardDescription>
+                 <div className="mt-2 space-y-1 text-xs text-muted-foreground">
+                    {retreat.duration && (
+                        <div className="flex items-center">
+                            <Clock className="mr-2 h-3 w-3" />
+                            <span>{retreat.duration}</span>
+                        </div>
+                    )}
+                    <div className="flex items-center">
+                        <CheckCircle className="mr-2 h-3 w-3" />
+                        <span>{retreat.included || 'Inclusions vary'}</span>
+                    </div>
+                </div>
             </div>
             <div className="relative w-20 h-20 shrink-0">
                  <Image
