@@ -152,7 +152,7 @@ export default function InboxPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
-        <h1 className="font-headline text-4xl md:text-5xl font-bold mb-8">Inbox</h1>
+        <h1 className="font-headline text-4xl md:text-5xl font-bold mb-8 text-beige">Inbox</h1>
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8 h-[calc(100vh-250px)]">
             <div className="md:col-span-1 lg:col-span-1 border rounded-lg overflow-hidden flex flex-col">
                 <div className="p-4 border-b space-y-4">
