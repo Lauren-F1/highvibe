@@ -115,8 +115,8 @@ export default function HomePageClient() {
               className="group cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg"
             >
               <Card className={cn(
-                  "h-full w-full transition-shadow duration-300 ease-in-out p-6",
-                  "group-hover:shadow-lg group-hover:shadow-primary/20"
+                  "h-full w-full transition-shadow duration-300 ease-in-out p-6 border-primary",
+                  "group-hover:shadow-xl group-hover:shadow-primary/40"
               )}>
                 <CardHeader className="items-center text-center p-0">
                   <CardTitle className="font-headline text-5xl text-beige tracking-wider mb-3">{role.primaryLabel}</CardTitle>

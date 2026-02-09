@@ -108,8 +108,8 @@ export default function RoleOnboardingPage() {
                 className="group block rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
               >
                 <Card className={cn(
-                  "h-full cursor-pointer transition-shadow duration-300 ease-in-out",
-                  "group-hover:shadow-lg group-hover:shadow-primary/20"
+                  "h-full cursor-pointer transition-shadow duration-300 ease-in-out border-primary",
+                  "group-hover:shadow-xl group-hover:shadow-primary/40"
                 )}>
                   <CardContent className="flex items-center gap-4 p-6 text-left">
                     <Image src={role.icon} alt={`${role.name} icon`} width={64} height={64} />
