@@ -8,6 +8,7 @@ import { placeholderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
 import React from 'react';
 
+// Do not change icon assets or casing; icons must always load from /public and remain unmodified.
 const roleIconMap: Record<string, string> = {
   seeker: '/seeker.svg',
   guide: '/Guide.svg',
@@ -114,13 +115,13 @@ export default function HomePageClient() {
               className="group cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg"
             >
               <Card className={cn(
-                  "h-full w-full transition-all duration-200 ease-in-out p-6",
-                  "hover:shadow-xl hover:border-primary/50 border-border",
+                  "h-full w-full transition-shadow duration-300 ease-in-out p-6 border-primary",
+                  "group-hover:shadow-xl group-hover:shadow-primary/40",
               )}>
                 <CardHeader className="items-center text-center p-0">
                   <CardTitle className="font-headline text-5xl text-beige tracking-wider mb-3">{role.primaryLabel}</CardTitle>
                   <div className="flex items-center justify-center mb-3 h-24 w-24">
-                     <Image src={role.icon} alt={`${role.title} icon`} width={96} height={96} className="text-primary" />
+                     <Image src={role.icon} alt={`${role.title} icon`} width={96} height={96} />
                   </div>
                   <h3 className="font-body text-2xl text-foreground font-semibold">{role.title}</h3>
                 </CardHeader>
