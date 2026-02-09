@@ -92,10 +92,11 @@ export default function InboxPage() {
       filtered = filtered.filter(convo => convo.role.toLowerCase() === roleFilter);
     }
     
-    // The default order is newest first as new messages are prepended.
-    // So for 'newest', we don't need to do anything.
     if (sortOption === 'unread') {
       filtered.sort((a, b) => (b.unread ? 1 : 0) - (a.unread ? 1 : 0));
+    } else { // 'newest'
+      // The default order is newest first as new messages are prepended in the context.
+      // To be safe, we can sort by timestamp if available. For mock data, we rely on array order.
     }
     
     return filtered;
