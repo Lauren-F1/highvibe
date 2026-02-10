@@ -530,7 +530,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Hosting Vibe</FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <Select onValueChange={field.onChange} value={field.value}>
                                                 <FormControl>
                                                     <SelectTrigger><SelectValue placeholder="Select a vibe..." /></SelectTrigger>
                                                 </FormControl>
