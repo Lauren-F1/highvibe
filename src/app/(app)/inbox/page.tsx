@@ -30,20 +30,20 @@ function ConversationListItem({ convo, isSelected, onSelect, onMarkAsUnread }: {
       role="button"
       aria-current={isSelected}
     >
-      <div className={cn("flex items-center gap-4 flex-grow")}>
-        {convo.unread && <div className="h-2.5 w-2.5 rounded-full bg-primary shrink-0"></div>}
-        <div className={cn("flex items-center gap-4 flex-grow", convo.unread ? "" : "pl-[14px]")}>
-          <Avatar className="h-12 w-12 shrink-0">
+      <div className={cn("flex items-start gap-4 flex-grow min-w-0")}>
+        <div className="relative shrink-0">
+          <Avatar className="h-12 w-12">
             <AvatarImage src={convo.avatar} />
             <AvatarFallback>{convo.name.charAt(0)}</AvatarFallback>
           </Avatar>
-          <div className="flex-1 overflow-hidden">
+          {convo.unread && <div className="absolute top-0 left-0 h-2.5 w-2.5 rounded-full bg-primary -translate-x-1/2 -translate-y-1/2"></div>}
+        </div>
+        <div className="flex-1 overflow-hidden">
             <div className="flex items-center">
               <p className={cn("font-bold truncate", convo.unread ? 'text-foreground' : 'text-muted-foreground')}>{convo.name}</p>
               <span className="text-xs font-normal text-muted-foreground ml-2 shrink-0 bg-secondary px-1.5 py-0.5 rounded-sm">{convo.role}</span>
             </div>
             <p className={cn("text-sm truncate", convo.unread ? "text-foreground" : "text-muted-foreground")}>{convo.retreat}</p>
-          </div>
         </div>
       </div>
        <DropdownMenu>
@@ -92,10 +92,9 @@ export default function InboxPage() {
     }
     
     if (sortOption === 'unread') {
-      filtered.sort((a, b) => (b.unread ? 1 : 0) - (a.unread ? 1 : 0));
+      filtered.sort((a, b) => (b.unread ? 1 : 0) - (a.unread ? 1 : 0) || new Date(b.messages[b.messages.length - 1].timestamp).getTime() - new Date(a.messages[a.messages.length - 1].timestamp).getTime());
     } else { // 'newest'
-      // The default order is newest first as new messages are prepended in the context.
-      // To be safe, we can sort by timestamp if available. For mock data, we rely on array order.
+        filtered.sort((a, b) => new Date(b.messages[b.messages.length - 1].timestamp).getTime() - new Date(a.messages[a.messages.length - 1].timestamp).getTime());
     }
     
     return filtered;
@@ -164,9 +163,9 @@ export default function InboxPage() {
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
                   </div>
-                  <div className="flex gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     <Select value={roleFilter} onValueChange={setRoleFilter}>
-                      <SelectTrigger className="flex-1">
+                      <SelectTrigger>
                         <SelectValue placeholder="All Roles" />
                       </SelectTrigger>
                       <SelectContent>
@@ -177,8 +176,8 @@ export default function InboxPage() {
                       </SelectContent>
                     </Select>
                      <Select value={sortOption} onValueChange={setSortOption}>
-                      <SelectTrigger className="w-[150px] flex-none">
-                        <SelectValue placeholder="Sort" />
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sort by" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="newest">Newest First</SelectItem>
