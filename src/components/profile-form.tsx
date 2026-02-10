@@ -20,6 +20,7 @@ import { vendorCategories, hostAmenities, hostVibes } from '@/lib/mock-data';
 import { Checkbox } from './ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 
 const profileSchema = z.object({
     displayName: z.string().min(2, 'Display name is required'),
@@ -32,6 +33,10 @@ const profileSchema = z.object({
     avatarUrl: z.string().url().optional().or(z.literal('')),
     galleryUrls: z.array(z.string().url()).max(6).optional(),
     
+    // Role management
+    roles: z.array(z.string()).min(1, 'Please select at least one role.'),
+    primaryRole: z.string().min(1, 'Please select a primary role.'),
+
     // Vendor fields
     vendorCategories: z.array(z.string()).optional(),
     vendorWebsite: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
@@ -48,6 +53,7 @@ const profileSchema = z.object({
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
+type Role = 'seeker' | 'guide' | 'host' | 'vendor';
 
 interface ProfileFormProps {
     userProfile: UserProfile;
@@ -71,6 +77,8 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
             travelRadiusMiles: userProfile.travelRadiusMiles ?? undefined,
             avatarUrl: userProfile.avatarUrl || '',
             galleryUrls: userProfile.galleryUrls || [],
+            roles: userProfile.roles || [],
+            primaryRole: userProfile.primaryRole || userProfile.roles?.[0] || '',
             vendorCategories: userProfile.vendorCategories || [],
             vendorWebsite: userProfile.vendorWebsite || '',
             instagramUrl: userProfile.instagramUrl || '',
@@ -85,6 +93,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
     });
     
     const { formState: { isDirty, isSubmitting } } = form;
+    const watchedRoles = form.watch('roles');
 
     const onSubmit = async (data: ProfileFormValues) => {
         if (!firestore) return;
@@ -112,8 +121,15 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
         }
     };
 
-    const isVendor = userProfile.roles?.includes('vendor');
-    const isHost = userProfile.roles?.includes('host');
+    const getRoleLabel = (role: Role) => {
+        switch (role) {
+            case 'guide': return 'Guide (Retreat Leader)';
+            case 'host': return 'Host (Space Owner)';
+            case 'vendor': return 'Vendor (Services)';
+            case 'seeker': return 'Seeker';
+            default: return role;
+        }
+    }
 
     return (
         <Form {...form}>
@@ -125,6 +141,76 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                         </Button>
                     </div>
                 )}
+                
+                <Card className="mb-8 border-input">
+                    <CardHeader>
+                        <CardTitle>Your Roles</CardTitle>
+                        <CardDescription className="leading-relaxed">
+                            Select the ways you participate on HighVibe. Your Primary Role determines your default dashboard.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <FormField
+                            control={form.control}
+                            name="roles"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Enabled Roles</FormLabel>
+                                    <div className="flex flex-wrap gap-x-6 gap-y-3 pt-2">
+                                        {(['seeker', 'guide', 'host', 'vendor'] as const).map((role) => (
+                                            <div key={role} className="flex items-center space-x-2">
+                                                <Checkbox
+                                                    id={`role-${role}`}
+                                                    checked={field.value?.includes(role)}
+                                                    onCheckedChange={(checked) => {
+                                                        const currentRoles = field.value || [];
+                                                        const newRoles = checked ? [...currentRoles, role] : currentRoles.filter((r) => r !== role);
+                                                        field.onChange(newRoles);
+
+                                                        const primaryRole = form.getValues('primaryRole');
+                                                        if (!checked && primaryRole === role) {
+                                                            form.setValue('primaryRole', newRoles[0] || '', { shouldDirty: true });
+                                                        }
+                                                        if (checked && !primaryRole && newRoles.length === 1) {
+                                                            form.setValue('primaryRole', newRoles[0], { shouldDirty: true });
+                                                        }
+                                                    }}
+                                                />
+                                                <label htmlFor={`role-${role}`} className="text-sm font-medium leading-none">
+                                                    {getRoleLabel(role)}
+                                                </label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="primaryRole"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Primary Role</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value} disabled={!watchedRoles || watchedRoles.length === 0}>
+                                        <FormControl>
+                                            <SelectTrigger><SelectValue placeholder="Select a primary role..." /></SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {watchedRoles?.map((role: string) => (
+                                                <SelectItem key={role} value={role}>
+                                                    {getRoleLabel(role as Role)}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <FormDescription className="leading-relaxed">This will be your default experience after logging in.</FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </CardContent>
+                </Card>
                 
                 <Accordion type="multiple" defaultValue={['basics']} className="w-full">
                     <AccordionItem value="basics">
@@ -143,6 +229,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                                 storagePath={`users/${userId}/avatar.jpg`}
                                             />
                                         </FormControl>
+                                        <FormDescription>JPG or PNG.</FormDescription>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -167,7 +254,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                     <FormItem>
                                         <FormLabel>Public Profile Link</FormLabel>
                                         <div className="flex items-center">
-                                            <span className="text-sm text-muted-foreground p-2 bg-muted rounded-l-md border border-r-0">highviberetreats.com/u/</span>
+                                            <span className="text-sm text-muted-foreground p-2 bg-muted rounded-l-md border border-r-0 border-input">highviberetreats.com/u/</span>
                                             <FormControl><Input {...field} className="rounded-l-none" readOnly /></FormControl>
                                         </div>
                                         <FormDescription className="leading-relaxed">This is your public link. Copy and share anytime.</FormDescription>
@@ -204,7 +291,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                 control={form.control}
                                 name="isWillingToTravel"
                                 render={({ field }) => (
-                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border border-input p-4">
                                         <div className="space-y-0.5">
                                             <FormLabel>Available to Travel</FormLabel>
                                             <FormDescription className="leading-relaxed">Turn on if you’re open to traveling for retreats.</FormDescription>
@@ -281,6 +368,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                                 maxFiles={6}
                                             />
                                         </FormControl>
+                                        <FormDescription>JPG or PNG.</FormDescription>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -288,7 +376,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                         </AccordionContent>
                     </AccordionItem>
 
-                    {isVendor && (
+                    {watchedRoles?.includes('vendor') && (
                         <AccordionItem value="vendor-profile">
                             <AccordionTrigger className="text-2xl font-headline text-beige-dark">Vendor Profile</AccordionTrigger>
                             <AccordionContent className="pt-6 space-y-8">
@@ -411,6 +499,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                                         maxFiles={8}
                                                     />
                                                 </FormControl>
+                                                <FormDescription>JPG or PNG.</FormDescription>
                                                 <FormMessage />
                                             </FormItem>
                                         )}
@@ -419,7 +508,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                         </AccordionItem>
                     )}
 
-                    {isHost && (
+                    {watchedRoles?.includes('host') && (
                          <AccordionItem value="host-profile">
                             <AccordionTrigger className="text-2xl font-headline text-beige-dark">Host Profile</AccordionTrigger>
                             <AccordionContent className="pt-6 space-y-8">
@@ -504,6 +593,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                                     maxFiles={10}
                                                 />
                                             </FormControl>
+                                            <FormDescription>JPG or PNG.</FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}
@@ -513,7 +603,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                     )}
                 </Accordion>
 
-                <Button type="submit" size="default" disabled={isSubmitting} className="rounded-lg">
+                <Button type="submit" size="lg" disabled={isSubmitting} className="rounded-lg">
                     {isSubmitting ? 'Saving...' : 'Save Profile'}
                 </Button>
             </form>
