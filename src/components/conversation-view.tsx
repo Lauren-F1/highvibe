@@ -25,7 +25,7 @@ export function ConversationView({ conversation, onSendMessage }: ConversationVi
     
     return (
         <Card className="flex flex-col h-full">
-            <CardHeader className="flex flex-row items-center gap-4 border-b p-6">
+            <CardHeader className="flex flex-row items-center gap-4 p-6 border-b">
                  <Avatar className="h-12 w-12 shrink-0">
                     <AvatarImage src={conversation.avatar} />
                     <AvatarFallback>{conversation.name.charAt(0)}</AvatarFallback>
@@ -35,7 +35,7 @@ export function ConversationView({ conversation, onSendMessage }: ConversationVi
                     <p className="text-sm text-muted-foreground truncate">{conversation.retreat}</p>
                 </div>
             </CardHeader>
-            <CardContent className="flex-1 overflow-y-auto p-6 space-y-4">
+            <CardContent className="flex-1 overflow-y-auto p-6 space-y-3">
                 {conversation.messages.map((message) => (
                     <div key={message.id} className={cn(
                         "flex items-end gap-2",
@@ -48,8 +48,10 @@ export function ConversationView({ conversation, onSendMessage }: ConversationVi
                             </Avatar>
                         )}
                         <div className={cn(
-                            "max-w-[60%] rounded-lg p-3 text-sm leading-relaxed",
-                             message.sender === 'me' ? 'bg-accent border-l-2 border-beige text-foreground' : 'bg-secondary'
+                            "max-w-[65%] rounded-[14px] px-[14px] py-3 text-sm leading-relaxed",
+                             message.sender === 'me' 
+                             ? 'bg-background text-foreground border border-beige border-l-[3px]' 
+                             : 'bg-secondary text-foreground border border-input'
                         )}>
                             <p>{message.text}</p>
                         </div>
