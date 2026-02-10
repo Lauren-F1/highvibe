@@ -30,20 +30,19 @@ function ConversationListItem({ convo, isSelected, onSelect, onMarkAsUnread }: {
       role="button"
       aria-current={isSelected}
     >
-      <div className={cn("flex items-start gap-4 flex-grow")}>
-        {convo.unread && <div className="h-2.5 w-2.5 rounded-full bg-primary shrink-0 mt-1.5"></div>}
-        <div className={cn("flex items-start gap-4 flex-grow", convo.unread ? "" : "pl-[14px]")}>
-          <Avatar className="h-12 w-12">
+      <div className={cn("flex items-center gap-4 flex-grow")}>
+        {convo.unread && <div className="h-2.5 w-2.5 rounded-full bg-primary shrink-0"></div>}
+        <div className={cn("flex items-center gap-4 flex-grow", convo.unread ? "" : "pl-[14px]")}>
+          <Avatar className="h-12 w-12 shrink-0">
             <AvatarImage src={convo.avatar} />
             <AvatarFallback>{convo.name.charAt(0)}</AvatarFallback>
           </Avatar>
           <div className="flex-1 overflow-hidden">
-            <div className="flex justify-between items-center">
-              <p className={cn("font-bold", convo.unread ? 'text-foreground' : 'text-muted-foreground')}>{convo.name} <span className="text-xs font-normal text-muted-foreground ml-1 p-1 bg-secondary rounded-sm">{convo.role}</span></p>
-              <p className="text-xs text-muted-foreground shrink-0">2h ago</p>
+            <div className="flex items-center">
+              <p className={cn("font-bold truncate", convo.unread ? 'text-foreground' : 'text-muted-foreground')}>{convo.name}</p>
+              <span className="text-xs font-normal text-muted-foreground ml-2 shrink-0 bg-secondary px-1.5 py-0.5 rounded-sm">{convo.role}</span>
             </div>
-            <p className={cn("text-sm font-bold truncate", convo.unread ? 'text-foreground' : 'text-muted-foreground')}>{convo.retreat}</p>
-            <p className={cn("text-sm truncate", convo.unread ? "text-foreground font-medium" : "text-muted-foreground")}>{convo.lastMessage}</p>
+            <p className={cn("text-sm truncate", convo.unread ? "text-foreground" : "text-muted-foreground")}>{convo.retreat}</p>
           </div>
         </div>
       </div>
