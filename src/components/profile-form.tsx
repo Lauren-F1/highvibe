@@ -14,7 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { ImageUpload } from '@/components/image-upload';
 import { vendorCategories, hostAmenities, hostVibes } from '@/lib/mock-data';
 import { Checkbox } from './ui/checkbox';
@@ -23,12 +23,12 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 
 const profileSchema = z.object({
     displayName: z.string().min(2, 'Display name is required'),
-    profileSlug: z.string().min(3, 'Profile URL slug is required').regex(/^[a-z0-9-]+$/, 'Only lowercase letters, numbers, and hyphens are allowed.'),
+    profileSlug: z.string(), // Read-only, so no validation needed here.
     headline: z.string().max(80).optional(),
     bio: z.string().max(600).optional(),
     locationLabel: z.string().optional(),
     isWillingToTravel: z.boolean().default(false),
-    travelRadiusMiles: z.number().min(0).max(500).default(0),
+    travelRadiusMiles: z.number().min(0).max(500).optional(),
     avatarUrl: z.string().url().optional().or(z.literal('')),
     galleryUrls: z.array(z.string().url()).max(6).optional(),
     
@@ -68,7 +68,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
             bio: userProfile.bio || '',
             locationLabel: userProfile.locationLabel || '',
             isWillingToTravel: userProfile.isWillingToTravel || false,
-            travelRadiusMiles: userProfile.travelRadiusMiles || 0,
+            travelRadiusMiles: userProfile.travelRadiusMiles ?? undefined,
             avatarUrl: userProfile.avatarUrl || '',
             galleryUrls: userProfile.galleryUrls || [],
             vendorCategories: userProfile.vendorCategories || [],
@@ -76,11 +76,11 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
             instagramUrl: userProfile.instagramUrl || '',
             offerings: userProfile.offerings?.join(', ') || '',
             portfolioUrls: userProfile.portfolioUrls || [],
-            serviceRadiusMiles: userProfile.serviceRadiusMiles || 0,
+            serviceRadiusMiles: userProfile.serviceRadiusMiles ?? undefined,
             hostAmenities: userProfile.hostAmenities || [],
             hostVibe: userProfile.hostVibe || '',
             propertyShowcaseUrls: userProfile.propertyShowcaseUrls || [],
-            typicalCapacity: userProfile.typicalCapacity || 0,
+            typicalCapacity: userProfile.typicalCapacity ?? undefined,
         },
     });
     
@@ -97,6 +97,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                 ...data,
                 offerings: offeringsArray,
                 profileComplete: true,
+                profileSlug: userProfile.profileSlug, // Ensure slug isn't changed
             });
             toast({ title: 'Profile updated successfully!' });
             router.push('/account');
@@ -153,7 +154,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Display Name</FormLabel>
-                                        <FormControl><Input {...field} /></FormControl>
+                                        <FormControl><Input {...field} placeholder="e.g., Maya Thompson" /></FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -164,11 +165,12 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                 name="profileSlug"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Profile URL</FormLabel>
+                                        <FormLabel>Public Profile Link</FormLabel>
                                         <div className="flex items-center">
                                             <span className="text-sm text-muted-foreground p-2 bg-muted rounded-l-md border border-r-0">highviberetreats.com/u/</span>
-                                            <FormControl><Input {...field} className="rounded-l-none" /></FormControl>
+                                            <FormControl><Input {...field} className="rounded-l-none" readOnly /></FormControl>
                                         </div>
+                                        <FormDescription>This is your public link. Copy and share anytime.</FormDescription>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -180,7 +182,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Headline</FormLabel>
-                                        <FormControl><Input {...field} placeholder="e.g. Yoga Instructor & Sound Healer" /></FormControl>
+                                        <FormControl><Input {...field} placeholder="e.g., Yoga Instructor + Sound Healer" /></FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -192,7 +194,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Location</FormLabel>
-                                        <FormControl><Input {...field} placeholder="e.g. Bali, Indonesia" /></FormControl>
+                                        <FormControl><Input {...field} placeholder="City, Country (e.g., Bali, Indonesia)" /></FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -204,7 +206,8 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                 render={({ field }) => (
                                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                                         <div className="space-y-0.5">
-                                            <FormLabel>Willing to Travel?</FormLabel>
+                                            <FormLabel>Available to Travel</FormLabel>
+                                            <FormDescription>Turn on if you’re open to traveling for retreats.</FormDescription>
                                         </div>
                                         <FormControl>
                                             <Switch
@@ -222,15 +225,20 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                     name="travelRadiusMiles"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Travel Radius: {field.value} miles</FormLabel>
-                                            <FormControl>
-                                                <Slider
-                                                    value={[field.value]}
-                                                    onValueChange={(value) => field.onChange(value[0])}
-                                                    max={500}
-                                                    step={25}
-                                                />
-                                            </FormControl>
+                                            <FormLabel>Travel Radius</FormLabel>
+                                            <div className='flex items-center gap-4'>
+                                                <FormControl>
+                                                    <Slider
+                                                        value={[field.value || 0]}
+                                                        onValueChange={(value) => field.onChange(value[0])}
+                                                        max={500}
+                                                        step={25}
+                                                    />
+                                                </FormControl>
+                                                <span className="w-24 text-center p-2 rounded-md bg-muted text-sm">{field.value || 0} miles</span>
+                                            </div>
+                                            <FormDescription>How far you’re willing to travel for a retreat.</FormDescription>
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 />
@@ -247,7 +255,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Bio</FormLabel>
-                                        <FormControl><Textarea {...field} rows={5} placeholder="Tell us about yourself..." /></FormControl>
+                                        <FormControl><Textarea {...field} rows={5} placeholder="Share what you offer, your style, and what makes your retreats/services unique." /></FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -284,6 +292,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                         <AccordionItem value="vendor-profile">
                             <AccordionTrigger className="text-2xl font-headline">Vendor Profile</AccordionTrigger>
                             <AccordionContent className="pt-6 space-y-8">
+                                <p className='text-sm text-muted-foreground -mt-2'>Help guides and hosts understand exactly what you provide.</p>
                                 <FormField
                                     control={form.control}
                                     name="vendorCategories"
@@ -338,6 +347,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                             <FormItem>
                                                 <FormLabel>Specific Offerings (up to 10)</FormLabel>
                                                 <FormControl><Textarea {...field} placeholder="e.g. Vinyasa Yoga, Sound Baths, Vegan Catering" /></FormControl>
+                                                <FormDescription>Use short phrases separated by commas.</FormDescription>
                                                 <FormMessage />
                                             </FormItem>
                                         )}
@@ -369,15 +379,19 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                         name="serviceRadiusMiles"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>Service Radius: {field.value || 0} miles</FormLabel>
-                                                <FormControl>
-                                                    <Slider
-                                                        value={[field.value || 0]}
-                                                        onValueChange={(value) => field.onChange(value[0])}
-                                                        max={1000}
-                                                        step={25}
-                                                    />
-                                                </FormControl>
+                                                <FormLabel>Service Radius</FormLabel>
+                                                <div className='flex items-center gap-4'>
+                                                    <FormControl>
+                                                        <Slider
+                                                            value={[field.value || 0]}
+                                                            onValueChange={(value) => field.onChange(value[0])}
+                                                            max={1000}
+                                                            step={25}
+                                                        />
+                                                    </FormControl>
+                                                    <span className="w-24 text-center p-2 rounded-md bg-muted text-sm">{field.value || 0} miles</span>
+                                                </div>
+                                                <FormDescription>How far you’re willing to travel locally (optional).</FormDescription>
                                                 <FormMessage />
                                             </FormItem>
                                         )}
@@ -409,13 +423,14 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                          <AccordionItem value="host-profile">
                             <AccordionTrigger className="text-2xl font-headline">Host Profile</AccordionTrigger>
                             <AccordionContent className="pt-6 space-y-8">
+                                <p className='text-sm text-muted-foreground -mt-2'>Help guides find the right space for their retreat.</p>
                                 <FormField
                                     control={form.control}
                                     name="typicalCapacity"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Typical Guest Capacity</FormLabel>
-                                            <FormControl><Input type="number" {...field} /></FormControl>
+                                            <FormControl><Input type="number" {...field} placeholder="e.g., 18" /></FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )}
