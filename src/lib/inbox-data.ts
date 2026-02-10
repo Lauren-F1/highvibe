@@ -18,6 +18,18 @@ export type Conversation = {
 
 // This is placeholder data. In a real application, this would come from a database.
 export const mockConversations: Conversation[] = [
+  {
+    id: 'conv4',
+    name: 'Marcus Green',
+    role: 'Guide',
+    retreat: 'Andes Hiking Adventure',
+    lastMessage: 'Hey! Are you available to host my group in October?',
+    avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=200',
+    unread: true,
+    messages: [
+      { id: 'm4-1', sender: 'them', text: 'Hey! Are you available to host my group in October?', timestamp: '2024-07-31T09:00:00Z' }
+    ]
+  },
   { 
     id: 'conv1', 
     name: 'Asha Sharma', 
@@ -52,7 +64,7 @@ export const mockConversations: Conversation[] = [
     retreat: 'Sunrise Yoga in Bali', 
     lastMessage: 'We have availability. Let\'s discuss details.', 
     avatar: 'https://images.unsplash.com/photo-1600585154340-be6164a83639?w=200', 
-    unread: false,
+    unread: true,
     messages: [
       { id: 'm3-1', sender: 'me', text: 'Interested in booking your beautiful space for a yoga retreat next year.', timestamp: '2024-07-28T18:00:00Z' },
       { id: 'm3-2', sender: 'them', text: 'We have availability. Let\'s discuss details.', timestamp: '2024-07-28T18:05:00Z' },
