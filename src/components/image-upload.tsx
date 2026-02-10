@@ -85,10 +85,11 @@ export function ImageUpload({
                  { (multiple && images.length < maxFiles) || (!multiple && images.length === 0) ? (
                     <div
                         onClick={handleUploadClick}
-                        className="aspect-square rounded-md border border-dashed flex flex-col items-center justify-center cursor-pointer hover:bg-accent"
+                        className="aspect-square rounded-md border border-input border-dashed flex flex-col items-center justify-center cursor-pointer hover:bg-accent"
                     >
                         <UploadCloud className="h-8 w-8 text-muted-foreground" />
                         <p className="text-xs text-muted-foreground mt-2">Click to upload</p>
+                        <p className="text-xs text-muted-foreground mt-1">JPG or PNG</p>
                     </div>
                  ) : null}
             </div>

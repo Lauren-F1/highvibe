@@ -21,10 +21,10 @@ export default function EditProfilePage() {
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
       <div className="max-w-3xl mx-auto">
-        <Card>
+        <Card className="border-input">
           <CardHeader>
-            <CardTitle>Edit Profile</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-beige-dark">Edit Profile</CardTitle>
+            <CardDescription className="leading-relaxed">
               This information will be visible on your public profile. Keep it up to date to attract the right connections.
             </CardDescription>
           </CardHeader>

@@ -120,7 +120,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                  {isDirty && (
                     <div className="fixed top-28 right-8 z-20">
-                        <Button type="submit" disabled={isSubmitting} size="lg">
+                        <Button type="submit" disabled={isSubmitting} size="lg" className="rounded-lg">
                             {isSubmitting ? 'Saving...' : 'Save Changes'}
                         </Button>
                     </div>
@@ -128,7 +128,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                 
                 <Accordion type="multiple" defaultValue={['basics']} className="w-full">
                     <AccordionItem value="basics">
-                        <AccordionTrigger className="text-2xl font-headline">Basics</AccordionTrigger>
+                        <AccordionTrigger className="text-xl font-headline">Basics</AccordionTrigger>
                         <AccordionContent className="pt-6 space-y-8">
                             <FormField
                                 control={form.control}
@@ -170,7 +170,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                             <span className="text-sm text-muted-foreground p-2 bg-muted rounded-l-md border border-r-0">highviberetreats.com/u/</span>
                                             <FormControl><Input {...field} className="rounded-l-none" readOnly /></FormControl>
                                         </div>
-                                        <FormDescription>This is your public link. Copy and share anytime.</FormDescription>
+                                        <FormDescription className="leading-relaxed">This is your public link. Copy and share anytime.</FormDescription>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -207,7 +207,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                                         <div className="space-y-0.5">
                                             <FormLabel>Available to Travel</FormLabel>
-                                            <FormDescription>Turn on if you’re open to traveling for retreats.</FormDescription>
+                                            <FormDescription className="leading-relaxed">Turn on if you’re open to traveling for retreats.</FormDescription>
                                         </div>
                                         <FormControl>
                                             <Switch
@@ -237,7 +237,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                                 </FormControl>
                                                 <span className="w-24 text-center p-2 rounded-md bg-muted text-sm">{field.value || 0} miles</span>
                                             </div>
-                                            <FormDescription>How far you’re willing to travel for a retreat.</FormDescription>
+                                            <FormDescription className="leading-relaxed">How far you’re willing to travel for a retreat.</FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}
@@ -247,7 +247,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                     </AccordionItem>
                     
                     <AccordionItem value="about">
-                        <AccordionTrigger className="text-2xl font-headline">About</AccordionTrigger>
+                        <AccordionTrigger className="text-xl font-headline">About</AccordionTrigger>
                          <AccordionContent className="pt-6 space-y-8">
                             <FormField
                                 control={form.control}
@@ -264,7 +264,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                     </AccordionItem>
                     
                     <AccordionItem value="gallery">
-                        <AccordionTrigger className="text-2xl font-headline">Gallery</AccordionTrigger>
+                        <AccordionTrigger className="text-xl font-headline">Gallery</AccordionTrigger>
                          <AccordionContent className="pt-6 space-y-8">
                              <FormField
                                 control={form.control}
@@ -290,9 +290,9 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
 
                     {isVendor && (
                         <AccordionItem value="vendor-profile">
-                            <AccordionTrigger className="text-2xl font-headline">Vendor Profile</AccordionTrigger>
+                            <AccordionTrigger className="text-2xl font-headline text-beige-dark">Vendor Profile</AccordionTrigger>
                             <AccordionContent className="pt-6 space-y-8">
-                                <p className='text-sm text-muted-foreground -mt-2'>Help guides and hosts understand exactly what you provide.</p>
+                                <p className='text-sm text-muted-foreground -mt-4 leading-relaxed'>Help guides and hosts understand exactly what you provide.</p>
                                 <FormField
                                     control={form.control}
                                     name="vendorCategories"
@@ -301,7 +301,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                         <div className="mb-4">
                                             <FormLabel className="text-base">Vendor Categories</FormLabel>
                                         </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
                                             {vendorCategories.map((item) => (
                                                 <FormField
                                                 key={item.name}
@@ -327,7 +327,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                                             }}
                                                         />
                                                         </FormControl>
-                                                        <FormLabel className="font-normal">
+                                                        <FormLabel className="font-normal leading-relaxed">
                                                         {item.name}
                                                         </FormLabel>
                                                     </FormItem>
@@ -347,7 +347,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                             <FormItem>
                                                 <FormLabel>Specific Offerings (up to 10)</FormLabel>
                                                 <FormControl><Textarea {...field} placeholder="e.g. Vinyasa Yoga, Sound Baths, Vegan Catering" /></FormControl>
-                                                <FormDescription>Use short phrases separated by commas.</FormDescription>
+                                                <FormDescription className="leading-relaxed">Use short phrases separated by commas.</FormDescription>
                                                 <FormMessage />
                                             </FormItem>
                                         )}
@@ -391,7 +391,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                                     </FormControl>
                                                     <span className="w-24 text-center p-2 rounded-md bg-muted text-sm">{field.value || 0} miles</span>
                                                 </div>
-                                                <FormDescription>How far you’re willing to travel locally (optional).</FormDescription>
+                                                <FormDescription className="leading-relaxed">How far you’re willing to travel locally (optional).</FormDescription>
                                                 <FormMessage />
                                             </FormItem>
                                         )}
@@ -421,9 +421,9 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
 
                     {isHost && (
                          <AccordionItem value="host-profile">
-                            <AccordionTrigger className="text-2xl font-headline">Host Profile</AccordionTrigger>
+                            <AccordionTrigger className="text-2xl font-headline text-beige-dark">Host Profile</AccordionTrigger>
                             <AccordionContent className="pt-6 space-y-8">
-                                <p className='text-sm text-muted-foreground -mt-2'>Help guides find the right space for their retreat.</p>
+                                <p className='text-sm text-muted-foreground -mt-4 leading-relaxed'>Help guides find the right space for their retreat.</p>
                                 <FormField
                                     control={form.control}
                                     name="typicalCapacity"
@@ -461,7 +461,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                     render={() => (
                                     <FormItem>
                                         <div className="mb-4"><FormLabel className="text-base">Amenities</FormLabel></div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
                                         {hostAmenities.map((item) => (
                                             <FormField
                                             key={item}
@@ -479,7 +479,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                                             }}
                                                         />
                                                     </FormControl>
-                                                    <FormLabel className="font-normal">{item}</FormLabel>
+                                                    <FormLabel className="font-normal leading-relaxed">{item}</FormLabel>
                                                 </FormItem>
                                             )}
                                             />
@@ -513,7 +513,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                     )}
                 </Accordion>
 
-                <Button type="submit" size="lg" disabled={isSubmitting}>
+                <Button type="submit" size="default" disabled={isSubmitting} className="rounded-lg">
                     {isSubmitting ? 'Saving...' : 'Save Profile'}
                 </Button>
             </form>
