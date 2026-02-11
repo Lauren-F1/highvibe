@@ -183,6 +183,33 @@ export const vendorCategories: { name: string; description?: string }[] = [
 ];
 export const vendorPricingTiers = ["Budget", "Mid-range", "Premium", "Luxury"];
 
+export const experienceTypes = [
+  { value: 'all-experiences', label: 'All Experiences' },
+  { value: 'rest-reset', label: 'Rest & Reset' },
+  { value: 'wellness-healing', label: 'Wellness & Healing' },
+  { value: 'yoga-meditation', label: 'Yoga & Meditation' },
+  { value: 'personal-growth-self-development', label: 'Personal Growth & Self-Development' },
+  { value: 'adventure-aliveness', label: 'Adventure & Aliveness' },
+  { value: 'creativity-expression', label: 'Creativity & Expression' },
+  { value: 'nature-immersion', label: 'Nature Immersion' },
+  { value: 'leadership-professional-growth', label: 'Leadership & Professional Growth' },
+];
+
+export const investmentRanges = [
+    { value: 'any', label: 'Any Range' },
+    { value: 'under-500', label: 'Under $500' },
+    { value: '500-1000', label: '$500 - $1,000' },
+    { value: '1000-2000', label: '$1,000 - $2,000' },
+    { value: 'over-2000', label: 'Over $2,000' },
+];
+
+export const timingOptions = [
+    { value: 'exploring', label: 'Just exploring' },
+    { value: 'next-3-months', label: 'Next 3 months' },
+    { value: 'next-6-months', label: 'Next 6 months' },
+    { value: 'next-year', label: 'Next year' },
+];
+
 // --- Manifest Feature Data ---
 export const manifestRetreatTypes = ['Tantra', 'Yoga', 'Meditation', 'Breathwork', 'Somatics', 'Wellness', 'Adventure', 'Leadership', 'Other'];
 export const manifestMustHaves = ['Yoga', 'Tantra facilitator/guide', 'High-end vegetarian chef', 'Transportation', 'Massage/bodywork', 'Sound bath', 'Photographer', 'Other'];

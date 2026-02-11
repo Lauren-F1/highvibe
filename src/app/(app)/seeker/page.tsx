@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,7 @@ import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { HowItWorksModal } from '@/components/how-it-works-modal';
-import { allRetreats as retreats, continents, destinations, manifestRetreatTypes as experienceTypes, investmentRanges, timingOptions } from '@/lib/mock-data';
+import { allRetreats as retreats, continents, destinations, experienceTypes, investmentRanges, timingOptions } from '@/lib/mock-data';
 import { useFirestore } from '@/firebase';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
@@ -215,9 +216,12 @@ export default function SeekerPage() {
             className="object-cover"
             priority
           />
-          <div className="relative text-white px-4 z-20">
-            <h1 className="font-headline text-6xl md:text-7xl font-bold" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.35)' }}>Find Your Next Experience</h1>
-            <p className="mt-6 text-xl md:text-2xl mx-auto font-body lg:whitespace-nowrap" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.35)' }}>
+          <div className="relative z-10" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.35)'}}>
+            <h1 className="font-headline text-6xl md:text-7xl font-bold text-white">Find Your Next Experience</h1>
+            <p 
+              className="mt-6 text-xl md:text-2xl mx-auto font-body text-white lg:whitespace-nowrap"
+              style={{ textShadow: '0 2px 8px rgba(0,0,0,0.35)'}}
+            >
               Curated retreats for those who choose curiosity, connection, and living well.
             </p>
           </div>
@@ -318,6 +322,9 @@ export default function SeekerPage() {
                 <RetreatCard key={retreat.id} retreat={retreat} isLux={retreat.id === mostExpensiveRetreatId} />
               ))}
             </div>
+            <div className="my-24">
+                {ManifestSection}
+            </div>
           </>
         ) : (
           // STATE B or C: Search is active
@@ -338,13 +345,13 @@ export default function SeekerPage() {
                 <h3 className="font-headline text-3xl font-bold mb-4">No matches yet.</h3>
               </div>
             )}
+             <div className="my-24">
+                <p className="text-center text-2xl italic text-beige font-body my-12">Not seeing the one? Manifest exactly what you want.</p>
+                {ManifestSection}
+             </div>
           </>
         )}
       </div>
-       <div className="my-24">
-          <p className="text-center text-2xl italic text-beige font-body my-12">Not seeing the one? Manifest exactly what you want.</p>
-          {ManifestSection}
-        </div>
     </div>
     </>
   );
