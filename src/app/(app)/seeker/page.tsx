@@ -257,10 +257,10 @@ export default function SeekerPage() {
   };
 
   const ManifestSection = (
-    <div className="mb-8 bg-secondary rounded-lg p-8 md:p-12">
+    <div className="mb-12 bg-secondary rounded-lg p-8 md:p-12">
         <div className="grid md:grid-cols-2 gap-8 items-center">
-            <div className="space-y-6">
-                <h2 className="font-headline text-5xl tracking-widest" style={{ letterSpacing: '0.1em' }}>MANIFEST</h2>
+            <div className="space-y-8">
+                <h2 className="font-headline text-5xl md:text-7xl tracking-widest">MANIFEST</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed">
                     Have a retreat in mind? Manifest it here—and we’ll connect you with hosts, guides, and vendors who match what you’re looking for.
                 </p>
@@ -279,7 +279,7 @@ export default function SeekerPage() {
                     <Button 
                         variant="outline" 
                         onClick={() => setIsHowItWorksOpen(true)}
-                        className="border-beige-dark text-beige-dark hover:bg-beige-dark/10"
+                        className="border-beige-dark text-beige-dark hover:bg-accent"
                     >
                         How it works
                     </Button>
@@ -436,5 +436,3 @@ export default function SeekerPage() {
     </>
   );
 }
-
-    
