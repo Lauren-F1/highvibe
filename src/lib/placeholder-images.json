@@ -134,9 +134,9 @@
     },
     {
       "id": "mediterranean-terrace",
-      "description": "A beautiful terrace at a Mediterranean villa with linen textures and an ocean view at golden hour.",
-      "imageUrl": "https://images.unsplash.com/photo-1595828835559-0a6b7d519b5b?w=800&auto=format&fit=crop",
-      "imageHint": "mediterranean terrace"
+      "description": "A luxurious desert hacienda patio with a pool and comfortable seating at golden hour.",
+      "imageUrl": "https://images.unsplash.com/photo-1617822449619-33a76f7b19e7?q=80&w=1080&auto=format&fit=crop",
+      "imageHint": "hacienda patio"
     }
   ]
 }
