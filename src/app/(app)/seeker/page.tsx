@@ -260,7 +260,7 @@ export default function SeekerPage() {
     <div className="mb-8 bg-secondary rounded-lg p-8 md:p-12">
         <div className="grid md:grid-cols-2 gap-8 items-center">
             <div className="space-y-6">
-                <h2 className="font-headline text-5xl tracking-widest">MANIFEST</h2>
+                <h2 className="font-headline text-5xl tracking-widest" style={{ letterSpacing: '0.1em' }}>MANIFEST</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed">
                     Have a retreat in mind? Manifest it here—and we’ll connect you with hosts, guides, and vendors who match what you’re looking for.
                 </p>
@@ -268,7 +268,6 @@ export default function SeekerPage() {
                     <Button size="lg" asChild className="px-10 py-7 text-lg">
                         <Link href="/seeker/manifest/new">Manifest a Retreat</Link>
                     </Button>
-                    <Button variant="link" onClick={() => setIsHowItWorksOpen(true)}>How it works</Button>
                 </div>
                  <div className="space-y-2 pt-4">
                     <p className="font-bold">Manifest your retreat. Earn up to $500 toward the next one.</p>
@@ -276,6 +275,15 @@ export default function SeekerPage() {
                         HighVibe likes to end on a high note. Once your manifested retreat is complete, you’ll receive HighVibe credit equal to 3% of your retreat booking subtotal, up to $500. Use it toward your next retreat within 12 months. Happy manifesting!
                     </p>
                  </div>
+                 <div className="pt-6">
+                    <Button 
+                        variant="outline" 
+                        onClick={() => setIsHowItWorksOpen(true)}
+                        className="border-beige-dark text-beige-dark hover:bg-beige-dark/10"
+                    >
+                        How it works
+                    </Button>
+                </div>
             </div>
              {manifestImage && (
                 <div className="relative aspect-square w-full rounded-lg overflow-hidden">
