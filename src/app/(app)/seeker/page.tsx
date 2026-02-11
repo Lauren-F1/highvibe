@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -66,6 +65,12 @@ export default function SeekerPage() {
   const { toast } = useToast();
 
   useEffect(() => {
+    // This effect is only for filtering, not for deciding which state to show
+    if (!searchInitiated) {
+        setFilteredRetreats(retreats);
+        return;
+    }
+
     let newFilteredRetreats = [...retreats];
 
     // Experience Type Filter
@@ -99,7 +104,7 @@ export default function SeekerPage() {
     // Timing filter is cosmetic for now as data is not available on retreats
     
     setFilteredRetreats(newFilteredRetreats);
-  }, [experienceType, selectedContinent, selectedRegion, investmentRange, timing]);
+  }, [experienceType, selectedContinent, selectedRegion, investmentRange, timing, searchInitiated]);
 
   const handleWaitlistSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -132,6 +137,13 @@ export default function SeekerPage() {
   };
 
   const showRegionFilter = selectedContinent && selectedContinent !== 'anywhere' && destinations[selectedContinent as keyof typeof destinations];
+  
+  const isFilterActive =
+    experienceType !== 'all-experiences' ||
+    selectedContinent !== 'anywhere' ||
+    selectedRegion !== '' ||
+    investmentRange !== 'any' ||
+    timing !== 'exploring';
 
   const handleClearFilters = () => {
     setExperienceType('all-experiences');
@@ -151,32 +163,34 @@ export default function SeekerPage() {
     <div className="bg-secondary rounded-lg">
         <div className="grid md:grid-cols-2 gap-8 items-center">
             <div className="flex flex-col p-8 md:p-12">
-                <h2 className="font-headline text-5xl md:text-7xl tracking-widest mb-6 text-left">MANIFEST</h2>
-                <div className="space-y-6 w-full max-w-sm text-left">
-                    <p className="text-lg text-muted-foreground leading-relaxed">
-                        Have a retreat in mind? Manifest it here—and we’ll connect you with hosts, guides, and vendors who match what you’re looking for.
-                    </p>
-                    <div className="w-full">
-                        <Button size="lg" asChild className="w-full py-7 text-lg">
-                            <Link href="/seeker/manifest/new">Manifest a Retreat</Link>
-                        </Button>
-                    </div>
-                    <div>
-                        <p className="font-bold">Manifest your retreat. Earn up to $500 toward the next one.</p>
-                        <p className="text-sm text-muted-foreground leading-relaxed mt-2">
-                            HighVibe likes to end on a high note. Once your manifested retreat is complete, you’ll receive HighVibe credit equal to 3% of your retreat booking subtotal, up to $500. Use it toward your next retreat within 12 months. Happy manifesting!
-                        </p>
-                    </div>
-                     <div className="pt-2">
-                        <Button 
-                            variant="outline" 
-                            onClick={() => setIsHowItWorksOpen(true)}
-                            className="w-full border-beige-dark text-beige-dark hover:bg-accent text-base py-6 font-medium"
-                        >
-                            How it works
-                        </Button>
-                    </div>
+              <div className="w-full max-w-sm">
+                <h2 className="font-headline text-5xl md:text-7xl lg:text-8xl tracking-[0.15em] sm:tracking-[0.2em] md:tracking-[0.25em] mb-8 text-center whitespace-nowrap">MANIFEST</h2>
+                <div className="space-y-6 text-left">
+                  <p className="text-lg text-muted-foreground leading-relaxed">
+                      Have a retreat in mind? Manifest it here—and we’ll connect you with hosts, guides, and vendors who match what you’re looking for.
+                  </p>
+                  <div className="w-full">
+                      <Button size="lg" asChild className="w-full py-7 text-lg">
+                          <Link href="/seeker/manifest/new">Manifest a Retreat</Link>
+                      </Button>
+                  </div>
+                  <div>
+                      <p className="font-bold">Manifest your retreat. Earn up to $500 toward the next one.</p>
+                      <p className="text-sm text-muted-foreground leading-relaxed mt-2">
+                          HighVibe likes to end on a high note. Once your manifested retreat is complete, you’ll receive HighVibe credit equal to 3% of your retreat booking subtotal, up to $500. Use it toward your next retreat within 12 months. Happy manifesting!
+                      </p>
+                  </div>
+                   <div className="pt-4">
+                      <Button 
+                          variant="outline" 
+                          onClick={() => setIsHowItWorksOpen(true)}
+                          className="w-full border-beige-dark text-beige-dark hover:bg-accent text-base py-6 font-medium"
+                      >
+                          How it works
+                      </Button>
+                  </div>
                 </div>
+              </div>
             </div>
              {manifestImage && (
                 <div className="relative aspect-square w-full rounded-lg overflow-hidden hidden md:block">
@@ -193,15 +207,6 @@ export default function SeekerPage() {
     </div>
   );
   
-  const isFiltered =
-    experienceType !== 'all-experiences' ||
-    selectedContinent !== 'anywhere' ||
-    selectedRegion !== '' ||
-    investmentRange !== 'any' ||
-    timing !== 'exploring';
-
-  const isSearchActive = searchInitiated || isFiltered;
-
   return (
     <>
     <HowItWorksModal isOpen={isHowItWorksOpen} onOpenChange={setIsHowItWorksOpen} />
@@ -216,11 +221,11 @@ export default function SeekerPage() {
             className="object-cover"
             priority
           />
-          <div className="relative z-10" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.35)'}}>
+          <div className="relative z-10" style={{ textShadow: 'rgba(0, 0, 0, 0.45) 0px 2px 10px, rgba(0, 0, 0, 0.35) 0px 1px 2px'}}>
             <h1 className="font-headline text-6xl md:text-7xl font-bold text-white">Find Your Next Experience</h1>
             <p 
               className="mt-6 text-xl md:text-2xl mx-auto font-body text-white lg:whitespace-nowrap"
-              style={{ textShadow: '0 2px 8px rgba(0,0,0,0.35)'}}
+              style={{ textShadow: 'rgba(0, 0, 0, 0.35) 0px 2px 8px'}}
             >
               Curated retreats for those who choose curiosity, connection, and living well.
             </p>
@@ -304,13 +309,13 @@ export default function SeekerPage() {
             <Button size="lg" className="flex-grow" onClick={handleExploreClick}>Explore Experiences</Button>
             <Button size="lg" variant="outline" asChild><Link href="/seeker/manifestations">My Manifestations</Link></Button>
             <Button size="lg" variant="outline" asChild><Link href="/seeker/saved">View Saved</Link></Button>
-            <Button size="lg" variant="outline" onClick={handleClearFilters}>Clear Filters</Button>
+            {isFilterActive && <Button size="lg" variant="outline" onClick={handleClearFilters}>Clear Filters</Button>}
           </div>
         </div>
       </Card>
       
       <div id="retreat-results" className="scroll-mt-24">
-        {!isSearchActive ? (
+        {!searchInitiated && !isFilterActive ? (
           // STATE A: Default view
           <>
             <div className="mb-8">
@@ -318,7 +323,7 @@ export default function SeekerPage() {
               <p className="text-muted-foreground">A few favorites to get you inspired.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredRetreats.map((retreat) => (
+              {retreats.map((retreat) => (
                 <RetreatCard key={retreat.id} retreat={retreat} isLux={retreat.id === mostExpensiveRetreatId} />
               ))}
             </div>
@@ -338,17 +343,23 @@ export default function SeekerPage() {
                     <RetreatCard key={retreat.id} retreat={retreat} isLux={retreat.id === mostExpensiveRetreatId} />
                   ))}
                 </div>
+                 <div className="my-24">
+                    <p className="text-center text-2xl italic text-beige font-body my-12">Not seeing the one? Manifest exactly what you want.</p>
+                    {ManifestSection}
+                 </div>
               </>
             ) : (
               // STATE C: No results
-              <div className="text-center mt-8">
-                <h3 className="font-headline text-3xl font-bold mb-4">No matches yet.</h3>
-              </div>
+              <>
+                <div className="text-center mt-8">
+                  <h3 className="font-headline text-3xl font-bold mb-4">No matches yet.</h3>
+                </div>
+                <div className="my-24">
+                    <p className="text-center text-2xl italic text-beige font-body my-12">Not seeing the one? Manifest exactly what you want.</p>
+                    {ManifestSection}
+                </div>
+              </>
             )}
-             <div className="my-24">
-                <p className="text-center text-2xl italic text-beige font-body my-12">Not seeing the one? Manifest exactly what you want.</p>
-                {ManifestSection}
-             </div>
           </>
         )}
       </div>
