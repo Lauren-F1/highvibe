@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -244,7 +243,6 @@ export default function SeekerPage() {
     <div className="container mx-auto px-4 py-8 md:py-12">
       {heroImage && (
         <div className="relative mb-8 w-full aspect-[21/9] rounded-lg overflow-hidden flex items-center justify-center text-center">
-           <div className="absolute inset-0 bg-black/50 z-10"></div>
           <Image
             src={heroImage.imageUrl}
             alt={heroImage.description}
@@ -392,4 +390,3 @@ export default function SeekerPage() {
     </>
   );
 }
-
