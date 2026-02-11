@@ -259,27 +259,30 @@ export default function SeekerPage() {
   const ManifestSection = (
     <div className="mb-12 bg-secondary rounded-lg p-8 md:p-12">
         <div className="grid md:grid-cols-2 gap-8 items-center">
-            <div className="space-y-8">
+            <div className="flex flex-col">
                 <h2 className="font-headline text-5xl md:text-7xl tracking-widest">MANIFEST</h2>
-                <p className="text-lg text-muted-foreground leading-relaxed">
+                <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
                     Have a retreat in mind? Manifest it here—and we’ll connect you with hosts, guides, and vendors who match what you’re looking for.
                 </p>
-                <div className="flex items-center gap-4">
-                    <Button size="lg" asChild className="px-10 py-7 text-lg">
+                
+                <div className="mt-6">
+                    <Button size="lg" asChild className="w-full py-7 text-lg">
                         <Link href="/seeker/manifest/new">Manifest a Retreat</Link>
                     </Button>
                 </div>
-                 <div className="space-y-2 pt-4">
+
+                <div className="mt-6 space-y-2">
                     <p className="font-bold">Manifest your retreat. Earn up to $500 toward the next one.</p>
                     <p className="text-sm text-muted-foreground leading-relaxed">
                         HighVibe likes to end on a high note. Once your manifested retreat is complete, you’ll receive HighVibe credit equal to 3% of your retreat booking subtotal, up to $500. Use it toward your next retreat within 12 months. Happy manifesting!
                     </p>
-                 </div>
-                 <div className="pt-6">
+                </div>
+
+                <div className="mt-6">
                     <Button 
                         variant="outline" 
                         onClick={() => setIsHowItWorksOpen(true)}
-                        className="border-beige-dark text-beige-dark hover:bg-accent"
+                        className="w-full border-beige-dark text-beige-dark hover:bg-accent text-base py-6 font-medium"
                     >
                         How it works
                     </Button>
