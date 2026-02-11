@@ -74,15 +74,15 @@
     },
     {
       "id": "host-bali-villa",
-      "description": "A traditional Japanese ryokan with a serene garden in Kyoto.",
-      "imageUrl": "https://images.unsplash.com/photo-1582719508461-905c673771fd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxKYXBhbiUyMGhvdGVsJTIwaW50ZXJpb3J8ZW58MHx8fHwxNzA3NTU5MzA5fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "japan interior"
-    },
-    {
-      "id": "host-kyoto-ryokan",
       "description": "An open-air luxury villa in Bali with a pool and jungle view.",
       "imageUrl": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxiYWxpJTIwdmlsbGF8ZW58MHx8fHwxNzA3NTU5MjI4fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "bali villa"
+    },
+    {
+      "id": "host-kyoto-ryokan",
+      "description": "A traditional Japanese ryokan with a serene garden in Kyoto.",
+      "imageUrl": "https://images.unsplash.com/photo-1582719508461-905c673771fd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxKYXBhbiUyMGhvdGVsJTIwaW50ZXJpb3J8ZW58MHx8fHwxNzA3NTU5MzA5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "japan interior"
     },
     {
       "id": "hacienda-leather-interior",
