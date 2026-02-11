@@ -186,8 +186,8 @@ export default function SeekerPage() {
     <div className="bg-secondary rounded-lg p-8 md:p-12">
         <div className="grid md:grid-cols-2 gap-8 items-center">
             <div className="flex flex-col">
-                <h2 className="font-headline text-5xl md:text-7xl tracking-widest">MANIFEST</h2>
-                <div className="mt-6 space-y-6">
+                <h2 className="font-headline text-5xl md:text-7xl tracking-widest mb-6">MANIFEST</h2>
+                <div className="space-y-6">
                     <p className="text-lg text-muted-foreground leading-relaxed">
                         Have a retreat in mind? Manifest it here—and we’ll connect you with hosts, guides, and vendors who match what you’re looking for.
                     </p>
@@ -370,16 +370,16 @@ export default function SeekerPage() {
                     <RetreatCard key={retreat.id} retreat={retreat} isLux={retreat.id === mostExpensiveRetreatId} />
                   ))}
                 </div>
-                <div className="mt-24 text-center">
-                  <p className="text-2xl italic text-beige font-body mb-12">Not seeing the one? Manifest exactly what you want.</p>
+                <div className="my-24 text-center">
+                  <p className="text-2xl italic text-beige font-body my-12">Not seeing the one? Manifest exactly what you want.</p>
                   {ManifestSection}
                 </div>
               </>
             ) : (
               // STATE C: No results
               <div className="text-center mt-8">
-                <h3 className="font-headline text-3xl font-bold mb-12">No matches yet.</h3>
-                <p className="text-2xl italic text-beige font-body mb-12">Not seeing the one? Manifest exactly what you want.</p>
+                <h3 className="font-headline text-3xl font-bold mb-4">No matches yet.</h3>
+                <p className="text-2xl italic text-beige font-body my-12">Not seeing the one? Manifest exactly what you want.</p>
                 {ManifestSection}
               </div>
             )}

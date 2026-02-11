@@ -26,6 +26,9 @@ import { manifestRetreatTypes, manifestMustHaves, manifestNiceToHaves, lodgingPr
 const countries = Object.keys(destinations).flatMap(continent => destinations[continent as keyof typeof destinations]);
 
 const manifestSchema = z.object({
+  guidingPreference: z.enum(['match_guide', 'i_am_guide'], {
+    required_error: "Please make a selection to continue."
+  }),
   destination_country: z.string().min(1, "Country is required"),
   destination_region: z.string().optional(),
   date_type: z.enum(['flexible', 'exact']),
@@ -46,10 +49,11 @@ const manifestSchema = z.object({
 type ManifestFormValues = z.infer<typeof manifestSchema>;
 
 const steps = [
-  { id: 1, title: 'Destination & Timing', fields: ['destination_country', 'group_size', 'date_type', 'date_range', 'date_month', 'date_season'] },
-  { id: 2, title: 'Retreat Vision', fields: ['retreat_types', 'must_haves', 'nice_to_haves', 'lodging_preference'] },
-  { id: 3, title: 'Budget & Vibe', fields: ['luxury_tier', 'budget_range', 'dietary_preference', 'notes_text'] },
-  { id: 4, title: 'Review & Submit' },
+  { id: 1, title: "Who's guiding?", fields: ['guidingPreference'] },
+  { id: 2, title: 'Destination & Timing', fields: ['destination_country', 'group_size', 'date_type', 'date_range', 'date_month', 'date_season'] },
+  { id: 3, title: 'Retreat Vision', fields: ['retreat_types', 'must_haves', 'nice_to_haves', 'lodging_preference'] },
+  { id: 4, title: 'Budget & Vibe', fields: ['luxury_tier', 'budget_range', 'dietary_preference', 'notes_text'] },
+  { id: 5, title: 'Review & Submit' },
 ];
 
 export default function NewManifestationPage() {
@@ -70,10 +74,25 @@ export default function NewManifestationPage() {
   const { control, trigger, getValues, watch } = form;
   const watchedDateType = watch('date_type');
 
+  const handleContinueAsGuide = () => {
+    if (user.status === 'authenticated') {
+      router.push('/guide/retreats/new?createdFrom=seeker_manifest');
+    } else {
+      router.push('/join/guide?redirect=/guide/retreats/new?createdFrom=seeker_manifest');
+    }
+  };
+
   const handleNext = async () => {
     const fields = steps[step - 1].fields;
     const isValid = await trigger(fields as any, { shouldFocus: true });
     if (isValid) {
+      if (step === 1) {
+        const guidingChoice = getValues('guidingPreference');
+        if (guidingChoice === 'i_am_guide') {
+          handleContinueAsGuide();
+          return;
+        }
+      }
       setStep(prev => prev + 1);
     }
   };
@@ -92,6 +111,7 @@ export default function NewManifestationPage() {
       created_at: serverTimestamp(),
       updated_at: serverTimestamp(),
       status: 'submitted',
+      guidingPreference: "match_guide",
       destination: {
         country: data.destination_country,
         region: data.destination_region,
@@ -136,17 +156,21 @@ export default function NewManifestationPage() {
   const renderStep = () => {
     switch (step) {
       case 1:
-        return <Step1 control={control} watchedDateType={watchedDateType} />;
+        return <Step1Guiding control={control} />;
       case 2:
-        return <Step2 control={control} />;
+        return <Step2Destination control={control} watchedDateType={watchedDateType} />;
       case 3:
-        return <Step3 control={control} />;
+        return <Step3Vision control={control} />;
       case 4:
-        return <Step4 values={getValues()} />;
+        return <Step4Budget control={control} />;
+      case 5:
+        return <Step5Review values={getValues()} />;
       default:
         return null;
     }
   };
+  
+  const progressValue = step > 1 ? ((step - 1) / (steps.length - 1)) * 100 : 0;
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -154,7 +178,7 @@ export default function NewManifestationPage() {
         <CardHeader>
           <CardTitle>Manifest a Retreat</CardTitle>
           <CardDescription>Describe your ideal experience and let us bring it to life.</CardDescription>
-          <Progress value={(step / steps.length) * 100} className="mt-4" />
+          <Progress value={progressValue} className="mt-4" />
           <h3 className="text-center font-bold text-lg pt-4">{steps[step - 1].title}</h3>
         </CardHeader>
         <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -164,8 +188,8 @@ export default function NewManifestationPage() {
           <CardFooter className="flex justify-between">
             {step > 1 && <Button type="button" variant="outline" onClick={handleBack}>Back</Button>}
             <div className="flex-grow"></div>
-            {step < 4 && <Button type="button" onClick={handleNext}>Next</Button>}
-            {step === 4 && <Button type="submit">Send my Manifestation</Button>}
+            {step < 5 && <Button type="button" onClick={handleNext}>Next</Button>}
+            {step === 5 && <Button type="submit">Send my Manifestation</Button>}
           </CardFooter>
         </form>
       </Card>
@@ -175,7 +199,37 @@ export default function NewManifestationPage() {
 
 // --- Steps as separate components ---
 
-const Step1 = ({ control, watchedDateType }: { control: any, watchedDateType: string }) => (
+const Step1Guiding = ({ control }: { control: any }) => (
+  <div className="space-y-6">
+    <Controller
+      name="guidingPreference"
+      control={control}
+      render={({ field, fieldState }) => (
+        <>
+          <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="space-y-4">
+            <Label className="flex items-center space-x-3 border p-4 rounded-md has-[:checked]:bg-accent has-[:checked]:border-primary cursor-pointer">
+              <RadioGroupItem value="match_guide" id="match_guide" />
+              <div className="leading-snug">
+                <span className="font-bold">Match me with a Guide</span>
+                <p className="font-normal text-muted-foreground text-sm">Find a retreat leader from the HighVibe network to create and lead your experience.</p>
+              </div>
+            </Label>
+            <Label className="flex items-center space-x-3 border p-4 rounded-md has-[:checked]:bg-accent has-[:checked]:border-primary cursor-pointer">
+              <RadioGroupItem value="i_am_guide" id="i_am_guide" />
+              <div className="leading-snug">
+                <span className="font-bold">I'm the Guide</span>
+                <p className="font-normal text-muted-foreground text-sm">You are the retreat leader, creating an experience for your own community.</p>
+              </div>
+            </Label>
+          </RadioGroup>
+          {fieldState.error && <p className="text-sm text-destructive pt-2">{fieldState.error.message}</p>}
+        </>
+      )}
+    />
+  </div>
+);
+
+const Step2Destination = ({ control, watchedDateType }: { control: any, watchedDateType: string }) => (
   <div className="space-y-6">
     <Controller name="destination_country" control={control} render={({ field, fieldState }) => (
       <div className="space-y-2">
@@ -249,7 +303,7 @@ const Step1 = ({ control, watchedDateType }: { control: any, watchedDateType: st
   </div>
 );
 
-const Step2 = ({ control }: { control: any }) => {
+const Step3Vision = ({ control }: { control: any }) => {
     const CheckboxGroup = ({ name, label, options }: { name: any, label: string, options: string[] }) => (
         <Controller name={name} control={control} render={({ field }) => (
             <div className="space-y-2">
@@ -283,7 +337,7 @@ const Step2 = ({ control }: { control: any }) => {
     );
 };
 
-const Step3 = ({ control }: { control: any }) => (
+const Step4Budget = ({ control }: { control: any }) => (
   <div className="space-y-6">
     <Controller name="luxury_tier" control={control} render={({ field, fieldState }) => (
         <div className="space-y-2">
@@ -323,12 +377,12 @@ const Step3 = ({ control }: { control: any }) => (
   </div>
 );
 
-const Step4 = ({ values }: { values: ManifestFormValues }) => (
+const Step5Review = ({ values }: { values: ManifestFormValues }) => (
   <div className="space-y-4 text-sm">
       <h4 className="font-bold text-lg mb-2">Review Your Manifestation</h4>
       <div className="space-y-1"><span className="font-semibold">Destination:</span> {values.destination_country}{values.destination_region && `, ${values.destination_region}`}</div>
       <div className="space-y-1"><span className="font-semibold">Group Size:</span> {values.group_size} people</div>
-      <div className="space-y-1"><span className="font-semibold">Dates:</span> {values.date_type === 'exact' ? `${format(values.date_range?.from!, 'PP')} to ${format(values.date_range?.to!, 'PP')}` : `Flexible (${values.date_month || ''} ${values.date_season || ''})`}</div>
+      <div className="space-y-1"><span className="font-semibold">Dates:</span> {values.date_type === 'exact' ? `${values.date_range?.from ? format(values.date_range.from, 'PP') : ''} to ${values.date_range?.to ? format(values.date_range.to, 'PP') : ''}` : `Flexible (${values.date_month || ''} ${values.date_season || ''})`}</div>
       <div className="space-y-1"><span className="font-semibold">Retreat Types:</span> {values.retreat_types?.join(', ') || 'Any'}</div>
       <div className="space-y-1"><span className="font-semibold">Must-Haves:</span> {values.must_haves?.join(', ') || 'None'}</div>
       <div className="space-y-1"><span className="font-semibold">Nice-to-Haves:</span> {values.nice_to_haves?.join(', ') || 'None'}</div>

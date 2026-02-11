@@ -333,6 +333,10 @@
       "description": "A user's dream retreat request to be matched with providers.",
       "type": "object",
       "properties": {
+        "guidingPreference": {
+          "type": "string",
+          "description": "Indicates if the seeker needs a guide ('match_guide') or is the guide themselves."
+        },
         "seeker_id": {
           "type": "string"
         },
