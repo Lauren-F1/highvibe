@@ -48,10 +48,10 @@ export function ConversationView({ conversation, onSendMessage }: ConversationVi
                             </Avatar>
                         )}
                         <div className={cn(
-                            "max-w-[65%] rounded-[14px] px-[14px] py-3 text-sm leading-relaxed",
+                            "max-w-[65%] rounded-[14px] py-3 px-[14px] text-sm leading-relaxed text-foreground",
                              message.sender === 'me' 
-                             ? 'bg-background text-foreground border border-beige border-l-[3px]' 
-                             : 'bg-secondary text-foreground border border-input'
+                             ? 'bg-white border border-beige border-l-[3px]' 
+                             : 'bg-secondary border border-input'
                         )}>
                             <p>{message.text}</p>
                         </div>
