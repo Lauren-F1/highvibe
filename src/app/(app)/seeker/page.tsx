@@ -11,7 +11,7 @@ import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Users, Sparkles } from 'lucide-react';
+import { HowItWorksModal } from '@/components/how-it-works-modal';
 import { allRetreats as retreats, continents, destinations } from '@/lib/mock-data';
 import { useFirestore } from '@/firebase';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
@@ -76,6 +76,7 @@ const parsePriceRange = (rangeValue: string) => {
 
 export default function SeekerPage() {
   const heroImage = placeholderImages.find(p => p.id === 'seeker-hero-panoramic');
+  const manifestImage = placeholderImages.find(p => p.id === 'mediterranean-terrace');
   
   // Filter states
   const [experienceType, setExperienceType] = useState('all-experiences');
@@ -85,6 +86,7 @@ export default function SeekerPage() {
   const [timing, setTiming] = useState('exploring');
 
   const [filteredRetreats, setFilteredRetreats] = useState(retreats);
+  const [isHowItWorksOpen, setIsHowItWorksOpen] = useState(false);
   
   const mostExpensiveRetreatId = retreats.reduce((prev, current) => (prev.price > current.price) ? prev : current).id;
   
@@ -255,6 +257,8 @@ export default function SeekerPage() {
   };
 
   return (
+    <>
+    <HowItWorksModal isOpen={isHowItWorksOpen} onOpenChange={setIsHowItWorksOpen} />
     <div className="container mx-auto px-4 py-8 md:py-12">
       {heroImage && (
         <div className="relative mb-8 w-full aspect-[21/9] rounded-lg overflow-hidden flex items-center justify-center text-center">
@@ -357,29 +361,39 @@ export default function SeekerPage() {
         </div>
       </Card>
       
-      <Card className="mb-8">
-        <CardHeader className="text-center">
-            <CardTitle className="font-headline text-3xl flex items-center justify-center gap-2">
-                <Sparkles className="text-primary"/>
-                Manifest
-            </CardTitle>
-        </CardHeader>
-        <CardContent className="text-center max-w-2xl mx-auto">
-            <p className="text-lg text-muted-foreground mb-6">
-                Can’t find what you’re looking for? Let our network of guides and hosts create it for you.
-            </p>
-            <Button size="lg" asChild>
-                <Link href="/seeker/manifest/new">Manifest a Retreat</Link>
-            </Button>
-            <p className="text-base font-bold mt-4">Manifest your retreat. Earn up to $500 toward the next one.</p>
-            <p className="text-sm text-muted-foreground mt-2">
-                HighVibe likes to end on a high note. Once your manifested retreat is complete, you’ll receive HighVibe credit equal to 3% of your retreat booking subtotal, up to $500. Use it toward your next retreat within 12 months. Happy manifesting!
-            </p>
-            <Button variant="link" asChild className="mt-2">
-                <Link href="#">How it works</Link>
-            </Button>
-        </CardContent>
-      </Card>
+      <div className="mb-8 bg-secondary rounded-lg p-8 md:p-12">
+        <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div className="space-y-6">
+                <h2 className="font-headline text-5xl tracking-widest">MANIFEST</h2>
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                    Have a retreat in mind? Manifest it here—and we’ll connect you with hosts, guides, and vendors who match what you’re looking for.
+                </p>
+                <div className="flex items-center gap-4">
+                    <Button size="lg" asChild className="px-10 py-7 text-lg">
+                        <Link href="/seeker/manifest/new">Manifest a Retreat</Link>
+                    </Button>
+                    <Button variant="link" onClick={() => setIsHowItWorksOpen(true)}>How it works</Button>
+                </div>
+                 <div className="space-y-2 pt-4">
+                    <p className="font-bold">Manifest your retreat. Earn up to $500 toward the next one.</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                        HighVibe likes to end on a high note. Once your manifested retreat is complete, you’ll receive HighVibe credit equal to 3% of your retreat booking subtotal, up to $500. Use it toward your next retreat within 12 months. Happy manifesting!
+                    </p>
+                 </div>
+            </div>
+             {manifestImage && (
+                <div className="relative aspect-square w-full rounded-lg overflow-hidden">
+                    <Image
+                        src={manifestImage.imageUrl}
+                        alt={manifestImage.description}
+                        data-ai-hint={manifestImage.imageHint}
+                        fill
+                        className="object-cover"
+                    />
+                </div>
+            )}
+        </div>
+      </div>
 
 
       <div id="retreat-results" className="scroll-mt-24">
@@ -407,5 +421,6 @@ export default function SeekerPage() {
         )}
       </div>
     </div>
+    </>
   );
 }
