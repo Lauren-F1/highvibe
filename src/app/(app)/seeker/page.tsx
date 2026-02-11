@@ -76,7 +76,7 @@ const parsePriceRange = (rangeValue: string) => {
 
 export default function SeekerPage() {
   const heroImage = placeholderImages.find(p => p.id === 'seeker-hero-panoramic');
-  const manifestImage = placeholderImages.find(p => p.id === 'mediterranean-terrace');
+  const manifestImage = placeholderImages.find(p => p.id === 'spanish-villa-sunset');
   
   // Filter states
   const [experienceType, setExperienceType] = useState('all-experiences');
@@ -428,3 +428,5 @@ export default function SeekerPage() {
     </>
   );
 }
+
+    

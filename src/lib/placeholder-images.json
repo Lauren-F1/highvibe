@@ -131,12 +131,6 @@
       "description": "A large Spanish-style villa with a pool at sunset.",
       "imageUrl": "https://images.unsplash.com/photo-1588806528773-6789a463ce82?q=80&w=1080&auto=format&fit=crop",
       "imageHint": "spanish villa"
-    },
-    {
-      "id": "mediterranean-terrace",
-      "description": "A luxurious desert hacienda patio with a pool and comfortable seating at golden hour.",
-      "imageUrl": "https://images.unsplash.com/photo-1617822449619-33a76f7b19e7?q=80&w=1080&auto=format&fit=crop",
-      "imageHint": "hacienda patio"
     }
   ]
 }
