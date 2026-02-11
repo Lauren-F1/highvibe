@@ -68,9 +68,9 @@
     },
     {
       "id": "seeker-hero-panoramic",
-      "description": "An infinity pool at a luxury resort overlooking a lush, tropical valley at sunset.",
-      "imageUrl": "/lux-jungle.png",
-      "imageHint": "jungle"
+      "description": "A beautiful new hero image.",
+      "imageUrl": "/my-new-hero.png",
+      "imageHint": "new hero"
     },
     {
       "id": "host-bali-villa",
