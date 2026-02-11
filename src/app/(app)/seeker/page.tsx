@@ -251,7 +251,7 @@ export default function SeekerPage() {
             className="object-cover"
             priority
           />
-          <div className="relative text-white px-4 z-20" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
+          <div className="relative text-white px-4 z-20" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
             <h1 className="font-headline text-6xl md:text-7xl font-bold">Find Your Next Experience</h1>
             <p className="text-slate-100 mt-6 text-xl md:text-2xl max-w-3xl mx-auto font-body">
               Curated retreats for those who choose curiosity, connection, and living well.
