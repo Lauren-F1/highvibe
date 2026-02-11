@@ -111,7 +111,7 @@ export default function SeekerPage() {
     
     // Destination filter
     if (selectedContinent !== 'anywhere' && !selectedRegion) {
-        const regionsInContinent = destinations[selectedContinent] || [];
+        const regionsInContinent = destinations[selectedContinent as keyof typeof destinations] || [];
         newFilteredRetreats = newFilteredRetreats.filter(retreat =>
             regionsInContinent.includes(retreat.location)
         );
@@ -165,7 +165,7 @@ export default function SeekerPage() {
     }
   };
 
-  const showRegionFilter = selectedContinent && selectedContinent !== 'anywhere' && destinations[selectedContinent];
+  const showRegionFilter = selectedContinent && selectedContinent !== 'anywhere' && destinations[selectedContinent as keyof typeof destinations];
 
   const handleClearFilters = () => {
     setExperienceType('all-experiences');
@@ -265,7 +265,7 @@ export default function SeekerPage() {
                     Have a retreat in mind? Manifest it here—and we’ll connect you with hosts, guides, and vendors who match what you’re looking for.
                 </p>
                 
-                <div className="mt-6">
+                <div className="mt-6 w-full">
                     <Button size="lg" asChild className="w-full py-7 text-lg">
                         <Link href="/seeker/manifest/new">Manifest a Retreat</Link>
                     </Button>
@@ -278,7 +278,7 @@ export default function SeekerPage() {
                     </p>
                 </div>
 
-                <div className="mt-6">
+                <div className="mt-8">
                     <Button 
                         variant="outline" 
                         onClick={() => setIsHowItWorksOpen(true)}
@@ -366,7 +366,7 @@ export default function SeekerPage() {
                     <SelectValue placeholder="Select a country or region" />
                   </SelectTrigger>
                   <SelectContent>
-                    {(destinations[selectedContinent] || []).map(region => (
+                    {(destinations[selectedContinent as keyof typeof destinations] || []).map(region => (
                       <SelectItem key={region} value={region}>{region}</SelectItem>
                     ))}
                   </SelectContent>
@@ -417,8 +417,8 @@ export default function SeekerPage() {
                 <RetreatCard key={retreat.id} retreat={retreat} isLux={retreat.id === mostExpensiveRetreatId} />
               ))}
             </div>
-            <div className="mt-16 text-center">
-                <p className="text-lg text-muted-foreground font-body mb-8">Not seeing the one? Manifest exactly what you want.</p>
+            <div className="mt-24 text-center">
+                <p className="text-2xl italic text-beige font-body mb-12">Not seeing the one? Manifest exactly what you want.</p>
                 {ManifestSection}
             </div>
           </>
