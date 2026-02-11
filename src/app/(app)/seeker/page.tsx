@@ -12,47 +12,11 @@ import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { HowItWorksModal } from '@/components/how-it-works-modal';
-import { allRetreats as retreats, continents, destinations } from '@/lib/mock-data';
+import { allRetreats as retreats, continents, destinations, manifestRetreatTypes as experienceTypes, investmentRanges, timingOptions } from '@/lib/mock-data';
 import { useFirestore } from '@/firebase';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
-
-const experienceTypes = [
-    { value: 'all-experiences', label: 'All Experiences' },
-    { value: 'rest-reset', label: 'Rest & Reset' },
-    { value: 'wellness-healing', label: 'Wellness & Healing' },
-    { value: 'yoga-meditation', label: 'Yoga & Meditation' },
-    { value: 'personal-growth-self-development', label: 'Personal Growth & Self-Development' },
-    { value: 'spiritual-exploration', label: 'Spiritual Exploration' },
-    { value: 'plant-medicine-ceremony', label: 'Plant Medicine & Ceremony' },
-    { value: 'relationships-connection', label: 'Relationships & Connection' },
-    { value: 'leadership-professional-growth', label: 'Leadership & Professional Growth' },
-    { value: 'adventure-aliveness', label: 'Adventure & Aliveness' },
-    { value: 'creativity-expression', label: 'Creativity & Expression' },
-    { value: 'nature-immersion', label: 'Nature Immersion' },
-    { value: 'transformation', label: 'Transformation' },
-];
-
-const investmentRanges = [
-  { value: "any", label: "Any Range" },
-  { value: "under-500", label: "Under $500" },
-  { value: "500-1000", label: "$500–$1,000" },
-  { value: "1000-3000", label: "$1,000–$3,000" },
-  { value: "3000-7500", label: "$3,000–$7,500" },
-  { value: "7500-15000", label: "$7,500–$15,000" },
-  { value: "15000-30000", label: "$15,000–$30,000" },
-  { value: "30000-50000", label: "$30,000–$50,000" },
-  { value: "50000-100000", label: "$50,000–$100,000" },
-  { value: "over-100000", label: "Over $100,000" },
-];
-
-const timingOptions = [
-  { value: 'exploring', label: 'Just exploring' },
-  { value: '3-months', label: 'Within 3 months' },
-  { value: '6-months', label: 'Within 6 months' },
-  { value: '12-months', label: 'Within 12 months' },
-];
 
 const parsePriceRange = (rangeValue: string) => {
     if (rangeValue === 'any') return { min: 0, max: Infinity };
@@ -89,7 +53,7 @@ export default function SeekerPage() {
   const [filteredRetreats, setFilteredRetreats] = useState(retreats);
   const [isHowItWorksOpen, setIsHowItWorksOpen] = useState(false);
   
-  const mostExpensiveRetreatId = retreats.reduce((prev, current) => (prev.price > current.price) ? prev : current).id;
+  const mostExpensiveRetreatId = retreats.length > 0 ? retreats.reduce((prev, current) => (prev.price > current.price) ? prev : current).id : '';
   
   // Waitlist form state
   const [waitlistStatus, setWaitlistStatus] = useState<'idle' | 'submitting' | 'submitted' | 'error'>('idle');
@@ -106,7 +70,7 @@ export default function SeekerPage() {
     // Experience Type Filter
     if (experienceType !== 'all-experiences') {
       newFilteredRetreats = newFilteredRetreats.filter(retreat => 
-        retreat.type && retreat.type.includes(experienceType)
+        retreat.type && retreat.type.includes(experienceType.replace('all-experiences', '')) // Quick fix for 'all'
       );
     }
     
@@ -183,11 +147,11 @@ export default function SeekerPage() {
   }
 
   const ManifestSection = (
-    <div className="bg-secondary rounded-lg p-8 md:p-12">
+    <div className="bg-secondary rounded-lg">
         <div className="grid md:grid-cols-2 gap-8 items-center">
-            <div className="flex flex-col">
-                <h2 className="font-headline text-5xl md:text-7xl tracking-widest mb-6">MANIFEST</h2>
-                <div className="space-y-6">
+            <div className="flex flex-col p-8 md:p-12">
+                <h2 className="font-headline text-5xl md:text-7xl tracking-widest mb-6 text-left">MANIFEST</h2>
+                <div className="space-y-6 w-full max-w-sm text-left">
                     <p className="text-lg text-muted-foreground leading-relaxed">
                         Have a retreat in mind? Manifest it here—and we’ll connect you with hosts, guides, and vendors who match what you’re looking for.
                     </p>
@@ -214,7 +178,7 @@ export default function SeekerPage() {
                 </div>
             </div>
              {manifestImage && (
-                <div className="relative aspect-square w-full rounded-lg overflow-hidden">
+                <div className="relative aspect-square w-full rounded-lg overflow-hidden hidden md:block">
                     <Image
                         src={manifestImage.imageUrl}
                         alt={manifestImage.description}
@@ -251,9 +215,9 @@ export default function SeekerPage() {
             className="object-cover"
             priority
           />
-          <div className="relative text-white px-4 z-20" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
-            <h1 className="font-headline text-6xl md:text-7xl font-bold">Find Your Next Experience</h1>
-            <p className="text-slate-100 mt-6 text-xl md:text-2xl max-w-3xl mx-auto font-body">
+          <div className="relative text-white px-4 z-20">
+            <h1 className="font-headline text-6xl md:text-7xl font-bold" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.35)' }}>Find Your Next Experience</h1>
+            <p className="mt-6 text-xl md:text-2xl mx-auto font-body lg:whitespace-nowrap" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.35)' }}>
               Curated retreats for those who choose curiosity, connection, and living well.
             </p>
           </div>
@@ -354,9 +318,6 @@ export default function SeekerPage() {
                 <RetreatCard key={retreat.id} retreat={retreat} isLux={retreat.id === mostExpensiveRetreatId} />
               ))}
             </div>
-            <div className="mt-24">
-              {ManifestSection}
-            </div>
           </>
         ) : (
           // STATE B or C: Search is active
@@ -370,22 +331,20 @@ export default function SeekerPage() {
                     <RetreatCard key={retreat.id} retreat={retreat} isLux={retreat.id === mostExpensiveRetreatId} />
                   ))}
                 </div>
-                <div className="my-24 text-center">
-                  <p className="text-2xl italic text-beige font-body my-12">Not seeing the one? Manifest exactly what you want.</p>
-                  {ManifestSection}
-                </div>
               </>
             ) : (
               // STATE C: No results
               <div className="text-center mt-8">
                 <h3 className="font-headline text-3xl font-bold mb-4">No matches yet.</h3>
-                <p className="text-2xl italic text-beige font-body my-12">Not seeing the one? Manifest exactly what you want.</p>
-                {ManifestSection}
               </div>
             )}
           </>
         )}
       </div>
+       <div className="my-24">
+          <p className="text-center text-2xl italic text-beige font-body my-12">Not seeing the one? Manifest exactly what you want.</p>
+          {ManifestSection}
+        </div>
     </div>
     </>
   );
