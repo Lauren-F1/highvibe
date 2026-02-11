@@ -308,6 +308,168 @@
         }
       },
       "required": ["senderId", "text", "createdAt"]
+    },
+    "Manifestation": {
+      "title": "Manifestation",
+      "description": "A user's dream retreat request to be matched with providers.",
+      "type": "object",
+      "properties": {
+        "seeker_id": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "draft",
+            "submitted",
+            "matching",
+            "proposals_open",
+            "assembling",
+            "booked",
+            "completed",
+            "closed"
+          ]
+        },
+        "destination": {
+          "type": "object",
+          "properties": {
+            "country": {
+              "type": "string"
+            },
+            "region": {
+              "type": "string"
+            },
+            "city": {
+              "type": "string"
+            }
+          }
+        },
+        "date_pref": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "exact_range",
+                "flexible"
+              ]
+            },
+            "start_date": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "end_date": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "month": {
+              "type": "string"
+            },
+            "season": {
+              "type": "string"
+            }
+          }
+        },
+        "group_size": {
+          "type": "number"
+        },
+        "retreat_types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "must_haves": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "nice_to_haves": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "lodging_preference": {
+          "type": "string"
+        },
+        "luxury_tier": {
+          "type": "string",
+          "enum": [
+            "Essentials",
+            "Elevated",
+            "Luxury",
+            "Ultra-Luxury"
+          ]
+        },
+        "budget_range": {
+          "type": "string"
+        },
+        "dietary_preference": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "notes_text": {
+          "type": "string"
+        },
+        "credit_policy": {
+          "type": "object",
+          "properties": {
+            "percent": {
+              "type": "number"
+            },
+            "cap_amount": {
+              "type": "number"
+            },
+            "currency": {
+              "type": "string"
+            },
+            "validity_days": {
+              "type": "number"
+            },
+            "trigger": {
+              "type": "string"
+            }
+          }
+        },
+        "matched_summary_counts": {
+          "type": "object",
+          "properties": {
+            "hosts": {
+              "type": "number"
+            },
+            "guides": {
+              "type": "number"
+            },
+            "vendors": {
+              "type": "number"
+            }
+          }
+        },
+        "last_notified_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "seeker_id",
+        "created_at",
+        "status",
+        "group_size",
+        "luxury_tier",
+        "notes_text"
+      ]
     }
   },
   "auth": {
@@ -346,6 +508,12 @@
         "$ref": "#/entities/Message"
       },
       "description": "Messages within a conversation."
+    },
+    "/manifestations/{manifestationId}": {
+      "schema": {
+        "$ref": "#/entities/Manifestation"
+      },
+      "description": "Collection of user-submitted retreat manifestations."
     }
   }
 }

@@ -11,7 +11,7 @@ import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Users } from 'lucide-react';
+import { Users, Sparkles } from 'lucide-react';
 import { allRetreats as retreats, continents, destinations } from '@/lib/mock-data';
 import { useFirestore } from '@/firebase';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
@@ -348,13 +348,39 @@ export default function SeekerPage() {
                 </SelectContent>
               </Select>
             </div>
-          <div className="lg:col-span-full flex gap-2">
-            <Button size="lg" className="w-full" onClick={handleExploreClick}>Explore Experiences</Button>
+          <div className="lg:col-span-full flex flex-wrap gap-2">
+            <Button size="lg" className="flex-grow" onClick={handleExploreClick}>Explore Experiences</Button>
+            <Button size="lg" variant="outline" asChild><Link href="/seeker/manifestations">My Manifestations</Link></Button>
             <Button size="lg" variant="outline" asChild><Link href="/seeker/saved">View Saved</Link></Button>
             <Button size="lg" variant="outline" onClick={handleClearFilters}>Clear Filters</Button>
           </div>
         </div>
       </Card>
+      
+      <Card className="mb-8">
+        <CardHeader className="text-center">
+            <CardTitle className="font-headline text-3xl flex items-center justify-center gap-2">
+                <Sparkles className="text-primary"/>
+                Manifest
+            </CardTitle>
+        </CardHeader>
+        <CardContent className="text-center max-w-2xl mx-auto">
+            <p className="text-lg text-muted-foreground mb-6">
+                Can’t find what you’re looking for? Let our network of guides and hosts create it for you.
+            </p>
+            <Button size="lg" asChild>
+                <Link href="/seeker/manifest/new">Manifest a Retreat</Link>
+            </Button>
+            <p className="text-base font-bold mt-4">Manifest your retreat. Earn up to $500 toward the next one.</p>
+            <p className="text-sm text-muted-foreground mt-2">
+                HighVibe likes to end on a high note. Once your manifested retreat is complete, you’ll receive HighVibe credit equal to 3% of your retreat booking subtotal, up to $500. Use it toward your next retreat within 12 months. Happy manifesting!
+            </p>
+            <Button variant="link" asChild className="mt-2">
+                <Link href="#">How it works</Link>
+            </Button>
+        </CardContent>
+      </Card>
+
 
       <div id="retreat-results" className="scroll-mt-24">
         

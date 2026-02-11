@@ -182,3 +182,11 @@ export const vendorCategories: { name: string; description?: string }[] = [
     { name: "Other", description: "I offer something out of the box that I think would be your vibe." },
 ];
 export const vendorPricingTiers = ["Budget", "Mid-range", "Premium", "Luxury"];
+
+// --- Manifest Feature Data ---
+export const manifestRetreatTypes = ['Tantra', 'Yoga', 'Meditation', 'Breathwork', 'Somatics', 'Wellness', 'Adventure', 'Leadership', 'Other'];
+export const manifestMustHaves = ['Yoga', 'Tantra facilitator/guide', 'High-end vegetarian chef', 'Transportation', 'Massage/bodywork', 'Sound bath', 'Photographer', 'Other'];
+export const manifestNiceToHaves = ['Spa access', 'Private villa', 'Ocean view', 'Hikes', 'Winery'];
+export const lodgingPreferences = ['Villa', 'Boutique Hotel', 'Retreat Center', 'Flexible'];
+export const luxuryTiers = ['Essentials', 'Elevated', 'Luxury', 'Ultra-Luxury'];
+export const dietaryPreferences = ['Vegetarian', 'Vegan', 'Gluten-free friendly', 'No preference'];
