@@ -256,6 +256,42 @@ export default function SeekerPage() {
     }
   };
 
+  const ManifestSection = (
+    <div className="mb-8 bg-secondary rounded-lg p-8 md:p-12">
+        <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div className="space-y-6">
+                <h2 className="font-headline text-5xl tracking-widest">MANIFEST</h2>
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                    Have a retreat in mind? Manifest it here—and we’ll connect you with hosts, guides, and vendors who match what you’re looking for.
+                </p>
+                <div className="flex items-center gap-4">
+                    <Button size="lg" asChild className="px-10 py-7 text-lg">
+                        <Link href="/seeker/manifest/new">Manifest a Retreat</Link>
+                    </Button>
+                    <Button variant="link" onClick={() => setIsHowItWorksOpen(true)}>How it works</Button>
+                </div>
+                 <div className="space-y-2 pt-4">
+                    <p className="font-bold">Manifest your retreat. Earn up to $500 toward the next one.</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                        HighVibe likes to end on a high note. Once your manifested retreat is complete, you’ll receive HighVibe credit equal to 3% of your retreat booking subtotal, up to $500. Use it toward your next retreat within 12 months. Happy manifesting!
+                    </p>
+                 </div>
+            </div>
+             {manifestImage && (
+                <div className="relative aspect-square w-full rounded-lg overflow-hidden">
+                    <Image
+                        src={manifestImage.imageUrl}
+                        alt={manifestImage.description}
+                        data-ai-hint={manifestImage.imageHint}
+                        fill
+                        className="object-cover"
+                    />
+                </div>
+            )}
+        </div>
+    </div>
+  );
+
   return (
     <>
     <HowItWorksModal isOpen={isHowItWorksOpen} onOpenChange={setIsHowItWorksOpen} />
@@ -361,43 +397,7 @@ export default function SeekerPage() {
         </div>
       </Card>
       
-      <div className="mb-8 bg-secondary rounded-lg p-8 md:p-12">
-        <div className="grid md:grid-cols-2 gap-8 items-center">
-            <div className="space-y-6">
-                <h2 className="font-headline text-5xl tracking-widest">MANIFEST</h2>
-                <p className="text-lg text-muted-foreground leading-relaxed">
-                    Have a retreat in mind? Manifest it here—and we’ll connect you with hosts, guides, and vendors who match what you’re looking for.
-                </p>
-                <div className="flex items-center gap-4">
-                    <Button size="lg" asChild className="px-10 py-7 text-lg">
-                        <Link href="/seeker/manifest/new">Manifest a Retreat</Link>
-                    </Button>
-                    <Button variant="link" onClick={() => setIsHowItWorksOpen(true)}>How it works</Button>
-                </div>
-                 <div className="space-y-2 pt-4">
-                    <p className="font-bold">Manifest your retreat. Earn up to $500 toward the next one.</p>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                        HighVibe likes to end on a high note. Once your manifested retreat is complete, you’ll receive HighVibe credit equal to 3% of your retreat booking subtotal, up to $500. Use it toward your next retreat within 12 months. Happy manifesting!
-                    </p>
-                 </div>
-            </div>
-             {manifestImage && (
-                <div className="relative aspect-square w-full rounded-lg overflow-hidden">
-                    <Image
-                        src={manifestImage.imageUrl}
-                        alt={manifestImage.description}
-                        data-ai-hint={manifestImage.imageHint}
-                        fill
-                        className="object-cover"
-                    />
-                </div>
-            )}
-        </div>
-      </div>
-
-
       <div id="retreat-results" className="scroll-mt-24">
-        
         {filteredRetreats.length > 0 ? (
           <>
             <h2 className="text-3xl font-bold tracking-tight mb-6 font-headline">{filteredRetreats.length} Matching {filteredRetreats.length === 1 ? 'Retreat' : 'Retreats'}</h2>
@@ -406,18 +406,22 @@ export default function SeekerPage() {
                 <RetreatCard key={retreat.id} retreat={retreat} isLux={retreat.id === mostExpensiveRetreatId} />
               ))}
             </div>
+            <div className="mt-16 text-center">
+                <p className="text-lg text-muted-foreground font-body mb-8">Not seeing the one? Manifest exactly what you want.</p>
+                {ManifestSection}
+            </div>
           </>
         ) : (
-           <div className="text-center py-16 max-w-2xl mx-auto">
-              <h3 className="font-headline text-3xl font-bold">We’re so glad you’re here.</h3>
-              <p className="text-muted-foreground mt-4 leading-relaxed">
-                HighVibe is just getting started, and we’re actively connecting with guides, hosts, and vendors to create the kinds of experiences you’re seeking. There isn’t a retreat available yet that matches your exact filters — but this is exactly why HighVibe exists. We’re building toward what you’re seeking.
-              </p>
-              <p className="text-muted-foreground mt-4">
-                If you’d like, we can let you know the moment something aligned becomes available.
-              </p>
-              {renderWaitlistCard()}
-          </div>
+           <>
+            {ManifestSection}
+            <div className="text-center py-16 max-w-2xl mx-auto">
+                <h3 className="font-headline text-3xl font-bold">No matches yet.</h3>
+                <p className="text-muted-foreground mt-4 leading-relaxed">
+                    Want to broaden your search—or manifest exactly what you’re looking for?
+                </p>
+                {renderWaitlistCard()}
+            </div>
+           </>
         )}
       </div>
     </div>
