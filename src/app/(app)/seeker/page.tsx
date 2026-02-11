@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -309,7 +310,7 @@ export default function SeekerPage() {
     <div className="container mx-auto px-4 py-8 md:py-12">
       {heroImage && (
         <div className="relative mb-8 w-full aspect-[21/9] rounded-lg overflow-hidden flex items-center justify-center text-center">
-           <div className="absolute inset-0 bg-black/30 z-10"></div>
+           <div className="absolute inset-0 bg-black/40 z-10"></div>
           <Image
             src={heroImage.imageUrl}
             alt={heroImage.description}
@@ -319,8 +320,8 @@ export default function SeekerPage() {
             priority
           />
           <div className="relative text-white px-4 z-20">
-            <h1 className="font-headline text-4xl md:text-5xl font-bold [text-shadow:0_4px_12px_rgba(0,0,0,0.8)]">Find Your Next Experience</h1>
-            <p className="text-slate-100 mt-2 text-lg md:text-xl max-w-3xl mx-auto font-body [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">
+            <h1 className="font-headline text-5xl md:text-6xl font-bold [text-shadow:0_2px_8px_rgba(0,0,0,0.5)]">Find Your Next Experience</h1>
+            <p className="text-slate-100 mt-4 text-xl md:text-2xl max-w-3xl mx-auto font-body [text-shadow:0_2px_8px_rgba(0,0,0,0.5)]">
               Curated retreats for those who choose curiosity, connection, and living well.
             </p>
           </div>
