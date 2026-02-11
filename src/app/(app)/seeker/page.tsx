@@ -49,10 +49,10 @@ const investmentRanges = [
 ];
 
 const timingOptions = [
+  { value: 'exploring', label: 'Just exploring' },
   { value: '3-months', label: 'Within 3 months' },
   { value: '6-months', label: 'Within 6 months' },
   { value: '12-months', label: 'Within 12 months' },
-  { value: 'exploring', label: 'Just exploring' }
 ];
 
 const parsePriceRange = (rangeValue: string) => {
@@ -85,6 +85,7 @@ export default function SeekerPage() {
   const [selectedRegion, setSelectedRegion] = useState('');
   const [investmentRange, setInvestmentRange] = useState('any');
   const [timing, setTiming] = useState('exploring');
+  const [searchInitiated, setSearchInitiated] = useState(false);
 
   const [filteredRetreats, setFilteredRetreats] = useState(retreats);
   const [isHowItWorksOpen, setIsHowItWorksOpen] = useState(false);
@@ -174,119 +175,43 @@ export default function SeekerPage() {
     setSelectedRegion('');
     setInvestmentRange('any');
     setTiming('exploring');
+    setSearchInitiated(false);
   };
   
   const handleExploreClick = () => {
+    setSearchInitiated(true);
     document.getElementById('retreat-results')?.scrollIntoView({ behavior: 'smooth' });
   }
 
-  const renderWaitlistCard = () => {
-    switch (waitlistStatus) {
-      case 'submitted':
-        return (
-          <Card className="mt-8 text-left bg-secondary/50">
-            <CardHeader>
-              <CardTitle className="text-2xl">You’re on the list.</CardTitle>
-              <CardDescription>
-                We’ll notify you when experiences like this become available.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        );
-      case 'idle':
-      case 'submitting':
-      case 'error':
-      default:
-        return (
-          <form onSubmit={handleWaitlistSubmit}>
-            <Card className="mt-8 text-left bg-secondary/50">
-              <CardHeader>
-                <CardTitle className="text-2xl">Get notified when aligned retreats become available</CardTitle>
-                <CardDescription>
-                  We’ll only reach out when something matches what you’re looking for. No spam. No noise.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                 {waitlistStatus === 'error' && (
-                  <p className="text-destructive text-sm">Something didn’t go through — please try again.</p>
-                 )}
-                <div className="space-y-2">
-                  <Label htmlFor="email-notify">Email Address</Label>
-                  <Input
-                    id="email-notify"
-                    type="email"
-                    placeholder="you@example.com"
-                    required
-                    value={waitlistEmail}
-                    onChange={(e) => setWaitlistEmail(e.target.value)}
-                    disabled={waitlistStatus === 'submitting'}
-                  />
-                  <p className="text-xs text-muted-foreground pt-1">No spam. Just aligned retreats when they’re ready.</p>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone-notify">Phone Number (optional)</Label>
-                  <Input
-                    id="phone-notify"
-                    type="tel"
-                    placeholder="(555) 123-4567"
-                    value={waitlistPhone}
-                    onChange={(e) => setWaitlistPhone(e.target.value)}
-                    disabled={waitlistStatus === 'submitting'}
-                  />
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="sms-notify"
-                    checked={waitlistSmsOptIn}
-                    onCheckedChange={(checked) => setWaitlistSmsOptIn(Boolean(checked))}
-                    disabled={waitlistStatus === 'submitting'}
-                  />
-                  <Label htmlFor="sms-notify" className="text-sm font-normal leading-none">
-                    Text me when new retreats match my preferences
-                  </Label>
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button type="submit" className="w-full" size="lg" disabled={waitlistStatus === 'submitting'}>
-                  {waitlistStatus === 'submitting' ? 'Submitting...' : 'Notify Me When It’s Available'}
-                </Button>
-              </CardFooter>
-            </Card>
-          </form>
-        );
-    }
-  };
-
   const ManifestSection = (
-    <div className="mb-12 bg-secondary rounded-lg p-8 md:p-12">
+    <div className="bg-secondary rounded-lg p-8 md:p-12">
         <div className="grid md:grid-cols-2 gap-8 items-center">
             <div className="flex flex-col">
                 <h2 className="font-headline text-5xl md:text-7xl tracking-widest">MANIFEST</h2>
-                <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
-                    Have a retreat in mind? Manifest it here—and we’ll connect you with hosts, guides, and vendors who match what you’re looking for.
-                </p>
-                
-                <div className="mt-6 w-full">
-                    <Button size="lg" asChild className="w-full py-7 text-lg">
-                        <Link href="/seeker/manifest/new">Manifest a Retreat</Link>
-                    </Button>
-                </div>
-
-                <div className="mt-6 space-y-2">
-                    <p className="font-bold">Manifest your retreat. Earn up to $500 toward the next one.</p>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                        HighVibe likes to end on a high note. Once your manifested retreat is complete, you’ll receive HighVibe credit equal to 3% of your retreat booking subtotal, up to $500. Use it toward your next retreat within 12 months. Happy manifesting!
+                <div className="mt-6 space-y-6">
+                    <p className="text-lg text-muted-foreground leading-relaxed">
+                        Have a retreat in mind? Manifest it here—and we’ll connect you with hosts, guides, and vendors who match what you’re looking for.
                     </p>
-                </div>
-
-                <div className="mt-8">
-                    <Button 
-                        variant="outline" 
-                        onClick={() => setIsHowItWorksOpen(true)}
-                        className="w-full border-beige-dark text-beige-dark hover:bg-accent text-base py-6 font-medium"
-                    >
-                        How it works
-                    </Button>
+                    <div className="w-full">
+                        <Button size="lg" asChild className="w-full py-7 text-lg">
+                            <Link href="/seeker/manifest/new">Manifest a Retreat</Link>
+                        </Button>
+                    </div>
+                    <div>
+                        <p className="font-bold">Manifest your retreat. Earn up to $500 toward the next one.</p>
+                        <p className="text-sm text-muted-foreground leading-relaxed mt-2">
+                            HighVibe likes to end on a high note. Once your manifested retreat is complete, you’ll receive HighVibe credit equal to 3% of your retreat booking subtotal, up to $500. Use it toward your next retreat within 12 months. Happy manifesting!
+                        </p>
+                    </div>
+                     <div className="pt-2">
+                        <Button 
+                            variant="outline" 
+                            onClick={() => setIsHowItWorksOpen(true)}
+                            className="w-full border-beige-dark text-beige-dark hover:bg-accent text-base py-6 font-medium"
+                        >
+                            How it works
+                        </Button>
+                    </div>
                 </div>
             </div>
              {manifestImage && (
@@ -303,6 +228,15 @@ export default function SeekerPage() {
         </div>
     </div>
   );
+  
+  const isFiltered =
+    experienceType !== 'all-experiences' ||
+    selectedContinent !== 'anywhere' ||
+    selectedRegion !== '' ||
+    investmentRange !== 'any' ||
+    timing !== 'exploring';
+
+  const isSearchActive = searchInitiated || isFiltered;
 
   return (
     <>
@@ -310,7 +244,7 @@ export default function SeekerPage() {
     <div className="container mx-auto px-4 py-8 md:py-12">
       {heroImage && (
         <div className="relative mb-8 w-full aspect-[21/9] rounded-lg overflow-hidden flex items-center justify-center text-center">
-           <div className="absolute inset-0 bg-black/40 z-10"></div>
+           <div className="absolute inset-0 bg-black/50 z-10"></div>
           <Image
             src={heroImage.imageUrl}
             alt={heroImage.description}
@@ -319,9 +253,9 @@ export default function SeekerPage() {
             className="object-cover"
             priority
           />
-          <div className="relative text-white px-4 z-20">
-            <h1 className="font-headline text-5xl md:text-6xl font-bold [text-shadow:0_2px_8px_rgba(0,0,0,0.5)]">Find Your Next Experience</h1>
-            <p className="text-slate-100 mt-4 text-xl md:text-2xl max-w-3xl mx-auto font-body [text-shadow:0_2px_8px_rgba(0,0,0,0.5)]">
+          <div className="relative text-white px-4 z-20" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
+            <h1 className="font-headline text-6xl md:text-7xl font-bold">Find Your Next Experience</h1>
+            <p className="text-slate-100 mt-6 text-xl md:text-2xl max-w-3xl mx-auto font-body">
               Curated retreats for those who choose curiosity, connection, and living well.
             </p>
           </div>
@@ -410,33 +344,52 @@ export default function SeekerPage() {
       </Card>
       
       <div id="retreat-results" className="scroll-mt-24">
-        {filteredRetreats.length > 0 ? (
+        {!isSearchActive ? (
+          // STATE A: Default view
           <>
-            <h2 className="text-3xl font-bold tracking-tight mb-6 font-headline">{filteredRetreats.length} Matching {filteredRetreats.length === 1 ? 'Retreat' : 'Retreats'}</h2>
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold tracking-tight mb-2 font-headline">Retreats We’re Loving</h2>
+              <p className="text-muted-foreground">A few favorites to get you inspired.</p>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredRetreats.map((retreat) => (
                 <RetreatCard key={retreat.id} retreat={retreat} isLux={retreat.id === mostExpensiveRetreatId} />
               ))}
             </div>
-            <div className="mt-24 text-center">
-                <p className="text-2xl italic text-beige font-body mb-12">Not seeing the one? Manifest exactly what you want.</p>
-                {ManifestSection}
+            <div className="mt-24">
+              {ManifestSection}
             </div>
           </>
         ) : (
-           <>
-            {ManifestSection}
-            <div className="text-center py-16 max-w-2xl mx-auto">
-                <h3 className="font-headline text-3xl font-bold">No matches yet.</h3>
-                <p className="text-muted-foreground mt-4 leading-relaxed">
-                    Want to broaden your search—or manifest exactly what you’re looking for?
-                </p>
-                {renderWaitlistCard()}
-            </div>
-           </>
+          // STATE B or C: Search is active
+          <>
+            {filteredRetreats.length > 0 ? (
+              // STATE B: Results found
+              <>
+                <h2 className="text-3xl font-bold tracking-tight mb-6 font-headline">{filteredRetreats.length} Matching {filteredRetreats.length === 1 ? 'Retreat' : 'Retreats'}</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {filteredRetreats.map((retreat) => (
+                    <RetreatCard key={retreat.id} retreat={retreat} isLux={retreat.id === mostExpensiveRetreatId} />
+                  ))}
+                </div>
+                <div className="mt-24 text-center">
+                  <p className="text-2xl italic text-beige font-body mb-12">Not seeing the one? Manifest exactly what you want.</p>
+                  {ManifestSection}
+                </div>
+              </>
+            ) : (
+              // STATE C: No results
+              <div className="text-center mt-8">
+                <h3 className="font-headline text-3xl font-bold mb-12">No matches yet.</h3>
+                <p className="text-2xl italic text-beige font-body mb-12">Not seeing the one? Manifest exactly what you want.</p>
+                {ManifestSection}
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
     </>
   );
 }
+
