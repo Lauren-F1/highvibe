@@ -67,11 +67,34 @@ service cloud.firestore {
       // A user can create their own manifestation.
       allow create: if isAuthenticated() && request.resource.data.seeker_id == request.auth.uid;
     
-      // The owner of a manifestation can read, update, or delete it.
-      allow read, update, delete: if isAuthenticated() && resource.data.seeker_id == request.auth.uid;
-    
-      // Admins can do anything.
-      allow read, write: if isAdmin();
+      // The owner of a manifestation can read or update it. Admin can also read/update.
+      allow read, update: if isAuthenticated() && (resource.data.seeker_id == request.auth.uid || isAdmin());
+
+      // Manifestations can't be deleted by users.
+      allow delete: if isAdmin();
+    }
+
+    match /matches/{matchId} {
+        // Matches are created by server-side logic (admin).
+        allow create, update, delete: if isAdmin();
+        // A match can be read by the matched provider or the manifestation seeker.
+        allow read: if isAuthenticated() && (resource.data.provider_id == request.auth.uid || get(/databases/$(database)/documents/manifestations/$(resource.data.manifestation_id)).data.seeker_id == request.auth.uid);
+    }
+
+    match /proposals/{proposalId} {
+      // A provider can create a proposal for a manifestation.
+      allow create: if isAuthenticated() && request.resource.data.provider_id == request.auth.uid;
+      // The seeker can update the status (accept/decline), the provider can withdraw (update status).
+      allow update: if isAuthenticated() && (request.resource.data.provider_id == request.auth.uid || get(/databases/$(database)/documents/manifestations/$(resource.data.manifestation_id)).data.seeker_id == request.auth.uid);
+      // A proposal can be read by the seeker who owns the manifestation and the provider who wrote it.
+      allow read: if isAuthenticated() && (resource.data.provider_id == request.auth.uid || get(/databases/$(database)/documents/manifestations/$(resource.data.manifestation_id)).data.seeker_id == request.auth.uid);
+      allow delete: if false; // Disallow deletion for record keeping.
+    }
+
+    match /notifications/{notificationId} {
+        allow create: if isAdmin(); // Created by server logic
+        allow read, update: if isAuthenticated() && resource.data.userId == request.auth.uid; // Only readable/updatable by the recipient
+        allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
     }
   }
 }

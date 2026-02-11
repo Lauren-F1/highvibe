@@ -72,6 +72,12 @@
         "travelRadiusMiles": {
           "type": "number"
         },
+        "countries_served": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "vendorCategories": {
           "type": "array",
           "items": {
@@ -141,6 +147,19 @@
             "type": "string"
           },
           "description": "List of retreat IDs the user has saved."
+        },
+        "accepts_manifestations": {
+          "type": "boolean"
+        },
+        "manifestation_notification_frequency": {
+          "type": "string",
+          "enum": [
+            "immediate",
+            "daily_digest"
+          ]
+        },
+        "max_manifestations_per_week": {
+          "type": "number"
         },
         "createdAt": {
           "type": "string",
@@ -457,6 +476,14 @@
             }
           }
         },
+        "shortlist": {
+            "type": "object",
+            "properties": {
+                "hosts": { "type": "array", "items": { "type": "string" }},
+                "guides": { "type": "array", "items": { "type": "string" }},
+                "vendors": { "type": "array", "items": { "type": "string" }}
+            }
+        },
         "last_notified_at": {
           "type": "string",
           "format": "date-time"
@@ -470,6 +497,59 @@
         "luxury_tier",
         "notes_text"
       ]
+    },
+    "Proposal": {
+      "title": "Proposal",
+      "description": "A provider's proposal in response to a Manifestation.",
+      "type": "object",
+      "properties": {
+        "manifestation_id": { "type": "string" },
+        "provider_id": { "type": "string" },
+        "role": { "type": "string", "enum": ["host", "guide", "vendor"] },
+        "services_committed": { "type": "array", "items": { "type": "string" } },
+        "availability_confirmed": { "type": "boolean" },
+        "price_range": {
+          "type": "object",
+          "properties": {
+            "min": { "type": "number" },
+            "max": { "type": "number" },
+            "currency": { "type": "string" }
+          }
+        },
+        "message": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["submitted", "withdrawn", "accepted", "declined"] }
+      },
+      "required": ["manifestation_id", "provider_id", "role", "availability_confirmed", "message", "createdAt", "status"]
+    },
+    "Match": {
+        "title": "Match",
+        "description": "A potential match between a Manifestation and a Provider.",
+        "type": "object",
+        "properties": {
+            "manifestation_id": { "type": "string" },
+            "provider_id": { "type": "string" },
+            "role": { "type": "string", "enum": ["host", "guide", "vendor"] },
+            "match_score": { "type": "number" },
+            "notified": { "type": "boolean" },
+            "notification_wave": { "type": "number" },
+            "matched_at": { "type": "string", "format": "date-time" }
+        },
+        "required": ["manifestation_id", "provider_id", "role", "match_score", "matched_at"]
+    },
+    "Notification": {
+        "title": "Notification",
+        "description": "An in-app notification for a user.",
+        "type": "object",
+        "properties": {
+            "userId": { "type": "string" },
+            "title": { "type": "string" },
+            "body": { "type": "string" },
+            "link": { "type": "string" },
+            "read": { "type": "boolean" },
+            "createdAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["userId", "title", "body", "read", "createdAt"]
     }
   },
   "auth": {
@@ -514,6 +594,18 @@
         "$ref": "#/entities/Manifestation"
       },
       "description": "Collection of user-submitted retreat manifestations."
+    },
+     "/matches/{matchId}": {
+      "schema": { "$ref": "#/entities/Match" },
+      "description": "Potential matches between manifestations and providers."
+    },
+    "/proposals/{proposalId}": {
+      "schema": { "$ref": "#/entities/Proposal" },
+      "description": "Provider proposals for manifestations."
+    },
+    "/notifications/{notificationId}": {
+      "schema": { "$ref": "#/entities/Notification" },
+      "description": "In-app notifications for users."
     }
   }
 }

@@ -50,6 +50,12 @@ const profileSchema = z.object({
     hostVibe: z.string().optional(),
     propertyShowcaseUrls: z.array(z.string().url()).max(10).optional(),
     typicalCapacity: z.coerce.number().min(0).optional(),
+
+    // Manifestation Settings
+    accepts_manifestations: z.boolean().default(true),
+    manifestation_notification_frequency: z.string().optional(),
+    max_manifestations_per_week: z.coerce.number().min(0).optional(),
+    countries_served: z.string().optional(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -89,22 +95,29 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
             hostVibe: userProfile.hostVibe || '',
             propertyShowcaseUrls: userProfile.propertyShowcaseUrls || [],
             typicalCapacity: userProfile.typicalCapacity ?? undefined,
+            accepts_manifestations: userProfile.accepts_manifestations ?? true,
+            manifestation_notification_frequency: userProfile.manifestation_notification_frequency || 'immediate',
+            max_manifestations_per_week: userProfile.max_manifestations_per_week ?? undefined,
+            countries_served: userProfile.countries_served?.join(', ') || '',
         },
     });
     
     const { formState: { isDirty, isSubmitting } } = form;
     const watchedRoles = form.watch('roles');
+    const hasProviderRole = watchedRoles?.some(r => ['guide', 'host', 'vendor'].includes(r));
 
     const onSubmit = async (data: ProfileFormValues) => {
         if (!firestore) return;
         
         const offeringsArray = data.offerings ? data.offerings.split(',').map(s => s.trim()).filter(Boolean) : [];
+        const countriesArray = data.countries_served ? data.countries_served.split(',').map(s => s.trim()).filter(Boolean) : [];
 
         const userDocRef = doc(firestore, 'users', userId);
         try {
             await updateDoc(userDocRef, {
                 ...data,
                 offerings: offeringsArray,
+                countries_served: countriesArray,
                 profileComplete: true,
                 profileSlug: userProfile.profileSlug, // Ensure slug isn't changed
             });
@@ -594,6 +607,74 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                                 />
                                             </FormControl>
                                             <FormDescription>JPG or PNG.</FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </AccordionContent>
+                        </AccordionItem>
+                    )}
+
+                    {hasProviderRole && (
+                         <AccordionItem value="manifestation-settings">
+                            <AccordionTrigger className="text-xl font-headline">Manifestation Settings</AccordionTrigger>
+                            <AccordionContent className="pt-6 space-y-8">
+                                <FormField
+                                    control={form.control}
+                                    name="accepts_manifestations"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-row items-center justify-between rounded-lg border border-input p-4">
+                                            <div className="space-y-0.5">
+                                                <FormLabel>Accept Manifestation Matches</FormLabel>
+                                                <FormDescription className="leading-relaxed">Allow your profile to be matched with seeker requests.</FormDescription>
+                                            </div>
+                                            <FormControl>
+                                                <Switch
+                                                    checked={field.value}
+                                                    onCheckedChange={field.onChange}
+                                                />
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="manifestation_notification_frequency"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Notification Frequency</FormLabel>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger><SelectValue placeholder="Select frequency..." /></SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="immediate">Immediate</SelectItem>
+                                                    <SelectItem value="daily_digest">Daily Digest</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="max_manifestations_per_week"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Max Matches Per Week (optional)</FormLabel>
+                                            <FormControl><Input type="number" {...field} placeholder="e.g., 5" /></FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                 <FormField
+                                    control={form.control}
+                                    name="countries_served"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Countries Served (for travelers)</FormLabel>
+                                            <FormControl><Textarea {...field} placeholder="e.g. Italy, Greece, Spain" /></FormControl>
+                                            <FormDescription className="leading-relaxed">If you travel, list the countries you serve, separated by commas.</FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}
