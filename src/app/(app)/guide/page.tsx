@@ -29,6 +29,7 @@ import { RetreatReadinessChecklist, type RetreatReadinessProps } from '@/compone
 
 
 const genericImage = placeholderImages.find(p => p.id === 'generic-placeholder')!;
+const guideDashboardBanner = placeholderImages.find(p => p.id === 'guide-dashboard-banner');
 
 const initialHostFilters: HostFiltersState = {
   continent: 'anywhere',
@@ -276,6 +277,18 @@ export default function GuidePage() {
             </Button>
         </div>
       </div>
+      
+      {guideDashboardBanner && (
+          <div className="relative w-full h-16 md:h-20 rounded-lg overflow-hidden mb-12">
+            <Image
+              src={guideDashboardBanner.imageUrl}
+              alt={guideDashboardBanner.description}
+              data-ai-hint={guideDashboardBanner.imageHint}
+              fill
+              className="object-cover object-center"
+            />
+          </div>
+      )}
 
       <Card className="mb-12">
         <CardHeader>
@@ -580,6 +593,8 @@ export default function GuidePage() {
     </div>
   );
 }
+
+    
 
     
 
