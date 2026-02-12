@@ -435,7 +435,7 @@ export default function HostDashboardPage() {
                 data-ai-hint="cabin forest"
                 fill
                 className="object-cover"
-                style={{ objectPosition: 'center center' }}
+                style={{ objectPosition: 'center 40%' }}
             />
         </div>
         
