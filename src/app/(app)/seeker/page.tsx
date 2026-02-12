@@ -177,7 +177,7 @@ export default function SeekerPage() {
         <div className="grid md:grid-cols-2 gap-8 items-center">
             <div className="flex flex-col p-8 md:p-12">
                 <div className="w-full max-w-sm mx-auto md:mx-0 text-left">
-                  <h2 className="font-headline text-5xl md:text-7xl lg:text-8xl tracking-[0.15em] sm:tracking-[0.2em] md:tracking-[0.25em] mb-8 text-center whitespace-nowrap">MANIFEST</h2>
+                  <h2 className="font-headline text-6xl md:text-8xl lg:text-9xl tracking-[0.1em] sm:tracking-[0.15em] md:tracking-[0.2em] mb-8 text-center whitespace-nowrap">MANIFEST</h2>
                   <div className="space-y-6">
                       <p className="text-lg text-muted-foreground leading-relaxed">
                           Have a retreat in mind? Manifest it here—and we’ll connect you with hosts, guides, and vendors who match what you’re looking for.
@@ -230,7 +230,7 @@ export default function SeekerPage() {
             className="object-cover"
             priority
           />
-          <div className="relative z-10">
+          <div className="relative z-10 p-4">
             <h1 className="font-headline text-[4.25rem] leading-none md:text-7xl font-bold text-white" style={headlineStyle}>Find Your Next Experience</h1>
             <p 
               className="mt-6 text-[1.4rem] md:text-2xl mx-auto font-body text-white lg:whitespace-nowrap"
@@ -332,7 +332,7 @@ export default function SeekerPage() {
               <p className="text-muted-foreground">A few favorites to get you inspired.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {retreats.map((retreat) => (
+              {filteredRetreats.map((retreat) => (
                 <RetreatCard key={retreat.id} retreat={retreat} isLux={retreat.id === mostExpensiveRetreatId} />
               ))}
             </div>
@@ -363,10 +363,10 @@ export default function SeekerPage() {
                 <div className="text-center mt-8">
                   <h3 className="font-headline text-3xl font-bold mb-4">No matches yet.</h3>
                 </div>
-                <div className="my-24">
+                 <div className="my-24">
                     <p className="text-center text-2xl italic text-beige font-body my-12">Not seeing the one? Manifest exactly what you want.</p>
                     {ManifestSection}
-                </div>
+                 </div>
               </>
             )}
           </>
