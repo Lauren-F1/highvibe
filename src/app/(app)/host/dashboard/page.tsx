@@ -113,18 +113,18 @@ export default function HostDashboardPage() {
   const [confirmedBookings, setConfirmedBookings] = useState(initialConfirmedBookings);
 
   // Guide filter state
-  const [guideFilters, setGuideFilters = useState<GuideFiltersState>(initialGuideFilters);
-  const [appliedGuideFilters, setAppliedGuideFilters = useState<GuideFiltersState>(initialGuideFilters);
-  const [guideSortOption, setGuideSortOption = useState('recommended');
-  const [guideFiltersDirty, setGuideFiltersDirty = useState(false);
-  const [guideFiltersVisible, setGuideFiltersVisible = useState(false);
+  const [guideFilters, setGuideFilters] = useState<GuideFiltersState>(initialGuideFilters);
+  const [appliedGuideFilters, setAppliedGuideFilters] = useState<GuideFiltersState>(initialGuideFilters);
+  const [guideSortOption, setGuideSortOption] = useState('recommended');
+  const [guideFiltersDirty, setGuideFiltersDirty] = useState(false);
+  const [guideFiltersVisible, setGuideFiltersVisible] = useState(false);
   
   // Vendor filter state
-  const [vendorFilters, setVendorFilters = useState<VendorFiltersState>(initialVendorFilters);
-  const [appliedVendorFilters, setAppliedVendorFilters = useState<VendorFiltersState>(initialVendorFilters);
-  const [vendorSortOption, setVendorSortOption = useState('recommended');
-  const [vendorFiltersDirty, setVendorFiltersDirty = useState(false);
-  const [vendorFiltersVisible, setVendorFiltersVisible = useState(false);
+  const [vendorFilters, setVendorFilters] = useState<VendorFiltersState>(initialVendorFilters);
+  const [appliedVendorFilters, setAppliedVendorFilters] = useState<VendorFiltersState>(initialVendorFilters);
+  const [vendorSortOption, setVendorSortOption] = useState('recommended');
+  const [vendorFiltersDirty, setVendorFiltersDirty] = useState(false);
+  const [vendorFiltersVisible, setVendorFiltersVisible] = useState(false);
   
   const { toast } = useToast();
   const currentUser = useUser();
@@ -767,5 +767,7 @@ export default function HostDashboardPage() {
     </div>
   );
 }
+
+    
 
     
