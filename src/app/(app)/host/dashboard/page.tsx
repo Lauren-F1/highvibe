@@ -430,7 +430,7 @@ export default function HostDashboardPage() {
 
         <div className="relative h-[104px] w-[420px] hidden lg:block mx-auto flex-shrink-0 rounded-xl shadow-md overflow-hidden">
             <Image
-                src="/Host%20Cabin.png?v=1"
+                src="/Host%20Cabin.png?v=2"
                 alt="A cozy cabin in a forest setting"
                 data-ai-hint="cabin forest"
                 fill
@@ -767,7 +767,3 @@ export default function HostDashboardPage() {
     </div>
   );
 }
-
-    
-
-    
