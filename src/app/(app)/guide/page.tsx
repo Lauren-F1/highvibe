@@ -260,31 +260,34 @@ export default function GuidePage() {
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
       
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-        <div>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-12">
+        <div className="md:mr-8">
           <h1 className="font-headline text-4xl md:text-5xl font-bold text-beige">Guide Dashboard</h1>
           <p className="text-muted-foreground mt-2 text-lg font-body">Design and lead meaningful retreat experiences.</p>
         </div>
-        <div className="flex items-center gap-4 mt-4 md:mt-0">
-             <Badge variant={subscriptionBadge.variant} className="h-9">
+
+        <div className="relative h-[110px] w-56 hidden lg:block mx-auto flex-shrink-0">
+            <Image
+                src="/Guide Yoga Sunset.png"
+                alt="A person doing yoga at sunset."
+                data-ai-hint="yoga sunset"
+                fill
+                className="object-contain object-center rounded-md"
+            />
+        </div>
+
+        <div className="flex-grow"></div>
+
+        <div className="flex items-center gap-4 mt-4 md:mt-0 flex-shrink-0">
+            <Badge variant={subscriptionBadge.variant} className="h-9">
                 {subscriptionBadge.icon}
                 {subscriptionBadge.label}
-             </Badge>
+            </Badge>
             <Button size="lg" onClick={handleCreateRetreatClick}>
                 <PlusCircle className="mr-2 h-5 w-5" />
                 Create New Retreat
             </Button>
         </div>
-      </div>
-      
-      <div className="relative w-full h-[60px] md:h-20 rounded-lg overflow-hidden mb-12">
-        <Image
-          src="/Guide Yoga Sunset.png"
-          alt="A person doing yoga at sunset."
-          data-ai-hint="yoga sunset"
-          fill
-          className="object-cover object-center"
-        />
       </div>
 
       <Card className="mb-12">
