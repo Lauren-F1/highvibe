@@ -268,8 +268,8 @@ export default function GuidePage() {
 
         <div className="relative h-[104px] w-[420px] hidden lg:block mx-auto flex-shrink-0 rounded-xl shadow-md overflow-hidden">
             <Image
-                src="/Guide Yoga Sunset.png"
-                alt="A person doing yoga at sunset."
+                src="/Guide%20Yoga%20Sunset.png?v=2"
+                alt="Guide Yoga Sunset"
                 data-ai-hint="yoga sunset"
                 fill
                 className="object-cover"
