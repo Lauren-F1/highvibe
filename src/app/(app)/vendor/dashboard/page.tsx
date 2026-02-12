@@ -2,6 +2,7 @@
 "use client";
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { PlusCircle, Eye, Users, MessageSquare, CheckCircle, DollarSign, MoreHorizontal, Filter } from 'lucide-react';
@@ -242,14 +243,30 @@ export default function VendorDashboardPage() {
     <div className="container mx-auto px-4 py-8 md:py-12">
       
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-        <div>
+        <div className="md:mr-8">
           <h1 className="font-headline text-4xl md:text-5xl font-bold text-beige">Vendor Dashboard</h1>
           <p className="text-muted-foreground mt-2 text-lg font-body">Provide services that elevate retreat experiences.</p>
         </div>
-        <Button className="mt-4 md:mt-0" onClick={handleAddNewService}>
-          <PlusCircle className="mr-2 h-5 w-5" />
-          Add New Service
-        </Button>
+
+        <div className="relative h-[104px] w-[420px] hidden lg:block mx-auto flex-shrink-0 rounded-xl shadow-md overflow-hidden">
+            <Image
+                src="/Vendor%20Table.png?v=1"
+                alt="A table with vendor offerings"
+                data-ai-hint="vendor offerings"
+                fill
+                className="object-cover"
+                style={{ objectPosition: 'center center' }}
+            />
+        </div>
+
+        <div className="flex-grow"></div>
+
+        <div className="flex items-center gap-4 mt-4 md:mt-0 flex-shrink-0">
+            <Button size="lg" onClick={handleAddNewService}>
+              <PlusCircle className="mr-2 h-5 w-5" />
+              Add New Service
+            </Button>
+        </div>
       </div>
 
       <div className="mb-12">
