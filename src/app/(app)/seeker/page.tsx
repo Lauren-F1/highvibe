@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -173,21 +174,23 @@ export default function SeekerPage() {
   const ManifestSection = (
     <div className="my-24">
       <div className="bg-secondary rounded-lg">
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             {/* Left Column */}
-            <div className="flex justify-center lg:justify-end">
-              <div className="w-full max-w-xl">
-                <h2 className="font-headline text-6xl tracking-[.2em] text-center">MANIFEST</h2>
-                <div className="space-y-8 mt-8">
-                  <p className="text-xl text-muted-foreground leading-relaxed">
+            <div className="flex flex-col items-center">
+              <div className="w-full max-w-md text-center lg:text-left">
+                <div className="lg:w-full lg:text-center">
+                  <h2 className="font-headline text-6xl md:text-7xl tracking-[0.3em] text-center lg:w-full lg:mx-auto">MANIFEST</h2>
+                </div>
+                <div className="space-y-6 mt-8">
+                  <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
                     Have a retreat in mind? Manifest it here—and we’ll connect you with hosts, guides, and vendors who match what you’re looking for.
                   </p>
                   <Button size="lg" asChild className="w-full py-7 text-lg">
                     <Link href="/seeker/manifest/new">Manifest a Retreat</Link>
                   </Button>
-                  <p className="text-xl font-bold">Manifest your retreat. Earn up to $500 toward the next one.</p>
-                  <p className="text-lg text-muted-foreground leading-relaxed">
+                  <p className="text-xl md:text-2xl font-bold leading-relaxed">Manifest your retreat. Earn up to $500 toward the next one.</p>
+                  <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                     HighVibe likes to end on a high note. Once your manifested retreat is complete, you’ll receive HighVibe credit equal to 3% of your retreat booking subtotal, up to $500. Use it toward your next retreat within 12 months. Happy manifesting!
                   </p>
                   <div className="pt-2">
@@ -205,7 +208,7 @@ export default function SeekerPage() {
 
             {/* Right Column */}
             {manifestImage && (
-              <div className="relative w-full h-[600px] rounded-2xl overflow-hidden hidden lg:block">
+              <div className="relative w-full h-[560px] rounded-2xl overflow-hidden hidden lg:block">
                 <Image
                   src={manifestImage.imageUrl}
                   alt={manifestImage.description}
