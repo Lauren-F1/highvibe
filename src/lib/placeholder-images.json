@@ -131,12 +131,6 @@
       "description": "A beautiful desert retreat.",
       "imageUrl": "/Desert Retreat.png",
       "imageHint": "desert retreat"
-    },
-    {
-      "id": "guide-dashboard-banner",
-      "description": "A person doing yoga at sunset.",
-      "imageUrl": "/Guide Yoga Sunset.png",
-      "imageHint": "yoga sunset"
     }
   ]
 }
