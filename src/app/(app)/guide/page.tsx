@@ -260,19 +260,20 @@ export default function GuidePage() {
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
       
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-12">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div className="md:mr-8">
           <h1 className="font-headline text-4xl md:text-5xl font-bold text-beige">Guide Dashboard</h1>
           <p className="text-muted-foreground mt-2 text-lg font-body">Design and lead meaningful retreat experiences.</p>
         </div>
 
-        <div className="relative h-[110px] w-56 hidden lg:block mx-auto flex-shrink-0">
+        <div className="relative h-[104px] w-[420px] hidden lg:block mx-auto flex-shrink-0 rounded-xl shadow-md overflow-hidden">
             <Image
                 src="/Guide Yoga Sunset.png"
                 alt="A person doing yoga at sunset."
                 data-ai-hint="yoga sunset"
                 fill
-                className="object-contain object-center rounded-md"
+                className="object-cover"
+                style={{ objectPosition: 'center 60%' }}
             />
         </div>
 
@@ -601,3 +602,4 @@ export default function GuidePage() {
     
 
     
+
