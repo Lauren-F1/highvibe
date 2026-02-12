@@ -134,9 +134,9 @@
     },
     {
       "id": "guide-dashboard-banner",
-      "description": "A woman meditating on a balcony overlooking a serene ocean at sunset.",
-      "imageUrl": "https://images.unsplash.com/photo-1506126613408-4e652a9792e2?q=80&w=1920&auto=format&fit=crop",
-      "imageHint": "meditation ocean"
+      "description": "A person doing yoga at sunset.",
+      "imageUrl": "/Guide Yoga Sunset.png",
+      "imageHint": "yoga sunset"
     }
   ]
 }
