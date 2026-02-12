@@ -113,18 +113,18 @@ export default function HostDashboardPage() {
   const [confirmedBookings, setConfirmedBookings] = useState(initialConfirmedBookings);
 
   // Guide filter state
-  const [guideFilters, setGuideFilters] = useState<GuideFiltersState>(initialGuideFilters);
-  const [appliedGuideFilters, setAppliedGuideFilters] = useState<GuideFiltersState>(initialGuideFilters);
-  const [guideSortOption, setGuideSortOption] = useState('recommended');
-  const [guideFiltersDirty, setGuideFiltersDirty] = useState(false);
-  const [guideFiltersVisible, setGuideFiltersVisible] = useState(false);
+  const [guideFilters, setGuideFilters = useState<GuideFiltersState>(initialGuideFilters);
+  const [appliedGuideFilters, setAppliedGuideFilters = useState<GuideFiltersState>(initialGuideFilters);
+  const [guideSortOption, setGuideSortOption = useState('recommended');
+  const [guideFiltersDirty, setGuideFiltersDirty = useState(false);
+  const [guideFiltersVisible, setGuideFiltersVisible = useState(false);
   
   // Vendor filter state
-  const [vendorFilters, setVendorFilters] = useState<VendorFiltersState>(initialVendorFilters);
-  const [appliedVendorFilters, setAppliedVendorFilters] = useState<VendorFiltersState>(initialVendorFilters);
-  const [vendorSortOption, setVendorSortOption] = useState('recommended');
-  const [vendorFiltersDirty, setVendorFiltersDirty] = useState(false);
-  const [vendorFiltersVisible, setVendorFiltersVisible] = useState(false);
+  const [vendorFilters, setVendorFilters = useState<VendorFiltersState>(initialVendorFilters);
+  const [appliedVendorFilters, setAppliedVendorFilters = useState<VendorFiltersState>(initialVendorFilters);
+  const [vendorSortOption, setVendorSortOption = useState('recommended');
+  const [vendorFiltersDirty, setVendorFiltersDirty = useState(false);
+  const [vendorFiltersVisible, setVendorFiltersVisible = useState(false);
   
   const { toast } = useToast();
   const currentUser = useUser();
@@ -203,7 +203,7 @@ export default function HostDashboardPage() {
   const displayedConfirmedBookings = useMemo(() => {
     const roleToMatch = activeTab === 'guides' ? 'Guide' : 'Vendor';
     return spaceConfirmedBookings.filter(booking => booking.partnerRole === roleToMatch);
-  }, [spaceConfirmedBookings, activeTab]);
+  }, [spaceConnectionRequests, activeTab]);
 
   const handleGuideFilterChange = (newFilters: Partial<GuideFiltersState>) => {
     setGuideFilters(prev => ({...prev, ...newFilters}));
@@ -423,14 +423,30 @@ export default function HostDashboardPage() {
     <div className="container mx-auto px-4 py-8 md:py-12">
       
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-        <div>
+        <div className="md:mr-8">
           <h1 className="font-headline text-4xl md:text-5xl font-bold text-beige">Host Dashboard</h1>
           <p className="text-muted-foreground mt-2 text-lg font-body">Offer a space designed for retreat experiences.</p>
         </div>
-        <Button className="mt-4 md:mt-0" onClick={handleAddNewSpace}>
-          <PlusCircle className="mr-2 h-5 w-5" />
-          List Your Space
-        </Button>
+
+        <div className="relative h-[104px] w-[420px] hidden lg:block mx-auto flex-shrink-0 rounded-xl shadow-md overflow-hidden">
+            <Image
+                src="/Host%20Cabin.png?v=1"
+                alt="A cozy cabin in a forest setting"
+                data-ai-hint="cabin forest"
+                fill
+                className="object-cover"
+                style={{ objectPosition: 'center center' }}
+            />
+        </div>
+        
+        <div className="flex-grow"></div>
+
+        <div className="flex items-center gap-4 mt-4 md:mt-0 flex-shrink-0">
+            <Button size="lg" onClick={handleAddNewSpace}>
+              <PlusCircle className="mr-2 h-5 w-5" />
+              List Your Space
+            </Button>
+        </div>
       </div>
 
       <div className="mb-12">
@@ -751,3 +767,5 @@ export default function HostDashboardPage() {
     </div>
   );
 }
+
+    
