@@ -1,14 +1,16 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Logo } from '@/components/icons/logo';
+import { placeholderImages } from '@/lib/placeholder-images';
+import { cn } from '@/lib/utils';
+import React, { useState, useEffect, CSSProperties } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RetreatCard } from '@/components/retreat-card';
-import { placeholderImages } from '@/lib/placeholder-images';
-import Image from 'next/image';
-import { useState, useEffect, CSSProperties } from 'react';
-import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { HowItWorksModal } from '@/components/how-it-works-modal';
@@ -174,10 +176,10 @@ export default function SeekerPage() {
 
   const ManifestSection = (
     <div className="bg-secondary rounded-lg">
-        <div className="grid md:grid-cols-2 gap-8 items-center">
+        <div className="grid md:grid-cols-2 gap-6 items-center">
             <div className="flex flex-col p-8 md:p-12">
                 <div className="w-full max-w-sm mx-auto md:mx-0 text-left">
-                  <h2 className="font-headline text-6xl mb-8 text-center tracking-widest">MANIFEST</h2>
+                  <h2 className="font-headline text-4xl mb-4 text-center md:text-left tracking-wider">MANIFEST</h2>
                   <div className="space-y-6">
                       <p className="text-lg text-muted-foreground leading-relaxed">
                           Have a retreat in mind? Manifest it here—and we’ll connect you with hosts, guides, and vendors who match what you’re looking for.
