@@ -163,58 +163,61 @@ export default function SeekerPage() {
 
   const headlineStyle: CSSProperties = {
     textShadow: '0 2px 10px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.35)',
-    // @ts-ignore
-    WebkitTextStroke: '1px rgba(0,0,0,0.20)'
   };
   
   const subheadlineStyle: CSSProperties = {
     textShadow: '0 2px 8px rgba(0,0,0,0.35)',
-    // @ts-ignore
-    WebkitTextStroke: '0.5px rgba(0,0,0,0.20)'
   };
 
 
   const ManifestSection = (
-    <div className="bg-secondary rounded-lg">
-        <div className="grid md:grid-cols-2 gap-6 items-center">
-            <div className="flex flex-col p-8 md:p-12">
-                <div className="w-full max-w-sm mx-auto md:mx-0 text-left">
-                  <h2 className="font-headline text-4xl mb-4 text-center md:text-left tracking-wider">MANIFEST</h2>
-                  <div className="space-y-6">
-                      <p className="text-lg text-muted-foreground leading-relaxed">
-                          Have a retreat in mind? Manifest it here—and we’ll connect you with hosts, guides, and vendors who match what you’re looking for.
-                      </p>
-                      <Button size="lg" asChild className="w-full py-7 text-lg">
-                          <Link href="/seeker/manifest/new">Manifest a Retreat</Link>
-                      </Button>
-                      <p className="font-bold">Manifest your retreat. Earn up to $500 toward the next one.</p>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                          HighVibe likes to end on a high note. Once your manifested retreat is complete, you’ll receive HighVibe credit equal to 3% of your retreat booking subtotal, up to $500. Use it toward your next retreat within 12 months. Happy manifesting!
-                      </p>
-                       <div className="pt-4">
-                          <Button 
-                              variant="outline" 
-                              onClick={() => setIsHowItWorksOpen(true)}
-                              className="w-full border-beige-dark text-beige-dark hover:bg-accent text-base py-6 font-medium"
-                          >
-                              How it works
-                          </Button>
-                      </div>
+    <div className="my-24">
+      <div className="bg-secondary rounded-lg">
+        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            {/* Left Column */}
+            <div className="flex justify-center lg:justify-end">
+              <div className="w-full max-w-xl">
+                <h2 className="font-headline text-6xl tracking-[.2em] text-center">MANIFEST</h2>
+                <div className="space-y-8 mt-8">
+                  <p className="text-xl text-muted-foreground leading-relaxed">
+                    Have a retreat in mind? Manifest it here—and we’ll connect you with hosts, guides, and vendors who match what you’re looking for.
+                  </p>
+                  <Button size="lg" asChild className="w-full py-7 text-lg">
+                    <Link href="/seeker/manifest/new">Manifest a Retreat</Link>
+                  </Button>
+                  <p className="text-xl font-bold">Manifest your retreat. Earn up to $500 toward the next one.</p>
+                  <p className="text-lg text-muted-foreground leading-relaxed">
+                    HighVibe likes to end on a high note. Once your manifested retreat is complete, you’ll receive HighVibe credit equal to 3% of your retreat booking subtotal, up to $500. Use it toward your next retreat within 12 months. Happy manifesting!
+                  </p>
+                  <div className="pt-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsHowItWorksOpen(true)}
+                      className="w-full border-beige-dark text-beige-dark hover:bg-accent text-base py-6 font-medium"
+                    >
+                      How it works
+                    </Button>
                   </div>
                 </div>
+              </div>
             </div>
-             {manifestImage && (
-                <div className="relative aspect-square w-full rounded-lg overflow-hidden hidden md:block">
-                    <Image
-                        src={manifestImage.imageUrl}
-                        alt={manifestImage.description}
-                        data-ai-hint={manifestImage.imageHint}
-                        fill
-                        className="object-cover"
-                    />
-                </div>
+
+            {/* Right Column */}
+            {manifestImage && (
+              <div className="relative w-full h-[600px] rounded-2xl overflow-hidden hidden lg:block">
+                <Image
+                  src={manifestImage.imageUrl}
+                  alt={manifestImage.description}
+                  data-ai-hint={manifestImage.imageHint}
+                  fill
+                  className="object-cover"
+                />
+              </div>
             )}
+          </div>
         </div>
+      </div>
     </div>
   );
   
@@ -233,9 +236,9 @@ export default function SeekerPage() {
             priority
           />
           <div className="relative z-10 p-4">
-            <h1 className="font-headline text-[4.25rem] leading-none md:text-7xl font-bold text-white" style={headlineStyle}>Find Your Next Experience</h1>
+            <h1 className="font-headline text-[4.5rem] leading-none md:text-8xl font-bold text-white" style={headlineStyle}>Find Your Next Experience</h1>
             <p 
-              className="mt-6 text-[1.4rem] md:text-2xl mx-auto font-body text-white lg:whitespace-nowrap"
+              className="mt-6 text-xl md:text-2xl mx-auto font-body text-white lg:whitespace-nowrap"
               style={subheadlineStyle}
             >
               Curated retreats for those who choose curiosity, connection, and living well.
