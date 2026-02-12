@@ -177,7 +177,7 @@ export default function SeekerPage() {
         <div className="grid md:grid-cols-2 gap-8 items-center">
             <div className="flex flex-col p-8 md:p-12">
                 <div className="w-full max-w-sm mx-auto md:mx-0 text-left">
-                  <h2 className="font-headline text-6xl md:text-8xl lg:text-9xl tracking-[0.1em] sm:tracking-[0.15em] md:tracking-[0.2em] mb-8 text-center whitespace-nowrap">MANIFEST</h2>
+                  <h2 className="font-headline text-6xl mb-8 text-center tracking-widest">MANIFEST</h2>
                   <div className="space-y-6">
                       <p className="text-lg text-muted-foreground leading-relaxed">
                           Have a retreat in mind? Manifest it here—and we’ll connect you with hosts, guides, and vendors who match what you’re looking for.
