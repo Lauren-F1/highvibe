@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -399,15 +400,18 @@ export default function BillingPage() {
                  <CardDescription>HighVibe Retreats only wins when you win. Instead of taking a big cut upfront like most platforms, we keep the fee simple and small—so you keep more margin while we do the behind-the-scenes work that helps you get booked more often.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-                 <div className="text-base p-4 bg-secondary rounded-md space-y-2">
+                 <div className="text-base p-4 bg-secondary rounded-md space-y-3">
                     <p>• Your current plan includes a <strong>{currentPlan.platformFee}</strong> {feeDescriptions[role]}</p>
+                    <p className="text-sm text-muted-foreground pl-4">• This fee is calculated on your line-item subtotal, excluding taxes.</p>
+                    <p className="text-sm text-muted-foreground pl-4">• Standard Stripe processing fees are separate and are deducted from your payout.</p>
                  </div>
-                 <ul className="text-sm space-y-2 text-muted-foreground">
-                    <li>• Visibility + distribution that brings you the right matches (not just more traffic)</li>
-                    <li>• Matching tools that connect Guides, Hosts, and Vendors faster—with less back-and-forth</li>
-                    <li>• Secure in-app messaging, booking flow, and coordination tools</li>
-                    <li>• Trust & quality systems that keep the marketplace strong (reviews, reporting, and standards)</li>
-                    <li>• Ongoing marketing that improves your future bookings over time</li>
+                 <p className="text-sm font-medium text-muted-foreground px-1 pt-2">Your platform fee supports:</p>
+                 <ul className="text-sm space-y-2 text-muted-foreground list-disc list-inside pl-4">
+                    <li>Visibility + distribution that brings you the right matches (not just more traffic)</li>
+                    <li>Matching tools that connect Guides, Hosts, and Vendors faster—with less back-and-forth</li>
+                    <li>Secure in-app messaging, booking flow, and coordination tools</li>
+                    <li>Trust & quality systems that keep the marketplace strong (reviews, reporting, and standards)</li>
+                    <li>Ongoing marketing that improves your future bookings over time</li>
                  </ul>
             </CardContent>
         </Card>
