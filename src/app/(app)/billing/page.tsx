@@ -46,7 +46,7 @@ const plans: Record<UserRole, RolePlans> = {
       ],
     },
     starter: {
-      name: 'Starter Guide',
+      name: 'Starter',
       price: 129,
       platformFee: '10%',
       benefits: [
@@ -57,7 +57,7 @@ const plans: Record<UserRole, RolePlans> = {
       ],
     },
     pro: {
-      name: 'Pro Guide',
+      name: 'Pro',
       price: 229,
       platformFee: '8%',
       benefits: [
@@ -75,7 +75,7 @@ const plans: Record<UserRole, RolePlans> = {
   },
   host: {
     starter: {
-      name: 'Starter Host',
+      name: 'Starter',
       price: 189,
       platformFee: '3%',
       benefits: [
@@ -89,7 +89,7 @@ const plans: Record<UserRole, RolePlans> = {
       ],
     },
     pro: {
-      name: 'Pro Host',
+      name: 'Pro',
       price: 289,
       platformFee: '2%',
       benefits: [
@@ -118,7 +118,7 @@ const plans: Record<UserRole, RolePlans> = {
       ],
     },
     starter: {
-      name: 'Starter Vendor',
+      name: 'Starter',
       price: 89,
       platformFee: '10%',
       benefits: [
@@ -129,7 +129,7 @@ const plans: Record<UserRole, RolePlans> = {
       ],
     },
     pro: {
-      name: 'Pro Vendor',
+      name: 'Pro',
       price: 129,
       platformFee: '8%',
       benefits: [
@@ -396,22 +396,24 @@ export default function BillingPage() {
         {/* Section 3: Platform Fees */}
         <Card>
             <CardHeader>
-                <CardTitle>Platform Fees</CardTitle>
-                 <CardDescription>HighVibe Retreats only wins when you win. Instead of taking a big cut upfront like most platforms, we keep the fee simple and small—so you keep more margin while we do the behind-the-scenes work that helps you get booked more often.</CardDescription>
+                <CardTitle>Platform Fees & Payouts</CardTitle>
+                <CardDescription>HighVibe provides secure payment processing and automated payouts. This allows for a single checkout for Seekers, while automatically routing payments to Guides, Hosts, and Vendors.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
                  <div className="text-base p-4 bg-secondary rounded-md space-y-3">
                     <p>• Your current plan includes a <strong>{currentPlan.platformFee}</strong> {feeDescriptions[role]}</p>
-                    <p className="text-sm text-muted-foreground pl-4">• This fee is calculated on your line-item subtotal, excluding taxes.</p>
-                    <p className="text-sm text-muted-foreground pl-4">• Standard Stripe processing fees are separate and are deducted from your payout.</p>
+                    <p className="text-sm text-muted-foreground pl-4">• The platform fee is calculated on your line-item subtotal, excluding taxes.</p>
+                    <p className="text-sm text-muted-foreground pl-4">• Payment processing fees are separate and are deducted directly from your portion of the payout.</p>
                  </div>
                  <p className="text-sm font-medium text-muted-foreground px-1 pt-2">Your platform fee supports:</p>
                  <ul className="text-sm space-y-2 text-muted-foreground list-disc list-inside pl-4">
-                    <li>Visibility + distribution that brings you the right matches (not just more traffic)</li>
-                    <li>Matching tools that connect Guides, Hosts, and Vendors faster—with less back-and-forth</li>
-                    <li>Secure in-app messaging, booking flow, and coordination tools</li>
-                    <li>Trust & quality systems that keep the marketplace strong (reviews, reporting, and standards)</li>
-                    <li>Ongoing marketing that improves your future bookings over time</li>
+                    <li>Secure payment processing.</li>
+                    <li>Automated payouts to your connected account.</li>
+                    <li>Visibility + distribution that brings you the right matches.</li>
+                    <li>Matching tools that connect Guides, Hosts, and Vendors faster.</li>
+                    <li>Secure in-app messaging, booking flow, and coordination tools.</li>
+                    <li>Trust & quality systems (reviews, reporting, and standards).</li>
+                    <li>Ongoing marketing that improves your future bookings.</li>
                  </ul>
             </CardContent>
         </Card>
@@ -476,17 +478,18 @@ export default function BillingPage() {
             </Card>
              <Card className="md:col-span-2">
                 <CardHeader>
-                    <CardTitle>Payment Method</CardTitle>
+                    <CardTitle>Payout Method</CardTitle>
+                    <CardDescription>Connect your bank account to receive payouts.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <div className="flex items-center gap-4 p-4 border rounded-lg">
+                    <div className="flex items-center gap-4 p-4 border rounded-lg bg-secondary/30">
                         <CreditCard className="h-8 w-8 text-muted-foreground" />
                         <div>
-                            <p className="font-medium">Visa ending in 1234</p>
-                            <p className="text-sm text-muted-foreground">Expires 12/2026</p>
+                            <p className="font-medium">Bank Account</p>
+                            <p className="text-sm text-muted-foreground">Not Connected</p>
                         </div>
                     </div>
-                    <Button variant="outline" className="w-full">Update Payment Method</Button>
+                    <Button variant="outline" className="w-full">Connect Bank Account</Button>
                 </CardContent>
              </Card>
         </div>
