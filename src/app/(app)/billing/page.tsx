@@ -21,6 +21,7 @@ type LuxStatus = 'Not Yet Reviewed' | 'Under Consideration' | 'LUX Certified';
 type PlanTier = {
   name: string;
   price: number;
+  platformFee: string;
   benefits: string[];
   helperText?: string;
 };
@@ -31,40 +32,51 @@ type RolePlans = {
 
 const plans: Record<UserRole, RolePlans> = {
   guide: {
-    partner: {
-      name: 'Partner Guide',
-      price: 199,
+    'pay-as-you-go': {
+      name: 'Pay-as-you-go',
+      price: 0,
+      platformFee: '12.5%',
       benefits: [
         'Create and publish retreats',
         'Be discovered by aligned seekers',
         'Connect with hosts and vendors',
-        'Smart matching for venues and experience partners',
         'In-app messaging and coordination',
-        'Booking and retreat management tools',
         'Standard discovery placement',
+      ],
+    },
+    starter: {
+      name: 'Starter Guide',
+      price: 129,
+      platformFee: '10%',
+      benefits: [
+        'All benefits from Pay-as-you-go',
+        'Reduced success fee',
+        'Access to booking and retreat management tools',
         'Access to LUX consideration',
       ],
     },
     pro: {
       name: 'Pro Guide',
-      price: 299,
+      price: 229,
+      platformFee: '8%',
       benefits: [
-        'Get noticed faster with priority placement in discovery',
-        'Increased visibility to high-intent seekers',
-        'Priority matching with top hosts and vendors',
+        'All benefits from Starter',
+        'Lowest success fee',
+        'Priority visibility',
+        'AI Assistant',
         'Featured retreat eligibility',
         'Advanced matching filters',
         'Performance insights on your retreats',
         'Priority support',
-        'Stronger consideration weighting for LUX review',
       ],
-      helperText: 'Built for guides who want more bookings, faster momentum, and greater visibility.',
+      helperText: 'For established guides who want maximum visibility and reduced fees.',
     },
   },
   host: {
-    partner: {
-      name: 'Partner Host',
-      price: 149,
+    starter: {
+      name: 'Starter Host',
+      price: 189,
+      platformFee: '3%',
       benefits: [
         'List your property as a retreat-ready space',
         'Be discovered by aligned guides',
@@ -75,58 +87,74 @@ const plans: Record<UserRole, RolePlans> = {
         'Access to LUX consideration',
       ],
     },
-    premium: {
-      name: 'Premium Host',
-      price: 249,
+    pro: {
+      name: 'Pro Host',
+      price: 289,
+      platformFee: '2%',
       benefits: [
-        'Get discovered faster by high-intent guides',
-        'Priority placement in host discovery',
+        'All benefits from Starter',
+        'Lowest platform fee',
+        'Priority visibility',
+        'AI Assistant',
         'Featured venue eligibility',
-        'Increased visibility for premium retreats',
-        'Early access to top guides',
         'Enhanced profile presentation',
         'Priority matching for aligned experiences',
         'Stronger consideration weighting for LUX review',
       ],
-      helperText: 'Built for hosts who want more bookings, better-fit retreats, and higher-quality partnerships.',
+      helperText: 'For hosts who want more bookings, better-fit retreats, and higher-quality partnerships.',
     },
   },
   vendor: {
-    partner: {
-      name: 'Partner Vendor',
-      price: 49,
+    'pay-as-you-go': {
+      name: 'Pay-as-you-go',
+      price: 0,
+      platformFee: '15%',
       benefits: [
         'Create a vendor profile and list your services',
         'Be discovered by guides and hosts',
         'Receive service inquiries',
-        'Smart matching to relevant retreats',
-        'In-app messaging and coordination',
         'Standard visibility in vendor discovery',
+      ],
+    },
+    starter: {
+      name: 'Starter Vendor',
+      price: 89,
+      platformFee: '10%',
+      benefits: [
+        'All benefits from Pay-as-you-go',
+        'Reduced platform fee',
+        'In-app messaging and coordination',
         'Access to LUX consideration',
       ],
     },
-    premier: {
-      name: 'Premier Vendor',
-      price: 79,
+    pro: {
+      name: 'Pro Vendor',
+      price: 129,
+      platformFee: '8%',
       benefits: [
-        'Get noticed faster with priority placement',
-        'Increased visibility to Pro Guides and Premium Hosts',
+        'All benefits from Starter',
+        'Lowest platform fee',
+        'Priority visibility',
+        'AI Assistant',
         'Featured service eligibility',
         'Priority matching for high-value retreats',
         'Enhanced profile presentation',
-        'Early access to premium opportunities',
-        'Stronger consideration weighting for LUX review',
       ],
-      helperText: 'Built for vendors who want more leads, higher-quality partnerships, and premium exposure.',
+      helperText: 'For vendors who want more leads, higher-quality partnerships, and premium exposure.',
     },
   },
 };
 
+const feeDescriptions: Record<UserRole, string> = {
+    guide: 'success fee of the Guide line-item subtotal, charged on Day 1 of the retreat.',
+    host: 'platform fee of the Host line-item subtotal on confirmed bookings.',
+    vendor: 'platform fee of the Vendor line-item subtotal on booked services.'
+};
+
 const invoices = [
-    { id: 'SUB-001', date: 'July 30, 2024', description: 'Partner Guide', amount: '$199.00' },
-    { id: 'FEE-001', date: 'July 1, 2024', description: 'Success Fee (Andes Hiking)', amount: '$750.00' },
-    { id: 'FAC-001', date: 'June 25, 2024', description: 'Booking Facilitation Fee (#B123)', amount: '$200.00' },
-    { id: 'SUB-002', date: 'June 30, 2024', description: 'Partner Guide', amount: '$199.00' },
+    { id: 'SUB-001', date: 'July 30, 2024', description: 'Starter Guide Plan', amount: '$129.00' },
+    { id: 'FEE-001', date: 'July 1, 2024', description: 'Success Fee (Andes Hiking)', amount: '$960.00' },
+    { id: 'SUB-002', date: 'June 30, 2024', description: 'Starter Guide Plan', amount: '$129.00' },
 ];
 
 type UserPlans = Record<UserRole, string>;
@@ -239,7 +267,7 @@ const UpgradeDowngradeModal = ({ isOpen, onOpenChange, onConfirm, currentPlan, t
 
 export default function BillingPage() {
     const [role, setRole] = useState<UserRole>('guide');
-    const [userPlans, setUserPlans] = useState<UserPlans>({ guide: 'partner', host: 'partner', vendor: 'partner' });
+    const [userPlans, setUserPlans] = useState<UserPlans>({ guide: 'starter', host: 'starter', vendor: 'starter' });
     const [isPaused, setIsPaused] = useState(false);
     const [luxStatus] = useState<LuxStatus>('Under Consideration');
     const [luxRequested, setLuxRequested] = useState(false);
@@ -364,21 +392,15 @@ export default function BillingPage() {
             </CardContent>
         </Card>
 
-        {/* Section 3: Platform Success Fees */}
+        {/* Section 3: Platform Fees */}
         <Card>
             <CardHeader>
-                <CardTitle>Platform Success Fees</CardTitle>
+                <CardTitle>Platform Fees</CardTitle>
                  <CardDescription>HighVibe Retreats only wins when you win. Instead of taking a big cut upfront like most platforms, we keep the fee simple and small—so you keep more margin while we do the behind-the-scenes work that helps you get booked more often.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
                  <div className="text-base p-4 bg-secondary rounded-md space-y-2">
-                    {role === 'host' ? (
-                       <p>• <strong>2% platform fee</strong> on bookings confirmed through the platform.</p>
-                    ) : role === 'guide' ? (
-                       <p>• <strong>7.5% success fee</strong> charged on Day 1 of the retreat start date (only for retreats booked through HighVibe Retreats).</p>
-                    ) : (
-                       <p>• <strong>No transaction fees.</strong> Your subscription covers discovery, matching, and lead generation.</p>
-                    )}
+                    <p>• Your current plan includes a <strong>{currentPlan.platformFee}</strong> {feeDescriptions[role]}</p>
                  </div>
                  <ul className="text-sm space-y-2 text-muted-foreground">
                     <li>• Visibility + distribution that brings you the right matches (not just more traffic)</li>
@@ -387,11 +409,6 @@ export default function BillingPage() {
                     <li>• Trust & quality systems that keep the marketplace strong (reviews, reporting, and standards)</li>
                     <li>• Ongoing marketing that improves your future bookings over time</li>
                  </ul>
-                 {role === 'guide' && (
-                    <p className="text-xs text-muted-foreground pt-2">
-                        Most platforms make money whether you get results or not. We keep the percentage modest so you can book more, run more retreats, and keep your margins strong.
-                    </p>
-                 )}
             </CardContent>
         </Card>
 
