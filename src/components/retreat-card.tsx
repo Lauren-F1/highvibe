@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { isFirebaseEnabled } from '@/firebase/config';
 import { useState } from 'react';
+import Link from 'next/link';
 
 interface RetreatCardProps {
   retreat: {
@@ -100,7 +101,7 @@ export function RetreatCard({ retreat, isLux = false }: RetreatCardProps) {
   };
 
   return (
-    <Card className="relative w-full overflow-hidden transition-shadow duration-300 hover:shadow-xl hover:shadow-primary/20">
+    <Card className="relative w-full overflow-hidden transition-shadow duration-300 hover:shadow-xl hover:shadow-primary/20 flex flex-col h-full">
        <Button
         variant="ghost"
         size="icon"
@@ -111,7 +112,7 @@ export function RetreatCard({ retreat, isLux = false }: RetreatCardProps) {
       >
         <Bookmark className={cn('h-5 w-5', isSaved ? 'fill-primary text-primary' : 'text-foreground/80')} />
       </Button>
-      <CardContent className="p-4">
+      <CardContent className="p-4 flex-grow">
         <div className="flex justify-between items-start gap-4 mb-4">
             <div className="flex-1">
                 <CardTitle className="font-headline text-2xl mb-2 pr-10">{retreat.title}</CardTitle>
@@ -145,17 +146,9 @@ export function RetreatCard({ retreat, isLux = false }: RetreatCardProps) {
         <p className="text-base leading-relaxed line-clamp-2 font-body mb-4">{retreat.description}</p>
       </CardContent>
       <CardFooter className="flex justify-between items-center p-4 pt-0">
-        <div>
-          {isLux && (
-            <Image
-              src="/lux.png"
-              alt="LUX Approved"
-              width={50}
-              height={50}
-              className="h-11 w-auto"
-            />
-          )}
-        </div>
+        <Button asChild>
+            <Link href={`/checkout/${retreat.id}`}>Book Retreat</Link>
+        </Button>
         <div className="text-right">
           <div className="text-lg font-bold text-foreground">
             From ${retreat.price}
