@@ -1,25 +1,21 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
+import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, CreditCard, Download, Info, PauseCircle, PlayCircle, Star } from "lucide-react";
+import { CheckCircle, CreditCard, Download, Info } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
 import { useUser, useFirestore } from '@/firebase';
 import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
 import { format, add } from 'date-fns';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import appConfig from '@/config/app.json';
 import { useToast } from '@/hooks/use-toast';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 // --- DATA DEFINITIONS ---
 
@@ -94,6 +90,8 @@ export default function BillingPage() {
     
     // Simulate a user who downgraded from Pro less than 60 days ago.
     const lastProDowngradeDate = useMemo(() => add(new Date(), { days: -30 }), []);
+    
+    const renewalDate = useMemo(() => add(new Date(), { days: 25 }), []);
 
 
     useEffect(() => {
@@ -273,6 +271,44 @@ export default function BillingPage() {
                                 </CardFooter>
                             </Card>
 
+                             <Accordion type="single" collapsible className="w-full">
+                              <AccordionItem value="plan-rules" className="border-b-0">
+                                <Card className="bg-secondary/30">
+                                  <AccordionTrigger className="p-6 text-left hover:no-underline [&[data-state=open]]:border-b">
+                                    <div className="flex w-full items-center justify-between">
+                                      <div className="text-left">
+                                        <h3 className="font-semibold text-lg">Plan Rules</h3>
+                                        <p className="text-sm text-muted-foreground font-normal">
+                                          Upgrades are immediate. Downgrades apply at renewal. Pro has a 90-day minimum.
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </AccordionTrigger>
+                                  <AccordionContent>
+                                    <div className="px-6 pb-6 pt-0">
+                                      <ul className="list-disc space-y-3 pl-5 text-sm text-muted-foreground">
+                                        <li>Upgrades take effect immediately.</li>
+                                        <li>Downgrades take effect on your next renewal date: <strong>{format(renewalDate, 'PPP')}</strong>.</li>
+                                        <li>Pro plans have a 90-day minimum commitment.</li>
+                                        <li>Re-upgrading to Pro within 60 days of downgrading triggers a one-time $99 reactivation fee.</li>
+                                        <li>Platform fee rates are locked when a booking is paid.</li>
+                                        <li>All payments must be processed through HighVibe via Stripe.</li>
+                                        {userPlans[providerRole] === 'pro' && proCommitmentEndDate > new Date() && (
+                                          <li>You can downgrade after: <strong>{format(proCommitmentEndDate, 'PPP')}</strong>.</li>
+                                        )}
+                                      </ul>
+                                      <div className="mt-4 pt-4 border-t">
+                                        <p className="text-xs text-muted-foreground">Platform fees apply to your line-item subtotal (excluding taxes). Stripe processing fees are paid by the provider.</p>
+                                        <Button asChild variant="link" className="p-0 h-auto mt-2 text-xs">
+                                          <Link href="/terms">View full terms</Link>
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  </AccordionContent>
+                                </Card>
+                              </AccordionItem>
+                            </Accordion>
+
                              <Card>
                                 <CardHeader>
                                     <CardTitle>Current Status</CardTitle>
@@ -284,7 +320,7 @@ export default function BillingPage() {
                                                 {plans[providerRole][userPlans[providerRole]].name}
                                                 <Badge variant={isPaused ? 'secondary' : 'default'}>{isPaused ? 'Paused' : 'Active'}</Badge>
                                             </h3>
-                                            <p className="text-muted-foreground">{isPaused ? 'Resumes upon request.' : 'Renews on July 30, 2027.'}</p>
+                                            <p className="text-muted-foreground">{isPaused ? 'Resumes upon request.' : `Renews on ${format(renewalDate, 'PPP')}`}</p>
                                             {pendingDowngrade[providerRole] && (
                                                 <p className="text-sm text-amber-600 mt-1">
                                                     Will downgrade to {plans[providerRole][pendingDowngrade[providerRole]!].name} on renewal date.
