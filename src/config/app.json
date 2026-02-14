@@ -1,18 +1,23 @@
 {
+  "subscriptionRules": {
+    "proMinimumCommitmentDays": 90,
+    "proReactivationFeeAmount": 99,
+    "proReactivationWindowDays": 60
+  },
   "plans": {
     "guide": {
       "pay-as-you-go": {
-          "name": "Pay-as-you-go",
-          "price": 0,
-          "platformFeePercent": 12.5,
-          "benefits": [
-              "Create and publish retreats",
-              "Be discovered by aligned seekers",
-              "Connect with hosts and vendors",
-              "In-app messaging and coordination"
-          ],
-          "visibility": "Standard",
-          "aiAssistant": false
+        "name": "Pay-as-you-go",
+        "price": 0,
+        "platformFeePercent": 12.5,
+        "benefits": [
+          "Create and publish retreats",
+          "Be discovered by aligned seekers",
+          "Connect with hosts and vendors",
+          "In-app messaging and coordination"
+        ],
+        "visibility": "Standard",
+        "aiAssistant": false
       },
       "starter": {
         "name": "Starter",
@@ -57,8 +62,8 @@
           "Standard discovery placement",
           "Access to LUX consideration"
         ],
-         "visibility": "Standard",
-         "aiAssistant": false
+        "visibility": "Standard",
+        "aiAssistant": false
       },
       "pro": {
         "name": "Pro",

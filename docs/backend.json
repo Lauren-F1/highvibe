@@ -197,37 +197,52 @@
       "description": "Details of a user's subscription plan for a specific role.",
       "type": "object",
       "properties": {
-        "planId": {
-          "type": "string"
+        "tier": {
+          "type": "string",
+          "description": "The plan identifier (e.g., 'starter', 'pro')."
         },
-        "status": {
+        "subscriptionStatus": {
           "type": "string",
           "enum": [
             "active",
             "trialing",
             "past_due",
             "canceled"
-          ]
+          ],
+          "description": "The status of the subscription."
         },
-        "current_period_end": {
+        "stripeSubscriptionId": {
           "type": "string",
-          "format": "date-time"
+          "description": "The ID of the subscription in Stripe."
         },
-        "commitment_end_date": {
+        "currentPeriodEnd": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "description": "The end of the current billing cycle."
         },
-        "downgrade_to_planId": {
-          "type": "string"
-        },
-        "last_pro_downgrade_effective_date": {
+        "proCommitmentStart": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "description": "The start date of a Pro plan commitment."
+        },
+        "proCommitmentEnd": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The end date of a Pro plan commitment."
+        },
+        "lastProDowngradeEffectiveDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The date a Pro downgrade became effective."
+        },
+        "downgradeToTier": {
+          "type": "string",
+          "description": "The plan to downgrade to at the end of the billing cycle."
         }
       },
       "required": [
-        "planId",
-        "status"
+        "tier",
+        "subscriptionStatus"
       ]
     },
     "Booking": {
@@ -919,3 +934,5 @@
       "description": "A user's earned credits from manifestations."
     }
   }
+
+}
