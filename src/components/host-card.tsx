@@ -23,6 +23,7 @@ export interface Host {
   propertyType: string;
   image?: ImagePlaceholder;
   luxApproved: boolean;
+  premiumMembership?: boolean;
   roomStyleTags?: string[];
   retreatReady?: boolean;
   gatheringSpace?: boolean;
@@ -125,14 +126,19 @@ export function HostCard({ host, onConnect, onViewMessage, connectionStatus = 'N
                         <span>{host.bathrooms} baths</span>
                     </div>
                 </div>
-                 {host.luxApproved && (
-                    <Image
-                        src="/lux.png"
-                        alt="LUX Approved"
-                        width={28}
-                        height={28}
-                    />
-                )}
+                <div className="flex items-center gap-2">
+                    {host.premiumMembership && (
+                        <Badge variant="secondary">Featured</Badge>
+                    )}
+                    {host.luxApproved && (
+                        <Image
+                            src="/lux.png"
+                            alt="LUX Approved"
+                            width={28}
+                            height={28}
+                        />
+                    )}
+                </div>
             </div>
         </div>
       </CardContent>

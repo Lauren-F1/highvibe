@@ -242,7 +242,7 @@ export default function GuidePage() {
         filtered.sort((a, b) => b.pricePerNight - a.pricePerNight);
         break;
       case 'recommended':
-         filtered.sort((a, b) => (b.luxApproved ? 1 : 0) - (a.luxApproved ? 1 : 0) || a.pricePerNight - b.pricePerNight);
+         filtered.sort((a, b) => (b.premiumMembership ? 1 : 0) - (a.premiumMembership ? 1 : 0) || (b.luxApproved ? 1 : 0) - (a.luxApproved ? 1 : 0) || a.pricePerNight - b.pricePerNight);
         break;
       case 'rating':
         // Assuming no rating property, sorting by price descending as a stand-in
@@ -594,11 +594,3 @@ export default function GuidePage() {
     </div>
   );
 }
-
-    
-
-    
-
-    
-
-    

@@ -165,7 +165,7 @@ export default function VendorDashboardPage() {
         break;
       case 'recommended':
       default:
-         filtered.sort((a, b) => (b.luxApproved ? 1 : 0) - (a.luxApproved ? 1 : 0) || a.pricePerNight - b.pricePerNight);
+         filtered.sort((a, b) => (b.premiumMembership ? 1 : 0) - (a.premiumMembership ? 1 : 0) || (b.luxApproved ? 1 : 0) - (a.luxApproved ? 1 : 0) || b.pricePerNight - a.pricePerNight);
         break;
     }
     return filtered;
@@ -539,5 +539,3 @@ export default function VendorDashboardPage() {
     </div>
   );
 }
-
-    
