@@ -52,12 +52,6 @@ type RolePlans = {
 
 const plans: Record<UserRole, RolePlans> = appConfig.plans as any;
 
-const feeDescriptions: Record<UserRole, string> = {
-    guide: 'success fee of the Guide line-item subtotal, charged on Day 1 of the retreat.',
-    host: 'platform fee of the Host line-item subtotal on confirmed bookings.',
-    vendor: 'platform fee of the Vendor line-item subtotal on booked services.'
-};
-
 const invoices = [
     { id: 'SUB-001', date: 'July 30, 2024', description: 'Starter Guide Plan', amount: '$129.00' },
     { id: 'FEE-001', date: 'July 1, 2024', description: 'Success Fee (Andes Hiking)', amount: '$960.00' },
@@ -75,15 +69,16 @@ export default function BillingPage() {
 
     const [role, setRole] = useState<AllRoles>('seeker');
     const [userPlans, setUserPlans] = useState<UserPlans>({ guide: 'pro', host: 'starter', vendor: 'pay-as-you-go' });
-    const [isPaused, setIsPaused] = useState(false);
     
     const [credit, setCredit] = useState<ManifestCredit | null>(null);
     const [loadingCredit, setLoadingCredit] = useState(true);
 
-    // --- Subscription Guardrail State Simulation ---
+    // --- Subscription Guardrail State ---
+    const [pendingDowngrade, setPendingDowngrade] = useState<Partial<Record<UserRole, string>>>({});
     const [showCommitmentModal, setShowCommitmentModal] = useState(false);
     const [showReactivationModal, setShowReactivationModal] = useState(false);
-    const [pendingDowngrade, setPendingDowngrade] = useState<Partial<Record<UserRole, string>>>({});
+    const [upgradeToProModal, setUpgradeToProModal] = useState<{role: UserRole; planKey: string} | null>(null);
+    const [downgradeModal, setDowngradeModal] = useState<{role: UserRole; planKey: string} | null>(null);
     
     // Simulate a user who upgraded to Pro recently and is in a commitment window.
     const proCommitmentEndDate = useMemo(() => add(new Date(), { days: 80 }), []);
@@ -92,6 +87,21 @@ export default function BillingPage() {
     const lastProDowngradeDate = useMemo(() => add(new Date(), { days: -30 }), []);
     
     const renewalDate = useMemo(() => add(new Date(), { days: 25 }), []);
+
+    const upgradeToProCopy: Record<UserRole, {title: string; body: string}> = {
+      guide: {
+          title: "Upgrade to Pro",
+          body: "Pro includes priority visibility and the AI Assistant to help you get matched faster and fill retreats more consistently. Pro has a 90-day minimum commitment. Upgrades take effect immediately. Your new platform fee rate applies to bookings paid after this upgrade. All payments must be processed through HighVibe via Stripe to qualify for Pro rates and protections."
+      },
+      host: {
+          title: "Upgrade to Pro",
+          body: "Pro includes priority visibility and the AI Assistant to help you get matched with Guides faster. Pro has a 90-day minimum commitment. Upgrades take effect immediately. Your new platform fee rate applies to bookings paid after this upgrade. All payments must be processed through HighVibe via Stripe to qualify for Pro rates and protections."
+      },
+      vendor: {
+          title: "Upgrade to Pro",
+          body: "Pro includes priority visibility and the AI Assistant to help you get matched faster and book more services. Pro has a 90-day minimum commitment. Upgrades take effect immediately. Your new platform fee rate applies to bookings paid after this upgrade. All payments must be processed through HighVibe via Stripe to qualify for Pro rates and protections."
+      }
+    }
 
 
     useEffect(() => {
@@ -127,37 +137,55 @@ export default function BillingPage() {
         const isUpgrade = targetPlan.price > currentPlan.price;
         const isDowngrade = targetPlan.price < currentPlan.price;
 
-        // --- Downgrade from Pro Logic ---
-        if (isDowngrade && currentPlan.name.includes('Pro')) {
-            if (proCommitmentEndDate > new Date()) {
+        if (isDowngrade) {
+            if (currentPlan.name.includes('Pro') && proCommitmentEndDate > new Date()) {
                 setShowCommitmentModal(true);
                 return;
             }
-            setPendingDowngrade(prev => ({...prev, [role]: planKey}));
-            toast({ title: "Downgrade Scheduled", description: `Your plan will switch to ${targetPlan.name} on your next renewal date.` });
+            setDowngradeModal({ role, planKey });
             return;
         }
 
-        // --- Re-upgrade to Pro Logic ---
-        if (isUpgrade && targetPlan.name.includes('Pro') && lastProDowngradeDate && lastProDowngradeDate > add(new Date(), {days: -60})) {
-            // Check if this role was recently downgraded
-            if (role === 'host') { // Simulating this only for the host role
-                setShowReactivationModal(true);
-                return;
-            }
-        }
-        
-        // --- Immediate Upgrade Logic ---
         if (isUpgrade) {
-             setUserPlans(prev => ({...prev, [role]: planKey}));
-             toast({ title: "Upgrade Successful!", description: `You're now on the ${targetPlan.name} plan.` });
-        } else {
-            // Non-pro downgrades
-            setPendingDowngrade(prev => ({...prev, [role]: planKey}));
-            toast({ title: "Downgrade Scheduled", description: `Your plan will switch to ${targetPlan.name} on your next renewal date.` });
+            if (targetPlan.name.includes('Pro')) {
+                // Simulating for 'host' role only for demonstration
+                if (role === 'host' && lastProDowngradeDate && lastProDowngradeDate > add(new Date(), {days: -60})) {
+                    setShowReactivationModal(true);
+                    return;
+                }
+                setUpgradeToProModal({ role, planKey });
+                return;
+            } else {
+                // Non-pro upgrade
+                setUserPlans(prev => ({...prev, [role]: planKey}));
+                toast({ title: "Upgrade Successful!", description: `You're now on the ${targetPlan.name} plan.` });
+            }
         }
     }
 
+    const handleUpgradeToProConfirm = () => {
+        if (!upgradeToProModal) return;
+        const { role, planKey } = upgradeToProModal;
+        setUserPlans(prev => ({ ...prev, [role]: planKey }));
+        setPendingDowngrade(prev => {
+            const newPending = {...prev};
+            delete newPending[role];
+            return newPending;
+        })
+        toast({ title: "You’re on Pro.", description: "Priority visibility and AI Assistant are now active." });
+        setUpgradeToProModal(null);
+    }
+    
+    const handleDowngradeConfirm = () => {
+        if (!downgradeModal) return;
+        const { role, planKey } = downgradeModal;
+        setPendingDowngrade(prev => ({ ...prev, [role]: planKey }));
+        toast({
+            title: "Downgrade Scheduled",
+            description: `Downgrade scheduled for ${format(renewalDate, 'PPP')}. Your current plan remains active until then.`
+        });
+        setDowngradeModal(null);
+    }
 
     if (user.status === 'loading') {
         return <div className="container mx-auto px-4 py-12 text-center">Loading...</div>;
@@ -222,7 +250,7 @@ export default function BillingPage() {
                                         const isPendingDowngrade = pendingDowngrade[providerRole] === planKey;
                                         
                                         return (
-                                            <Card key={planKey} className={cn("flex flex-col h-full", isCurrent && !isPendingDowngrade && "border-primary ring-2 ring-primary")}>
+                                            <Card key={planKey} className={cn("flex flex-col h-full", isCurrent && !pendingDowngrade[providerRole] && "border-primary ring-2 ring-primary")}>
                                                 <CardHeader>
                                                     <CardTitle>{plan.name}</CardTitle>
                                                     <p className="text-2xl font-bold">${plan.price}<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
@@ -249,11 +277,11 @@ export default function BillingPage() {
                                                 <CardFooter>
                                                     <Button 
                                                         className="w-full" 
-                                                        disabled={isCurrent && !isPendingDowngrade} 
+                                                        disabled={isCurrent && !pendingDowngrade[providerRole]} 
                                                         onClick={() => handlePlanChange(providerRole, planKey)}
                                                         variant={isPendingDowngrade ? 'outline' : 'default'}
                                                     >
-                                                        {isCurrent && !isPendingDowngrade ? 'Current Plan' : isPendingDowngrade ? 'Downgrade Pending' : 'Switch to ' + plan.name}
+                                                        {isCurrent && !pendingDowngrade[providerRole] ? 'Current Plan' : isPendingDowngrade ? 'Downgrade Pending' : 'Switch to ' + plan.name}
                                                     </Button>
                                                 </CardFooter>
                                             </Card>
@@ -318,9 +346,9 @@ export default function BillingPage() {
                                         <div>
                                             <h3 className="font-bold text-lg flex items-center gap-2">
                                                 {plans[providerRole][userPlans[providerRole]].name}
-                                                <Badge variant={isPaused ? 'secondary' : 'default'}>{isPaused ? 'Paused' : 'Active'}</Badge>
+                                                <Badge variant={"default"}>Active</Badge>
                                             </h3>
-                                            <p className="text-muted-foreground">{isPaused ? 'Resumes upon request.' : `Renews on ${format(renewalDate, 'PPP')}`}</p>
+                                            <p className="text-muted-foreground">{`Renews on ${format(renewalDate, 'PPP')}`}</p>
                                             {pendingDowngrade[providerRole] && (
                                                 <p className="text-sm text-amber-600 mt-1">
                                                     Will downgrade to {plans[providerRole][pendingDowngrade[providerRole]!].name} on renewal date.
@@ -375,14 +403,17 @@ export default function BillingPage() {
        <AlertDialog open={showCommitmentModal} onOpenChange={setShowCommitmentModal}>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                <AlertDialogTitle>Pro Plan Commitment</AlertDialogTitle>
-                <AlertDialogDescription>
-                    Pro plans have a 90-day minimum commitment. You can schedule your downgrade to take effect on{' '}
-                    <strong>{format(proCommitmentEndDate, 'PPP')}.</strong>
-                </AlertDialogDescription>
+                    <AlertDialogTitle>Pro commitment active</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Pro has a 90-day minimum commitment.
+                        <br/><br/>
+                        You can schedule a downgrade starting on: <strong>{format(proCommitmentEndDate, 'PPP')}</strong>.
+                        <br/><br/>
+                        Until then, your Pro benefits remain active.
+                    </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                <AlertDialogAction onClick={() => setShowCommitmentModal(false)}>Got It</AlertDialogAction>
+                    <AlertDialogAction onClick={() => setShowCommitmentModal(false)}>OK</AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>
@@ -390,24 +421,65 @@ export default function BillingPage() {
         <AlertDialog open={showReactivationModal} onOpenChange={setShowReactivationModal}>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                <AlertDialogTitle>Pro Reactivation Fee</AlertDialogTitle>
-                <AlertDialogDescription>
-                    Because you downgraded from a Pro plan within the last 60 days, a one-time reactivation fee of $99 will be charged to continue.
-                </AlertDialogDescription>
+                    <AlertDialogTitle>Reactivation fee applies</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Because you downgraded from Pro within the last 60 days, a one-time $99 reactivation fee applies to upgrade back to Pro.
+                        <br/><br/>
+                        Your Pro minimum commitment restarts when you re-upgrade.
+                    </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel onClick={() => setShowReactivationModal(false)}>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction onClick={() => {
                         setShowReactivationModal(false);
-                        // In a real app, this would trigger the Stripe payment flow
-                        toast({ title: "Welcome back to Pro!", description: "The $99 reactivation fee has been charged." });
                         if(role !== 'seeker') setUserPlans(prev => ({...prev, [role]: 'pro'}));
+                        toast({ title: "Reactivation fee applied.", description: "Welcome back to Pro." });
                     }}>
-                        Accept & Pay $99
+                        Continue
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>
+
+        <AlertDialog open={!!upgradeToProModal} onOpenChange={() => setUpgradeToProModal(null)}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>{upgradeToProModal ? upgradeToProCopy[upgradeToProModal.role].title : ''}</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        {upgradeToProModal ? <p className='whitespace-pre-line'>{upgradeToProCopy[upgradeToProModal.role].body}</p> : ''}
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleUpgradeToProConfirm}>
+                        Upgrade to Pro
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+                 <div className="text-xs text-muted-foreground mt-2">By upgrading, you agree to the Pro minimum commitment and the plan rules in the Terms. <Button asChild variant="link" className="p-0 h-auto text-xs align-baseline"><Link href="/terms">View plan rules</Link></Button></div>
+            </AlertDialogContent>
+        </AlertDialog>
+
+        <AlertDialog open={!!downgradeModal} onOpenChange={() => setDowngradeModal(null)}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Downgrade scheduled</AlertDialogTitle>
+                     <AlertDialogDescription>
+                        Your downgrade will take effect on your next renewal date: <strong>{format(renewalDate, 'PPP')}</strong>.
+                        <br/><br/>
+                        Your current plan stays active until then.
+                        <br/><br/>
+                        Platform fee rates for existing bookings do not change after payment.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Keep current plan</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDowngradeConfirm}>
+                        Confirm downgrade
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+
     </div>
   );
 }
