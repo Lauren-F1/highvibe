@@ -26,6 +26,7 @@ import { PartnershipStepper, type PartnershipStage } from '@/components/partners
 import { NextBestAction } from '@/components/next-best-action';
 import { cn } from '@/lib/utils';
 import { RetreatReadinessChecklist, type RetreatReadinessProps } from '@/components/retreat-readiness-checklist';
+import { WaitlistModal } from '@/components/waitlist-modal';
 
 
 const genericImage = placeholderImages.find(p => p.id === 'generic-placeholder')!;
@@ -64,6 +65,7 @@ export default function GuidePage() {
   const [hostFiltersVisible, setHostFiltersVisible] = useState(false);
 
   const [currentConnectionRequests, setCurrentConnectionRequests] = useState(connectionRequests);
+  const [showFeatureGate, setShowFeatureGate] = useState(false);
 
   const appliedHostFiltersCount = useMemo(() => {
     let count = 0;
@@ -259,7 +261,7 @@ export default function GuidePage() {
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
-      
+      <WaitlistModal isOpen={showFeatureGate} onOpenChange={setShowFeatureGate} source="feature-gate-guide-edit" />
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div className="md:mr-8">
           <h1 className="font-headline text-4xl md:text-5xl font-bold text-beige">Guide Dashboard</h1>
@@ -335,7 +337,7 @@ export default function GuidePage() {
                         <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}><MoreHorizontal className="h-4 w-4"/></Button>
                       </DropdownMenuTrigger>
                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => alert('Edit clicked')}>Edit</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setShowFeatureGate(true)}>Edit</DropdownMenuItem>
                           <DropdownMenuItem onClick={() => alert('Duplicate clicked')}>Duplicate</DropdownMenuItem>
                           <DropdownMenuItem onClick={() => alert('Unpublish clicked')}>Unpublish</DropdownMenuItem>
                           <DropdownMenuItem className="text-destructive" onClick={() => alert('Delete clicked')}>Delete</DropdownMenuItem>
@@ -594,3 +596,5 @@ export default function GuidePage() {
     </div>
   );
 }
+
+    
