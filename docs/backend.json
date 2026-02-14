@@ -293,12 +293,17 @@
               },
               "platformFeePctApplied": {
                 "type": "number"
+              },
+              "platformFeeAmount": {
+                "type": "number",
+                "description": "The calculated platform fee amount for this line item."
               }
             },
             "required": [
               "providerId",
               "amount",
-              "platformFeePctApplied"
+              "platformFeePctApplied",
+              "platformFeeAmount"
             ]
           }
         }
