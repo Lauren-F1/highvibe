@@ -7,6 +7,7 @@ import { Logo } from '@/components/icons/logo';
 import { placeholderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
 import React from 'react';
+import { WaitlistForm } from './waitlist-form';
 
 // Do not change icon assets or casing; icons must always load from /public and remain unmodified.
 const ROLE_ICON_SRC: Record<string, string> = {
@@ -48,7 +49,7 @@ const roles: Role[] = [
       icon: ROLE_ICON_SRC.vendor,
       primaryLabel: "Vendor",
       title: "I’m Offering Retreat Services",
-      description: "Offer services that make retreats unforgettable — from wellness and music to food, transportation, and curated local experiences. Connect with guides and hosts looking to elevate their retreats."
+      "description": "Offer services that make retreats unforgettable — from wellness and music to food, transportation, and curated local experiences. Connect with guides and hosts looking to elevate their retreats."
     },
     {
       id: 'host',
@@ -132,6 +133,19 @@ export default function HomePageClient() {
             </div>
           )
         })}
+      </div>
+      <div className="w-full max-w-4xl text-center my-16">
+        <Card>
+            <CardHeader>
+                <CardTitle className="font-headline text-3xl md:text-4xl">Be the First to Know</CardTitle>
+                <CardDescription className="text-lg text-beige-dark mt-2 max-w-3xl mx-auto font-body">
+                    Join the waitlist for early access and updates as we build HighVibe Retreats.
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <WaitlistForm source="landing" />
+            </CardContent>
+        </Card>
       </div>
     </main>
   );

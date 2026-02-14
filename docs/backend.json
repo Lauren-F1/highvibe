@@ -369,6 +369,52 @@
         "status"
       ]
     },
+    "WaitlistSubmission": {
+      "title": "Waitlist Submission",
+      "description": "A submission to the general waitlist.",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "roleInterest": {
+          "type": "string",
+          "enum": [
+            "Seeker",
+            "Guide",
+            "Host",
+            "Vendor",
+            "Not sure"
+          ]
+        },
+        "source": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "new"
+          ]
+        },
+        "userAgent": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "email",
+        "createdAt",
+        "status",
+        "source"
+      ]
+    },
     "ContactSubmission": {
       "title": "Contact Submission",
       "description": "A message submitted through the contact form.",
@@ -883,6 +929,12 @@
         "$ref": "#/entities/WaitlistSeeker"
       },
       "description": "Collection of users who have signed up for the waitlist."
+    },
+    "/waitlist/{email}": {
+      "schema": {
+        "$ref": "#/entities/WaitlistSubmission"
+      },
+      "description": "General waitlist submissions, with email as document ID."
     },
     "/contact_submissions/{submissionId}": {
       "schema": {
