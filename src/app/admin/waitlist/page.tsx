@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
-import { collection, query, where, orderBy, getDocs, doc, updateDoc, Timestamp } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs, Timestamp } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
@@ -9,55 +9,45 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Copy, MoreHorizontal, Download, CheckCircle } from 'lucide-react';
+import { Copy, MoreHorizontal, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { exportToCsv } from '@/lib/csv';
 
-type WaitlistSeeker = {
+type WaitlistSubmission = {
   id: string;
   email: string;
+  firstName?: string;
+  roleInterest?: string;
+  source: string;
   createdAt: Timestamp;
-  sourcePage: string;
-  filtersSnapshot: {
-    experienceType: string;
-    destination: string;
-    regionCountry: string;
-    investmentRange: string;
-    timing: string;
-  };
-  status: 'active' | 'unsubscribed';
+  status: 'new';
 };
 
 export default function WaitlistAdminPage() {
   const firestore = useFirestore();
   const { toast } = useToast();
 
-  const [waitlist, setWaitlist] = useState<WaitlistSeeker[]>([]);
+  const [waitlist, setWaitlist] = useState<WaitlistSubmission[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Filter states
   const [emailSearch, setEmailSearch] = useState('');
-  const [experienceFilter, setExperienceFilter] = useState('all');
-  const [destinationFilter, setDestinationFilter] = useState('all');
+  const [roleFilter, setRoleFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
 
   const fetchWaitlist = async () => {
     if (!firestore) return;
     setLoading(true);
 
-    const waitlistCol = collection(firestore, 'waitlist_seekers');
+    const waitlistCol = collection(firestore, 'waitlist');
     let q = query(waitlistCol, orderBy('createdAt', 'desc'));
-
-    // The free version of firestore does not support multiple query constraints, so filtering is done client-side
-    // For a production app, upgrade firestore or use a dedicated search service like Algolia.
 
     try {
         const snapshot = await getDocs(q);
         const data = snapshot.docs.map(d => ({
             id: d.id,
             ...d.data(),
-        } as WaitlistSeeker));
+        } as WaitlistSubmission));
         setWaitlist(data);
     } catch (error) {
         console.error("Error fetching waitlist:", error);
@@ -79,9 +69,7 @@ export default function WaitlistAdminPage() {
   const filteredWaitlist = useMemo(() => {
     return waitlist.filter(item => {
         const emailMatch = emailSearch === '' || item.email.toLowerCase().includes(emailSearch.toLowerCase());
-        const experienceMatch = experienceFilter === 'all' || item.filtersSnapshot?.experienceType === experienceFilter;
-        const destinationMatch = destinationFilter === 'all' || item.filtersSnapshot?.destination === destinationFilter;
-        const statusMatch = statusFilter === 'all' || item.status === statusFilter;
+        const roleMatch = roleFilter === 'all' || item.roleInterest === roleFilter;
         
         const dateMatch = (() => {
             if (dateFilter === 'all' || !item.createdAt) return true;
@@ -92,35 +80,15 @@ export default function WaitlistAdminPage() {
             return itemDate >= cutoffDate;
         })();
         
-        return emailMatch && experienceMatch && destinationMatch && statusMatch && dateMatch;
+        return emailMatch && roleMatch && dateMatch;
     });
-  }, [waitlist, emailSearch, experienceFilter, destinationFilter, dateFilter, statusFilter]);
+  }, [waitlist, emailSearch, roleFilter, dateFilter]);
 
   const handleCopyEmail = (email: string) => {
     navigator.clipboard.writeText(email);
     toast({
       description: `Copied "${email}" to clipboard.`,
     });
-  };
-
-  const handleStatusChange = async (id: string, newStatus: 'active' | 'unsubscribed') => {
-    if (!firestore) return;
-    const itemRef = doc(firestore, 'waitlist_seekers', id);
-    try {
-        await updateDoc(itemRef, { status: newStatus });
-        await fetchWaitlist(); // Refetch to get updated data
-        toast({
-            title: "Status Updated",
-            description: `Entry marked as ${newStatus}.`,
-        });
-    } catch (error) {
-        console.error("Error updating status:", error);
-        toast({
-            variant: "destructive",
-            title: "Update Failed",
-            description: "Could not update the entry's status.",
-        });
-    }
   };
 
   const handleExport = () => {
@@ -135,13 +103,10 @@ export default function WaitlistAdminPage() {
 
     const csvData = filteredWaitlist.map(item => ({
       email: item.email,
+      firstName: item.firstName || '',
+      roleInterest: item.roleInterest || '',
       createdAt: item.createdAt?.toDate().toISOString() ?? '',
-      sourcePage: item.sourcePage,
-      experienceType: item.filtersSnapshot?.experienceType || '',
-      destination: item.filtersSnapshot?.destination || '',
-      regionCountry: item.filtersSnapshot?.regionCountry || '',
-      investmentRange: item.filtersSnapshot?.investmentRange || '',
-      timing: item.filtersSnapshot?.timing || '',
+      source: item.source,
       status: item.status,
     }));
     
@@ -156,8 +121,8 @@ export default function WaitlistAdminPage() {
     <div className="container mx-auto px-4 py-8 md:py-12">
       <Card>
         <CardHeader>
-          <CardTitle className="text-3xl font-headline">Waitlist Admin</CardTitle>
-          <CardDescription>Manage and export waitlist signups.</CardDescription>
+          <CardTitle className="text-3xl font-headline">Waitlist Submissions</CardTitle>
+          <CardDescription>Manage and export general waitlist signups.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-6 space-y-4">
@@ -176,12 +141,15 @@ export default function WaitlistAdminPage() {
                   <SelectItem value="90">Last 90 Days</SelectItem>
                 </SelectContent>
               </Select>
-               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger><SelectValue placeholder="Filter by status..." /></SelectTrigger>
+              <Select value={roleFilter} onValueChange={setRoleFilter}>
+                <SelectTrigger><SelectValue placeholder="Filter by role..." /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="unsubscribed">Unsubscribed</SelectItem>
+                  <SelectItem value="all">All Roles</SelectItem>
+                  <SelectItem value="Seeker">Seeker</SelectItem>
+                  <SelectItem value="Guide">Guide</SelectItem>
+                  <SelectItem value="Host">Host</SelectItem>
+                  <SelectItem value="Vendor">Vendor</SelectItem>
+                  <SelectItem value="Not sure">Not sure</SelectItem>
                 </SelectContent>
               </Select>
                <Button onClick={handleExport}><Download className="mr-2 h-4 w-4" /> Export CSV</Button>
@@ -192,11 +160,11 @@ export default function WaitlistAdminPage() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Date</TableHead>
                   <TableHead>Email</TableHead>
-                  <TableHead>Signup Date</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Role Interest</TableHead>
                   <TableHead>Source</TableHead>
-                  <TableHead>Filters</TableHead>
-                  <TableHead>Status</TableHead>
                   <TableHead className="w-[80px] text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -208,15 +176,11 @@ export default function WaitlistAdminPage() {
                 ) : (
                   filteredWaitlist.map(item => (
                     <TableRow key={item.id}>
-                      <TableCell className="font-medium">{item.email}</TableCell>
                       <TableCell>{item.createdAt?.toDate().toLocaleDateString()}</TableCell>
-                      <TableCell>{item.sourcePage}</TableCell>
-                      <TableCell>
-                        <ul className="text-xs text-muted-foreground">
-                            {Object.entries(item.filtersSnapshot || {}).map(([key, value]) => value && <li key={key}>{key}: {value}</li>)}
-                        </ul>
-                      </TableCell>
-                      <TableCell>{item.status}</TableCell>
+                      <TableCell className="font-medium">{item.email}</TableCell>
+                      <TableCell>{item.firstName}</TableCell>
+                      <TableCell>{item.roleInterest}</TableCell>
+                      <TableCell>{item.source}</TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -225,9 +189,6 @@ export default function WaitlistAdminPage() {
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => handleCopyEmail(item.email)}>
                                 <Copy className="mr-2 h-4 w-4" /> Copy Email
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleStatusChange(item.id, 'unsubscribed')}>
-                                <CheckCircle className="mr-2 h-4 w-4" /> Mark Unsubscribed
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
