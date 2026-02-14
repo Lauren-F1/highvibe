@@ -96,5 +96,15 @@ service cloud.firestore {
         allow read, update: if isAuthenticated() && resource.data.userId == request.auth.uid; // Only readable/updatable by the recipient
         allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
     }
+
+    match /manifest_credits/{creditId} {
+      // Credits are created by server-side logic (admin).
+      allow create: if isAdmin();
+      // A credit can be read by the seeker who owns it or an admin.
+      allow read: if isAuthenticated() && (resource.data.seeker_id == request.auth.uid || isAdmin());
+      // Credits are updated by server-side logic (admin) when redeemed or expired.
+      allow update: if isAdmin();
+      allow delete: if false;
+    }
   }
 }

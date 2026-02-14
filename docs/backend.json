@@ -554,6 +554,27 @@
             "createdAt": { "type": "string", "format": "date-time" }
         },
         "required": ["userId", "title", "body", "read", "createdAt"]
+    },
+    "ManifestCredit": {
+      "title": "Manifest Credit",
+      "description": "A credit earned by a Seeker for a completed Manifestation.",
+      "type": "object",
+      "properties": {
+        "seeker_id": { "type": "string" },
+        "manifestation_id": { "type": "string" },
+        "issued_amount": { "type": "number" },
+        "currency": { "type": "string" },
+        "issue_date": { "type": "string", "format": "date-time" },
+        "expiry_date": { "type": "string", "format": "date-time" },
+        "redeemed_amount": { "type": "number" },
+        "redemption_booking_id": { "type": "string" },
+        "redeemed_date": { "type": "string", "format": "date-time" },
+        "status": {
+          "type": "string",
+          "enum": ["available", "redeemed", "expired"]
+        }
+      },
+      "required": ["seeker_id", "manifestation_id", "issued_amount", "issue_date", "expiry_date", "status"]
     }
   },
   "auth": {
@@ -610,6 +631,10 @@
     "/notifications/{notificationId}": {
       "schema": { "$ref": "#/entities/Notification" },
       "description": "In-app notifications for users."
+    },
+    "/manifest_credits/{creditId}": {
+      "schema": { "$ref": "#/entities/ManifestCredit" },
+      "description": "A user's earned credits from manifestations."
     }
   }
 }
