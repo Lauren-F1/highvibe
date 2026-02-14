@@ -368,5 +368,10 @@ export default function BillingPage() {
                         if(role !== 'seeker') setUserPlans(prev => ({...prev, [role]: 'pro'}));
                     }}>
                         Accept & Pay $99
-                    </Aler......
-
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+    </div>
+  );
+}
