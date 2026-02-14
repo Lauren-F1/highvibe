@@ -1,0 +1,131 @@
+{
+  "plans": {
+    "guide": {
+      "pay-as-you-go": {
+          "name": "Pay-as-you-go",
+          "price": 0,
+          "platformFeePercent": 12.5,
+          "benefits": [
+              "Create and publish retreats",
+              "Be discovered by aligned seekers",
+              "Connect with hosts and vendors",
+              "In-app messaging and coordination"
+          ],
+          "visibility": "Standard",
+          "aiAssistant": false
+      },
+      "starter": {
+        "name": "Starter",
+        "price": 129,
+        "platformFeePercent": 10,
+        "benefits": [
+          "All pay-as-you-go benefits",
+          "Reduced success fee",
+          "Access to booking tools",
+          "Access to LUX consideration"
+        ],
+        "visibility": "Standard",
+        "aiAssistant": false
+      },
+      "pro": {
+        "name": "Pro",
+        "price": 229,
+        "platformFeePercent": 8,
+        "benefits": [
+          "All Starter benefits",
+          "Lowest success fee",
+          "Featured retreat eligibility",
+          "Advanced matching filters",
+          "Performance insights",
+          "Priority support"
+        ],
+        "helperText": "For established guides who want maximum visibility and reduced fees.",
+        "visibility": "Priority",
+        "aiAssistant": true
+      }
+    },
+    "host": {
+      "starter": {
+        "name": "Starter",
+        "price": 189,
+        "platformFeePercent": 3,
+        "benefits": [
+          "List your property as a retreat-ready space",
+          "Be discovered by aligned guides",
+          "Receive booking inquiries",
+          "Smart matching to relevant retreats",
+          "Standard discovery placement",
+          "Access to LUX consideration"
+        ],
+         "visibility": "Standard",
+         "aiAssistant": false
+      },
+      "pro": {
+        "name": "Pro",
+        "price": 289,
+        "platformFeePercent": 2,
+        "benefits": [
+          "All Starter benefits",
+          "Lowest platform fee",
+          "Featured venue eligibility",
+          "Enhanced profile presentation",
+          "Priority matching for aligned experiences",
+          "Stronger consideration for LUX review"
+        ],
+        "helperText": "For hosts who want more bookings, better-fit retreats, and higher-quality partnerships.",
+        "visibility": "Priority",
+        "aiAssistant": true
+      }
+    },
+    "vendor": {
+      "pay-as-you-go": {
+        "name": "Pay-as-you-go",
+        "price": 0,
+        "platformFeePercent": 15,
+        "benefits": [
+          "Create a vendor profile and list your services",
+          "Be discovered by guides and hosts",
+          "Receive service inquiries",
+          "Standard visibility in vendor discovery"
+        ],
+        "visibility": "Standard",
+        "aiAssistant": false
+      },
+      "starter": {
+        "name": "Starter",
+        "price": 89,
+        "platformFeePercent": 10,
+        "benefits": [
+          "All pay-as-you-go benefits",
+          "Reduced platform fee",
+          "In-app messaging and coordination",
+          "Access to LUX consideration"
+        ],
+        "visibility": "Standard",
+        "aiAssistant": false
+      },
+      "pro": {
+        "name": "Pro",
+        "price": 129,
+        "platformFeePercent": 8,
+        "benefits": [
+          "All Starter benefits",
+          "Lowest platform fee",
+          "Featured service eligibility",
+          "Priority matching for high-value retreats",
+          "Enhanced profile presentation"
+        ],
+        "helperText": "For vendors who want more leads, higher-quality partnerships, and premium exposure.",
+        "visibility": "Priority",
+        "aiAssistant": true
+      }
+    }
+  },
+  "manifestCredit": {
+    "percent": 0.03,
+    "cap_amount": 500,
+    "currency": "USD",
+    "validity_days": 365,
+    "trigger": "completed"
+  }
+}

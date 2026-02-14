@@ -22,6 +22,7 @@ import { cn } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { manifestRetreatTypes, manifestMustHaves, manifestNiceToHaves, lodgingPreferences, luxuryTiers, dietaryPreferences, destinations } from '@/lib/mock-data';
+import appConfig from '@/config/app.json';
 
 const countries = Object.keys(destinations).flatMap(continent => destinations[continent as keyof typeof destinations]);
 
@@ -133,13 +134,7 @@ export default function NewManifestationPage() {
       budget_range: data.budget_range,
       dietary_preference: data.dietary_preference,
       notes_text: data.notes_text,
-      credit_policy: {
-        percent: 0.03,
-        cap_amount: 500,
-        currency: 'USD',
-        validity_days: 365,
-        trigger: 'completed'
-      },
+      credit_policy: appConfig.manifestCredit,
       matched_summary_counts: { hosts: 0, guides: 0, vendors: 0 },
     };
 
