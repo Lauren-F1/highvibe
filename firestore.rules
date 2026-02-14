@@ -91,6 +91,21 @@ service cloud.firestore {
       allow delete: if false; // Disallow deletion for record keeping.
     }
 
+    match /bookings/{bookingId} {
+      // Bookings are created by a trusted server process after payment.
+      allow create: if isAdmin();
+      
+      // The seeker who made the booking and any involved provider can read it.
+      allow read: if isAuthenticated() && (
+                    resource.data.seekerId == request.auth.uid ||
+                    request.auth.uid in resource.data.lineItems.map(item => item.providerId) ||
+                    isAdmin()
+                  );
+
+      // Bookings are immutable by clients once created.
+      allow update, delete: if isAdmin();
+    }
+
     match /notifications/{notificationId} {
         allow create: if isAdmin(); // Created by server logic
         allow read, update: if isAuthenticated() && resource.data.userId == request.auth.uid; // Only readable/updatable by the recipient

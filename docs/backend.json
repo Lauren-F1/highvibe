@@ -168,6 +168,21 @@
         "lastLoginAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "subscriptions": {
+          "type": "object",
+          "description": "User's subscription status for different roles.",
+          "properties": {
+            "guide": {
+              "$ref": "#/entities/Subscription"
+            },
+            "host": {
+              "$ref": "#/entities/Subscription"
+            },
+            "vendor": {
+              "$ref": "#/entities/Subscription"
+            }
+          }
         }
       },
       "required": [
@@ -175,6 +190,109 @@
         "createdAt",
         "roles",
         "profileComplete"
+      ]
+    },
+    "Subscription": {
+      "title": "Subscription",
+      "description": "Details of a user's subscription plan for a specific role.",
+      "type": "object",
+      "properties": {
+        "planId": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "active",
+            "trialing",
+            "past_due",
+            "canceled"
+          ]
+        },
+        "current_period_end": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "commitment_end_date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "downgrade_to_planId": {
+          "type": "string"
+        },
+        "last_pro_downgrade_effective_date": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "planId",
+        "status"
+      ]
+    },
+    "Booking": {
+      "title": "Booking",
+      "description": "A confirmed and paid booking for a retreat or service.",
+      "type": "object",
+      "properties": {
+        "seekerId": {
+          "type": "string"
+        },
+        "retreatId": {
+          "type": "string"
+        },
+        "manifestationId": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "totalAmount": {
+          "type": "number"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "lineItems": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "providerId": {
+                "type": "string"
+              },
+              "providerRole": {
+                "type": "string",
+                "enum": [
+                  "guide",
+                  "host",
+                  "vendor"
+                ]
+              },
+              "description": {
+                "type": "string"
+              },
+              "amount": {
+                "type": "number"
+              },
+              "platformFeePctApplied": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "providerId",
+              "amount",
+              "platformFeePctApplied"
+            ]
+          }
+        }
+      },
+      "required": [
+        "seekerId",
+        "createdAt",
+        "totalAmount",
+        "lineItems"
       ]
     },
     "WaitlistSeeker": {
@@ -291,8 +409,13 @@
           "additionalProperties": {
             "type": "object",
             "properties": {
-              "displayName": { "type": "string" },
-              "avatarUrl": { "type": "string", "format": "uri" }
+              "displayName": {
+                "type": "string"
+              },
+              "avatarUrl": {
+                "type": "string",
+                "format": "uri"
+              }
             }
           }
         },
@@ -308,7 +431,11 @@
           "type": "string"
         }
       },
-      "required": ["participants", "createdAt", "lastMessageAt"]
+      "required": [
+        "participants",
+        "createdAt",
+        "lastMessageAt"
+      ]
     },
     "Message": {
       "title": "Message",
@@ -326,7 +453,11 @@
           "format": "date-time"
         }
       },
-      "required": ["senderId", "text", "createdAt"]
+      "required": [
+        "senderId",
+        "text",
+        "createdAt"
+      ]
     },
     "Manifestation": {
       "title": "Manifestation",
@@ -481,12 +612,27 @@
           }
         },
         "shortlist": {
-            "type": "object",
-            "properties": {
-                "hosts": { "type": "array", "items": { "type": "string" }},
-                "guides": { "type": "array", "items": { "type": "string" }},
-                "vendors": { "type": "array", "items": { "type": "string" }}
+          "type": "object",
+          "properties": {
+            "hosts": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "guides": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "vendors": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
+          }
         },
         "last_notified_at": {
           "type": "string",
@@ -507,74 +653,196 @@
       "description": "A provider's proposal in response to a Manifestation.",
       "type": "object",
       "properties": {
-        "manifestation_id": { "type": "string" },
-        "provider_id": { "type": "string" },
-        "role": { "type": "string", "enum": ["host", "guide", "vendor"] },
-        "services_committed": { "type": "array", "items": { "type": "string" } },
-        "availability_confirmed": { "type": "boolean" },
+        "manifestation_id": {
+          "type": "string"
+        },
+        "provider_id": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "host",
+            "guide",
+            "vendor"
+          ]
+        },
+        "services_committed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "availability_confirmed": {
+          "type": "boolean"
+        },
         "price_range": {
           "type": "object",
           "properties": {
-            "min": { "type": "number" },
-            "max": { "type": "number" },
-            "currency": { "type": "string" }
+            "min": {
+              "type": "number"
+            },
+            "max": {
+              "type": "number"
+            },
+            "currency": {
+              "type": "string"
+            }
           }
         },
-        "message": { "type": "string" },
-        "createdAt": { "type": "string", "format": "date-time" },
-        "status": { "type": "string", "enum": ["submitted", "withdrawn", "accepted", "declined"] }
+        "message": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "submitted",
+            "withdrawn",
+            "accepted",
+            "declined"
+          ]
+        }
       },
-      "required": ["manifestation_id", "provider_id", "role", "availability_confirmed", "message", "createdAt", "status"]
+      "required": [
+        "manifestation_id",
+        "provider_id",
+        "role",
+        "availability_confirmed",
+        "message",
+        "createdAt",
+        "status"
+      ]
     },
     "Match": {
-        "title": "Match",
-        "description": "A potential match between a Manifestation and a Provider.",
-        "type": "object",
-        "properties": {
-            "manifestation_id": { "type": "string" },
-            "provider_id": { "type": "string" },
-            "role": { "type": "string", "enum": ["host", "guide", "vendor"] },
-            "match_score": { "type": "number" },
-            "notified": { "type": "boolean" },
-            "notification_wave": { "type": "number" },
-            "matched_at": { "type": "string", "format": "date-time" }
+      "title": "Match",
+      "description": "A potential match between a Manifestation and a Provider.",
+      "type": "object",
+      "properties": {
+        "manifestation_id": {
+          "type": "string"
         },
-        "required": ["manifestation_id", "provider_id", "role", "match_score", "matched_at"]
+        "provider_id": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "host",
+            "guide",
+            "vendor"
+          ]
+        },
+        "match_score": {
+          "type": "number"
+        },
+        "notified": {
+          "type": "boolean"
+        },
+        "notification_wave": {
+          "type": "number"
+        },
+        "matched_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "manifestation_id",
+        "provider_id",
+        "role",
+        "match_score",
+        "matched_at"
+      ]
     },
     "Notification": {
-        "title": "Notification",
-        "description": "An in-app notification for a user.",
-        "type": "object",
-        "properties": {
-            "userId": { "type": "string" },
-            "title": { "type": "string" },
-            "body": { "type": "string" },
-            "link": { "type": "string" },
-            "read": { "type": "boolean" },
-            "createdAt": { "type": "string", "format": "date-time" }
+      "title": "Notification",
+      "description": "An in-app notification for a user.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string"
         },
-        "required": ["userId", "title", "body", "read", "createdAt"]
+        "title": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "link": {
+          "type": "string"
+        },
+        "read": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "userId",
+        "title",
+        "body",
+        "read",
+        "createdAt"
+      ]
     },
     "ManifestCredit": {
       "title": "Manifest Credit",
       "description": "A credit earned by a Seeker for a completed Manifestation.",
       "type": "object",
       "properties": {
-        "seeker_id": { "type": "string" },
-        "manifestation_id": { "type": "string" },
-        "issued_amount": { "type": "number" },
-        "currency": { "type": "string" },
-        "issue_date": { "type": "string", "format": "date-time" },
-        "expiry_date": { "type": "string", "format": "date-time" },
-        "redeemed_amount": { "type": "number" },
-        "redemption_booking_id": { "type": "string" },
-        "redeemed_date": { "type": "string", "format": "date-time" },
+        "seeker_id": {
+          "type": "string"
+        },
+        "manifestation_id": {
+          "type": "string"
+        },
+        "issued_amount": {
+          "type": "number"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "issue_date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expiry_date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "redeemed_amount": {
+          "type": "number"
+        },
+        "redemption_booking_id": {
+          "type": "string"
+        },
+        "redeemed_date": {
+          "type": "string",
+          "format": "date-time"
+        },
         "status": {
           "type": "string",
-          "enum": ["available", "redeemed", "expired"]
+          "enum": [
+            "available",
+            "redeemed",
+            "expired"
+          ]
         }
       },
-      "required": ["seeker_id", "manifestation_id", "issued_amount", "issue_date", "expiry_date", "status"]
+      "required": [
+        "seeker_id",
+        "manifestation_id",
+        "issued_amount",
+        "issue_date",
+        "expiry_date",
+        "status"
+      ]
     }
   },
   "auth": {
@@ -620,21 +888,34 @@
       },
       "description": "Collection of user-submitted retreat manifestations."
     },
-     "/matches/{matchId}": {
-      "schema": { "$ref": "#/entities/Match" },
+    "/matches/{matchId}": {
+      "schema": {
+        "$ref": "#/entities/Match"
+      },
       "description": "Potential matches between manifestations and providers."
     },
     "/proposals/{proposalId}": {
-      "schema": { "$ref": "#/entities/Proposal" },
+      "schema": {
+        "$ref": "#/entities/Proposal"
+      },
       "description": "Provider proposals for manifestations."
     },
+    "/bookings/{bookingId}": {
+      "schema": {
+        "$ref": "#/entities/Booking"
+      },
+      "description": "Confirmed and paid bookings."
+    },
     "/notifications/{notificationId}": {
-      "schema": { "$ref": "#/entities/Notification" },
+      "schema": {
+        "$ref": "#/entities/Notification"
+      },
       "description": "In-app notifications for users."
     },
     "/manifest_credits/{creditId}": {
-      "schema": { "$ref": "#/entities/ManifestCredit" },
+      "schema": {
+        "$ref": "#/entities/ManifestCredit"
+      },
       "description": "A user's earned credits from manifestations."
     }
   }
-}
