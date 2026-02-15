@@ -50,6 +50,19 @@
       }
     },
     "host": {
+      "pay-as-you-go": {
+        "name": "Pay-as-you-go",
+        "price": 0,
+        "platformFeePercent": 5,
+        "benefits": [
+          "List your property as a retreat-ready space",
+          "Be discovered by aligned guides",
+          "Receive booking inquiries",
+          "In-app messaging and coordination"
+        ],
+        "visibility": "Standard",
+        "aiAssistant": false
+      },
       "starter": {
         "name": "Starter",
         "price": 189,
@@ -59,8 +72,7 @@
           "Be discovered by aligned guides",
           "Receive booking inquiries",
           "Smart matching to relevant retreats",
-          "Standard discovery placement",
-          "Access to LUX consideration"
+          "Standard discovery placement"
         ],
         "visibility": "Standard",
         "aiAssistant": false
@@ -74,8 +86,7 @@
           "Lowest platform fee",
           "Featured venue eligibility",
           "Enhanced profile presentation",
-          "Priority matching for aligned experiences",
-          "Stronger consideration for LUX review"
+          "Priority matching for aligned experiences"
         ],
         "helperText": "For hosts who want more bookings, better-fit retreats, and higher-quality partnerships.",
         "visibility": "Priority",

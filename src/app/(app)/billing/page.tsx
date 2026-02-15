@@ -91,15 +91,15 @@ export default function BillingPage() {
     const upgradeToProCopy: Record<UserRole, {title: string; body: string}> = {
       guide: {
           title: "Upgrade to Pro",
-          body: "Pro includes priority visibility and the AI Assistant to help you get matched faster and fill retreats more consistently. Pro has a 90-day minimum commitment. Upgrades take effect immediately. Your new platform fee rate applies to bookings paid after this upgrade. All payments must be processed through HighVibe via Stripe to qualify for Pro rates and protections."
+          body: "Pro includes priority visibility and the AI Assistant to help you get matched faster and fill retreats more consistently.\n\nPro has a 90-day minimum commitment.\n\nUpgrades take effect immediately. Your new platform fee rate applies to bookings paid after this upgrade.\n\nAll payments must be processed through HighVibe via Stripe to qualify for Pro rates and protections."
       },
       host: {
           title: "Upgrade to Pro",
-          body: "Pro includes priority visibility and the AI Assistant to help you get matched with Guides faster. Pro has a 90-day minimum commitment. Upgrades take effect immediately. Your new platform fee rate applies to bookings paid after this upgrade. All payments must be processed through HighVibe via Stripe to qualify for Pro rates and protections."
+          body: "Pro includes priority visibility and the AI Assistant to help you get matched with Guides faster.\n\nPro has a 90-day minimum commitment.\n\nUpgrades take effect immediately. Your new platform fee rate applies to bookings paid after this upgrade.\n\nAll payments must be processed through HighVibe via Stripe to qualify for Pro rates and protections."
       },
       vendor: {
           title: "Upgrade to Pro",
-          body: "Pro includes priority visibility and the AI Assistant to help you get matched faster and book more services. Pro has a 90-day minimum commitment. Upgrades take effect immediately. Your new platform fee rate applies to bookings paid after this upgrade. All payments must be processed through HighVibe via Stripe to qualify for Pro rates and protections."
+          body: "Pro includes priority visibility and the AI Assistant to help you get matched faster and book more services.\n\nPro has a 90-day minimum commitment.\n\nUpgrades take effect immediately. Your new platform fee rate applies to bookings paid after this upgrade.\n\nAll payments must be processed through HighVibe via Stripe to qualify for Pro rates and protections."
       }
     }
 
@@ -288,14 +288,23 @@ export default function BillingPage() {
                                         )
                                     })}
                                 </CardContent>
-                                <CardFooter className='flex-col items-start'>
-                                     <div className="flex items-center gap-2">
-                                        <Info className="h-4 w-4 text-muted-foreground" />
-                                        <p className="text-sm font-semibold">What is Priority Visibility?</p>
+                                <CardFooter className='flex-col items-start gap-4'>
+                                    <div className="w-full">
+                                        <div className="flex items-center gap-2">
+                                            <Info className="h-4 w-4 text-muted-foreground" />
+                                            <p className="text-sm font-semibold">What is Priority Visibility?</p>
+                                        </div>
+                                        <p className="text-xs text-muted-foreground pl-6">
+                                            Your profile and listings appear higher in search results when seekers/guides/hosts are browsing, while still respecting relevance filters.
+                                        </p>
                                     </div>
-                                    <p className="text-xs text-muted-foreground pl-6">
-                                        Your profile and listings appear higher in search results when seekers/guides/hosts are browsing, while still respecting relevance filters.
-                                    </p>
+                                    {providerRole === 'host' &&
+                                        <div className="border-t w-full pt-4 mt-2 text-center">
+                                            <p className="text-sm text-muted-foreground">
+                                                Prefer not to subscribe? Pay-as-you-go lets you list with $0/mo and a higher fee only when you get booked.
+                                            </p>
+                                        </div>
+                                    }
                                 </CardFooter>
                             </Card>
 
