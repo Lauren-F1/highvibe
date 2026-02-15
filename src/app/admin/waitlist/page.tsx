@@ -12,6 +12,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Copy, MoreHorizontal, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { exportToCsv } from '@/lib/csv';
+import { Badge } from '@/components/ui/badge';
 
 type WaitlistSubmission = {
   id: string;
@@ -20,7 +21,9 @@ type WaitlistSubmission = {
   roleInterest?: string;
   source: string;
   createdAt: Timestamp;
+  updatedAt: Timestamp;
   status: 'new';
+  submitCount: number;
 };
 
 export default function WaitlistAdminPage() {
@@ -34,6 +37,7 @@ export default function WaitlistAdminPage() {
   const [emailSearch, setEmailSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   const fetchWaitlist = async () => {
     if (!firestore) return;
@@ -70,6 +74,7 @@ export default function WaitlistAdminPage() {
     return waitlist.filter(item => {
         const emailMatch = emailSearch === '' || item.email.toLowerCase().includes(emailSearch.toLowerCase());
         const roleMatch = roleFilter === 'all' || item.roleInterest === roleFilter;
+        const statusMatch = statusFilter === 'all' || item.status === statusFilter;
         
         const dateMatch = (() => {
             if (dateFilter === 'all' || !item.createdAt) return true;
@@ -80,9 +85,9 @@ export default function WaitlistAdminPage() {
             return itemDate >= cutoffDate;
         })();
         
-        return emailMatch && roleMatch && dateMatch;
+        return emailMatch && roleMatch && dateMatch && statusMatch;
     });
-  }, [waitlist, emailSearch, roleFilter, dateFilter]);
+  }, [waitlist, emailSearch, roleFilter, dateFilter, statusFilter]);
 
   const handleCopyEmail = (email: string) => {
     navigator.clipboard.writeText(email);
@@ -106,8 +111,10 @@ export default function WaitlistAdminPage() {
       firstName: item.firstName || '',
       roleInterest: item.roleInterest || '',
       createdAt: item.createdAt?.toDate().toISOString() ?? '',
+      updatedAt: item.updatedAt?.toDate().toISOString() ?? '',
       source: item.source,
       status: item.status,
+      submitCount: item.submitCount,
     }));
     
     exportToCsv(csvData, 'waitlist_export.csv');
@@ -126,7 +133,7 @@ export default function WaitlistAdminPage() {
         </CardHeader>
         <CardContent>
           <div className="mb-6 space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
               <Input
                 placeholder="Search by email..."
                 value={emailSearch}
@@ -152,6 +159,13 @@ export default function WaitlistAdminPage() {
                   <SelectItem value="Not sure">Not sure</SelectItem>
                 </SelectContent>
               </Select>
+               <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger><SelectValue placeholder="Filter by status..." /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="new">New</SelectItem>
+                </SelectContent>
+              </Select>
                <Button onClick={handleExport}><Download className="mr-2 h-4 w-4" /> Export CSV</Button>
             </div>
           </div>
@@ -165,14 +179,17 @@ export default function WaitlistAdminPage() {
                   <TableHead>Name</TableHead>
                   <TableHead>Role Interest</TableHead>
                   <TableHead>Source</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Submits</TableHead>
+                  <TableHead>Last Submit</TableHead>
                   <TableHead className="w-[80px] text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
-                  <TableRow><TableCell colSpan={6} className="text-center">Loading...</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={9} className="text-center">Loading...</TableCell></TableRow>
                 ) : filteredWaitlist.length === 0 ? (
-                  <TableRow><TableCell colSpan={6} className="text-center">No entries found.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={9} className="text-center">No entries found.</TableCell></TableRow>
                 ) : (
                   filteredWaitlist.map(item => (
                     <TableRow key={item.id}>
@@ -181,6 +198,9 @@ export default function WaitlistAdminPage() {
                       <TableCell>{item.firstName}</TableCell>
                       <TableCell>{item.roleInterest}</TableCell>
                       <TableCell>{item.source}</TableCell>
+                      <TableCell><Badge>{item.status}</Badge></TableCell>
+                      <TableCell className="text-center">{item.submitCount}</TableCell>
+                      <TableCell>{item.updatedAt?.toDate().toLocaleDateString()}</TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -204,3 +224,5 @@ export default function WaitlistAdminPage() {
     </div>
   );
 }
+
+    

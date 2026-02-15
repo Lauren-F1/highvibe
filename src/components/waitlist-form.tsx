@@ -4,13 +4,12 @@ import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, serverTimestamp, runTransaction, increment } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 
 const waitlistSchema = z.object({
@@ -50,17 +49,34 @@ export function WaitlistForm({ source }: WaitlistFormProps) {
       const email = data.email.toLowerCase().trim();
       const waitlistRef = doc(firestore, 'waitlist', email);
 
-      await setDoc(waitlistRef, {
-        email: email,
-        firstName: data.firstName || null,
-        roleInterest: data.roleInterest || null,
-        source: source,
-        createdAt: serverTimestamp(),
-        status: 'new',
-        userAgent: navigator.userAgent,
+      await runTransaction(firestore, async (transaction) => {
+        const waitlistDoc = await transaction.get(waitlistRef);
+        if (waitlistDoc.exists()) {
+            transaction.update(waitlistRef, {
+                updatedAt: serverTimestamp(),
+                submitCount: increment(1),
+                source: source, // update source on re-submit
+            });
+        } else {
+            transaction.set(waitlistRef, {
+                email: email,
+                firstName: data.firstName || null,
+                roleInterest: data.roleInterest || null,
+                source: source,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+                status: 'new',
+                submitCount: 1,
+                userAgent: navigator.userAgent,
+            });
+        }
       });
 
       setFormState('submitted');
+      toast({
+        title: "You're on the list!",
+        description: "We'll email you when HighVibe opens.",
+      });
       reset();
     } catch (error) {
       console.error('Error submitting to waitlist:', error);
@@ -127,3 +143,5 @@ export function WaitlistForm({ source }: WaitlistFormProps) {
     </form>
   );
 }
+
+    
