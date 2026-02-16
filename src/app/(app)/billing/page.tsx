@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -192,8 +193,8 @@ export default function BillingPage() {
     }
 
   return (
-    <div className="container mx-auto px-4 py-8 md:py-12">
-      <div className="max-w-5xl mx-auto space-y-12">
+    <div className="container mx-auto px-4 py-8 md:py-16">
+      <div className="max-w-6xl mx-auto space-y-16">
         <div className="text-center">
             <h1 className="font-headline text-4xl font-bold tracking-tight">HighVibe Retreats Partnership</h1>
             <p className="text-muted-foreground mt-2 text-lg">Everything you need to build, connect, and get booked.</p>
@@ -238,38 +239,38 @@ export default function BillingPage() {
                 </TabsContent>
                 {(['guide', 'host', 'vendor'] as UserRole[]).map(providerRole => (
                     <TabsContent key={providerRole} value={providerRole} className="mt-12">
-                        <div className='space-y-8'>
+                        <div className='space-y-12'>
                             <Card>
                                 <CardHeader>
                                     <CardTitle>Choose Your Plan</CardTitle>
                                     <CardDescription>Select the plan that best fits your needs as a {providerRole}.</CardDescription>
                                 </CardHeader>
-                                <CardContent className="grid md:grid-cols-3 gap-6 items-start">
+                                <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
                                     {Object.entries(plans[providerRole]).map(([planKey, plan]) => {
                                         const isCurrent = userPlans[providerRole] === planKey;
                                         const isPendingDowngrade = pendingDowngrade[providerRole] === planKey;
                                         
                                         return (
-                                            <Card key={planKey} className={cn("flex flex-col h-full", isCurrent && !pendingDowngrade[providerRole] && "border-primary ring-2 ring-primary")}>
+                                            <Card key={planKey} className={cn("flex flex-col h-full", isCurrent && !pendingDowngrade[providerRole] && "border-primary")}>
                                                 <CardHeader>
                                                     <CardTitle>{plan.name}</CardTitle>
-                                                    <p className="text-2xl font-bold">${plan.price}<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
+                                                    <p className="text-3xl font-bold">${plan.price}<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
                                                 </CardHeader>
                                                 <CardContent className="space-y-4 flex-grow">
                                                     <div>
                                                         <p className="font-semibold">{plan.platformFeePercent}% Platform Fee</p>
-                                                        <p className="text-xs text-muted-foreground">Applies to your line-item subtotal (excluding taxes). Stripe processing fees are deducted from your payout.</p>
+                                                        <p className="text-xs text-muted-foreground leading-relaxed">Applies to your line-item subtotal (excluding taxes). Stripe processing fees are deducted from your payout.</p>
                                                     </div>
                                                     <div className="space-y-1">
                                                         <p className='text-sm font-semibold'>Visibility Level: <span className="font-normal">{plan.visibility}</span></p>
                                                         <p className='text-sm font-semibold'>AI Assistant: <span className="font-normal">{plan.aiAssistant ? 'Yes' : 'No'}</span></p>
                                                     </div>
                                                      {plan.name.includes('Pro') && <p className="text-xs text-muted-foreground italic">Includes a 90-day commitment.</p>}
-                                                    <ul className="space-y-2 text-sm text-muted-foreground">
+                                                    <ul className="space-y-2.5 text-sm text-muted-foreground">
                                                         {plan.benefits.map((benefit, i) => (
-                                                            <li key={i} className="flex items-start gap-2">
+                                                            <li key={i} className="flex items-start gap-2.5">
                                                                 <CheckCircle className="h-4 w-4 mt-0.5 shrink-0 text-primary"/>
-                                                                <span>{benefit}</span>
+                                                                <span className="leading-relaxed">{benefit}</span>
                                                             </li>
                                                         ))}
                                                     </ul>
@@ -294,13 +295,13 @@ export default function BillingPage() {
                                             <Info className="h-4 w-4 text-muted-foreground" />
                                             <p className="text-sm font-semibold">What is Priority Visibility?</p>
                                         </div>
-                                        <p className="text-xs text-muted-foreground pl-6">
+                                        <p className="text-xs text-muted-foreground pl-6 leading-relaxed">
                                             Your profile and listings appear higher in search results when seekers/guides/hosts are browsing, while still respecting relevance filters.
                                         </p>
                                     </div>
                                     {providerRole === 'host' &&
                                         <div className="border-t w-full pt-4 mt-2 text-center">
-                                            <p className="text-sm text-muted-foreground">
+                                            <p className="text-sm text-muted-foreground leading-relaxed">
                                                 Prefer not to subscribe? Pay-as-you-go lets you list with $0/mo and a higher fee only when you get booked.
                                             </p>
                                         </div>
@@ -315,7 +316,7 @@ export default function BillingPage() {
                                     <div className="flex w-full items-center justify-between">
                                       <div className="text-left">
                                         <h3 className="font-semibold text-lg">Plan Rules</h3>
-                                        <p className="text-sm text-muted-foreground font-normal">
+                                        <p className="text-sm text-muted-foreground font-normal leading-relaxed">
                                           Upgrades are immediate. Downgrades apply at renewal. Pro has a 90-day minimum.
                                         </p>
                                       </div>
@@ -324,18 +325,18 @@ export default function BillingPage() {
                                   <AccordionContent>
                                     <div className="px-6 pb-6 pt-0">
                                       <ul className="list-disc space-y-3 pl-5 text-sm text-muted-foreground">
-                                        <li>Upgrades take effect immediately.</li>
-                                        <li>Downgrades take effect on your next renewal date: <strong>{format(renewalDate, 'PPP')}</strong>.</li>
-                                        <li>Pro plans have a 90-day minimum commitment.</li>
-                                        <li>Re-upgrading to Pro within 60 days of downgrading triggers a one-time $99 reactivation fee.</li>
-                                        <li>Platform fee rates are locked when a booking is paid.</li>
-                                        <li>All payments must be processed through HighVibe via Stripe.</li>
+                                        <li className="leading-relaxed">Upgrades take effect immediately.</li>
+                                        <li className="leading-relaxed">Downgrades take effect on your next renewal date: <strong>{format(renewalDate, 'PPP')}</strong>.</li>
+                                        <li className="leading-relaxed">Pro plans have a 90-day minimum commitment.</li>
+                                        <li className="leading-relaxed">Re-upgrading to Pro within 60 days of downgrading triggers a one-time $99 reactivation fee.</li>
+                                        <li className="leading-relaxed">Platform fee rates are locked when a booking is paid.</li>
+                                        <li className="leading-relaxed">All payments must be processed through HighVibe via Stripe.</li>
                                         {userPlans[providerRole] === 'pro' && proCommitmentEndDate > new Date() && (
-                                          <li>You can downgrade after: <strong>{format(proCommitmentEndDate, 'PPP')}</strong>.</li>
+                                          <li className="leading-relaxed">You can downgrade after: <strong>{format(proCommitmentEndDate, 'PPP')}</strong>.</li>
                                         )}
                                       </ul>
                                       <div className="mt-4 pt-4 border-t">
-                                        <p className="text-xs text-muted-foreground">Platform fees apply to your line-item subtotal (excluding taxes). Stripe processing fees are paid by the provider.</p>
+                                        <p className="text-xs text-muted-foreground leading-relaxed">Platform fees apply to your line-item subtotal (excluding taxes). Stripe processing fees are paid by the provider.</p>
                                         <Button asChild variant="link" className="p-0 h-auto mt-2 text-xs">
                                           <Link href="/terms">View full terms</Link>
                                         </Button>
@@ -345,62 +346,80 @@ export default function BillingPage() {
                                 </Card>
                               </AccordionItem>
                             </Accordion>
-
-                             <Card>
-                                <CardHeader>
-                                    <CardTitle>Current Status</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 border rounded-lg bg-secondary/30">
-                                        <div>
-                                            <h3 className="font-bold text-lg flex items-center gap-2">
-                                                {plans[providerRole][userPlans[providerRole]].name}
-                                                <Badge variant={"default"}>Active</Badge>
-                                            </h3>
-                                            <p className="text-muted-foreground">{`Renews on ${format(renewalDate, 'PPP')}`}</p>
-                                            {pendingDowngrade[providerRole] && (
-                                                <p className="text-sm text-amber-600 mt-1">
-                                                    Will downgrade to {plans[providerRole][pendingDowngrade[providerRole]!].name} on renewal date.
-                                                </p>
-                                            )}
-                                        </div>
-                                        <div className="text-right mt-2 md:mt-0">
-                                            <p className="text-2xl font-bold">${plans[providerRole][userPlans[providerRole]].price}/mo</p>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-
-                            <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
-                                <Card className="md:col-span-3">
-                                    <CardHeader><CardTitle>Invoice History</CardTitle></CardHeader>
+                            
+                            <div className="space-y-8 pt-8">
+                                <h2 className="text-3xl font-bold tracking-tight font-headline text-center">Your Billing Dashboard</h2>
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                    <Card>
+                                        <CardHeader>
+                                            <CardTitle>Current Status</CardTitle>
+                                            <CardDescription>Review your active plan and renewal details.</CardDescription>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 border rounded-lg bg-secondary/30">
+                                                <div>
+                                                    <h3 className="font-bold text-lg flex items-center gap-2">
+                                                        {plans[providerRole][userPlans[providerRole]].name}
+                                                        <Badge variant={"default"}>Active</Badge>
+                                                    </h3>
+                                                    <p className="text-muted-foreground">{`Renews on ${format(renewalDate, 'PPP')}`}</p>
+                                                    {pendingDowngrade[providerRole] && (
+                                                        <p className="text-sm text-amber-600 mt-1">
+                                                            Will downgrade to {plans[providerRole][pendingDowngrade[providerRole]!].name} on renewal date.
+                                                        </p>
+                                                    )}
+                                                </div>
+                                                <div className="text-right mt-2 md:mt-0">
+                                                    <p className="text-2xl font-bold">${plans[providerRole][userPlans[providerRole]].price}/mo</p>
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                    <Card>
+                                        <CardHeader>
+                                            <CardTitle>Payout Method</CardTitle>
+                                            <CardDescription>Connect your bank account to receive payouts.</CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="space-y-4">
+                                            <div className="flex items-center gap-4 p-4 border rounded-lg bg-secondary/30">
+                                                <CreditCard className="h-8 w-8 text-muted-foreground" />
+                                                <div><p className="font-medium">Bank Account</p><p className="text-sm text-muted-foreground">Not Connected</p></div>
+                                            </div>
+                                            <Button variant="outline" className="w-full">Connect Bank Account</Button>
+                                        </CardContent>
+                                    </Card>
+                                </div>
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle>Invoice History</CardTitle>
+                                    </CardHeader>
                                     <CardContent>
                                         <div className="border rounded-lg">
                                             <Table>
-                                                <TableHeader><TableRow><TableHead>Date</TableHead><TableHead>Description</TableHead><TableHead className="text-right">Amount</TableHead><TableHead className="w-[40px]"></TableHead></TableRow></TableHeader>
-                                                <TableBody>{invoices.map((invoice) => (
-                                                    <TableRow key={invoice.id}>
-                                                        <TableCell className="text-muted-foreground">{invoice.date}</TableCell>
-                                                        <TableCell><p className="font-medium">{invoice.description}</p><p className="text-xs text-muted-foreground">{invoice.id}</p></TableCell>
-                                                        <TableCell className="text-right font-mono">{invoice.amount}</TableCell>
-                                                        <TableCell><Button variant="ghost" size="icon"><Download className="h-4 w-4" /><span className="sr-only">Download</span></Button></TableCell>
+                                                <TableHeader>
+                                                    <TableRow>
+                                                        <TableHead>Date</TableHead>
+                                                        <TableHead>Description</TableHead>
+                                                        <TableHead className="text-right">Amount</TableHead>
+                                                        <TableHead className="w-[40px]"></TableHead>
                                                     </TableRow>
-                                                ))}</TableBody>
+                                                </TableHeader>
+                                                <TableBody>
+                                                    {invoices.map((invoice) => (
+                                                        <TableRow key={invoice.id}>
+                                                            <TableCell className="text-muted-foreground py-5">{invoice.date}</TableCell>
+                                                            <TableCell className="py-5"><p className="font-medium">{invoice.description}</p><p className="text-xs text-muted-foreground">{invoice.id}</p></TableCell>
+                                                            <TableCell className="text-right font-mono py-5">{invoice.amount}</TableCell>
+                                                            <TableCell className="py-5"><Button variant="ghost" size="icon"><Download className="h-4 w-4" /><span className="sr-only">Download</span></Button></TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                                </TableBody>
                                             </Table>
                                         </div>
                                     </CardContent>
                                 </Card>
-                                <Card className="md:col-span-2">
-                                    <CardHeader><CardTitle>Payout Method</CardTitle><CardDescription>Connect your bank account to receive payouts.</CardDescription></CardHeader>
-                                    <CardContent className="space-y-4">
-                                        <div className="flex items-center gap-4 p-4 border rounded-lg bg-secondary/30">
-                                            <CreditCard className="h-8 w-8 text-muted-foreground" />
-                                            <div><p className="font-medium">Bank Account</p><p className="text-sm text-muted-foreground">Not Connected</p></div>
-                                        </div>
-                                        <Button variant="outline" className="w-full">Connect Bank Account</Button>
-                                    </CardContent>
-                                </Card>
                             </div>
+
                         </div>
                     </TabsContent>
                 ))}
@@ -492,3 +511,5 @@ export default function BillingPage() {
     </div>
   );
 }
+
+    
