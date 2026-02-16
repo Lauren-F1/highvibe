@@ -382,7 +382,7 @@ export default function BillingPage() {
                                     <Card>
                                         <CardHeader>
                                             <CardTitle>Payment Method</CardTitle>
-                                            <CardDescription>The card used for your subscription.</CardDescription>
+                                            <CardDescription>Used to pay for your membership.</CardDescription>
                                         </CardHeader>
                                         <CardContent className="space-y-4">
                                             <div className="flex items-center gap-4 p-4 border rounded-lg bg-secondary/30">
@@ -395,12 +395,12 @@ export default function BillingPage() {
                                      <Card>
                                         <CardHeader>
                                             <CardTitle>Payouts</CardTitle>
-                                            <CardDescription>Connect Stripe to receive payouts from HighVibe Retreats.</CardDescription>
+                                            <CardDescription>Used to receive earnings and payouts.</CardDescription>
                                         </CardHeader>
                                         <CardContent className="space-y-4">
                                             <div className="flex items-center gap-4 p-4 border rounded-lg bg-secondary/30">
                                                 <Landmark className="h-8 w-8 text-muted-foreground" />
-                                                <div><p className="font-medium">Stripe Account</p><p className="text-sm text-muted-foreground">Not set up</p></div>
+                                                <div><p className="font-medium">Stripe Payouts</p><p className="text-sm text-muted-foreground">Not set up</p></div>
                                             </div>
                                             <Button variant="outline" className="w-full">Connect Stripe for payouts</Button>
                                         </CardContent>
