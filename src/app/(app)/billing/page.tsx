@@ -245,18 +245,23 @@ export default function BillingPage() {
                                     <CardTitle>Choose Your Plan</CardTitle>
                                     <CardDescription>Select the plan that best fits your needs as a {providerRole}.</CardDescription>
                                 </CardHeader>
-                                <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
+                                <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
                                     {Object.entries(plans[providerRole]).map(([planKey, plan]) => {
                                         const isCurrent = userPlans[providerRole] === planKey;
                                         const isPendingDowngrade = pendingDowngrade[providerRole] === planKey;
                                         
                                         return (
-                                            <Card key={planKey} className={cn("flex flex-col h-full", isCurrent && !pendingDowngrade[providerRole] && "border-primary")}>
+                                            <Card key={planKey} className={cn("flex flex-col", isCurrent && !pendingDowngrade[providerRole] && "border-primary")}>
                                                 <CardHeader className="p-6">
-                                                    <CardTitle className="font-headline text-2xl">{plan.name}</CardTitle>
-                                                    <p className="text-4xl font-bold">${plan.price}<span className="text-base font-normal text-muted-foreground">/mo</span></p>
+                                                     <div className="flex justify-between items-start">
+                                                        <CardTitle className="font-headline text-2xl">{plan.name}</CardTitle>
+                                                        {isCurrent && !pendingDowngrade[providerRole] && (
+                                                            <Badge variant="secondary">Current</Badge>
+                                                        )}
+                                                    </div>
+                                                    <p className="text-3xl font-bold pt-4">${plan.price}<span className="text-base font-normal text-muted-foreground">/mo</span></p>
                                                 </CardHeader>
-                                                <CardContent className="p-6 space-y-4 flex-grow">
+                                                <CardContent className="px-6 pb-6 space-y-6 flex-grow">
                                                     <div>
                                                         <p className="font-semibold text-lg">{plan.platformFeePercent}% Platform Fee</p>
                                                         <p className="text-xs text-muted-foreground leading-relaxed">Applies to your line-item subtotal (excluding taxes). Stripe processing fees are deducted from your payout.</p>
@@ -275,7 +280,7 @@ export default function BillingPage() {
                                                         ))}
                                                     </ul>
                                                 </CardContent>
-                                                <CardFooter className="p-6">
+                                                <CardFooter className="p-6 pt-0 border-t">
                                                     <Button 
                                                         className="w-full" 
                                                         disabled={isCurrent && !pendingDowngrade[providerRole]} 
