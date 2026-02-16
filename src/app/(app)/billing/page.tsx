@@ -193,8 +193,8 @@ export default function BillingPage() {
     }
 
   return (
-    <div className="container mx-auto px-4 py-8 md:py-16">
-      <div className="max-w-6xl mx-auto space-y-16">
+    <div className="container mx-auto px-4 py-8 md:py-12">
+      <div className="max-w-6xl mx-auto space-y-12">
         <div className="text-center">
             <h1 className="font-headline text-4xl font-bold tracking-tight">HighVibe Retreats Partnership</h1>
             <p className="text-muted-foreground mt-2 text-lg">Everything you need to build, connect, and get booked.</p>
@@ -347,7 +347,7 @@ export default function BillingPage() {
                               </AccordionItem>
                             </Accordion>
                             
-                            <div className="space-y-8 pt-8">
+                            <div className="space-y-8">
                                 <h2 className="text-3xl font-bold tracking-tight font-headline text-center">Your Billing Dashboard</h2>
                                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                                     <Card>
