@@ -76,7 +76,7 @@ const PlanCard: FC<PlanCardProps> = ({ plan, planKey, role, isCurrent, isPending
     <Card key={planKey} className={cn("flex flex-col", isCurrent && !isPendingDowngrade && "border-primary")}>
         <CardHeader className="p-6">
             <div className="flex justify-between items-start">
-            <CardTitle className="font-headline text-2xl">{plan.name}</CardTitle>
+            <CardTitle className="font-headline text-xl">{plan.name}</CardTitle>
             {isCurrent && !isPendingDowngrade && (
                 <Badge variant="secondary">Current</Badge>
             )}
@@ -85,14 +85,14 @@ const PlanCard: FC<PlanCardProps> = ({ plan, planKey, role, isCurrent, isPending
         </CardHeader>
         <CardContent className="px-6 pb-6 space-y-6 flex-grow">
             <div>
-            <p className="font-semibold text-lg">{plan.platformFeePercent}% Platform Fee</p>
+            <p className="font-semibold text-base">{plan.platformFeePercent}% Platform Fee</p>
             <p className="text-xs text-muted-foreground leading-relaxed">Applies to your line-item subtotal (excluding taxes). Stripe processing fees are deducted from your payout.</p>
             </div>
             <div className="space-y-1">
             <p className='text-sm font-semibold'>Visibility Level: <span className="font-normal">{plan.visibility}</span></p>
             <p className='text-sm font-semibold'>AI Assistant: <span className="font-normal">{plan.aiAssistant ? 'Yes' : 'No'}</span></p>
             </div>
-            {plan.name.includes('Pro') && <p className="text-xs text-muted-foreground italic">Includes a 90-day commitment.</p>}
+            {plan.name.includes('Pro') && <p className="text-xs text-muted-foreground italic leading-relaxed">Includes a 90-day commitment.</p>}
             <ul className="space-y-3 text-sm text-muted-foreground pt-2">
             {plan.benefits.map((benefit, i) => (
                 <li key={i} className="flex items-start gap-3">
@@ -131,7 +131,7 @@ const ProviderBillingTab: FC<ProviderBillingTabProps> = ({ role, userPlans, pend
         <Card>
             <CardHeader>
                 <CardTitle>Choose Your Plan</CardTitle>
-                <CardDescription>Select the plan that best fits your needs as a {role}.</CardDescription>
+                <CardDescription className="leading-relaxed">Select the plan that best fits your needs as a {role}.</CardDescription>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
                 {Object.entries(plans[role]).map(([planKey, plan]) => (
@@ -205,12 +205,12 @@ const ProviderBillingTab: FC<ProviderBillingTabProps> = ({ role, userPlans, pend
         </Accordion>
         
         <div className="space-y-8">
-            <h2 className="font-headline text-3xl font-bold tracking-tight text-center">Your Billing Dashboard</h2>
+            <h2 className="font-headline text-2xl font-bold tracking-tight text-center">Your Billing Dashboard</h2>
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
                 <Card className="flex flex-col">
                     <CardHeader>
-                        <CardTitle>Membership</CardTitle>
-                        <CardDescription>Your active plan and renewal details.</CardDescription>
+                        <CardTitle className="text-xl">Membership</CardTitle>
+                        <CardDescription className="leading-relaxed">Your active plan and renewal details.</CardDescription>
                     </CardHeader>
                     <CardContent className="flex-grow">
                         <div className="flex flex-col gap-4 rounded-lg border bg-secondary/30 p-4">
@@ -238,8 +238,8 @@ const ProviderBillingTab: FC<ProviderBillingTabProps> = ({ role, userPlans, pend
                 </Card>
                 <Card className="flex flex-col">
                     <CardHeader>
-                        <CardTitle>Payment Method</CardTitle>
-                        <CardDescription>Used to pay for your membership.</CardDescription>
+                        <CardTitle className="text-xl">Payment Method</CardTitle>
+                        <CardDescription className="leading-relaxed">Used to pay for your membership.</CardDescription>
                     </CardHeader>
                     <CardContent className="flex-grow">
                         <div className="flex items-center gap-4 rounded-lg border bg-secondary/30 p-4">
@@ -253,8 +253,8 @@ const ProviderBillingTab: FC<ProviderBillingTabProps> = ({ role, userPlans, pend
                 </Card>
                     <Card className="flex flex-col">
                     <CardHeader>
-                        <CardTitle>Payouts</CardTitle>
-                        <CardDescription>Used to receive earnings and payouts.</CardDescription>
+                        <CardTitle className="text-xl">Payouts</CardTitle>
+                        <CardDescription className="leading-relaxed">Used to receive earnings and payouts.</CardDescription>
                     </CardHeader>
                     <CardContent className="flex-grow">
                         <div className="flex items-center gap-4 rounded-lg border bg-secondary/30 p-4">
@@ -269,7 +269,7 @@ const ProviderBillingTab: FC<ProviderBillingTabProps> = ({ role, userPlans, pend
             </div>
             <Card>
                 <CardHeader>
-                    <CardTitle>Invoice History</CardTitle>
+                    <CardTitle className="text-xl">Invoice History</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="overflow-x-auto rounded-lg border">
@@ -437,7 +437,7 @@ export default function BillingPage() {
       <div className="max-w-6xl mx-auto space-y-12">
         <div className="text-center">
             <h1 className="font-headline text-4xl font-bold tracking-tight">HighVibe Retreats Partnership</h1>
-            <p className="text-muted-foreground mt-2 text-lg">Everything you need to build, connect, and get booked.</p>
+            <p className="text-muted-foreground mt-2 text-lg leading-relaxed">Everything you need to build, connect, and get booked.</p>
              <Tabs value={role} onValueChange={(value) => setRole(value as AllRoles)} className="mt-6 max-w-lg mx-auto">
                 <TabsList className={cn("grid w-full", `grid-cols-${user.profile?.roles.length || 1}`)}>
                     {user.profile?.roles.includes('seeker') && <TabsTrigger value="seeker">Seeker</TabsTrigger>}
@@ -449,28 +449,28 @@ export default function BillingPage() {
                     <div className="grid md:grid-cols-2 gap-8">
                         <Card>
                             <CardHeader>
-                                <CardTitle>Your Plan</CardTitle>
+                                <CardTitle className="text-xl">Your Plan</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <p className="text-2xl font-bold">Seeker</p>
                                 <p className="font-medium text-primary">Free</p>
-                                <p className="text-sm text-muted-foreground mt-2">Find and manifest retreats at no cost.</p>
+                                <p className="text-sm text-muted-foreground mt-2 leading-relaxed">Find and manifest retreats at no cost.</p>
                             </CardContent>
                         </Card>
                         <Card>
                             <CardHeader>
-                                <CardTitle>Manifest Credit</CardTitle>
+                                <CardTitle className="text-xl">Manifest Credit</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 {loadingCredit ? <p>Loading credit...</p> : credit ? (
                                     <>
                                         <p className="text-2xl font-bold">${credit.issued_amount.toFixed(2)}</p>
-                                        <p className="text-sm text-muted-foreground">Expires on {format(credit.expiry_date.toDate(), 'PPP')}</p>
+                                        <p className="text-sm text-muted-foreground leading-relaxed">Expires on {format(credit.expiry_date.toDate(), 'PPP')}</p>
                                     </>
                                 ) : (
                                     <>
                                         <p className="text-2xl font-bold">$0.00</p>
-                                        <p className="text-sm text-muted-foreground">Manifest a retreat to earn credit for your next one.</p>
+                                        <p className="text-sm text-muted-foreground leading-relaxed">Manifest a retreat to earn credit for your next one.</p>
                                     </>
                                 )}
                             </CardContent>
@@ -498,7 +498,7 @@ export default function BillingPage() {
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>Pro commitment active</AlertDialogTitle>
-                    <AlertDialogDescription>
+                    <AlertDialogDescription className="leading-relaxed">
                         Pro has a 90-day minimum commitment.
                         <br/><br/>
                         You can schedule a downgrade starting on: <strong>{format(proCommitmentEndDate, 'PPP')}</strong>.
@@ -516,7 +516,7 @@ export default function BillingPage() {
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>Reactivation fee applies</AlertDialogTitle>
-                    <AlertDialogDescription>
+                    <AlertDialogDescription className="leading-relaxed">
                         Because you downgraded from Pro within the last 60 days, a one-time $99 reactivation fee applies to upgrade back to Pro.
                         <br/><br/>
                         Your Pro minimum commitment restarts when you re-upgrade.
@@ -540,7 +540,7 @@ export default function BillingPage() {
                 <AlertDialogHeader>
                     <AlertDialogTitle>{upgradeToProModal ? upgradeToProCopy[upgradeToProModal.role].title : ''}</AlertDialogTitle>
                     <AlertDialogDescription>
-                        {upgradeToProModal ? <p className='whitespace-pre-line'>{upgradeToProCopy[upgradeToProModal.role].body}</p> : ''}
+                        {upgradeToProModal ? <p className='whitespace-pre-line leading-relaxed'>{upgradeToProCopy[upgradeToProModal.role].body}</p> : ''}
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -549,7 +549,7 @@ export default function BillingPage() {
                         Upgrade to Pro
                     </AlertDialogAction>
                 </AlertDialogFooter>
-                 <div className="text-xs text-muted-foreground mt-2">By upgrading, you agree to the Pro minimum commitment and the plan rules in the Terms. <Button asChild variant="link" className="p-0 h-auto text-xs align-baseline"><Link href="/terms">View plan rules</Link></Button></div>
+                 <div className="text-xs text-muted-foreground mt-2 leading-relaxed">By upgrading, you agree to the Pro minimum commitment and the plan rules in the Terms. <Button asChild variant="link" className="p-0 h-auto text-xs align-baseline"><Link href="/terms">View plan rules</Link></Button></div>
             </AlertDialogContent>
         </AlertDialog>
 
@@ -557,7 +557,7 @@ export default function BillingPage() {
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>Downgrade scheduled</AlertDialogTitle>
-                     <AlertDialogDescription>
+                     <AlertDialogDescription className="leading-relaxed">
                         Your downgrade will take effect on your next renewal date: <strong>{format(renewalDate, 'PPP')}</strong>.
                         <br/><br/>
                         Your current plan stays active until then.
@@ -577,3 +577,5 @@ export default function BillingPage() {
     </div>
   );
 }
+
+    
