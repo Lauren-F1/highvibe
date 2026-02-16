@@ -434,11 +434,11 @@ export default function BillingPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
-      <div className="max-w-6xl mx-auto space-y-12">
+      <div className="max-w-7xl mx-auto space-y-12">
         <div className="text-center">
             <h1 className="font-headline text-4xl font-bold tracking-tight">HighVibe Retreats Partnership</h1>
             <p className="text-muted-foreground mt-2 text-lg leading-relaxed">Everything you need to build, connect, and get booked.</p>
-             <Tabs value={role} onValueChange={(value) => setRole(value as AllRoles)} className="mt-6 max-w-lg mx-auto">
+             <Tabs value={role} onValueChange={(value) => setRole(value as AllRoles)} className="mt-6 w-full">
                 <TabsList className={cn("grid w-full", `grid-cols-${user.profile?.roles.length || 1}`)}>
                     {user.profile?.roles.includes('seeker') && <TabsTrigger value="seeker">Seeker</TabsTrigger>}
                     {user.profile?.roles.includes('guide') && <TabsTrigger value="guide">Guide</TabsTrigger>}
@@ -577,5 +577,3 @@ export default function BillingPage() {
     </div>
   );
 }
-
-    
