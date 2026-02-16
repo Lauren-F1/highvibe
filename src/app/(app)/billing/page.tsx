@@ -353,21 +353,21 @@ export default function BillingPage() {
                             </Accordion>
                             
                             <div className="space-y-8">
-                                <h2 className="text-3xl font-bold tracking-tight font-headline text-center">Your Billing Dashboard</h2>
-                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                                    <Card>
+                                <h2 className="font-headline text-3xl font-bold tracking-tight text-center">Your Billing Dashboard</h2>
+                                <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+                                    <Card className="flex flex-col">
                                         <CardHeader>
                                             <CardTitle>Membership</CardTitle>
                                             <CardDescription>Your active plan and renewal details.</CardDescription>
                                         </CardHeader>
-                                        <CardContent>
-                                            <div className="flex flex-col p-4 border rounded-lg bg-secondary/30 gap-4">
+                                        <CardContent className="flex-grow">
+                                            <div className="flex flex-col gap-4 rounded-lg border bg-secondary/30 p-4">
                                                 <div>
-                                                    <h3 className="font-bold text-lg flex items-center gap-2">
+                                                    <h3 className="flex items-center gap-2 text-lg font-bold">
                                                         {plans[providerRole][userPlans[providerRole]].name}
                                                         <Badge variant={"default"}>Active</Badge>
                                                     </h3>
-                                                    <p className="text-muted-foreground text-sm">{`Renews on ${format(renewalDate, 'PPP')}`}</p>
+                                                    <p className="text-sm text-muted-foreground">{`Renews on ${format(renewalDate, 'PPP')}`}</p>
                                                 </div>
                                                 <div className="text-right">
                                                     <p className="text-2xl font-bold">${plans[providerRole][userPlans[providerRole]].price}/mo</p>
@@ -379,36 +379,40 @@ export default function BillingPage() {
                                                     )}
                                             </div>
                                         </CardContent>
-                                        <CardFooter className="flex-col items-start gap-2">
+                                        <CardFooter className="flex-col items-stretch gap-2">
                                             <Button variant="outline" className="w-full" onClick={() => document.getElementById(providerRole)?.scrollIntoView({behavior: 'smooth'})}>Change plan</Button>
                                             <Button variant="link" className="w-full">Manage membership</Button>
                                         </CardFooter>
                                     </Card>
-                                    <Card>
+                                    <Card className="flex flex-col">
                                         <CardHeader>
                                             <CardTitle>Payment Method</CardTitle>
                                             <CardDescription>Used to pay for your membership.</CardDescription>
                                         </CardHeader>
-                                        <CardContent className="space-y-4">
-                                            <div className="flex items-center gap-4 p-4 border rounded-lg bg-secondary/30">
+                                        <CardContent className="flex-grow">
+                                            <div className="flex items-center gap-4 rounded-lg border bg-secondary/30 p-4">
                                                 <CreditCard className="h-8 w-8 text-muted-foreground" />
                                                 <div><p className="font-medium">Visa ending in 1234</p><p className="text-sm text-muted-foreground">On file</p></div>
                                             </div>
-                                            <Button variant="outline" className="w-full">Update payment method</Button>
                                         </CardContent>
+                                        <CardFooter>
+                                            <Button variant="outline" className="w-full">Update payment method</Button>
+                                        </CardFooter>
                                     </Card>
-                                     <Card>
+                                     <Card className="flex flex-col">
                                         <CardHeader>
                                             <CardTitle>Payouts</CardTitle>
                                             <CardDescription>Used to receive earnings and payouts.</CardDescription>
                                         </CardHeader>
-                                        <CardContent className="space-y-4">
-                                            <div className="flex items-center gap-4 p-4 border rounded-lg bg-secondary/30">
+                                        <CardContent className="flex-grow">
+                                            <div className="flex items-center gap-4 rounded-lg border bg-secondary/30 p-4">
                                                 <Landmark className="h-8 w-8 text-muted-foreground" />
                                                 <div><p className="font-medium">Stripe Payouts</p><p className="text-sm text-muted-foreground">Not set up</p></div>
                                             </div>
-                                            <Button variant="outline" className="w-full">Connect Stripe for payouts</Button>
                                         </CardContent>
+                                        <CardFooter>
+                                            <Button variant="outline" className="w-full">Connect Stripe for payouts</Button>
+                                        </CardFooter>
                                     </Card>
                                 </div>
                                 <Card>
@@ -416,7 +420,7 @@ export default function BillingPage() {
                                         <CardTitle>Invoice History</CardTitle>
                                     </CardHeader>
                                     <CardContent>
-                                        <div className="border rounded-lg">
+                                        <div className="overflow-x-auto rounded-lg border">
                                             <Table>
                                                 <TableHeader>
                                                     <TableRow>
@@ -429,10 +433,10 @@ export default function BillingPage() {
                                                 <TableBody>
                                                     {invoices.map((invoice) => (
                                                         <TableRow key={invoice.id}>
-                                                            <TableCell className="text-muted-foreground py-5">{invoice.date}</TableCell>
-                                                            <TableCell className="py-5"><p className="font-medium">{invoice.description}</p><p className="text-xs text-muted-foreground">{invoice.id}</p></TableCell>
-                                                            <TableCell className="text-right font-mono py-5">{invoice.amount}</TableCell>
-                                                            <TableCell className="py-5"><Button variant="ghost" size="icon"><Download className="h-4 w-4" /><span className="sr-only">Download</span></Button></TableCell>
+                                                            <TableCell className="py-4 text-muted-foreground">{invoice.date}</TableCell>
+                                                            <TableCell className="py-4"><p className="font-medium">{invoice.description}</p><p className="text-xs text-muted-foreground">{invoice.id}</p></TableCell>
+                                                            <TableCell className="py-4 text-right font-mono">{invoice.amount}</TableCell>
+                                                            <TableCell className="py-4"><Button variant="ghost" size="icon"><Download className="h-4 w-4" /><span className="sr-only">Download</span></Button></TableCell>
                                                         </TableRow>
                                                     ))}
                                                 </TableBody>
