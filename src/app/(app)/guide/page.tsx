@@ -53,6 +53,17 @@ const initialHostFilters: HostFiltersState = {
   vibes: [],
 };
 
+const initialVendorFilters: VendorFiltersStateType = {
+  categories: [],
+  locationPreference: 'local',
+  budget: 5000,
+  planningWindow: 'anytime',
+  availabilityTypes: [],
+  showNearMatches: false,
+  showExactDates: false,
+  radius: 50,
+};
+
 
 export default function GuidePage() {
   const router = useRouter();
@@ -63,6 +74,12 @@ export default function GuidePage() {
   const [hostFilters, setHostFilters] = useState<HostFiltersState>(initialHostFilters);
   const [sortOption, setSortOption] = useState('recommended');
   const [hostFiltersVisible, setHostFiltersVisible] = useState(false);
+
+  const [vendorFilters, setVendorFilters] = useState<VendorFiltersStateType>(initialVendorFilters);
+  const [vendorSortOption, setVendorSortOption] = useState('recommended');
+  const [vendorFiltersVisible, setVendorFiltersVisible] = useState(false);
+  const [appliedVendorFilters, setAppliedVendorFilters] = useState<VendorFiltersStateType>(initialVendorFilters);
+  const [vendorFiltersDirty, setVendorFiltersDirty] = useState(false);
 
   const [currentConnectionRequests, setCurrentConnectionRequests] = useState(connectionRequests);
   const [showFeatureGate, setShowFeatureGate] = useState(false);
@@ -91,6 +108,34 @@ export default function GuidePage() {
     count += hostFilters.vibes.length;
     return count;
   }, [hostFilters]);
+
+  const handleVendorFilterChange = (newFilters: Partial<VendorFiltersStateType>) => {
+    setVendorFilters(prev => ({ ...prev, ...newFilters }));
+    setVendorFiltersDirty(true);
+  };
+  const handleApplyVendorFilters = () => {
+    setAppliedVendorFilters(vendorFilters);
+    setVendorFiltersDirty(false);
+  };
+  const handleResetVendorFilters = () => {
+    setVendorFilters(initialVendorFilters);
+    setAppliedVendorFilters(initialVendorFilters);
+    setVendorFiltersDirty(false);
+  };
+  
+  const appliedVendorFiltersCount = useMemo(() => {
+    let count = 0;
+    const initial = initialVendorFilters;
+    if (vendorFilters.categories.length > 0) count++;
+    if (vendorFilters.locationPreference !== initial.locationPreference) count++;
+    if (vendorFilters.budget < initial.budget) count++;
+    if (vendorFilters.planningWindow !== initial.planningWindow) count++;
+    if (vendorFilters.availabilityTypes.length > 0) count++;
+    if (vendorFilters.showNearMatches) count++;
+    if (vendorFilters.showExactDates) count++;
+    if (vendorFilters.radius !== initial.radius) count++;
+    return count;
+  }, [vendorFilters]);
 
 
   const handleCreateRetreatClick = () => {
@@ -257,7 +302,42 @@ export default function GuidePage() {
     return filtered;
   }, [hostFilters, sortOption]);
 
+  const displayVendors = useMemo(() => {
+    let filtered = [...vendors];
+
+    if (appliedVendorFilters.categories.length > 0) {
+      filtered = filtered.filter(vendor => appliedVendorFilters.categories.includes(vendor.category));
+    }
+    
+    if (appliedVendorFilters.budget < 5000) {
+      filtered = filtered.filter(vendor => (vendor.startingPrice || Infinity) <= appliedVendorFilters.budget);
+    }
+
+    switch (vendorSortOption) {
+      case 'price-asc':
+        filtered.sort((a, b) => (a.startingPrice || Infinity) - (b.startingPrice || Infinity));
+        break;
+      case 'price-desc':
+        filtered.sort((a, b) => (b.startingPrice || 0) - (a.startingPrice || 0));
+        break;
+      case 'rating':
+        filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+        break;
+      case 'recommended':
+      default:
+        filtered.sort((a, b) => {
+          if (a.premiumMembership !== b.premiumMembership) return b.premiumMembership ? 1 : -1;
+          if ((b.rating ?? 0) !== (a.rating ?? 0)) return (b.rating ?? 0) - (a.rating ?? 0);
+          return (b.reviewCount ?? 0) - (a.reviewCount ?? 0);
+        });
+        break;
+    }
+
+    return filtered;
+  }, [appliedVendorFilters, vendorSortOption]);
+
   const noHostsFound = displayHosts.length === 0;
+  const noVendorsFound = displayVendors.length === 0;
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -467,14 +547,30 @@ export default function GuidePage() {
                                 </TabsContent>
                                 <TabsContent value="vendors" className="mt-6">
                                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                                        <div className="lg:col-span-1">
-                                            <VendorFilters onApply={()=>{}} onReset={()=>{}} isDirty={false} onFiltersChange={()=>{}} filters={{} as VendorFiltersStateType} />
-                                        </div>
-                                        <div className="lg:col-span-3">
+                                        {vendorFiltersVisible && (
+                                            <div className="lg:col-span-1">
+                                                <VendorFilters 
+                                                    filters={vendorFilters}
+                                                    onFiltersChange={handleVendorFilterChange}
+                                                    onApply={handleApplyVendorFilters}
+                                                    onReset={handleResetVendorFilters}
+                                                    isDirty={vendorFiltersDirty}
+                                                />
+                                            </div>
+                                        )}
+                                        <div className={cn(vendorFiltersVisible ? "lg:col-span-3" : "lg:col-span-4")}>
                                             <div className="flex justify-between items-center mb-4">
-                                                <h3 className="font-headline text-2xl">{vendors.length} potential {vendors.length === 1 ? 'vendor' : 'vendors'} found</h3>
-                                                <p className="text-xs text-muted-foreground">Counts update as you filter.</p>
-                                                <Select defaultValue="recommended">
+                                                <div className='flex items-center gap-4'>
+                                                    <Button onClick={() => setVendorFiltersVisible(!vendorFiltersVisible)} variant="outline">
+                                                        <Filter className="mr-2 h-4 w-4" />
+                                                        {vendorFiltersVisible ? 'Hide' : 'Show'} Filters
+                                                        {!vendorFiltersVisible && appliedVendorFiltersCount > 0 && (
+                                                            <Badge variant="secondary" className="ml-2">{appliedVendorFiltersCount}</Badge>
+                                                        )}
+                                                    </Button>
+                                                    <h3 className="font-headline text-2xl hidden sm:block">{displayVendors.length} potential {displayVendors.length === 1 ? 'vendor' : 'vendors'} found</h3>
+                                                </div>
+                                                <Select value={vendorSortOption} onValueChange={setVendorSortOption}>
                                                     <SelectTrigger className="w-[180px]">
                                                         <SelectValue placeholder="Sort by" />
                                                     </SelectTrigger>
@@ -486,9 +582,15 @@ export default function GuidePage() {
                                                     </SelectContent>
                                                 </Select>
                                             </div>
-                                            {vendors.length > 0 ? (
+                                            <h3 className="font-headline text-2xl sm:hidden mb-4">{displayVendors.length} potential {displayVendors.length === 1 ? 'vendor' : 'vendors'} found</h3>
+                                            
+                                            {noVendorsFound ? (
+                                                 <div className="text-center py-12 rounded-lg bg-secondary/50">
+                                                    <p className="text-muted-foreground max-w-md mx-auto">We’re expanding this network. If you don’t see the perfect match yet, we’ll surface new vendors as they join.</p>
+                                                </div>
+                                            ) : (
                                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                    {vendors.map(vendor => 
+                                                    {displayVendors.map(vendor => 
                                                         <VendorCard 
                                                             key={vendor.id} 
                                                             vendor={vendor} 
@@ -497,10 +599,6 @@ export default function GuidePage() {
                                                             onViewMessage={handleViewPartnerMessage}
                                                         />
                                                     )}
-                                                </div>
-                                            ) : (
-                                                <div className="text-center py-12 rounded-lg bg-secondary/50">
-                                                    <p className="text-muted-foreground max-w-md mx-auto">We’re expanding this network. If you don’t see the perfect match yet, we’ll surface new vendors as they join.</p>
                                                 </div>
                                             )}
                                         </div>
