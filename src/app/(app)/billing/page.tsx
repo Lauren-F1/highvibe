@@ -58,13 +58,6 @@ const invoices = [
     { id: 'SUB-002', date: 'June 30, 2024', description: 'Starter Guide Plan', amount: '$129.00' },
 ];
 
-const gridColsMap: { [key: number]: string } = {
-  1: 'grid-cols-1',
-  2: 'grid-cols-2',
-  3: 'grid-cols-3',
-  4: 'grid-cols-4',
-};
-
 type UserPlans = Record<UserRole, string>;
 
 // --- REUSABLE BILLING COMPONENTS ---
@@ -437,8 +430,6 @@ export default function BillingPage() {
     if (user.status === 'loading') {
         return <div className="container mx-auto px-4 py-12 text-center">Loading...</div>;
     }
-    
-    const gridColsClass = gridColsMap[user.profile?.roles?.length || 1] || 'grid-cols-1';
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -447,7 +438,15 @@ export default function BillingPage() {
             <h1 className="font-headline text-4xl font-bold tracking-tight">HighVibe Retreats Partnership</h1>
             <p className="text-muted-foreground mt-2 text-lg leading-relaxed">Everything you need to build, connect, and get booked.</p>
              <Tabs value={role} onValueChange={(value) => setRole(value as AllRoles)} className="mt-6 w-full">
-                <TabsList className={cn("grid w-full", gridColsClass)}>
+                <TabsList className={cn(
+                    "grid w-full",
+                    {
+                        'grid-cols-1': !user.profile?.roles || user.profile.roles.length <= 1,
+                        'grid-cols-2': user.profile?.roles?.length === 2,
+                        'grid-cols-3': user.profile?.roles?.length === 3,
+                        'grid-cols-4': user.profile?.roles?.length >= 4,
+                    }
+                )}>
                     {user.profile?.roles.includes('seeker') && <TabsTrigger value="seeker">Seeker</TabsTrigger>}
                     {user.profile?.roles.includes('guide') && <TabsTrigger value="guide">Guide</TabsTrigger>}
                     {user.profile?.roles.includes('host') && <TabsTrigger value="host">Host</TabsTrigger>}
