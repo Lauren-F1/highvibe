@@ -21,18 +21,18 @@ env:
     availability:
       - BUILD
       - RUNTIME
-  - variable: RESEND_API_KEY
-    value: "REPLACE_ME"
-    availability:
+  - - variable: RESEND_API_KEY
+value: "re_YOUR_REAL_RESEND_KEY_HERE"
+availability:
+      - BUILD
+      - RUNTIME 
+      - variable: EMAIL_FROM
+value: "HighVibe Retreats <info@highviberetreats.com>"
+availability:
       - BUILD
       - RUNTIME
-  - variable: EMAIL_FROM
-    value: "HighVibe Retreats <info@highviberetreats.com>"
-    availability:
-      - BUILD
-      - RUNTIME
-  - variable: NEXT_PUBLIC_BASE_URL
-    value: "https://highviberetreats.com"
-    availability:
+      - variable: NEXT_PUBLIC_BASE_URL
+value: "https://highviberetreats.com"
+availability:
       - BUILD
       - RUNTIME

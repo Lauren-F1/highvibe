@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { firestoreDb } from '@/lib/firebase-admin';
 import { z } from 'zod';
 import { FieldValue } from 'firebase-admin/firestore';
+import { sendWaitlistConfirmation } from '@/lib/email';
 
 const waitlistSchema = z.object({
   firstName: z.string().optional(),
@@ -35,18 +36,17 @@ export async function POST(request: Request) {
 
     const waitlistRef = firestoreDb.collection('waitlist').doc(emailLower);
     const doc = await waitlistRef.get();
+    
+    const shouldSendEmail = !doc.exists || (doc.exists && doc.data()?.lastEmailStatus !== 'sent');
 
     if (doc.exists) {
-      // If the document exists, update it
       await waitlistRef.update({
         updatedAt: FieldValue.serverTimestamp(),
         submitCount: FieldValue.increment(1),
-        // Also update other fields if they are provided in this submission
         ...(firstName && { firstName }),
         ...(roleInterest && { roleInterest }),
       });
     } else {
-      // If the document does not exist, create it
       await waitlistRef.set({
         firstName,
         email: emailLower,
@@ -57,6 +57,24 @@ export async function POST(request: Request) {
         status: 'new',
         submitCount: 1,
       });
+    }
+    
+    if (shouldSendEmail) {
+        try {
+            await sendWaitlistConfirmation(emailLower, firstName);
+            await waitlistRef.update({
+                lastEmailStatus: 'sent',
+                lastEmailAt: FieldValue.serverTimestamp(),
+            });
+        } catch (emailError: any) {
+            console.error('WAITLIST_EMAIL_ERROR', emailError);
+            // Don't block the user response for email failure, but log it.
+            await waitlistRef.update({
+                lastEmailStatus: 'failed',
+                lastEmailAt: FieldValue.serverTimestamp(),
+                lastEmailError: emailError.message, // Store the error message
+            });
+        }
     }
 
     return NextResponse.json({ ok: true });
