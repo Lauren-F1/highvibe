@@ -5,3 +5,7 @@ runConfig:
   # Increase this value if you'd like to automatically spin up
   # more instances in response to increased traffic.
   maxInstances: 1
+  environment:
+    LAUNCH_MODE: "true"
+    ADMIN_EMAIL_ALLOWLIST: "info@highviberetreats.com"
+    NEXT_PUBLIC_ADMIN_EMAIL_ALLOWLIST: "info@highviberetreats.com"
