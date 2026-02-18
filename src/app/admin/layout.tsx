@@ -25,6 +25,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       ?.getIdTokenResult()
       .then(idTokenResult => {
         const isAdminClaim = idTokenResult.claims.admin === true;
+        // IMPORTANT: This value must be kept in sync with the ADMIN_EMAIL_ALLOWLIST variable in your production environment.
         const adminEmailList = (process.env.NEXT_PUBLIC_ADMIN_EMAIL_ALLOWLIST || '').split(',').map(e => e.trim().toLowerCase());
         const isAdminEmail =
           user.data?.email && adminEmailList.includes(user.data.email.toLowerCase());
