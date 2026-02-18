@@ -7,7 +7,7 @@ const publicRoutes = ['/', '/terms', '/privacy', '/login', '/join', '/signup'];
 
 export function middleware(request: NextRequest) {
   // 2. Check for LAUNCH_MODE
-  if (process.env.NEXT_PUBLIC_LAUNCH_MODE !== 'true') {
+  if (process.env.LAUNCH_MODE !== 'true') {
     return NextResponse.next();
   }
 

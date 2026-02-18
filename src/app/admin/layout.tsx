@@ -6,8 +6,6 @@ import { useEffect, useState } from 'react';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 
-const ADMIN_EMAILS: string[] = []; // Add admin emails here, e.g. ['admin@example.com']
-
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = useUser();
   const router = useRouter();
@@ -27,8 +25,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       ?.getIdTokenResult()
       .then(idTokenResult => {
         const isAdminClaim = idTokenResult.claims.admin === true;
+        const adminEmailList = (process.env.NEXT_PUBLIC_ADMIN_EMAIL_ALLOWLIST || '').split(',').map(e => e.trim().toLowerCase());
         const isAdminEmail =
-          user.data?.email && ADMIN_EMAILS.includes(user.data.email);
+          user.data?.email && adminEmailList.includes(user.data.email.toLowerCase());
 
         if (isAdminClaim || isAdminEmail) {
           setIsAuthorized(true);
