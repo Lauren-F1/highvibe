@@ -29,6 +29,7 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
   const firestore = useFirestore();
   const { toast } = useToast();
   const [formState, setFormState] = useState<'idle' | 'submitting' | 'submitted' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { register, handleSubmit, formState: { errors }, control, reset } = useForm<WaitlistFormInputs>({
     resolver: zodResolver(waitlistSchema),
@@ -48,6 +49,7 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
       return;
     }
     setFormState('submitting');
+    setErrorMessage(null);
     
     try {
       const email = data.email.toLowerCase().trim();
@@ -82,13 +84,10 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
         description: "We'll email you when HighVibe opens.",
       });
       reset();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting to waitlist:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Submission Error',
-        description: 'Something went wrong. Please try again.',
-      });
+      const specificError = error.message || "Waitlist error. Please try again in a moment.";
+      setErrorMessage(specificError);
       setFormState('error');
     }
   };
@@ -105,7 +104,7 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
        {formState === 'error' && (
-          <p className="text-destructive text-sm text-center">Something went wrong. Please try again.</p>
+          <p className="text-destructive text-sm text-center">{errorMessage}</p>
         )}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
