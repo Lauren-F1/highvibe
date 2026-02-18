@@ -1,11 +1,20 @@
 # Settings to manage and configure a Firebase App Hosting backend.
 # https://firebase.google.com/docs/app-hosting/configure
+env:
+  - variable: LAUNCH_MODE
+    value: "true"
+    availability:
+      - BUILD
+      - RUNTIME
 
-runConfig:
-  # Increase this value if you'd like to automatically spin up
-  # more instances in response to increased traffic.
-  maxInstances: 1
-  environment:
-    LAUNCH_MODE: "true"
-    ADMIN_EMAIL_ALLOWLIST: "info@highviberetreats.com"
-    NEXT_PUBLIC_ADMIN_EMAIL_ALLOWLIST: "info@highviberetreats.com"
+  - variable: ADMIN_EMAIL_ALLOWLIST
+    value: "info@highviberetreats.com"
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_ADMIN_EMAIL_ALLOWLIST
+    value: "info@highviberetreats.com"
+    availability:
+      - BUILD
+      - RUNTIME

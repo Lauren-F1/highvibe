@@ -46,8 +46,6 @@ export function Footer() {
         isOpen={isWaitlistModalOpen}
         onOpenChange={setIsWaitlistModalOpen}
         source="footer"
-        title="Get early access"
-        description="Join the waitlist for updates as we build HighVibe Retreats."
       />
     </>
   );

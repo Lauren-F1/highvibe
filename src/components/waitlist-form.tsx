@@ -22,15 +22,19 @@ type WaitlistFormInputs = z.infer<typeof waitlistSchema>;
 
 interface WaitlistFormProps {
     source: string;
+    defaultRole?: string;
 }
 
-export function WaitlistForm({ source }: WaitlistFormProps) {
+export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
   const firestore = useFirestore();
   const { toast } = useToast();
   const [formState, setFormState] = useState<'idle' | 'submitting' | 'submitted' | 'error'>('idle');
 
   const { register, handleSubmit, formState: { errors }, control, reset } = useForm<WaitlistFormInputs>({
     resolver: zodResolver(waitlistSchema),
+    defaultValues: {
+      roleInterest: defaultRole,
+    }
   });
 
   const onSubmit = async (data: WaitlistFormInputs) => {
