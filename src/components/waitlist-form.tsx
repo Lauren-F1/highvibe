@@ -140,6 +140,9 @@ export function WaitlistForm({ source }: WaitlistFormProps) {
       <Button type="submit" disabled={formState === 'submitting'} className="w-full">
         {formState === 'submitting' ? 'Submitting...' : 'Join the Waitlist'}
       </Button>
+      <p className="text-xs text-muted-foreground text-center !mt-2">
+        Verified = confirmed email. Limited to the intro launch window; not offered again.
+      </p>
     </form>
   );
 }

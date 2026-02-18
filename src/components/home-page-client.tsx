@@ -141,6 +141,9 @@ export default function HomePageClient() {
                 <CardDescription className="text-lg text-beige-dark mt-2 max-w-3xl mx-auto font-body">
                     HighVibe Retreats is launching soon. Join the waitlist for early access and founder-level perks.
                 </CardDescription>
+                <p className="text-base text-foreground mt-4 max-w-3xl mx-auto font-body font-semibold">
+                    Founder Perk: first 250 verified sign-ups get 60 days of membership fees waived.
+                </p>
             </CardHeader>
             <CardContent>
                 <WaitlistForm source="landing" />
