@@ -4,8 +4,6 @@ import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { doc, serverTimestamp, runTransaction, increment } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,7 +24,6 @@ interface WaitlistFormProps {
 }
 
 export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
-  const firestore = useFirestore();
   const { toast } = useToast();
   const [formState, setFormState] = useState<'idle' | 'submitting' | 'submitted' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -39,43 +36,26 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
   });
 
   const onSubmit = async (data: WaitlistFormInputs) => {
-    if (!firestore) {
-      const configErrorMsg = "Could not connect to the database. Please ensure Firebase is configured correctly in your environment variables.";
-      console.error(configErrorMsg);
-      setErrorMessage(configErrorMsg);
-      setFormState('error');
-      return;
-    }
-
     setFormState('submitting');
     setErrorMessage(null);
     
     try {
-      const email = data.email.toLowerCase().trim();
-      const waitlistRef = doc(firestore, 'waitlist', email);
-
-      await runTransaction(firestore, async (transaction) => {
-        const waitlistDoc = await transaction.get(waitlistRef);
-        if (waitlistDoc.exists()) {
-            transaction.update(waitlistRef, {
-                updatedAt: serverTimestamp(),
-                submitCount: increment(1),
-                source: source, // update source on re-submit
-            });
-        } else {
-            transaction.set(waitlistRef, {
-                email: email,
-                firstName: data.firstName || null,
-                roleInterest: data.roleInterest || null,
-                source: source,
-                createdAt: serverTimestamp(),
-                updatedAt: serverTimestamp(),
-                status: 'new',
-                submitCount: 1,
-                userAgent: navigator.userAgent,
-            });
-        }
+      const response = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...data,
+          source: source,
+        }),
       });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.ok) {
+        throw new Error(result.error || 'An unknown error occurred.');
+      }
 
       setFormState('submitted');
       toast({
@@ -84,9 +64,8 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
       });
       reset();
     } catch (error: any) {
-      console.error('Error during waitlist submission transaction:', error);
-      const specificError = error.message || "Waitlist error. Please try again in a moment.";
-      setErrorMessage(specificError);
+      console.error('Waitlist form submission error:', error);
+      setErrorMessage(error.message || 'Waitlist error. Please try again in a moment.');
       setFormState('error');
     }
   };
