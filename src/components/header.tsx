@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -25,6 +26,8 @@ export function Header() {
   const { unreadCount } = useInbox();
   
   const handleLogout = () => {
+    document.cookie = 'isAdminBypass=; path=/; max-age=0'; // Clear admin bypass cookie
+
     if (!isFirebaseEnabled) {
       // DEV AUTH MODE
       localStorage.removeItem('devUser');

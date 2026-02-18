@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -140,6 +141,11 @@ export function AuthForm({ mode, role }: AuthFormProps) {
       localStorage.setItem('devUser', JSON.stringify(devUser));
       localStorage.setItem('devProfile', JSON.stringify(devProfile));
 
+      const adminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAIL_ALLOWLIST || '').split(',').map(e => e.trim());
+        if (adminEmails.includes(values.email.toLowerCase() || '')) {
+            document.cookie = 'isAdminBypass=true; path=/; max-age=86400'; // 1 day
+      }
+
       toast({
         title: mode === 'signup' ? 'Dev Account Created' : 'Logged in (Dev Mode)',
         description: `Welcome, ${displayName}!`,
@@ -170,6 +176,12 @@ export function AuthForm({ mode, role }: AuthFormProps) {
         // Redirection is handled by the useEffect on the calling page (e.g., /join/[role])
       } else { // login
         const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
+        
+        const adminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAIL_ALLOWLIST || '').split(',').map(e => e.trim());
+        if (userCredential.user.email && adminEmails.includes(userCredential.user.email.toLowerCase())) {
+            document.cookie = 'isAdminBypass=true; path=/; max-age=86400'; // 1 day
+        }
+        
         if (firestoreDb) {
             const userDocRef = doc(firestoreDb, 'users', userCredential.user.uid);
             await setDoc(userDocRef, { lastLoginAt: serverTimestamp() }, { merge: true });
