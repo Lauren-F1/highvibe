@@ -41,9 +41,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true });
 
   } catch (error: any) {
-    console.error('Waitlist API Error:', error);
+    console.error('WAITLIST_ERROR', error);
     return NextResponse.json(
-      { ok: false, error: 'An unexpected error occurred on the server.' },
+      { 
+        ok: false, 
+        error: 'An unexpected error occurred on the server.',
+        ...(process.env.NODE_ENV === 'development' && { debug: error.message }) 
+      },
       { status: 500 }
     );
   }

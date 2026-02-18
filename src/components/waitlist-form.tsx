@@ -54,7 +54,7 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
       const result = await response.json();
 
       if (!response.ok || !result.ok) {
-        throw new Error(result.error || 'An unknown error occurred.');
+        throw new Error(result.error || 'An unknown server error occurred.');
       }
 
       setFormState('submitted');
