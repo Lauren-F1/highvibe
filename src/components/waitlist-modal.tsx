@@ -39,11 +39,17 @@ export function WaitlistModal({
 }: WaitlistModalProps) {
   
   const roleInterestValue = getRoleValue(defaultRole);
+  const isLaunchMode = process.env.NEXT_PUBLIC_LAUNCH_MODE === 'true';
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader className="text-center">
+           {isLaunchMode && (
+            <p className="text-sm font-semibold text-primary mb-2">
+              Prelaunch: join the waitlist for early access.
+            </p>
+          )}
           <DialogTitle className="font-headline text-3xl md:text-4xl">Be First In</DialogTitle>
           <DialogDescription className="text-lg text-beige-dark mt-2 max-w-3xl mx-auto font-body">
             HighVibe Retreats is launching soon. Join the waitlist for early access and founder-level perks.

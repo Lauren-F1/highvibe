@@ -7,9 +7,10 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Logo } from '@/components/icons/logo';
 import { placeholderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { WaitlistForm } from './waitlist-form';
 import { useToast } from '@/hooks/use-toast';
+import { WaitlistModal } from './waitlist-modal';
 
 // Do not change icon assets or casing; icons must always load from /public and remain unmodified.
 const ROLE_ICON_SRC: Record<string, string> = {
@@ -70,6 +71,11 @@ export default function HomePageClient() {
   const { toast } = useToast();
   const heroImage = placeholderImages.find((img) => img.id === 'resort-hero');
   
+  const [isWaitlistModalOpen, setIsWaitlistModalOpen] = useState(false);
+  const [defaultRole, setDefaultRole] = useState<"Seeker" | "Guide" | "Host" | "Vendor" | "">("");
+
+  const isLaunchMode = process.env.NEXT_PUBLIC_LAUNCH_MODE === 'true';
+
   useEffect(() => {
     const reason = searchParams.get('reason');
     if (reason) {
@@ -91,18 +97,30 @@ export default function HomePageClient() {
     }
   }, [searchParams, toast, router]);
 
-  const handleRoleClick = (href: string) => {
-    router.push(href);
+  const handleRoleClick = (role: Role) => {
+    if (isLaunchMode) {
+        setDefaultRole(role.primaryLabel as any);
+        setIsWaitlistModalOpen(true);
+    } else {
+        router.push(role.href);
+    }
   };
   
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>, href: string) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>, role: Role) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      handleRoleClick(href);
+      handleRoleClick(role);
     }
   };
   
   return (
+    <>
+    <WaitlistModal
+        isOpen={isWaitlistModalOpen}
+        onOpenChange={setIsWaitlistModalOpen}
+        source="homepage-role-card"
+        defaultRole={defaultRole}
+    />
     <main className="flex min-h-screen w-full flex-col items-center bg-background p-4 sm:p-6 md:p-8">
       <div className="w-full max-w-7xl text-center mb-8">
         <Logo />
@@ -136,8 +154,8 @@ export default function HomePageClient() {
             <div
               key={role.id}
               tabIndex={0}
-              onClick={() => handleRoleClick(role.href)}
-              onKeyDown={(e) => handleKeyDown(e, role.href)}
+              onClick={() => handleRoleClick(role)}
+              onKeyDown={(e) => handleKeyDown(e, role)}
               className="group cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg"
             >
               <Card className={cn(
@@ -176,5 +194,6 @@ export default function HomePageClient() {
         </Card>
       </div>
     </main>
+    </>
   );
 }
