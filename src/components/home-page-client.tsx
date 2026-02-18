@@ -1,13 +1,15 @@
+
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Logo } from '@/components/icons/logo';
 import { placeholderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { WaitlistForm } from './waitlist-form';
+import { useToast } from '@/hooks/use-toast';
 
 // Do not change icon assets or casing; icons must always load from /public and remain unmodified.
 const ROLE_ICON_SRC: Record<string, string> = {
@@ -64,8 +66,22 @@ const roles: Role[] = [
 
 export default function HomePageClient() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { toast } = useToast();
   const heroImage = placeholderImages.find((img) => img.id === 'resort-hero');
   
+  useEffect(() => {
+    if (searchParams.get('reason') === 'prelaunch') {
+        toast({
+            title: 'We’re in prelaunch.',
+            description: "Join the waitlist to get early access.",
+            duration: 5000,
+        });
+        // Optional: remove the query param from URL without reloading
+        router.replace('/', { scroll: false });
+    }
+  }, [searchParams, toast, router]);
+
   const handleRoleClick = (href: string) => {
     router.push(href);
   };

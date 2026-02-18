@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 // 1. Specify public routes
-const publicRoutes = ['/', '/terms', '/privacy', '/login', '/join', '/signup'];
+const publicRoutes = ['/', '/terms', '/privacy', '/login'];
 
 export function middleware(request: NextRequest) {
   // 2. Check for LAUNCH_MODE
@@ -20,7 +20,6 @@ export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   // 4. Check if the path is public or a public sub-path.
-  // This allows access to /join, /join/guide, etc.
   const isPublic = publicRoutes.some(route => 
     pathname === route || (route !== '/' && pathname.startsWith(route + '/'))
   );

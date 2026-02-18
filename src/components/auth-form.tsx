@@ -141,9 +141,13 @@ export function AuthForm({ mode, role }: AuthFormProps) {
       localStorage.setItem('devUser', JSON.stringify(devUser));
       localStorage.setItem('devProfile', JSON.stringify(devProfile));
 
-      const adminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAIL_ALLOWLIST || '').split(',').map(e => e.trim());
-        if (adminEmails.includes(values.email.toLowerCase() || '')) {
-            document.cookie = 'isAdminBypass=true; path=/; max-age=86400'; // 1 day
+      const adminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAIL_ALLOWLIST || '')
+        .split(',')
+        .map(e => e.trim().toLowerCase())
+        .filter(Boolean);
+
+      if (values.email && adminEmails.includes(values.email.toLowerCase())) {
+        document.cookie = 'isAdminBypass=true; path=/; max-age=86400'; // 1 day
       }
 
       toast({
@@ -151,7 +155,6 @@ export function AuthForm({ mode, role }: AuthFormProps) {
         description: `Welcome, ${displayName}!`,
       });
       
-      // Redirect so useUser hook re-evaluates
       const redirect = searchParams.get('redirect');
       if (redirect) {
         router.push(redirect);
@@ -173,11 +176,14 @@ export function AuthForm({ mode, role }: AuthFormProps) {
         const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
         await createUserProfileDocument(userCredential.user, values);
         toast({ title: 'Account created!', description: "Let's get started." });
-        // Redirection is handled by the useEffect on the calling page (e.g., /join/[role])
       } else { // login
         const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
         
-        const adminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAIL_ALLOWLIST || '').split(',').map(e => e.trim());
+        const adminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAIL_ALLOWLIST || '')
+            .split(',')
+            .map(e => e.trim().toLowerCase())
+            .filter(Boolean);
+
         if (userCredential.user.email && adminEmails.includes(userCredential.user.email.toLowerCase())) {
             document.cookie = 'isAdminBypass=true; path=/; max-age=86400'; // 1 day
         }
@@ -186,7 +192,6 @@ export function AuthForm({ mode, role }: AuthFormProps) {
             const userDocRef = doc(firestoreDb, 'users', userCredential.user.uid);
             await setDoc(userDocRef, { lastLoginAt: serverTimestamp() }, { merge: true });
         }
-        // Redirection is handled by the useEffect on the /login page
       }
     } catch (err: any) {
       setError(getFriendlyErrorMessage(err.code));

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,22 +15,36 @@ export default function LoginPage() {
     useEffect(() => {
         if (user.status === 'authenticated') {
             const redirect = searchParams.get('redirect');
+
+            if (process.env.NEXT_PUBLIC_LAUNCH_MODE === 'true') {
+                 const adminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAIL_ALLOWLIST || '')
+                    .split(',')
+                    .map(e => e.trim().toLowerCase())
+                    .filter(Boolean);
+                
+                const userEmail = user.data.email?.toLowerCase();
+                const isAdmin = userEmail ? adminEmails.includes(userEmail) : false;
+
+                if (!isAdmin) {
+                    router.push('/?reason=prelaunch');
+                    return;
+                }
+            }
+
+            // Admin user or Launch Mode is off - proceed with normal redirect
             if (redirect) {
                 router.push(redirect);
                 return;
             }
 
-            // If profile exists and is complete, go to dashboard
             if (user.profile && user.profile.onboardingComplete) {
                 const primaryRole = user.profile.primaryRole;
                 if (primaryRole) {
                     router.push(`/${primaryRole}`);
                 } else {
-                    // This is an edge case, but if they have a profile without a primary role, send them to pick one.
                     router.push('/onboarding/role');
                 }
             } else {
-                // If profile doesn't exist, or is incomplete, send to onboarding.
                 router.push('/onboarding/role');
             }
         }
