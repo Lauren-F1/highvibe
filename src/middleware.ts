@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
@@ -11,10 +10,14 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // --- In Launch Mode ---
+
   // 3. Check for admin bypass cookie
   const isAdmin = request.cookies.get('isAdminBypass')?.value === 'true';
   if (isAdmin) {
-    return NextResponse.next();
+    const response = NextResponse.next();
+    response.headers.set('x-launch-mode', 'on');
+    return response;
   }
 
   const pathname = request.nextUrl.pathname;
@@ -25,13 +28,17 @@ export function middleware(request: NextRequest) {
   );
 
   if (isPublic) {
-    return NextResponse.next();
+    const response = NextResponse.next();
+    response.headers.set('x-launch-mode', 'on');
+    return response;
   }
 
   // 5. Redirect non-public routes to the homepage
   const url = request.nextUrl.clone();
   url.pathname = '/';
-  return NextResponse.redirect(url);
+  const response = NextResponse.redirect(url);
+  response.headers.set('x-launch-mode', 'on');
+  return response;
 }
 
 export const config = {
@@ -39,10 +46,9 @@ export const config = {
     /*
      * Match all request paths except for the ones starting with:
      * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - any files inside /public (e.g., /logo.svg)
+     * - _next (Next.js internals)
+     * - files with extensions (e.g., .png, .jpg, .svg)
      */
-    '/((?!api|_next/static|_next/image|.*\\.svg$|.*\\.png$).*)',
+    '/((?!api/|_next/|.*\\..*).*)',
   ],
 }
