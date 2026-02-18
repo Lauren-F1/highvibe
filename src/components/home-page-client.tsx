@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -8,9 +7,9 @@ import { Logo } from '@/components/icons/logo';
 import { placeholderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
 import React, { useEffect, useState } from 'react';
-import { WaitlistForm } from './waitlist-form';
 import { useToast } from '@/hooks/use-toast';
 import { WaitlistModal } from './waitlist-modal';
+import { Button } from './ui/button';
 
 // Do not change icon assets or casing; icons must always load from /public and remain unmodified.
 const ROLE_ICON_SRC: Record<string, string> = {
@@ -73,6 +72,7 @@ export default function HomePageClient() {
   
   const [isWaitlistModalOpen, setIsWaitlistModalOpen] = useState(false);
   const [defaultRole, setDefaultRole] = useState<"Seeker" | "Guide" | "Host" | "Vendor" | "">("");
+  const [modalSource, setModalSource] = useState("homepage-role-card");
 
   const isLaunchMode = process.env.NEXT_PUBLIC_LAUNCH_MODE === 'true';
 
@@ -86,7 +86,7 @@ export default function HomePageClient() {
                 duration: 5000,
             });
         } else if (reason === 'prelaunch_non_admin') {
-            toast({
+             toast({
                 title: 'Prelaunch Access Is Limited',
                 description: "We're currently in a prelaunch phase. Join the waitlist to be notified when we open up.",
                 duration: 5000,
@@ -100,6 +100,7 @@ export default function HomePageClient() {
   const handleRoleClick = (role: Role) => {
     if (isLaunchMode) {
         setDefaultRole(role.primaryLabel as any);
+        setModalSource("homepage-role-card");
         setIsWaitlistModalOpen(true);
     } else {
         router.push(role.href);
@@ -118,7 +119,7 @@ export default function HomePageClient() {
     <WaitlistModal
         isOpen={isWaitlistModalOpen}
         onOpenChange={setIsWaitlistModalOpen}
-        source="homepage-role-card"
+        source={modalSource}
         defaultRole={defaultRole}
     />
     <main className="flex min-h-screen w-full flex-col items-center bg-background p-4 sm:p-6 md:p-8">
@@ -188,8 +189,12 @@ export default function HomePageClient() {
                     Founder Perk: first 250 verified sign-ups get 60 days of membership fees waived.
                 </p>
             </CardHeader>
-            <CardContent>
-                <WaitlistForm source="landing" />
+            <CardContent className="flex justify-center">
+              <Button size="lg" onClick={() => {
+                  setDefaultRole("");
+                  setModalSource("landing-card");
+                  setIsWaitlistModalOpen(true);
+              }}>Join the Waitlist</Button>
             </CardContent>
         </Card>
       </div>
