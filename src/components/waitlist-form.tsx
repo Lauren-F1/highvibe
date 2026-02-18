@@ -40,14 +40,13 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
 
   const onSubmit = async (data: WaitlistFormInputs) => {
     if (!firestore) {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Could not connect to the database.',
-      });
+      const configErrorMsg = "Could not connect to the database. Please ensure Firebase is configured correctly in your environment variables.";
+      console.error(configErrorMsg);
+      setErrorMessage(configErrorMsg);
       setFormState('error');
       return;
     }
+
     setFormState('submitting');
     setErrorMessage(null);
     
@@ -85,7 +84,7 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
       });
       reset();
     } catch (error: any) {
-      console.error('Error submitting to waitlist:', error);
+      console.error('Error during waitlist submission transaction:', error);
       const specificError = error.message || "Waitlist error. Please try again in a moment.";
       setErrorMessage(specificError);
       setFormState('error');
