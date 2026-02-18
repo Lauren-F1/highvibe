@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -138,9 +137,9 @@ export default function HomePageClient() {
       <div className="w-full max-w-4xl text-center my-16">
         <Card>
             <CardHeader>
-                <CardTitle className="font-headline text-3xl md:text-4xl">Be the First to Know</CardTitle>
+                <CardTitle className="font-headline text-3xl md:text-4xl">Be First In</CardTitle>
                 <CardDescription className="text-lg text-beige-dark mt-2 max-w-3xl mx-auto font-body">
-                    HighVibe Retreats is opening soon. Get early access updates.
+                    HighVibe Retreats is launching soon. Join the waitlist for early access and founder-level perks.
                 </CardDescription>
             </CardHeader>
             <CardContent>
@@ -151,5 +150,3 @@ export default function HomePageClient() {
     </main>
   );
 }
-
-    

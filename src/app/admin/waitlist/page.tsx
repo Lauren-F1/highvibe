@@ -152,11 +152,11 @@ export default function WaitlistAdminPage() {
                 <SelectTrigger><SelectValue placeholder="Filter by role..." /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Roles</SelectItem>
-                  <SelectItem value="Seeker">Seeker</SelectItem>
-                  <SelectItem value="Guide">Guide</SelectItem>
-                  <SelectItem value="Host">Host</SelectItem>
-                  <SelectItem value="Vendor">Vendor</SelectItem>
-                  <SelectItem value="Not sure">Not sure</SelectItem>
+                  <SelectItem value="Seeker (I want to find/book retreats)">Seeker (I want to find/book retreats)</SelectItem>
+                  <SelectItem value="Guide (I want to host retreats)">Guide (I want to host retreats)</SelectItem>
+                  <SelectItem value="Host (I have a space)">Host (I have a space)</SelectItem>
+                  <SelectItem value="Vendor (I offer services)">Vendor (I offer services)</SelectItem>
+                  <SelectItem value="Partner / Collaborator">Partner / Collaborator</SelectItem>
                 </SelectContent>
               </Select>
                <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -224,5 +224,3 @@ export default function WaitlistAdminPage() {
     </div>
   );
 }
-
-    
