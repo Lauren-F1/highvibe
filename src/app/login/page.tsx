@@ -6,6 +6,7 @@ import { AuthForm } from '@/components/auth-form';
 import { useUser } from '@/firebase';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
+import { getAuth } from 'firebase/auth';
 
 export default function LoginPage() {
     const user = useUser();
@@ -14,9 +15,9 @@ export default function LoginPage() {
 
     useEffect(() => {
         if (user.status === 'authenticated') {
-            const redirect = searchParams.get('redirect');
+            const isLaunchMode = process.env.NEXT_PUBLIC_LAUNCH_MODE === 'true';
 
-            if (process.env.NEXT_PUBLIC_LAUNCH_MODE === 'true') {
+            if (isLaunchMode) {
                  const adminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAIL_ALLOWLIST || '')
                     .split(',')
                     .map(e => e.trim().toLowerCase())
@@ -26,12 +27,17 @@ export default function LoginPage() {
                 const isAdmin = userEmail ? adminEmails.includes(userEmail) : false;
 
                 if (!isAdmin) {
-                    router.push('/?reason=prelaunch');
+                    if (user.app) {
+                        const auth = getAuth(user.app);
+                        auth.signOut();
+                    }
+                    router.push('/?reason=prelaunch_non_admin');
                     return;
                 }
             }
 
             // Admin user or Launch Mode is off - proceed with normal redirect
+            const redirect = searchParams.get('redirect');
             if (redirect) {
                 router.push(redirect);
                 return;

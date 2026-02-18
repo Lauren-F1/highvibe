@@ -113,11 +113,31 @@ export function AuthForm({ mode, role }: AuthFormProps) {
   };
 
   const handleEmailSubmit = async (values: any) => {
+    setLoading(true);
+    setError(null);
+
+    const isLaunchMode = process.env.NEXT_PUBLIC_LAUNCH_MODE === 'true';
+
+    // In Launch Mode, only allow admin emails to log in.
+    if (isLaunchMode && mode === 'login') {
+      const adminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAIL_ALLOWLIST || '')
+        .split(',')
+        .map(e => e.trim().toLowerCase())
+        .filter(Boolean);
+      
+      const userEmail = values.email.toLowerCase();
+
+      if (!adminEmails.includes(userEmail)) {
+        setError('Prelaunch access is limited. Join the waitlist to be notified.');
+        document.cookie = 'isAdminBypass=; path=/; max-age=0'; // Explicitly clear cookie
+        setLoading(false);
+        return;
+      }
+    }
+
+
     if (!isFirebaseEnabled) {
       // DEV AUTH MODE
-      setLoading(true);
-      setError(null);
-      
       const displayName = mode === 'signup' 
         ? [values.firstName, values.lastName].filter(Boolean).join(' ') 
         : 'Dev User';
@@ -162,12 +182,11 @@ export function AuthForm({ mode, role }: AuthFormProps) {
         router.push(devProfile.primaryRole ? `/${devProfile.primaryRole}` : '/');
       }
 
+      setLoading(false);
       return;
     }
 
     // PRODUCTION FIREBASE MODE
-    setLoading(true);
-    setError(null);
     const auth = getAuth(app!);
     const firestoreDb = useFirestore();
 

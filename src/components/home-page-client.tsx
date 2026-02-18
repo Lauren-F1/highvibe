@@ -71,13 +71,22 @@ export default function HomePageClient() {
   const heroImage = placeholderImages.find((img) => img.id === 'resort-hero');
   
   useEffect(() => {
-    if (searchParams.get('reason') === 'prelaunch') {
-        toast({
-            title: 'We’re in prelaunch.',
-            description: "Join the waitlist to get early access.",
-            duration: 5000,
-        });
-        // Optional: remove the query param from URL without reloading
+    const reason = searchParams.get('reason');
+    if (reason) {
+        if (reason === 'prelaunch') {
+            toast({
+                title: 'We’re in prelaunch.',
+                description: "Join the waitlist to get early access.",
+                duration: 5000,
+            });
+        } else if (reason === 'prelaunch_non_admin') {
+            toast({
+                title: 'Prelaunch Access Is Limited',
+                description: "We're currently in a prelaunch phase. Join the waitlist to be notified when we open up.",
+                duration: 5000,
+            });
+        }
+        // Remove the query param from URL without reloading
         router.replace('/', { scroll: false });
     }
   }, [searchParams, toast, router]);
