@@ -1,13 +1,5 @@
 import { Resend } from 'resend';
 
-const resendApiKey = process.env.RESEND_API_KEY;
-const fromEmail = process.env.EMAIL_FROM;
-
-let resend: Resend | null = null;
-if (resendApiKey && resendApiKey !== 're_YOUR_REAL_RESEND_KEY_HERE' && resendApiKey !== 'REPLACE_ME') {
-  resend = new Resend(resendApiKey);
-}
-
 interface SendEmailParams {
   to: string;
   subject: string;
@@ -16,15 +8,26 @@ interface SendEmailParams {
 }
 
 export async function sendEmail({ to, subject, html, text }: SendEmailParams) {
-  if (!resend) {
-    throw new Error('Resend is not configured. Please check your RESEND_API_KEY environment variable.');
+  const resendApiKey = process.env.RESEND_API_KEY;
+  const fromEmail = process.env.EMAIL_FROM;
+
+  if (!resendApiKey || resendApiKey.includes('REPLACE')) {
+    const errorMsg = 'Resend API key is not configured. Please set RESEND_API_KEY as a secret.';
+    console.error(errorMsg);
+    throw new Error(errorMsg);
   }
 
   if (!fromEmail) {
-    throw new Error('EMAIL_FROM environment variable is not set.');
+    const errorMsg = 'From email is not configured. Please set EMAIL_FROM in your environment.';
+    console.error(errorMsg);
+    throw new Error(errorMsg);
   }
 
-  return resend.emails.send({
+  const resend = new Resend(resendApiKey);
+
+  // The calling function (/api/waitlist/route.ts) has a try/catch block,
+  // so we let the promise handle success/rejection there.
+  await resend.emails.send({
     from: fromEmail,
     to,
     subject,
@@ -32,5 +35,3 @@ export async function sendEmail({ to, subject, html, text }: SendEmailParams) {
     text,
   });
 }
-
-    
