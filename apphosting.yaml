@@ -3,41 +3,25 @@
 env:
   - variable: LAUNCH_MODE
     value: "true"
-    availability:
-      - BUILD
-      - RUNTIME
+    availability: [BUILD, RUNTIME]
   - variable: ADMIN_EMAIL_ALLOWLIST
     value: "info@highviberetreats.com"
-    availability:
-      - BUILD
-      - RUNTIME
+    availability: [BUILD, RUNTIME]
   - variable: NEXT_PUBLIC_ADMIN_EMAIL_ALLOWLIST
     value: "info@highviberetreats.com"
-    availability:
-      - BUILD
-      - RUNTIME
+    availability: [BUILD, RUNTIME]
   - variable: NEXT_PUBLIC_LAUNCH_MODE
     value: "true"
-    availability:
-      - BUILD
-      - RUNTIME
+    availability: [BUILD, RUNTIME]
   - variable: RESEND_API_KEY
     secret: RESEND_API_KEY
-    availability:
-      - BUILD
-      - RUNTIME
+    availability: [BUILD, RUNTIME]
   - variable: EMAIL_FROM
     value: "HighVibe Retreats <info@highviberetreats.com>"
-    availability:
-      - BUILD
-      - RUNTIME
+    availability: [BUILD, RUNTIME]
   - variable: NEXT_PUBLIC_BASE_URL
     value: "https://highviberetreats.com"
-    availability:
-      - BUILD
-      - RUNTIME
+    availability: [BUILD, RUNTIME]
   - variable: ADMIN_SEED_SECRET
     secret: ADMIN_SEED_SECRET
-    availability:
-      - BUILD
-      - RUNTIME
+    availability: [BUILD, RUNTIME]
