@@ -22,7 +22,7 @@ env:
       - BUILD
       - RUNTIME
   - variable: RESEND_API_KEY
-    value: "re_REPLACE_WITH_MY_REAL_KEY"
+    secret: RESEND_API_KEY
     availability:
       - BUILD
       - RUNTIME
@@ -37,7 +37,7 @@ env:
       - BUILD
       - RUNTIME
   - variable: ADMIN_SEED_SECRET
-    value: "changeme_to_a_long_random_string"
+    secret: ADMIN_SEED_SECRET
     availability:
       - BUILD
       - RUNTIME
