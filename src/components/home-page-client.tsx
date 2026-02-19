@@ -140,6 +140,7 @@ export default function HomePageClient() {
               fill
               className="object-cover"
               priority
+              style={{ objectPosition: 'center 60%' }}
             />
           </div>
         </div>
