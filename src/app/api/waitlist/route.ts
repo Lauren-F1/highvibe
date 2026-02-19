@@ -11,12 +11,12 @@ const waitlistSchema = z.object({
   firstName: z.string().trim().optional().nullable(),
   email: z.string().trim().email('Invalid email address'),
   roleInterest: z.string().optional().nullable(),
-  source: z.string().optional().nullable(),
-  utm_source: z.string().optional(),
-  utm_medium: z.string().optional(),
-  utm_campaign: z.string().optional(),
-  utm_term: z.string().optional(),
-  utm_content: z.string().optional(),
+  source: z.string().optional().nullable().transform(val => val || 'unknown'),
+  utm_source: z.string().optional().nullable(),
+  utm_medium: z.string().optional().nullable(),
+  utm_campaign: z.string().optional().nullable(),
+  utm_term: z.string().optional().nullable(),
+  utm_content: z.string().optional().nullable(),
 });
 
 type RoleInterest =
@@ -65,7 +65,7 @@ export async function POST(request: Request) {
       ...(docSnap.exists && { submitCount: FieldValue.increment(1) }),
       ...(firstName && { firstName }),
       ...(roleInterest && { roleInterest }),
-      source: source || 'unknown',
+      source: source,
       ...(utm_source && { utm_source }),
       ...(utm_medium && { utm_medium }),
       ...(utm_campaign && { utm_campaign }),
