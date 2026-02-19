@@ -5,7 +5,6 @@ interface BuildEmailProps {
     roleInterest?: string;
     roleBucket: RoleBucket;
     founderCode: string | null;
-    hasCode: boolean;
 }
 
 interface EmailContent {
@@ -75,11 +74,11 @@ const buildPartnerEmail = (): EmailContent => {
 }
 
 
-export function buildWaitlistEmail({ roleInterest, roleBucket, founderCode, hasCode }: BuildEmailProps): EmailContent {
+export function buildWaitlistEmail({ roleInterest, roleBucket, founderCode }: BuildEmailProps): EmailContent {
     const isProvider = ['guide', 'host', 'vendor'].includes(roleBucket);
 
     if (isProvider) {
-        if (hasCode && founderCode) {
+        if (founderCode) {
             return buildProviderWithCodeEmail(roleInterest || roleBucket, founderCode);
         } else {
             return buildProviderNoCodeEmail();
@@ -90,5 +89,3 @@ export function buildWaitlistEmail({ roleInterest, roleBucket, founderCode, hasC
         return buildPartnerEmail();
     }
 }
-
-    

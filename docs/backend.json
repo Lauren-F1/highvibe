@@ -446,6 +446,21 @@
         },
         "lastEmailError": {
           "type": "string"
+        },
+        "founderCodeAssignedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "founderCodeRoleBucket": {
+          "type": "string",
+          "enum": [
+            "guide",
+            "host",
+            "vendor"
+          ]
+        },
+        "founderCodeTest": {
+          "type": "boolean"
         }
       },
       "required": [
@@ -963,35 +978,30 @@
             "host"
           ]
         },
-        "assignedToEmail": {
-          "type": "string",
-          "format": "email"
-        },
-        "assignedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "redeemedByUid": {
-          "type": "string"
-        },
-        "redeemedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
         "status": {
           "type": "string",
           "enum": [
-            "assigned",
-            "redeemed",
-            "expired"
+            "available",
+            "claimed"
           ]
+        },
+        "claimedBy": {
+          "type": "string",
+          "format": "email"
+        },
+        "claimedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
         }
       },
       "required": [
         "roleBucket",
-        "assignedToEmail",
-        "assignedAt",
-        "status"
+        "status",
+        "createdAt"
       ]
     },
     "FounderQuota": {
@@ -1109,5 +1119,3 @@
     }
   }
 }
-
-    

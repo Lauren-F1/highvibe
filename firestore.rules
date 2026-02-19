@@ -48,10 +48,12 @@ service cloud.firestore {
       allow read, delete: if isAdmin();
     }
 
-    match /founder_codes/{codeId} {
+    match /founder_codes/{code} {
       // Only admins can read/write codes directly.
+      // The transaction in the backend function will operate with admin privileges.
       allow read, write: if isAdmin();
     }
+
     match /counters/founder_quota {
       // Only admins can read/write the quota document directly.
       // The transaction in the backend function will operate with admin privileges.
@@ -141,5 +143,3 @@ service cloud.firestore {
     }
   }
 }
-
-    
