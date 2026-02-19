@@ -40,15 +40,13 @@ function mapRoleToBucket(roleInterest: RoleInterest): RoleBucket {
 }
 
 export async function POST(request: Request) {
-  // Dynamically import server-only modules
-  const { getFirestoreDb } = await import('@/lib/firebase-admin');
-  const { FieldValue } = await import('firebase-admin/firestore');
-  const { claimFounderCode } = await import('@/lib/access-codes');
-  const { sendEmail } = await import('@/lib/email');
-  
-  const firestoreDb = await getFirestoreDb();
-
   try {
+    const { getFirebaseAdmin } = await import('@/lib/firebase-admin');
+    const { claimFounderCode } = await import('@/lib/access-codes');
+    const { sendEmail } = await import('@/lib/email');
+    
+    const { db: firestoreDb, FieldValue } = await getFirebaseAdmin();
+
     const body = await request.json();
     const validation = waitlistSchema.safeParse(body);
 
@@ -97,7 +95,7 @@ export async function POST(request: Request) {
         assignedCode = `TEST-${Date.now()}`;
         dataToUpdate.founderCodeTest = true;
       } else {
-        assignedCode = await claimFounderCode(emailLower, roleBucket as 'guide'|'host'|'vendor');
+        assignedCode = await claimFounderCode(emailLower, roleBucket as 'guide'|'host'|'vendor', firestoreDb, FieldValue);
       }
 
       if (assignedCode) {

@@ -2,12 +2,16 @@ import "server-only";
 import type admin from 'firebase-admin';
 
 // This is a lazy-loaded, cached instance of the Firestore DB.
-// Using this pattern avoids bundling the entire Firebase Admin SDK
-// into client-side code, which would cause a build failure.
 let firestoreDb: admin.firestore.Firestore;
+let fieldValue: typeof admin.firestore.FieldValue;
 
-async function getFirestoreDb(): Promise<admin.firestore.Firestore> {
-  if (!firestoreDb) {
+interface FirebaseAdminInstances {
+  db: admin.firestore.Firestore;
+  FieldValue: typeof admin.firestore.FieldValue;
+}
+
+export async function getFirebaseAdmin(): Promise<FirebaseAdminInstances> {
+  if (!firestoreDb || !fieldValue) {
     const admin_sdk = await import('firebase-admin');
     const { getApps } = await import('firebase-admin/app');
 
@@ -15,8 +19,7 @@ async function getFirestoreDb(): Promise<admin.firestore.Firestore> {
       admin_sdk.initializeApp();
     }
     firestoreDb = admin_sdk.firestore();
+    fieldValue = admin_sdk.firestore.FieldValue;
   }
-  return firestoreDb;
+  return { db: firestoreDb, FieldValue: fieldValue };
 }
-
-export { getFirestoreDb };

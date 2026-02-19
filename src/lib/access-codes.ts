@@ -1,17 +1,21 @@
+import type admin from 'firebase-admin';
+
 type RoleBucket = 'guide' | 'host' | 'vendor';
 
 /**
  * Atomically claims an available founder code for a given role and assigns it to an email.
  * @param email The email of the user to claim the code.
  * @param roleBucket The role bucket for which to claim a code.
+ * @param firestoreDb The Firestore database instance.
+ * @param FieldValue The FieldValue class from Firestore.
  * @returns The claimed code string, or null if no codes are available.
  */
-export async function claimFounderCode(email: string, roleBucket: RoleBucket): Promise<string | null> {
-  // Dynamically import to ensure server-only code isn't bundled on the client
-  const { getFirestoreDb } = await import('@/lib/firebase-admin');
-  const { FieldValue } = await import('firebase-admin/firestore');
-  const firestoreDb = await getFirestoreDb();
-
+export async function claimFounderCode(
+  email: string, 
+  roleBucket: RoleBucket,
+  firestoreDb: admin.firestore.Firestore,
+  FieldValue: typeof admin.firestore.FieldValue
+): Promise<string | null> {
   try {
     const code = await firestoreDb.runTransaction(async (transaction) => {
       const availableCodesQuery = firestoreDb.collection('founder_codes')
