@@ -405,7 +405,8 @@
         "status": {
           "type": "string",
           "enum": [
-            "new"
+            "new",
+            "invited"
           ]
         },
         "submitCount": {
@@ -461,6 +462,25 @@
         },
         "founderCodeTest": {
           "type": "boolean"
+        },
+        "invitedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "utm_source": {
+          "type": "string"
+        },
+        "utm_medium": {
+          "type": "string"
+        },
+        "utm_campaign": {
+          "type": "string"
+        },
+        "utm_term": {
+          "type": "string"
+        },
+        "utm_content": {
+          "type": "string"
         }
       },
       "required": [

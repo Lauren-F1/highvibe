@@ -3,6 +3,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { InboxProvider } from '@/context/InboxContext';
+import { GoogleAnalytics } from '@/components/GoogleAnalytics';
 
 export const metadata: Metadata = {
   title: 'Retreat and Relax',
@@ -16,13 +17,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="antialiased">
-      <body className='font-body'>
+      <body>
         <FirebaseClientProvider>
           <InboxProvider>
             {children}
           </InboxProvider>
         </FirebaseClientProvider>
         <Toaster />
+        <GoogleAnalytics />
       </body>
     </html>
   );

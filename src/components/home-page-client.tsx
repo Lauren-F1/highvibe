@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -11,6 +10,7 @@ import React, { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { WaitlistModal } from './waitlist-modal';
 import { Button } from './ui/button';
+import * as analytics from '@/lib/analytics';
 
 // Do not change icon assets or casing; icons must always load from /public and remain unmodified.
 const ROLE_ICON_SRC: Record<string, string> = {
@@ -78,6 +78,8 @@ export default function HomePageClient() {
   const isLaunchMode = process.env.NEXT_PUBLIC_LAUNCH_MODE === 'true';
 
   useEffect(() => {
+    analytics.event('landing_view', { category: 'engagement' });
+
     const reason = searchParams.get('reason');
     if (reason) {
         if (reason === 'prelaunch') {
@@ -86,7 +88,7 @@ export default function HomePageClient() {
                 description: "Join the waitlist to get early access.",
                 duration: 5000,
             });
-        } else if (reason === 'prelaunch_non_admin') {
+        } else if (reason === 'prelaunch_non_admin' || reason === 'prelaunch_non_invited' || reason === 'prelaunch_not_on_waitlist') {
              toast({
                 title: 'Prelaunch Access Is Limited',
                 description: "We're currently in a prelaunch phase. Join the waitlist to be notified when we open up.",

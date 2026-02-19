@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
-import { collection, query, orderBy, getDocs, Timestamp } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs, doc, updateDoc, Timestamp, serverTimestamp } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Copy, MoreHorizontal, Download } from 'lucide-react';
+import { Copy, MoreHorizontal, Download, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { exportToCsv } from '@/lib/csv';
 import { Badge } from '@/components/ui/badge';
@@ -22,8 +22,14 @@ type WaitlistSubmission = {
   source: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
-  status: 'new';
+  status: 'new' | 'invited';
   submitCount: number;
+  utm_source?: string;
+  utm_medium?: string;
+  utm_campaign?: string;
+  utm_term?: string;
+  utm_content?: string;
+  founderCode?: string;
 };
 
 export default function WaitlistAdminPage() {
@@ -96,6 +102,22 @@ export default function WaitlistAdminPage() {
     });
   };
 
+  const handleMarkAsInvited = async (id: string) => {
+    if (!firestore) return;
+    try {
+      const docRef = doc(firestore, 'waitlist', id);
+      await updateDoc(docRef, {
+        status: 'invited',
+        invitedAt: serverTimestamp(),
+      });
+      setWaitlist(prev => prev.map(item => item.id === id ? { ...item, status: 'invited' } : item));
+      toast({ title: 'User marked as invited.' });
+    } catch (error) {
+      console.error("Error marking as invited:", error);
+      toast({ variant: 'destructive', title: 'Update failed' });
+    }
+  };
+
   const handleExport = () => {
     if (filteredWaitlist.length === 0) {
       toast({
@@ -115,6 +137,12 @@ export default function WaitlistAdminPage() {
       source: item.source,
       status: item.status,
       submitCount: item.submitCount,
+      founderCode: item.founderCode || '',
+      utm_source: item.utm_source || '',
+      utm_medium: item.utm_medium || '',
+      utm_campaign: item.utm_campaign || '',
+      utm_term: item.utm_term || '',
+      utm_content: item.utm_content || '',
     }));
     
     exportToCsv(csvData, 'waitlist_export.csv');
@@ -164,6 +192,7 @@ export default function WaitlistAdminPage() {
                 <SelectContent>
                   <SelectItem value="all">All Statuses</SelectItem>
                   <SelectItem value="new">New</SelectItem>
+                  <SelectItem value="invited">Invited</SelectItem>
                 </SelectContent>
               </Select>
                <Button onClick={handleExport}><Download className="mr-2 h-4 w-4" /> Export CSV</Button>
@@ -176,37 +205,38 @@ export default function WaitlistAdminPage() {
                 <TableRow>
                   <TableHead>Date</TableHead>
                   <TableHead>Email</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Role Interest</TableHead>
-                  <TableHead>Source</TableHead>
+                  <TableHead>Role</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Submits</TableHead>
-                  <TableHead>Last Submit</TableHead>
+                  <TableHead>Source</TableHead>
+                  <TableHead>Campaign</TableHead>
                   <TableHead className="w-[80px] text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
-                  <TableRow><TableCell colSpan={9} className="text-center">Loading...</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={7} className="text-center">Loading...</TableCell></TableRow>
                 ) : filteredWaitlist.length === 0 ? (
-                  <TableRow><TableCell colSpan={9} className="text-center">No entries found.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={7} className="text-center">No entries found.</TableCell></TableRow>
                 ) : (
                   filteredWaitlist.map(item => (
                     <TableRow key={item.id}>
                       <TableCell>{item.createdAt?.toDate().toLocaleDateString()}</TableCell>
                       <TableCell className="font-medium">{item.email}</TableCell>
-                      <TableCell>{item.firstName}</TableCell>
                       <TableCell>{item.roleInterest}</TableCell>
+                      <TableCell><Badge variant={item.status === 'invited' ? 'default' : 'secondary'}>{item.status}</Badge></TableCell>
                       <TableCell>{item.source}</TableCell>
-                      <TableCell><Badge>{item.status}</Badge></TableCell>
-                      <TableCell className="text-center">{item.submitCount}</TableCell>
-                      <TableCell>{item.updatedAt?.toDate().toLocaleDateString()}</TableCell>
+                      <TableCell>{item.utm_campaign}</TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon"><MoreHorizontal /></Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
+                            {item.status !== 'invited' && (
+                                <DropdownMenuItem onClick={() => handleMarkAsInvited(item.id)}>
+                                    <CheckCircle className="mr-2 h-4 w-4" /> Mark as Invited
+                                </DropdownMenuItem>
+                            )}
                             <DropdownMenuItem onClick={() => handleCopyEmail(item.email)}>
                                 <Copy className="mr-2 h-4 w-4" /> Copy Email
                             </DropdownMenuItem>

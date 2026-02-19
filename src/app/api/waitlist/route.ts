@@ -1,3 +1,4 @@
+'use server';
 import { NextResponse } from 'next/server';
 import { firestoreDb } from '@/lib/firebase-admin';
 import { z } from 'zod';
@@ -11,6 +12,11 @@ const waitlistSchema = z.object({
   email: z.string().email('Invalid email address'),
   roleInterest: z.string().optional(),
   source: z.string(),
+  utm_source: z.string().optional(),
+  utm_medium: z.string().optional(),
+  utm_campaign: z.string().optional(),
+  utm_term: z.string().optional(),
+  utm_content: z.string().optional(),
 });
 
 type RoleInterest =
@@ -44,7 +50,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: 'Invalid input.' }, { status: 400 });
     }
 
-    const { firstName, email, roleInterest, source } = validation.data;
+    const { firstName, email, roleInterest, source, utm_source, utm_medium, utm_campaign, utm_term, utm_content } = validation.data;
     const emailLower = email.toLowerCase();
     const roleBucket = mapRoleToBucket(roleInterest as RoleInterest);
 
@@ -57,6 +63,11 @@ export async function POST(request: Request) {
       ...(docSnap.exists && { submitCount: FieldValue.increment(1) }),
       ...(firstName && { firstName }),
       ...(roleInterest && { roleInterest }),
+      ...(utm_source && { utm_source }),
+      ...(utm_medium && { utm_medium }),
+      ...(utm_campaign && { utm_campaign }),
+      ...(utm_term && { utm_term }),
+      ...(utm_content && { utm_content }),
     };
 
     if (!docSnap.exists) {
@@ -85,6 +96,7 @@ export async function POST(request: Request) {
         dataToUpdate.founderCode = assignedCode;
         dataToUpdate.founderCodeAssignedAt = FieldValue.serverTimestamp();
         dataToUpdate.founderCodeRoleBucket = roleBucket;
+        dataToUpdate.founderCodeStatus = 'assigned';
       }
     } else if (hasCodeAlready) {
       assignedCode = docSnap.data()?.founderCode;
@@ -101,20 +113,21 @@ export async function POST(request: Request) {
           founderCode: assignedCode,
       });
 
-      sendEmail({ ...emailContent, to: emailLower }).then(() => {
-          waitlistRef.update({
-              emailStatus: 'sent',
-              emailSentAt: FieldValue.serverTimestamp(),
-              lastEmailError: FieldValue.delete(),
-          });
-      }).catch((emailError: any) => {
-          console.error('WAITLIST_EMAIL_ERROR', emailError);
-          waitlistRef.update({
-              emailStatus: 'failed',
-              lastEmailError: emailError.message,
-              emailSentAt: FieldValue.serverTimestamp(),
-          });
-      });
+      try {
+        await sendEmail({ ...emailContent, to: emailLower });
+        await waitlistRef.update({
+            emailStatus: 'sent',
+            emailSentAt: FieldValue.serverTimestamp(),
+            lastEmailError: FieldValue.delete(),
+        });
+      } catch (emailError: any) {
+        console.error('WAITLIST_EMAIL_ERROR', emailError);
+        await waitlistRef.update({
+            emailStatus: 'failed',
+            lastEmailError: emailError.message,
+            emailSentAt: FieldValue.serverTimestamp(),
+        });
+      }
     }
 
     return NextResponse.json({ ok: true, founderCode: assignedCode });

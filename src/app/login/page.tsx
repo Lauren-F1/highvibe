@@ -1,60 +1,77 @@
-
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AuthForm } from '@/components/auth-form';
-import { useUser } from '@/firebase';
+import { useUser, useFirestore } from '@/firebase';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 
 export default function LoginPage() {
     const user = useUser();
     const router = useRouter();
     const searchParams = useSearchParams();
+    const firestore = useFirestore();
 
     useEffect(() => {
         if (user.status === 'authenticated') {
-            const isLaunchMode = process.env.NEXT_PUBLIC_LAUNCH_MODE === 'true';
+            const checkAndRedirect = async () => {
+                const isLaunchMode = process.env.NEXT_PUBLIC_LAUNCH_MODE === 'true';
 
-            if (isLaunchMode) {
-                 const adminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAIL_ALLOWLIST || '')
-                    .split(',')
-                    .map(e => e.trim().toLowerCase())
-                    .filter(Boolean);
-                
-                const userEmail = user.data.email?.toLowerCase();
-                const isAdmin = userEmail ? adminEmails.includes(userEmail) : false;
+                if (isLaunchMode) {
+                    const adminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAIL_ALLOWLIST || '')
+                        .split(',')
+                        .map(e => e.trim().toLowerCase())
+                        .filter(Boolean);
+                    
+                    const userEmail = user.data.email?.toLowerCase();
+                    const isAdmin = userEmail ? adminEmails.includes(userEmail) : false;
 
-                if (!isAdmin) {
-                    if (user.app) {
-                        const auth = getAuth(user.app);
-                        auth.signOut();
+                    if (!isAdmin && firestore && userEmail) {
+                        try {
+                            const waitlistRef = doc(firestore, 'waitlist', userEmail);
+                            const waitlistSnap = await getDoc(waitlistRef);
+                            
+                            if (!waitlistSnap.exists() || waitlistSnap.data().status !== 'invited') {
+                                if (user.app) {
+                                    getAuth(user.app).signOut();
+                                }
+                                router.push('/?reason=prelaunch_non_invited');
+                                return;
+                            }
+                        } catch (err) {
+                            console.error("Error checking waitlist status:", err);
+                             if (user.app) {
+                                getAuth(user.app).signOut();
+                            }
+                            router.push('/?reason=prelaunch_error');
+                            return;
+                        }
                     }
-                    router.push('/?reason=prelaunch_non_admin');
+                }
+
+                // User is admin, or not in launch mode, or is an invited user. Proceed with normal redirect logic.
+                const redirect = searchParams.get('redirect');
+                if (redirect) {
+                    router.push(redirect);
                     return;
                 }
-            }
 
-            // Admin user or Launch Mode is off - proceed with normal redirect
-            const redirect = searchParams.get('redirect');
-            if (redirect) {
-                router.push(redirect);
-                return;
-            }
-
-            if (user.profile && user.profile.onboardingComplete) {
-                const primaryRole = user.profile.primaryRole;
-                if (primaryRole) {
-                    router.push(`/${primaryRole}`);
+                if (user.profile && user.profile.onboardingComplete) {
+                    const primaryRole = user.profile.primaryRole;
+                    if (primaryRole) {
+                        router.push(`/${primaryRole}`);
+                    } else {
+                        router.push('/onboarding/role');
+                    }
                 } else {
                     router.push('/onboarding/role');
                 }
-            } else {
-                router.push('/onboarding/role');
-            }
+            };
+            checkAndRedirect();
         }
-    }, [user, router, searchParams]);
+    }, [user, router, searchParams, firestore]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-secondary p-4">

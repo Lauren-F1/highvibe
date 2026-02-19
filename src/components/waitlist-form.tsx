@@ -9,6 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { useSearchParams } from 'next/navigation';
+import * as analytics from '@/lib/analytics';
 
 const waitlistSchema = z.object({
   firstName: z.string().optional(),
@@ -25,6 +27,7 @@ interface WaitlistFormProps {
 
 export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
   const [formState, setFormState] = useState<'idle' | 'submitting' | 'submitted' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -36,8 +39,15 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
   });
 
   const onSubmit = async (data: WaitlistFormInputs) => {
+    analytics.event('waitlist_submit', { category: 'engagement', label: source });
     setFormState('submitting');
     setErrorMessage(null);
+
+    const utm_source = searchParams.get('utm_source');
+    const utm_medium = searchParams.get('utm_medium');
+    const utm_campaign = searchParams.get('utm_campaign');
+    const utm_term = searchParams.get('utm_term');
+    const utm_content = searchParams.get('utm_content');
     
     try {
       const response = await fetch('/api/waitlist', {
@@ -48,6 +58,11 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
         body: JSON.stringify({
           ...data,
           source: source,
+          utm_source,
+          utm_medium,
+          utm_campaign,
+          utm_term,
+          utm_content,
         }),
       });
 
@@ -56,7 +71,8 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
       if (!response.ok || !result.ok) {
         throw new Error(result.error || 'An unknown server error occurred.');
       }
-
+      
+      analytics.event('waitlist_success', { category: 'engagement', label: source });
       setFormState('submitted');
       toast({
         title: "You're on the list!",
