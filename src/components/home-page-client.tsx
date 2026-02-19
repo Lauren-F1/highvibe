@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -123,13 +124,13 @@ export default function HomePageClient() {
         defaultRole={defaultRole}
     />
     <main className="flex min-h-screen w-full flex-col items-center bg-background p-4 sm:p-6 md:p-8">
-      <div className="w-full max-w-7xl text-center mb-8">
+      <div className="w-full max-w-7xl text-center mb-4">
         <Logo />
       </div>
 
       {heroImage && (
         <div className="w-full max-w-7xl mb-8">
-          <div className="relative aspect-[3/1] w-full rounded-lg overflow-hidden">
+          <div className="relative aspect-[21/9] w-full rounded-lg overflow-hidden">
             <Image
               src={heroImage.imageUrl}
               alt={heroImage.description}
