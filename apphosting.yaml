@@ -22,7 +22,7 @@ env:
       - BUILD
       - RUNTIME
   - variable: RESEND_API_KEY
-    value: "re_Unicorn_4_Ever"
+    value: "re_REPLACE_WITH_YOUR_NEW_RESEND_KEY"
     availability:
       - BUILD
       - RUNTIME
@@ -37,11 +37,7 @@ env:
       - BUILD
       - RUNTIME
   - variable: ADMIN_SEED_SECRET
-    value: "changeme"
-    availability:
-      - RUNTIME
-  - variable: NEXT_PUBLIC_GA_MEASUREMENT_ID
-    value: ""
+    value: "changeme_to_a_long_random_string"
     availability:
       - BUILD
       - RUNTIME
