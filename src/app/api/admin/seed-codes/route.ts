@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { getFirestoreDb } from '@/lib/firebase-admin';
-import { FieldValue } from 'firebase-admin/firestore';
 import { randomBytes } from 'crypto';
 
 const CODES_TO_GENERATE = {
@@ -15,6 +14,9 @@ function generateCode(role: 'guide' | 'host' | 'vendor'): string {
 }
 
 export async function GET(request: Request) {
+  // Dynamically import server-only modules
+  const { FieldValue } = await import('firebase-admin/firestore');
+
   // 3. Safety Gate: Only allow in LAUNCH_MODE
   if (process.env.LAUNCH_MODE !== 'true') {
     return NextResponse.json({
@@ -27,7 +29,7 @@ export async function GET(request: Request) {
   
   // 1. Check for a strong admin secret
   const adminSecret = process.env.ADMIN_SEED_SECRET;
-  if (!adminSecret || adminSecret === 'changeme') {
+  if (!adminSecret || adminSecret === 'changeme_to_a_long_random_string' || adminSecret.length < 20) {
     console.error('CRITICAL: ADMIN_SEED_SECRET is not set or is insecure.');
     return NextResponse.json({
         ok: false,

@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
-import { firestoreDb } from '@/lib/firebase-admin';
+import { getFirestoreDb } from '@/lib/firebase-admin';
 import { z } from 'zod';
-import { FieldValue } from 'firebase-admin/firestore';
 import { claimFounderCode } from '@/lib/access-codes';
 import { buildWaitlistEmail } from '@/lib/waitlist-email-templates';
 import { sendEmail } from '@/lib/email';
@@ -41,6 +40,10 @@ function mapRoleToBucket(roleInterest: RoleInterest): RoleBucket {
 }
 
 export async function POST(request: Request) {
+  // Dynamically import server-only modules
+  const { FieldValue } = await import('firebase-admin/firestore');
+  const firestoreDb = getFirestoreDb();
+
   try {
     const body = await request.json();
     const validation = waitlistSchema.safeParse(body);

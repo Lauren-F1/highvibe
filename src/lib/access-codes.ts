@@ -1,5 +1,4 @@
 import { getFirestoreDb } from '@/lib/firebase-admin';
-import { FieldValue } from 'firebase-admin/firestore';
 
 type RoleBucket = 'guide' | 'host' | 'vendor';
 
@@ -10,12 +9,12 @@ type RoleBucket = 'guide' | 'host' | 'vendor';
  * @returns The claimed code string, or null if no codes are available.
  */
 export async function claimFounderCode(email: string, roleBucket: RoleBucket): Promise<string | null> {
+  const { FieldValue } = await import('firebase-admin/firestore');
   const firestoreDb = getFirestoreDb();
-  const codesRef = firestoreDb.collection('founder_codes');
 
   try {
     const code = await firestoreDb.runTransaction(async (transaction) => {
-      const availableCodesQuery = codesRef
+      const availableCodesQuery = firestoreDb.collection('founder_codes')
         .where('roleBucket', '==', roleBucket)
         .where('status', '==', 'available')
         .limit(1);
