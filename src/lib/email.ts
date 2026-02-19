@@ -1,5 +1,3 @@
-import { Resend } from 'resend';
-
 interface SendEmailParams {
   to: string;
   subject: string;
@@ -8,6 +6,9 @@ interface SendEmailParams {
 }
 
 export async function sendEmail({ to, subject, html, text }: SendEmailParams) {
+  // Dynamically import Resend to ensure it's only loaded on the server at runtime.
+  const { Resend } = await import('resend');
+
   const resendApiKey = process.env.RESEND_API_KEY;
   const fromEmail = process.env.EMAIL_FROM;
 
