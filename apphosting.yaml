@@ -22,7 +22,7 @@ env:
       - BUILD
       - RUNTIME
   - variable: RESEND_API_KEY
-    value: "re_REPLACE_WITH_YOUR_NEW_RESEND_KEY"
+    value: "re_REPLACE_WITH_MY_REAL_KEY"
     availability:
       - BUILD
       - RUNTIME
