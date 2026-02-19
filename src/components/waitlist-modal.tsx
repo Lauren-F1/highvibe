@@ -59,7 +59,7 @@ export function WaitlistModal({
             </p>
         </DialogHeader>
         <div className="pt-4">
-          <WaitlistForm source={source || 'modal-popup'} defaultRole={roleInterestValue} />
+          <WaitlistForm source={source || 'homepage'} defaultRole={roleInterestValue} />
         </div>
       </DialogContent>
     </Dialog>
