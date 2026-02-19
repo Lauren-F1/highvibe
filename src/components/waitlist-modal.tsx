@@ -22,7 +22,7 @@ const getRoleValue = (role?: RoleShort) => {
     if (!role || role === "") return undefined;
     switch(role) {
         case "Seeker": return "Seeker (I want to find/book retreats)";
-        case "Guide": return "Guide (I want to host retreats)";
+        case "Guide": return "Guide (I want to lead retreats)";
         case "Host": return "Host (I have a space)";
         case "Vendor": return "Vendor (I offer services)";
         case "Partner / Collaborator": return "Partner / Collaborator";

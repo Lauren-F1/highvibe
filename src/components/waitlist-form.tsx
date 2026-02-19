@@ -74,7 +74,7 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
 
       if (!response.ok || !result.ok) {
         const errorMsg = result.error || 'An unknown server error occurred.';
-        setErrorMessage(errorMsg);
+        setErrorMessage(`${errorMsg} Please try again.`);
         setFormState('error');
         return;
       }
@@ -88,7 +88,7 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
       reset();
     } catch (error: any) {
       console.error('Waitlist form submission error:', error);
-      setErrorMessage(error.message || 'An unexpected error occurred. Please check your connection and try again.');
+      setErrorMessage('Could not connect to the server. Please check your internet connection and try again.');
       setFormState('error');
     }
   };
@@ -131,7 +131,7 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
                 </SelectTrigger>
                 <SelectContent>
                     <SelectItem value="Seeker (I want to find/book retreats)">Seeker (I want to find/book retreats)</SelectItem>
-                    <SelectItem value="Guide (I want to host retreats)">Guide (I want to host retreats)</SelectItem>
+                    <SelectItem value="Guide (I want to lead retreats)">Guide (I want to lead retreats)</SelectItem>
                     <SelectItem value="Host (I have a space)">Host (I have a space)</SelectItem>
                     <SelectItem value="Vendor (I offer services)">Vendor (I offer services)</SelectItem>
                     <SelectItem value="Partner / Collaborator">Partner / Collaborator</SelectItem>

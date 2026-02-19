@@ -19,7 +19,7 @@ const waitlistSchema = z.object({
 
 type RoleInterest =
   | "Seeker (I want to find/book retreats)"
-  | "Guide (I want to host retreats)"
+  | "Guide (I want to lead retreats)"
   | "Host (I have a space)"
   | "Vendor (I offer services)"
   | "Partner / Collaborator"
@@ -31,7 +31,7 @@ type RoleBucket = "seeker" | "guide" | "host" | "vendor" | "partner";
 function mapRoleToBucket(roleInterest: RoleInterest): RoleBucket {
     switch (roleInterest) {
         case "Seeker (I want to find/book retreats)": return 'seeker';
-        case "Guide (I want to host retreats)": return 'guide';
+        case "Guide (I want to lead retreats)": return 'guide';
         case "Host (I have a space)": return 'host';
         case "Vendor (I offer services)": return 'vendor';
         case "Partner / Collaborator": return 'partner';
@@ -40,26 +40,35 @@ function mapRoleToBucket(roleInterest: RoleInterest): RoleBucket {
 }
 
 export async function POST(request: Request) {
+  // Server-side guard for essential environment variables.
+  if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.includes('REPLACE')) {
+    const errorMsg = "Email service not configured. RESEND_API_KEY is missing.";
+    console.error("WAITLIST_ERROR: " + errorMsg);
+    return NextResponse.json(
+      { ok: false, error: errorMsg, code: "missing_resend_key" },
+      { status: 500 }
+    );
+  }
+
   try {
     const { getFirebaseAdmin } = await import('@/lib/firebase-admin');
     const { claimFounderCode } = await import('@/lib/access-codes');
     const { sendEmail } = await import('@/lib/email');
     
-    const { db: firestoreDb, FieldValue } = await getFirebaseAdmin();
-
     const body = await request.json();
     const validation = waitlistSchema.safeParse(body);
 
     if (!validation.success) {
-      const errorMessage = validation.error.errors[0]?.message;
-      console.error('WAITLIST_VALIDATION_ERROR', validation.error.issues);
-      return NextResponse.json({ ok: false, error: errorMessage || 'Invalid input.' }, { status: 400 });
+      const errorMessage = validation.error.errors[0]?.message || 'Invalid input.';
+      console.error('WAITLIST_VALIDATION_ERROR', { issues: validation.error.issues });
+      return NextResponse.json({ ok: false, error: errorMessage, code: "validation_failed" }, { status: 400 });
     }
 
     const { firstName, email, roleInterest, source, utm_source, utm_medium, utm_campaign, utm_term, utm_content } = validation.data;
     const emailLower = email.toLowerCase();
     const roleBucket = mapRoleToBucket(roleInterest as RoleInterest);
 
+    const { db: firestoreDb, FieldValue } = await getFirebaseAdmin();
     const waitlistRef = firestoreDb.collection('waitlist').doc(emailLower);
     const docSnap = await waitlistRef.get();
 
@@ -95,7 +104,7 @@ export async function POST(request: Request) {
         assignedCode = `TEST-${Date.now()}`;
         dataToUpdate.founderCodeTest = true;
       } else {
-        assignedCode = await claimFounderCode(emailLower, roleBucket as 'guide'|'host'|'vendor', firestoreDb, FieldValue);
+        assignedCode = await claimFounderCode(emailLower, roleBucket as 'guide'|'host'|'vendor');
       }
 
       if (assignedCode) {
@@ -127,7 +136,7 @@ export async function POST(request: Request) {
             lastEmailError: FieldValue.delete(),
         });
       } catch (emailError: any) {
-        console.error('WAITLIST_EMAIL_ERROR', emailError);
+        console.error('WAITLIST_EMAIL_ERROR', { message: emailError.message });
         await waitlistRef.update({
             emailStatus: 'failed',
             lastEmailError: emailError.message,
@@ -139,10 +148,27 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, founderCode: assignedCode });
 
   } catch (error: any) {
-    console.error('WAITLIST_ERROR', error);
+    const payload = await request.json().catch(() => ({}));
+    console.error('WAITLIST_ERROR', {
+        message: error.message,
+        stack: error.stack,
+        email: payload.email,
+        roleBucket: payload.roleInterest ? mapRoleToBucket(payload.roleInterest) : 'unknown',
+        source: payload.source,
+    });
+    
+    let userFriendlyError = 'An unexpected error occurred. Please try again later.';
+    let errorCode = 'internal_server_error';
+
+    if (error.message && error.message.includes('EMAIL_FROM')) {
+        userFriendlyError = 'Email service is not configured correctly on the server.';
+        errorCode = 'missing_email_from';
+    }
+
     return NextResponse.json({
         ok: false,
-        error: 'An unexpected error occurred on the server.',
+        error: userFriendlyError,
+        code: errorCode,
       },
       { status: 500 }
     );
