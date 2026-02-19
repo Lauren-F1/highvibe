@@ -1,3 +1,4 @@
+import "server-only";
 import type admin from 'firebase-admin';
 
 // This is a lazy-loaded, cached instance of the Firestore DB.

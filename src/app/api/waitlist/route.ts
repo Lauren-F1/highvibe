@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { buildWaitlistEmail } from '@/lib/waitlist-email-templates';
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 const waitlistSchema = z.object({
   firstName: z.string().trim().optional().nullable(),
   email: z.string().trim().email('Invalid email address'),

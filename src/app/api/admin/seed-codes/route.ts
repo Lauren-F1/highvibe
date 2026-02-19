@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { randomBytes } from 'crypto';
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 const CODES_TO_GENERATE = {
   guide: 100,
   host: 50,
