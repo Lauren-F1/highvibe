@@ -4,6 +4,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { InboxProvider } from '@/context/InboxContext';
 import { GoogleAnalytics } from '@/components/GoogleAnalytics';
+import { Suspense } from 'react';
 
 export const metadata: Metadata = {
   title: 'Retreat and Relax',
@@ -24,7 +25,9 @@ export default function RootLayout({
           </InboxProvider>
         </FirebaseClientProvider>
         <Toaster />
-        <GoogleAnalytics />
+        <Suspense fallback={null}>
+          <GoogleAnalytics />
+        </Suspense>
       </body>
     </html>
   );
