@@ -22,7 +22,7 @@ env:
       - BUILD
       - RUNTIME
   - variable: RESEND_API_KEY
-    value: "re_YOUR_REAL_RESEND_KEY_HERE"
+    value: "re_Unicorn_4_Ever"
     availability:
       - BUILD
       - RUNTIME

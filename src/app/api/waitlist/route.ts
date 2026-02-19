@@ -8,10 +8,10 @@ import { buildWaitlistEmail } from '@/lib/waitlist-email-templates';
 import { sendEmail } from '@/lib/email';
 
 const waitlistSchema = z.object({
-  firstName: z.string().optional(),
-  email: z.string().email('Invalid email address'),
+  firstName: z.string().trim().optional(),
+  email: z.string().trim().email('Invalid email address'),
   roleInterest: z.string().optional(),
-  source: z.string(),
+  source: z.string().default('unknown'),
   utm_source: z.string().optional(),
   utm_medium: z.string().optional(),
   utm_campaign: z.string().optional(),
@@ -46,8 +46,9 @@ export async function POST(request: Request) {
     const validation = waitlistSchema.safeParse(body);
 
     if (!validation.success) {
+      const errorMessage = validation.error.errors[0]?.message;
       console.error('WAITLIST_VALIDATION_ERROR', validation.error.issues);
-      return NextResponse.json({ ok: false, error: 'Invalid input.' }, { status: 400 });
+      return NextResponse.json({ ok: false, error: errorMessage || 'Invalid input.' }, { status: 400 });
     }
 
     const { firstName, email, roleInterest, source, utm_source, utm_medium, utm_campaign, utm_term, utm_content } = validation.data;
@@ -63,6 +64,7 @@ export async function POST(request: Request) {
       ...(docSnap.exists && { submitCount: FieldValue.increment(1) }),
       ...(firstName && { firstName }),
       ...(roleInterest && { roleInterest }),
+      ...(source && { source }),
       ...(utm_source && { utm_source }),
       ...(utm_medium && { utm_medium }),
       ...(utm_campaign && { utm_campaign }),
@@ -73,7 +75,6 @@ export async function POST(request: Request) {
     if (!docSnap.exists) {
         dataToUpdate.createdAt = FieldValue.serverTimestamp();
         dataToUpdate.email = emailLower;
-        dataToUpdate.source = source;
         dataToUpdate.status = 'new';
         dataToUpdate.submitCount = 1;
     }
@@ -137,7 +138,6 @@ export async function POST(request: Request) {
     return NextResponse.json({
         ok: false,
         error: 'An unexpected error occurred on the server.',
-        debug: process.env.NODE_ENV === 'development' ? error.message : undefined,
       },
       { status: 500 }
     );

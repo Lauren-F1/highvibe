@@ -100,7 +100,7 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
        {formState === 'error' && (
           <p className="text-destructive text-sm text-center">{errorMessage}</p>
         )}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="space-y-4">
         <div className="space-y-2">
             <Label htmlFor="firstName">First Name</Label>
             <Input id="firstName" placeholder="First Name" {...register('firstName')} />
@@ -108,7 +108,7 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
         </div>
         <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="you@example.com" {...register('email')} />
+            <Input id="email" type="email" placeholder="you@example.com" {...register('email')} autoComplete="email" />
             {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
         </div>
       </div>
