@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { firestoreDb } from '@/lib/firebase-admin';
+import { getFirestoreDb } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { randomBytes } from 'crypto';
 
@@ -47,6 +47,7 @@ export async function GET(request: Request) {
     }, { status: 401 });
   }
   
+  const firestoreDb = getFirestoreDb();
   const codesRef = firestoreDb.collection('founder_codes');
   const batch = firestoreDb.batch();
   let totalGenerated = 0;

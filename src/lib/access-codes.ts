@@ -1,4 +1,4 @@
-import { firestoreDb } from '@/lib/firebase-admin';
+import { getFirestoreDb } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 
 type RoleBucket = 'guide' | 'host' | 'vendor';
@@ -10,6 +10,7 @@ type RoleBucket = 'guide' | 'host' | 'vendor';
  * @returns The claimed code string, or null if no codes are available.
  */
 export async function claimFounderCode(email: string, roleBucket: RoleBucket): Promise<string | null> {
+  const firestoreDb = getFirestoreDb();
   const codesRef = firestoreDb.collection('founder_codes');
 
   try {
