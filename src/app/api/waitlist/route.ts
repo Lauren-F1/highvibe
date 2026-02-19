@@ -120,7 +120,9 @@ export async function POST(request: Request) {
 
     await waitlistRef.set(dataToUpdate, { merge: true });
 
+    let emailSentSuccessfully = true;
     const shouldSendEmail = !docSnap.exists || docSnap.data()?.emailStatus !== 'sent';
+    
     if (shouldSendEmail) {
       const emailContent = buildWaitlistEmail({
           firstName: firstName || undefined,
@@ -137,13 +139,22 @@ export async function POST(request: Request) {
             lastEmailError: FieldValue.delete(),
         });
       } catch (emailError: any) {
-        console.error('WAITLIST_EMAIL_ERROR', { message: emailError.message });
+        console.error('WAITLIST_EMAIL_ERROR', { message: emailError.message, name: emailError.name, statusCode: emailError.statusCode });
         await waitlistRef.update({
-            emailStatus: 'failed',
+            emailStatus: `failed: ${emailError.statusCode || 'unknown'}`,
             lastEmailError: emailError.message,
             emailSentAt: FieldValue.serverTimestamp(),
         });
+        emailSentSuccessfully = false;
       }
+    }
+
+    if (!emailSentSuccessfully) {
+        return NextResponse.json({ 
+            ok: true, 
+            founderCode: assignedCode,
+            message: "We saved your spot on the waitlist, but the email confirmation is temporarily unavailable."
+        });
     }
 
     return NextResponse.json({ ok: true, founderCode: assignedCode });

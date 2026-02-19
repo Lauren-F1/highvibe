@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -81,10 +82,19 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
       
       analytics.event('waitlist_success', { category: 'engagement', label: source });
       setFormState('submitted');
-      toast({
-        title: "You're on the list!",
-        description: "We'll email you when HighVibe opens.",
-      });
+
+      if (result.message) {
+        toast({
+            title: "We saved your spot!",
+            description: "Email confirmation is temporarily unavailable.",
+        });
+      } else {
+        toast({
+            title: "You're on the list!",
+            description: "We'll email you when HighVibe opens.",
+        });
+      }
+      
       reset();
     } catch (error: any) {
       console.error('Waitlist form submission error:', error);
