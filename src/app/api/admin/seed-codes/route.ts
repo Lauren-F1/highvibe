@@ -49,7 +49,7 @@ export async function GET(request: Request) {
     }, { status: 401 });
   }
   
-  const firestoreDb = getFirestoreDb();
+  const firestoreDb = await getFirestoreDb();
   const codesRef = firestoreDb.collection('founder_codes');
   const batch = firestoreDb.batch();
   let totalGenerated = 0;

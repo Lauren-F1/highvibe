@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { claimFounderCode } from '@/lib/access-codes';
 import { buildWaitlistEmail } from '@/lib/waitlist-email-templates';
-import { sendEmail } from '@/lib/email';
 
 const waitlistSchema = z.object({
   firstName: z.string().trim().optional().nullable(),
@@ -42,7 +40,10 @@ export async function POST(request: Request) {
   // Dynamically import server-only modules
   const { getFirestoreDb } = await import('@/lib/firebase-admin');
   const { FieldValue } = await import('firebase-admin/firestore');
-  const firestoreDb = getFirestoreDb();
+  const { claimFounderCode } = await import('@/lib/access-codes');
+  const { sendEmail } = await import('@/lib/email');
+  
+  const firestoreDb = await getFirestoreDb();
 
   try {
     const body = await request.json();

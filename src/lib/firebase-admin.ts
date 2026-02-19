@@ -5,12 +5,10 @@ import type admin from 'firebase-admin';
 // into client-side code, which would cause a build failure.
 let firestoreDb: admin.firestore.Firestore;
 
-function getFirestoreDb(): admin.firestore.Firestore {
+async function getFirestoreDb(): Promise<admin.firestore.Firestore> {
   if (!firestoreDb) {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const admin_sdk = require('firebase-admin');
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { getApps } = require('firebase-admin/app');
+    const admin_sdk = await import('firebase-admin');
+    const { getApps } = await import('firebase-admin/app');
 
     if (!getApps().length) {
       admin_sdk.initializeApp();

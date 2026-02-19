@@ -10,7 +10,7 @@ export async function claimFounderCode(email: string, roleBucket: RoleBucket): P
   // Dynamically import to ensure server-only code isn't bundled on the client
   const { getFirestoreDb } = await import('@/lib/firebase-admin');
   const { FieldValue } = await import('firebase-admin/firestore');
-  const firestoreDb = getFirestoreDb();
+  const firestoreDb = await getFirestoreDb();
 
   try {
     const code = await firestoreDb.runTransaction(async (transaction) => {
