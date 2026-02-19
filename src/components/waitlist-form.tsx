@@ -49,21 +49,26 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
     const utm_term = searchParams.get('utm_term');
     const utm_content = searchParams.get('utm_content');
     
+    // Omit null/undefined fields before sending
+    const payload = {
+        firstName: data.firstName || undefined,
+        email: data.email,
+        roleInterest: data.roleInterest || undefined,
+        source: source,
+        utm_source: utm_source || undefined,
+        utm_medium: utm_medium || undefined,
+        utm_campaign: utm_campaign || undefined,
+        utm_term: utm_term || undefined,
+        utm_content: utm_content || undefined,
+    };
+    
     try {
       const response = await fetch('/api/waitlist', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          ...data,
-          source: source,
-          utm_source,
-          utm_medium,
-          utm_campaign,
-          utm_term,
-          utm_content,
-        }),
+        body: JSON.stringify(payload),
       });
 
       const result = await response.json();

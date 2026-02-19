@@ -8,10 +8,10 @@ import { buildWaitlistEmail } from '@/lib/waitlist-email-templates';
 import { sendEmail } from '@/lib/email';
 
 const waitlistSchema = z.object({
-  firstName: z.string().trim().optional(),
+  firstName: z.string().trim().optional().nullable(),
   email: z.string().trim().email('Invalid email address'),
-  roleInterest: z.string().optional(),
-  source: z.string().default('unknown'),
+  roleInterest: z.string().optional().nullable(),
+  source: z.string().optional().nullable(),
   utm_source: z.string().optional(),
   utm_medium: z.string().optional(),
   utm_campaign: z.string().optional(),
@@ -25,7 +25,8 @@ type RoleInterest =
   | "Host (I have a space)"
   | "Vendor (I offer services)"
   | "Partner / Collaborator"
-  | undefined;
+  | undefined
+  | null;
 
 type RoleBucket = "seeker" | "guide" | "host" | "vendor" | "partner";
 
@@ -64,7 +65,7 @@ export async function POST(request: Request) {
       ...(docSnap.exists && { submitCount: FieldValue.increment(1) }),
       ...(firstName && { firstName }),
       ...(roleInterest && { roleInterest }),
-      ...(source && { source }),
+      source: source || 'unknown',
       ...(utm_source && { utm_source }),
       ...(utm_medium && { utm_medium }),
       ...(utm_campaign && { utm_campaign }),
@@ -108,8 +109,8 @@ export async function POST(request: Request) {
     const shouldSendEmail = !docSnap.exists || docSnap.data()?.emailStatus !== 'sent';
     if (shouldSendEmail) {
       const emailContent = buildWaitlistEmail({
-          firstName,
-          roleInterest,
+          firstName: firstName || undefined,
+          roleInterest: roleInterest || undefined,
           roleBucket,
           founderCode: assignedCode,
       });
