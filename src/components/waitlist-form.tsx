@@ -73,7 +73,11 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
       const result = await response.json();
 
       if (!response.ok || !result.ok) {
-        throw new Error(result.error || 'An unknown server error occurred.');
+        const errorMsg = result.error || 'An unknown server error occurred.';
+        setErrorMessage(errorMsg);
+        setFormState('error');
+        console.error("Waitlist API error:", errorMsg);
+        return;
       }
       
       analytics.event('waitlist_success', { category: 'engagement', label: source });
@@ -85,7 +89,7 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
       reset();
     } catch (error: any) {
       console.error('Waitlist form submission error:', error);
-      setErrorMessage(error.message || 'Waitlist error. Please try again in a moment.');
+      setErrorMessage(error.message || 'An unexpected error occurred. Please check your connection and try again.');
       setFormState('error');
     }
   };
