@@ -89,3 +89,35 @@ export function buildWaitlistEmail({ roleInterest, roleBucket, founderCode }: Bu
         return buildPartnerEmail();
     }
 }
+
+// Stub for a future email verification flow
+export function buildVerificationEmail(email: string, token: string): EmailContent {
+    const verificationLink = `${process.env.NEXT_PUBLIC_BASE_URL}/api/verify-email?token=${token}`;
+    const subject = "Verify your email for HighVibe Retreats";
+    const html = `
+        <div>
+            <p>Please click the link below to verify your email address:</p>
+            <a href="${verificationLink}">${verificationLink}</a>
+        </div>
+    `;
+    const text = `Please verify your email by visiting this link: ${verificationLink}`;
+    return { subject, html, text };
+}
+
+// Stub for a future invite wave email
+export function buildInviteWaveEmail(email: string): EmailContent {
+    const subject = "You're invited to join HighVibe Retreats!";
+    const unsubscribeLink = `${process.env.NEXT_PUBLIC_BASE_URL}/preferences?email=${encodeURIComponent(email)}`;
+    const html = `
+        <div>
+            <p>The wait is over! You're invited to join the HighVibe Retreats platform.</p>
+            <a href="${process.env.NEXT_PUBLIC_BASE_URL}/join">Create Your Account Now</a>
+            <br/><br/>
+            <p style="font-size: 12px; color: #888;">
+                To unsubscribe from future marketing emails, <a href="${unsubscribeLink}">click here</a>.
+            </p>
+        </div>
+    `;
+    const text = `The wait is over! You're invited to join the HighVibe Retreats platform. Create your account here: ${process.env.NEXT_PUBLIC_BASE_URL}/join`;
+    return { subject, html, text };
+}

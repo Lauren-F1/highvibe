@@ -105,6 +105,7 @@ export async function POST(request: Request) {
           waitlistRef.update({
               emailStatus: 'sent',
               emailSentAt: FieldValue.serverTimestamp(),
+              lastEmailError: FieldValue.delete(),
           });
       }).catch((emailError: any) => {
           console.error('WAITLIST_EMAIL_ERROR', emailError);
