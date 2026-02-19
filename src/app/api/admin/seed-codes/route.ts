@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { getFirestoreDb } from '@/lib/firebase-admin';
 import { randomBytes } from 'crypto';
 
 const CODES_TO_GENERATE = {
@@ -15,6 +14,7 @@ function generateCode(role: 'guide' | 'host' | 'vendor'): string {
 
 export async function GET(request: Request) {
   // Dynamically import server-only modules
+  const { getFirestoreDb } = await import('@/lib/firebase-admin');
   const { FieldValue } = await import('firebase-admin/firestore');
 
   // 3. Safety Gate: Only allow in LAUNCH_MODE
