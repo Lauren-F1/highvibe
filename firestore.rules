@@ -41,13 +41,21 @@ service cloud.firestore {
     }
 
     match /waitlist/{email} {
-      // Anyone can add themselves to the waitlist.
-      allow create: if request.resource.data.email == email.lower() &&
-                     request.resource.data.status == 'new' &&
-                     request.resource.data.createdAt == request.time;
+      // API endpoint with admin SDK handles writes.
+      allow create, update: if isAdmin();
       
-      // Only admins can read, update, or delete waitlist entries.
-      allow read, update, delete: if isAdmin();
+      // Only admins can read or delete waitlist entries.
+      allow read, delete: if isAdmin();
+    }
+
+    match /founder_codes/{codeId} {
+      // Only admins can read/write codes directly.
+      allow read, write: if isAdmin();
+    }
+    match /counters/founder_quota {
+      // Only admins can read/write the quota document directly.
+      // The transaction in the backend function will operate with admin privileges.
+      allow read, write: if isAdmin();
     }
 
     match /contact_submissions/{submissionId} {
@@ -133,3 +141,5 @@ service cloud.firestore {
     }
   }
 }
+
+    

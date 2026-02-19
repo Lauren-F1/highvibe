@@ -413,6 +413,39 @@
         },
         "userAgent": {
           "type": "string"
+        },
+        "founderCode": {
+          "type": "string"
+        },
+        "founderCodeStatus": {
+          "type": "string",
+          "enum": [
+            "assigned"
+          ]
+        },
+        "roleBucket": {
+          "type": "string",
+          "enum": [
+            "seeker",
+            "guide",
+            "host",
+            "vendor",
+            "partner"
+          ]
+        },
+        "emailStatus": {
+          "type": "string",
+          "enum": [
+            "sent",
+            "failed"
+          ]
+        },
+        "emailSentAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lastEmailError": {
+          "type": "string"
         }
       },
       "required": [
@@ -916,6 +949,71 @@
         "expiry_date",
         "status"
       ]
+    },
+    "FounderCode": {
+      "title": "Founder Code",
+      "description": "A unique access pass code for founding members.",
+      "type": "object",
+      "properties": {
+        "roleBucket": {
+          "type": "string",
+          "enum": [
+            "guide",
+            "vendor",
+            "host"
+          ]
+        },
+        "assignedToEmail": {
+          "type": "string",
+          "format": "email"
+        },
+        "assignedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "redeemedByUid": {
+          "type": "string"
+        },
+        "redeemedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "assigned",
+            "redeemed",
+            "expired"
+          ]
+        }
+      },
+      "required": [
+        "roleBucket",
+        "assignedToEmail",
+        "assignedAt",
+        "status"
+      ]
+    },
+    "FounderQuota": {
+      "title": "Founder Quota",
+      "description": "Tracks the number of founder codes assigned per role.",
+      "type": "object",
+      "properties": {
+        "guideCount": {
+          "type": "number"
+        },
+        "vendorCount": {
+          "type": "number"
+        },
+        "hostCount": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "guideCount",
+        "vendorCount",
+        "hostCount"
+      ]
     }
   },
   "auth": {
@@ -996,6 +1094,20 @@
         "$ref": "#/entities/ManifestCredit"
       },
       "description": "A user's earned credits from manifestations."
+    },
+    "/founder_codes/{codeId}": {
+      "schema": {
+        "$ref": "#/entities/FounderCode"
+      },
+      "description": "Collection of unique founder access codes."
+    },
+    "/counters/founder_quota": {
+      "schema": {
+        "$ref": "#/entities/FounderQuota"
+      },
+      "description": "Singleton document to track founder code capacity."
     }
   }
 }
+
+    

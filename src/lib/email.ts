@@ -8,7 +8,14 @@ if (resendApiKey && resendApiKey !== 're_YOUR_REAL_RESEND_KEY_HERE' && resendApi
   resend = new Resend(resendApiKey);
 }
 
-export async function sendWaitlistConfirmation(to: string, firstName?: string) {
+interface SendEmailParams {
+  to: string;
+  subject: string;
+  html: string;
+  text: string;
+}
+
+export async function sendEmail({ to, subject, html, text }: SendEmailParams) {
   if (!resend) {
     throw new Error('Resend is not configured. Please check your RESEND_API_KEY environment variable.');
   }
@@ -17,22 +24,13 @@ export async function sendWaitlistConfirmation(to: string, firstName?: string) {
     throw new Error('EMAIL_FROM environment variable is not set.');
   }
 
-  const subject = 'You’re on the HighVibe Retreats list';
-  const body = `
-    <div>
-      <p>Hi ${firstName || 'there'},</p>
-      <p>Thanks for joining the waitlist for HighVibe Retreats. You're all set.</p>
-      <p>We'll send you an email as soon as we open the doors for early access.</p>
-      <p>As a reminder, the first 250 verified sign-ups get 60 days of membership fees waived as a founder perk.</p>
-      <br/>
-      <p>The HighVibe Team</p>
-    </div>
-  `;
-
   return resend.emails.send({
     from: fromEmail,
     to,
     subject,
-    html: body,
+    html,
+    text,
   });
 }
+
+    
