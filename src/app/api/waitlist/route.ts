@@ -1,3 +1,4 @@
+
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { buildWaitlistEmail } from '@/lib/waitlist-email-templates';
@@ -18,10 +19,10 @@ const waitlistSchema = z.object({
 });
 
 type RoleInterest =
-  | "Seeker (I want to find/book retreats)"
   | "Guide (I want to lead retreats)"
   | "Host (I have a space)"
   | "Vendor (I offer services)"
+  | "Seeker (I want to find/book retreats)"
   | "Partner / Collaborator"
   | undefined
   | null;
@@ -41,9 +42,9 @@ function mapRoleToBucket(roleInterest: RoleInterest): RoleBucket {
 
 export async function POST(request: Request) {
   // Server-side guard for essential environment variables.
-  if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.includes('REPLACE')) {
-    const errorMsg = "Email service not configured. RESEND_API_KEY is missing.";
-    console.error("WAITLIST_ERROR: " + errorMsg);
+  if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.length < 5) {
+    const errorMsg = "The email sending service is not configured. The 'RESEND_API_KEY' secret is missing from the App Hosting backend settings in the Firebase Console. Please follow the setup instructions to add it.";
+    console.error("WAITLIST_ERROR: RESEND_API_KEY is not defined or is invalid in the environment.");
     return NextResponse.json(
       { ok: false, error: errorMsg, code: "missing_resend_key" },
       { status: 500 }
@@ -104,7 +105,7 @@ export async function POST(request: Request) {
         assignedCode = `TEST-${Date.now()}`;
         dataToUpdate.founderCodeTest = true;
       } else {
-        assignedCode = await claimFounderCode(emailLower, roleBucket as 'guide'|'host'|'vendor');
+        assignedCode = await claimFounderCode(emailLower, roleBucket as 'guide'|'host'|'vendor', firestoreDb, FieldValue);
       }
 
       if (assignedCode) {
