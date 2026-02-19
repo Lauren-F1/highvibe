@@ -43,24 +43,23 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
     setFormState('submitting');
     setErrorMessage(null);
 
-    const utm_source = searchParams.get('utm_source');
-    const utm_medium = searchParams.get('utm_medium');
-    const utm_campaign = searchParams.get('utm_campaign');
-    const utm_term = searchParams.get('utm_term');
-    const utm_content = searchParams.get('utm_content');
+    const { firstName, email, roleInterest } = data;
     
-    // Omit null/undefined fields before sending
-    const payload = {
-        firstName: data.firstName || undefined,
-        email: data.email,
-        roleInterest: data.roleInterest || undefined,
-        source: source,
-        utm_source: utm_source || undefined,
-        utm_medium: utm_medium || undefined,
-        utm_campaign: utm_campaign || undefined,
-        utm_term: utm_term || undefined,
-        utm_content: utm_content || undefined,
+    const payload: Record<string, any> = {
+        email: email.trim(),
+        source: source || 'homepage-role-card',
+        utm_source: searchParams.get('utm_source'),
+        utm_medium: searchParams.get('utm_medium'),
+        utm_campaign: searchParams.get('utm_campaign'),
+        utm_term: searchParams.get('utm_term'),
+        utm_content: searchParams.get('utm_content'),
     };
+
+    if (firstName) payload.firstName = firstName.trim();
+    if (roleInterest) payload.roleInterest = roleInterest;
+
+    // Filter out any null or undefined values before sending
+    Object.keys(payload).forEach(key => (payload[key] === null || payload[key] === undefined) && delete payload[key]);
     
     try {
       const response = await fetch('/api/waitlist', {
@@ -103,7 +102,7 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
        {formState === 'error' && (
-          <p className="text-destructive text-sm text-center">{errorMessage}</p>
+          <p className="text-destructive text-sm text-center mb-4">{errorMessage}</p>
         )}
       <div className="space-y-4">
         <div className="space-y-2">
