@@ -76,7 +76,6 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
         const errorMsg = result.error || 'An unknown server error occurred.';
         setErrorMessage(errorMsg);
         setFormState('error');
-        console.error("Waitlist API error:", errorMsg);
         return;
       }
       
