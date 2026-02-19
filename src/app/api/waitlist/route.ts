@@ -1,4 +1,3 @@
-'use server';
 import { NextResponse } from 'next/server';
 import { firestoreDb } from '@/lib/firebase-admin';
 import { z } from 'zod';
