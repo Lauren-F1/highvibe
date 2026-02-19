@@ -47,7 +47,7 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
     
     const payload: Record<string, any> = {
         email: email.trim(),
-        source: source,
+        source: source || 'unknown',
         utm_source: searchParams.get('utm_source'),
         utm_medium: searchParams.get('utm_medium'),
         utm_campaign: searchParams.get('utm_campaign'),

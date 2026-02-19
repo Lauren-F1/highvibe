@@ -35,7 +35,7 @@ export async function GET(request: Request) {
         ok: false,
         createdCount: 0,
         alreadySeeded: false,
-        message: 'Seeding failed: ADMIN_SEED_SECRET is not configured. Please set a strong, unique secret in apphosting.yaml.',
+        message: 'Seeding failed: ADMIN_SEED_SECRET is not configured. Please set a strong, unique secret in your environment.',
     }, { status: 500 });
   }
 

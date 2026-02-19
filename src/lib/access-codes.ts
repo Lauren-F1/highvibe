@@ -7,6 +7,7 @@ type RoleBucket = 'guide' | 'host' | 'vendor';
  * @returns The claimed code string, or null if no codes are available.
  */
 export async function claimFounderCode(email: string, roleBucket: RoleBucket): Promise<string | null> {
+  // Dynamically import to ensure server-only code isn't bundled on the client
   const { getFirestoreDb } = await import('@/lib/firebase-admin');
   const { FieldValue } = await import('firebase-admin/firestore');
   const firestoreDb = getFirestoreDb();
