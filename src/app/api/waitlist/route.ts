@@ -42,11 +42,11 @@ function mapRoleToBucket(roleInterest: RoleInterest): RoleBucket {
 
 export async function POST(request: Request) {
   // Server-side guard for essential environment variables.
-  if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.length < 5) {
-    const errorMsg = "Configuration Incomplete: The 'RESEND_API_KEY' secret has not been set in your App Hosting backend. This is a required manual step. Please look for a 'Secrets' or 'Environment Variables' section within your backend's settings in the Firebase Console and add it.";
-    console.error("WAITLIST_ERROR: RESEND_API_KEY is not defined or is invalid in the environment.");
+  if (!process.env.MAILERLITE_API_KEY || process.env.MAILERLITE_API_KEY.length < 5) {
+    const errorMsg = "Configuration Incomplete: The 'MAILERLITE_API_KEY' secret has not been set in your App Hosting backend. This is a required manual step. Please look for a 'Secrets' or 'Environment Variables' section within your backend's settings in the Firebase Console and add it.";
+    console.error("WAITLIST_ERROR: MAILERLITE_API_KEY is not defined or is invalid in the environment.");
     return NextResponse.json(
-      { ok: false, error: errorMsg, code: "missing_resend_key" },
+      { ok: false, error: errorMsg, code: "missing_mailerlite_key" },
       { status: 500 }
     );
   }
