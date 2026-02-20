@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useSearchParams } from 'next/navigation';
 import * as analytics from '@/lib/analytics';
+import Link from 'next/link';
 
 const waitlistSchema = z.object({
   firstName: z.string().optional(),
@@ -31,6 +32,7 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
   const searchParams = useSearchParams();
   const [formState, setFormState] = useState<'idle' | 'submitting' | 'submitted' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<string | null>(null);
 
   const { register, handleSubmit, formState: { errors }, control, reset } = useForm<WaitlistFormInputs>({
     resolver: zodResolver(waitlistSchema),
@@ -43,6 +45,7 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
     analytics.event('waitlist_submit', { category: 'engagement', label: source });
     setFormState('submitting');
     setErrorMessage(null);
+    setErrorCode(null);
 
     const { firstName, email, roleInterest } = data;
     
@@ -59,15 +62,12 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
     if (firstName) payload.firstName = firstName.trim();
     if (roleInterest) payload.roleInterest = roleInterest;
 
-    // Filter out any null or undefined values before sending
     Object.keys(payload).forEach(key => (payload[key] === null || payload[key] === undefined) && delete payload[key]);
     
     try {
       const response = await fetch('/api/waitlist', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
@@ -75,7 +75,8 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
 
       if (!response.ok || !result.ok) {
         const errorMsg = result.error || 'An unknown server error occurred.';
-        setErrorMessage(`${errorMsg} Please try again.`);
+        setErrorMessage(errorMsg);
+        setErrorCode(result.code || null);
         setFormState('error');
         return;
       }
@@ -98,7 +99,8 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
       reset();
     } catch (error: any) {
       console.error('Waitlist form submission error:', error);
-      setErrorMessage('Could not connect to the server. Please check your internet connection and try again.');
+      setErrorMessage('Could not connect to the server. Please check your internet connection.');
+      setErrorCode('network_error');
       setFormState('error');
     }
   };
@@ -115,7 +117,21 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
        {formState === 'error' && (
-          <p className="text-destructive text-sm text-center mb-4">{errorMessage}</p>
+          <div className="text-destructive text-sm text-center mb-4 leading-relaxed">
+            {errorCode === 'missing_resend_key' ? (
+                <>
+                    <p className="font-bold">{errorMessage}</p>
+                    <p>Please add the secret in your{' '}
+                        <Link href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" className="underline">
+                            App Hosting settings
+                        </Link>
+                    {' '}and try again.
+                    </p>
+                </>
+            ) : (
+                <p>{errorMessage} Please try again.</p>
+            )}
+          </div>
         )}
       <div className="space-y-4">
         <div className="space-y-2">

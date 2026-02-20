@@ -43,7 +43,7 @@ function mapRoleToBucket(roleInterest: RoleInterest): RoleBucket {
 export async function POST(request: Request) {
   // Server-side guard for essential environment variables.
   if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.length < 5) {
-    const errorMsg = "The email sending service is not configured. The 'RESEND_API_KEY' secret is missing from the App Hosting backend settings in the Firebase Console. Please follow the setup instructions to add it.";
+    const errorMsg = "The email sending service is not configured. The 'RESEND_API_KEY' secret is missing.";
     console.error("WAITLIST_ERROR: RESEND_API_KEY is not defined or is invalid in the environment.");
     return NextResponse.json(
       { ok: false, error: errorMsg, code: "missing_resend_key" },
