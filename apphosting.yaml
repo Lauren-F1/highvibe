@@ -21,8 +21,8 @@ env:
     availability:
       - BUILD
       - RUNTIME
-  - variable: MAILERLITE_API_KEY
-    secret: MAILERLITE_API_KEY
+  - variable: RESEND_API_KEY
+    secret: RESEND_API_KEY
     availability:
       - BUILD
       - RUNTIME

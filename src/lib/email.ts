@@ -1,4 +1,4 @@
-import MailerLite from '@mailerlite/mailerlite-nodejs';
+import { Resend } from 'resend';
 
 interface SendEmailParams {
   to: string;
@@ -8,11 +8,11 @@ interface SendEmailParams {
 }
 
 export async function sendEmail({ to, subject, html, text }: SendEmailParams) {
-  const mailerliteApiKey = process.env.MAILERLITE_API_KEY;
+  const resendApiKey = process.env.RESEND_API_KEY;
   const fromEmailString = process.env.EMAIL_FROM;
 
-  if (!mailerliteApiKey || mailerliteApiKey.includes('REPLACE')) {
-    const errorMsg = 'MailerLite API key is not configured. Please set MAILERLITE_API_KEY as a secret.';
+  if (!resendApiKey || resendApiKey.includes('REPLACE')) {
+    const errorMsg = 'Resend API key is not configured. Please set RESEND_API_KEY as a secret.';
     console.error(errorMsg);
     throw new Error(errorMsg);
   }
@@ -23,30 +23,24 @@ export async function sendEmail({ to, subject, html, text }: SendEmailParams) {
     throw new Error(errorMsg);
   }
 
-  const match = fromEmailString.match(/(.*) <(.*)>/);
-  if (!match) {
-    throw new Error('Invalid EMAIL_FROM format. Expected "Name <email@example.com>".');
-  }
-  const fromName = match[1].trim();
-  const fromEmail = match[2].trim();
+  const resend = new Resend(resendApiKey);
 
-  const mailerlite = new MailerLite({ api_key: mailerliteApiKey });
-
-  const params = {
-    to: [
-        {
-            email: to,
-        }
-    ],
-    from: {
-      email: fromEmail,
-      name: fromName,
-    },
+  const { data, error } = await resend.emails.send({
+    from: fromEmailString,
+    to: [to],
     subject: subject,
     html: html,
     text: text,
-  };
+  });
 
-  // Use the underlying client to send transactional email
-  await mailerlite.client.post('/email', params);
+  if (error) {
+    console.error('Resend API Error:', error);
+    // Create an error that looks like the ones from other libraries
+    // to keep the consumer code consistent.
+    const apiError = new Error(error.message);
+    (apiError as any).statusCode = (error as any).statusCode || error.name;
+    throw apiError;
+  }
+
+  return data;
 }
