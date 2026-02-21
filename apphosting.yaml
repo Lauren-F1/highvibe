@@ -31,8 +31,3 @@ env:
     availability:
       - BUILD
       - RUNTIME
-  - variable: ADMIN_SEED_SECRET
-    secret: ADMIN_SEED_SECRET
-    availability:
-      - BUILD
-      - RUNTIME
