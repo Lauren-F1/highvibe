@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -13,6 +12,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useSearchParams } from 'next/navigation';
 import * as analytics from '@/lib/analytics';
 import Link from 'next/link';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Terminal } from 'lucide-react';
 
 const waitlistSchema = z.object({
   firstName: z.string().optional(),
@@ -117,19 +118,24 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
        {formState === 'error' && (
-          <div className="text-destructive text-sm text-center mb-4 leading-relaxed">
+          <div>
             {errorCode === 'missing_resend_key' ? (
-                <>
-                    <p className="font-bold">{errorMessage}</p>
-                    <p>Please add the secret in your{' '}
-                        <Link href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" className="underline">
-                            App Hosting settings
+                <Alert variant="destructive">
+                  <Terminal className="h-4 w-4" />
+                  <AlertTitle>Configuration Incomplete</AlertTitle>
+                  <AlertDescription className="space-y-2">
+                    <p>The email service isn't configured correctly. Please add the `RESEND_API_KEY` as a secret in your App Hosting settings.</p>
+                    <p>Here is a direct link to get you there:</p>
+                    <Button asChild variant="link" className="p-0 h-auto">
+                        <Link href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer">
+                            Open Firebase Console
                         </Link>
-                    {' '}and try again.
-                    </p>
-                </>
+                    </Button>
+                    <p className="text-xs">Once in the console, navigate to: App Hosting → View your backend → Settings → Environment → Secrets.</p>
+                  </AlertDescription>
+                </Alert>
             ) : (
-                <p>{errorMessage} Please try again.</p>
+                <p className="text-destructive text-sm text-center">{errorMessage} Please try again.</p>
             )}
           </div>
         )}
