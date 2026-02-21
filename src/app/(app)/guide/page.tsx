@@ -83,6 +83,7 @@ export default function GuidePage() {
 
   const [currentConnectionRequests, setCurrentConnectionRequests] = useState(connectionRequests);
   const [showFeatureGate, setShowFeatureGate] = useState(false);
+  const guideHeroImage = placeholderImages.find(p => p.id === 'guide-dashboard-hero')!;
 
   const appliedHostFiltersCount = useMemo(() => {
     let count = 0;
@@ -350,9 +351,9 @@ export default function GuidePage() {
 
         <div className="relative h-[104px] w-[420px] hidden lg:block mx-auto flex-shrink-0 rounded-xl shadow-md overflow-hidden">
             <Image
-                src="/Guide%20Yoga%20Sunset.png?v=2"
-                alt="Guide Yoga Sunset"
-                data-ai-hint="yoga sunset"
+                src={guideHeroImage.imageUrl}
+                alt={guideHeroImage.description}
+                data-ai-hint={guideHeroImage.imageHint}
                 fill
                 className="object-cover"
                 style={{ objectPosition: 'center 60%' }}

@@ -19,6 +19,7 @@ import { VendorHostFilters, type VendorHostFiltersState } from '@/components/ven
 import { useToast } from '@/hooks/use-toast';
 import { type ConnectionStatus } from '@/components/guide-card';
 import { cn } from '@/lib/utils';
+import { placeholderImages } from '@/lib/placeholder-images';
 
 interface StatCardProps {
   title: string;
@@ -86,6 +87,7 @@ export default function VendorDashboardPage() {
   const [hostFiltersDirty, setHostFiltersDirty] = useState(false);
   const [hostFiltersVisible, setHostFiltersVisible] = useState(false);
   const [hostSortOption, setHostSortOption] = useState('recommended');
+  const vendorHeroImage = placeholderImages.find(p => p.id === 'vendor-dashboard-hero')!;
 
   const appliedGuideFiltersCount = useMemo(() => {
     let count = 0;
@@ -250,9 +252,9 @@ export default function VendorDashboardPage() {
 
         <div className="relative h-[104px] w-[420px] hidden lg:block mx-auto flex-shrink-0 rounded-xl shadow-md overflow-hidden">
             <Image
-                src="/Vendor%20Table.png?v=1"
-                alt="A table with vendor offerings"
-                data-ai-hint="vendor offerings"
+                src={vendorHeroImage.imageUrl}
+                alt={vendorHeroImage.description}
+                data-ai-hint={vendorHeroImage.imageHint}
                 fill
                 className="object-cover"
                 style={{ objectPosition: 'center center' }}

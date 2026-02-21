@@ -130,6 +130,7 @@ export default function HostDashboardPage() {
   const currentUser = useUser();
   const firestore = useFirestore();
   const [isConnecting, setIsConnecting] = useState(false);
+  const hostHeroImage = placeholderImages.find(p => p.id === 'host-dashboard-hero')!;
 
   const appliedGuideFiltersCount = useMemo(() => {
     let count = 0;
@@ -430,9 +431,9 @@ export default function HostDashboardPage() {
 
         <div className="relative h-[104px] w-[420px] hidden lg:block mx-auto flex-shrink-0 rounded-xl shadow-md overflow-hidden">
             <Image
-                src="/Host%20Cabin.png?v=2"
-                alt="A cozy cabin in a forest setting"
-                data-ai-hint="cabin forest"
+                src={hostHeroImage.imageUrl}
+                alt={hostHeroImage.description}
+                data-ai-hint={hostHeroImage.imageHint}
                 fill
                 className="object-cover"
                 style={{ objectPosition: 'center 40%' }}

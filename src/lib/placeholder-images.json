@@ -87,7 +87,7 @@
     {
       "id": "hacienda-leather-interior",
       "description": "A beautiful desert retreat.",
-      "imageUrl": "/Desert Retreat.png",
+      "imageUrl": "/desert-retreat.png",
       "imageHint": "desert retreat"
     },
     {
@@ -129,8 +129,26 @@
     {
       "id": "spanish-villa-sunset",
       "description": "A beautiful desert retreat.",
-      "imageUrl": "/Desert Retreat.png",
+      "imageUrl": "/desert-retreat.png",
       "imageHint": "desert retreat"
+    },
+    {
+      "id": "guide-dashboard-hero",
+      "description": "Guide leading yoga at sunset.",
+      "imageUrl": "/guide-yoga-sunset.png",
+      "imageHint": "yoga sunset"
+    },
+    {
+      "id": "host-dashboard-hero",
+      "description": "A cozy cabin in a forest setting.",
+      "imageUrl": "/host-cabin.png",
+      "imageHint": "cabin forest"
+    },
+    {
+      "id": "vendor-dashboard-hero",
+      "description": "A table with vendor offerings.",
+      "imageUrl": "/vendor-table.png",
+      "imageHint": "vendor offerings"
     }
   ]
 }
