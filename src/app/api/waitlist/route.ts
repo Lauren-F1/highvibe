@@ -41,21 +41,6 @@ function mapRoleToBucket(roleInterest: RoleInterest): RoleBucket {
 }
 
 export async function POST(request: Request) {
-  // Server-side guard for essential environment variables.
-  if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.length < 5) {
-    // Enhanced server-side logging for debugging
-    const availableEnvKeys = Object.keys(process.env);
-    console.error("WAITLIST_CONFIGURATION_ERROR: RESEND_API_KEY is not defined or is invalid in the environment. This is a critical server configuration issue.");
-    console.log("Available environment variable keys:", availableEnvKeys.join(', '));
-    
-    const errorMsg = "Configuration Incomplete: The 'RESEND_API_KEY' secret has not been set in your App Hosting backend. This is a required manual step.";
-    
-    return NextResponse.json(
-      { ok: false, error: errorMsg, code: "missing_resend_key" },
-      { status: 500 }
-    );
-  }
-
   try {
     const { getFirebaseAdmin } = await import('@/lib/firebase-admin');
     const { claimFounderCode } = await import('@/lib/access-codes');
@@ -146,7 +131,7 @@ export async function POST(request: Request) {
       } catch (emailError: any) {
         console.error('WAITLIST_EMAIL_ERROR', { message: emailError.message, name: emailError.name, statusCode: emailError.statusCode });
         await waitlistRef.update({
-            emailStatus: `failed: ${emailError.statusCode || 'unknown'}`,
+            emailStatus: `failed`,
             lastEmailError: emailError.message,
             emailSentAt: FieldValue.serverTimestamp(),
         });
@@ -177,9 +162,9 @@ export async function POST(request: Request) {
     let userFriendlyError = 'An unexpected error occurred. Please try again later.';
     let errorCode = 'internal_server_error';
 
-    if (error.message && error.message.includes('EMAIL_FROM')) {
+    if (error.message && error.message.includes('Resend API key')) {
         userFriendlyError = 'Email service is not configured correctly on the server.';
-        errorCode = 'missing_email_from';
+        errorCode = 'missing_resend_key';
     }
 
     return NextResponse.json({

@@ -11,9 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useSearchParams } from 'next/navigation';
 import * as analytics from '@/lib/analytics';
-import Link from 'next/link';
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Terminal } from 'lucide-react';
 
 const waitlistSchema = z.object({
   firstName: z.string().optional(),
@@ -33,7 +30,6 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
   const searchParams = useSearchParams();
   const [formState, setFormState] = useState<'idle' | 'submitting' | 'submitted' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [errorCode, setErrorCode] = useState<string | null>(null);
 
   const { register, handleSubmit, formState: { errors }, control, reset } = useForm<WaitlistFormInputs>({
     resolver: zodResolver(waitlistSchema),
@@ -46,7 +42,6 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
     analytics.event('waitlist_submit', { category: 'engagement', label: source });
     setFormState('submitting');
     setErrorMessage(null);
-    setErrorCode(null);
 
     const { firstName, email, roleInterest } = data;
     
@@ -77,7 +72,6 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
       if (!response.ok || !result.ok) {
         const errorMsg = result.error || 'An unknown server error occurred.';
         setErrorMessage(errorMsg);
-        setErrorCode(result.code || null);
         setFormState('error');
         return;
       }
@@ -101,7 +95,6 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
     } catch (error: any) {
       console.error('Waitlist form submission error:', error);
       setErrorMessage('Could not connect to the server. Please check your internet connection.');
-      setErrorCode('network_error');
       setFormState('error');
     }
   };
@@ -118,26 +111,7 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
        {formState === 'error' && (
-          <div>
-            {errorCode === 'missing_resend_key' ? (
-                <Alert variant="destructive">
-                  <Terminal className="h-4 w-4" />
-                  <AlertTitle>Configuration Incomplete</AlertTitle>
-                  <AlertDescription className="space-y-2">
-                    <p>The email service isn't configured correctly. Please add the `RESEND_API_KEY` as a secret in your App Hosting settings.</p>
-                    <p>Here is a direct link to get you there:</p>
-                    <Button asChild variant="link" className="p-0 h-auto">
-                        <Link href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer">
-                            Open Firebase Console
-                        </Link>
-                    </Button>
-                    <p className="text-xs">Once in the console, navigate to: App Hosting → View your backend → Settings → Environment → Secrets.</p>
-                  </AlertDescription>
-                </Alert>
-            ) : (
-                <p className="text-destructive text-sm text-center">{errorMessage} Please try again.</p>
-            )}
-          </div>
+          <p className="text-destructive text-sm text-center">{errorMessage} Please try again.</p>
         )}
       <div className="space-y-4">
         <div className="space-y-2">
