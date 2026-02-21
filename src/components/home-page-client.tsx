@@ -12,12 +12,11 @@ import { WaitlistModal } from './waitlist-modal';
 import { Button } from './ui/button';
 import * as analytics from '@/lib/analytics';
 
-// Do not change icon assets or casing; icons must always load from /public and remain unmodified.
 const ROLE_ICON_SRC: Record<string, string> = {
-  seeker: '/Seeker.svg',
-  guide: '/Guide.svg',
-  vendor: '/Vendor.svg',
-  host: '/Host.svg',
+  seeker: '/seeker.svg',
+  guide: '/guide.svg',
+  vendor: '/vendor.svg',
+  host: '/host.svg',
 };
 
 interface Role {

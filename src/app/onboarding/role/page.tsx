@@ -9,12 +9,11 @@ import { cn } from '@/lib/utils';
 
 type Role = 'seeker' | 'guide' | 'host' | 'vendor';
 
-// Do not change icon assets or casing; icons must always load from /public and remain unmodified.
 const ROLE_ICON_SRC: Record<Role, string> = {
-  guide: '/Guide.svg',
-  host: '/Host.svg',
-  vendor: '/Vendor.svg',
-  seeker: '/Seeker.svg',
+  guide: '/guide.svg',
+  host: '/host.svg',
+  vendor: '/vendor.svg',
+  seeker: '/seeker.svg',
 };
 
 const roles: { id: Role, name: string, description: string, icon: string }[] = [

@@ -3,12 +3,11 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
-// Do not change icon assets or casing; icons must always load from /public and remain unmodified.
 const ROLE_ICON_SRC: Record<string, string> = {
-  guide: '/Guide.svg',
-  host: '/Host.svg',
-  vendor: '/Vendor.svg',
-  seeker: '/Seeker.svg',
+  guide: '/guide.svg',
+  host: '/host.svg',
+  vendor: '/vendor.svg',
+  seeker: '/seeker.svg',
 };
 
 const roles = [
