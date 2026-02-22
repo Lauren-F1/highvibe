@@ -130,8 +130,8 @@ export default function HomePageClient() {
       </div>
 
       {heroImage && (
-        <div className="w-full max-w-7xl mb-8">
-          <div className="bg-[#3A3A3A] p-3 md:p-5">
+        <div className="w-full max-w-7xl mb-4">
+          <div className="bg-[#3A3A3A] p-3 md:p-5" style={{ borderRadius: 0 }}>
             <div className="relative aspect-[21/9] w-full">
               <Image
                 src={heroImage.imageUrl}
@@ -140,19 +140,19 @@ export default function HomePageClient() {
                 fill
                 className="object-cover"
                 priority
-                style={{ objectPosition: 'center 60%' }}
+                style={{ objectPosition: 'center 60%', borderRadius: 0 }}
               />
             </div>
           </div>
         </div>
       )}
 
-      <div className="w-full max-w-4xl text-center mt-2 mb-8">
+      <div className="w-full max-w-4xl text-center mt-4 mb-8">
         <h2 className="font-headline text-3xl md:text-4xl">Choose your role. Find your people.</h2>
         <p className="text-lg text-beige-dark mt-2 max-w-3xl mx-auto font-body">Book experiences or create them. HighVibe connects retreat leaders with aligned spaces and trusted vendors, all in one platform.</p>
       </div>
 
-      <div className="w-full max-w-5xl my-8">
+      <div className="w-full max-w-5xl mb-4">
         <div className="rounded-xl border border-beige bg-beige/10 p-6 shadow-sm md:p-10">
           <h3 className="font-headline text-3xl mb-8 text-center">How It Works</h3>
           <div className="grid grid-cols-1 gap-8 text-left md:grid-cols-3">
@@ -176,7 +176,7 @@ export default function HomePageClient() {
       </div>
 
       <div 
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full max-w-7xl mt-12"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full max-w-7xl mt-8"
         id="join"
       >
         {roles.map((role) => {
@@ -207,7 +207,10 @@ export default function HomePageClient() {
           )
         })}
       </div>
-      <div className="w-full bg-[#2B2B2B] py-10 md:py-14 mt-8 mb-8 -mx-4 sm:-mx-6 md:-mx-8">
+      <div 
+        className="w-full py-10 md:py-14 my-8 -mx-4 sm:-mx-6 md:-mx-8"
+        style={{ background: 'linear-gradient(180deg, rgba(198,184,164,0.14) 0%, rgba(198,184,164,0.30) 100%)' }}
+      >
         <div className="w-full max-w-4xl text-center mx-auto px-4">
             <Card className="shadow-lg">
                 <CardHeader>
