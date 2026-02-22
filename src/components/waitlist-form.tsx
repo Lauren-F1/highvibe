@@ -15,7 +15,7 @@ import * as analytics from '@/lib/analytics';
 const waitlistSchema = z.object({
   firstName: z.string().optional(),
   email: z.string().email('Invalid email address'),
-  roleInterest: z.string().optional(),
+  roleInterest: z.string({ required_error: 'Please select a role.' }),
 });
 
 type WaitlistFormInputs = z.infer<typeof waitlistSchema>;
@@ -126,14 +126,14 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
         </div>
       </div>
       <div className="space-y-2">
-        <Label htmlFor="roleInterest">I’m interested in joining as a… (optional)</Label>
+        <Label htmlFor="roleInterest">I’m interested in joining as a…</Label>
         <Controller
           name="roleInterest"
           control={control}
           render={({ field }) => (
             <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <SelectTrigger id="roleInterest">
-                    <SelectValue placeholder="Select a role… (optional)" />
+                    <SelectValue placeholder="Select a role…" />
                 </SelectTrigger>
                 <SelectContent>
                     <SelectItem value="Seeker (I want to find/book retreats)">Seeker (I want to find/book retreats)</SelectItem>
@@ -155,5 +155,3 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
     </form>
   );
 }
-
-    

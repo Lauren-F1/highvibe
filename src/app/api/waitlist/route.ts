@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 const waitlistSchema = z.object({
   firstName: z.string().trim().optional().nullable(),
   email: z.string().trim().email('Invalid email address'),
-  roleInterest: z.string().optional().nullable(),
+  roleInterest: z.string(),
   source: z.string().optional().nullable().transform(val => val || 'unknown'),
   utm_source: z.string().optional().nullable(),
   utm_medium: z.string().optional().nullable(),
@@ -174,5 +174,3 @@ export async function POST(request: Request) {
     );
   }
 }
-
-    
