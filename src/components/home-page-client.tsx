@@ -206,7 +206,7 @@ export default function HomePageClient() {
           )
         })}
       </div>
-      <div className="w-full bg-[#2B2B2B] py-16 md:py-24 my-16 -mx-4 sm:-mx-6 md:-mx-8">
+      <div className="w-full bg-[#2B2B2B] py-16 md:py-24 mt-8 mb-16 -mx-4 sm:-mx-6 md:-mx-8">
         <div className="w-full max-w-4xl text-center mx-auto px-4">
             <Card className="shadow-lg">
                 <CardHeader>
