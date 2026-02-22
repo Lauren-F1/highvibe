@@ -31,3 +31,8 @@ env:
     availability:
       - BUILD
       - RUNTIME
+  - secret: RESEND_API_KEY
+  - variable: TEST_EMAIL_TO
+    value: "info@highviberetreats.com"
+    availability:
+      - RUNTIME
