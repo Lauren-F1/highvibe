@@ -147,7 +147,7 @@ export default function HomePageClient() {
         </div>
       )}
 
-      <div className="w-full max-w-4xl text-center my-8">
+      <div className="w-full max-w-4xl text-center mt-2 mb-8">
         <h2 className="font-headline text-3xl md:text-4xl">Choose your role. Find your people.</h2>
         <p className="text-lg text-beige-dark mt-2 max-w-3xl mx-auto font-body">Book experiences or create them. HighVibe connects retreat leaders with aligned spaces and trusted vendors, all in one platform.</p>
       </div>
@@ -176,7 +176,7 @@ export default function HomePageClient() {
       </div>
 
       <div 
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full max-w-7xl mt-16"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full max-w-7xl mt-12"
         id="join"
       >
         {roles.map((role) => {
@@ -207,7 +207,7 @@ export default function HomePageClient() {
           )
         })}
       </div>
-      <div className="w-full bg-[#2B2B2B] py-10 md:py-14 mt-16 mb-16 -mx-4 sm:-mx-6 md:-mx-8">
+      <div className="w-full bg-[#2B2B2B] py-10 md:py-14 mt-8 mb-8 -mx-4 sm:-mx-6 md:-mx-8">
         <div className="w-full max-w-4xl text-center mx-auto px-4">
             <Card className="shadow-lg">
                 <CardHeader>
