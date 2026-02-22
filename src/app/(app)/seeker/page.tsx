@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -167,7 +166,7 @@ export default function SeekerPage() {
   };
   
   const subheadlineStyle: CSSProperties = {
-    textShadow: '0 2px 8px rgba(0,0,0,0.35)',
+    textShadow: '0 2px 10px rgba(0,0,0,0.40)',
   };
 
 
@@ -238,6 +237,10 @@ export default function SeekerPage() {
             className="object-cover"
             priority
           />
+          <div 
+            className="absolute bottom-0 left-0 right-0 h-1/4 pointer-events-none" 
+            style={{background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.22) 100%)'}}
+          ></div>
           <div className="relative z-10 p-4">
             <h1 className="font-headline text-[4.5rem] leading-none md:text-8xl font-bold text-white" style={headlineStyle}>Find Your Next Experience</h1>
             <p 
