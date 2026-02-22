@@ -132,16 +132,18 @@ export default function HomePageClient() {
 
       {heroImage && (
         <div className="w-full max-w-7xl mb-8">
-          <div className="relative aspect-[21/9] w-full rounded-lg overflow-hidden">
-            <Image
-              src={heroImage.imageUrl}
-              alt={heroImage.description}
-              data-ai-hint={heroImage.imageHint}
-              fill
-              className="object-cover"
-              priority
-              style={{ objectPosition: 'center 60%' }}
-            />
+          <div className="bg-[#3A3A3A] p-3 md:p-5 rounded-xl">
+            <div className="relative aspect-[21/9] w-full rounded-lg overflow-hidden">
+              <Image
+                src={heroImage.imageUrl}
+                alt={heroImage.description}
+                data-ai-hint={heroImage.imageHint}
+                fill
+                className="object-cover"
+                priority
+                style={{ objectPosition: 'center 60%' }}
+              />
+            </div>
           </div>
         </div>
       )}
@@ -151,7 +153,7 @@ export default function HomePageClient() {
         <p className="text-lg text-beige-dark mt-2 max-w-3xl mx-auto font-body">Book experiences or create them. HighVibe connects retreat leaders with aligned spaces and trusted vendors, all in one platform.</p>
       </div>
 
-      <div className="w-full max-w-5xl my-12">
+      <div className="w-full max-w-5xl my-8">
         <div className="rounded-xl border border-beige bg-beige/10 p-6 shadow-sm md:p-10">
           <h3 className="font-headline text-3xl mb-8 text-center">How It Works</h3>
           <div className="grid grid-cols-1 gap-8 text-left md:grid-cols-3">
@@ -175,7 +177,7 @@ export default function HomePageClient() {
       </div>
 
       <div 
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full max-w-7xl mb-8"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full max-w-7xl"
         id="join"
       >
         {roles.map((role) => {
@@ -206,7 +208,7 @@ export default function HomePageClient() {
           )
         })}
       </div>
-      <div className="w-full bg-[#2B2B2B] py-16 md:py-24 mt-8 mb-16 -mx-4 sm:-mx-6 md:-mx-8">
+      <div className="w-full bg-[#2B2B2B] py-16 md:py-24 mt-16 mb-16 -mx-4 sm:-mx-6 md:-mx-8">
         <div className="w-full max-w-4xl text-center mx-auto px-4">
             <Card className="shadow-lg">
                 <CardHeader>
