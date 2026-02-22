@@ -34,9 +34,7 @@ async function getResendApiKey(): Promise<string | undefined> {
     }
   }
 
-  // Hardcoded fallback - FOR TEMPORARY DEBUGGING ONLY.
-  console.warn('!!! USING HARDCODED API KEY AS A FALLBACK. REMOVE BEFORE GOING TO PRODUCTION. !!!');
-  return 're_dzBpzfUo_DdhghSXSkKPUrZttwcNPjQUw';
+  return undefined;
 }
 
 interface SendEmailParams {
@@ -51,7 +49,7 @@ export async function sendEmail({ to, subject, html, text }: SendEmailParams) {
   const fromEmailString = process.env.EMAIL_FROM;
 
   if (!resendApiKey || resendApiKey.includes('REPLACE')) {
-    const errorMsg = 'Resend API key is not configured or could not be fetched. Please set RESEND_API_KEY as a secret in your App Hosting backend.';
+    const errorMsg = 'Resend API key is not configured. Please set RESEND_API_KEY as a secret and grant access with `firebase apphosting:secrets:grantaccess`.';
     console.error(errorMsg);
     throw new Error(errorMsg);
   }
