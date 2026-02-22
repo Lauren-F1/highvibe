@@ -151,7 +151,7 @@ export default function HomePageClient() {
         <p className="text-lg text-beige-dark mt-2 max-w-3xl mx-auto font-body">Book experiences or create them. HighVibe connects retreat leaders with aligned spaces and trusted vendors, all in one platform.</p>
       </div>
 
-      <div className="w-full max-w-5xl mt-4 mb-16">
+      <div className="w-full max-w-5xl my-12">
         <div className="rounded-xl border border-beige bg-beige/10 p-6 shadow-sm md:p-10">
           <h3 className="font-headline text-3xl mb-8 text-center">How It Works</h3>
           <div className="grid grid-cols-1 gap-8 text-left md:grid-cols-3">
@@ -206,25 +206,27 @@ export default function HomePageClient() {
           )
         })}
       </div>
-      <div className="w-full max-w-4xl text-center my-16">
-        <Card>
-            <CardHeader>
-                <CardTitle className="font-headline text-3xl md:text-4xl">Be First In</CardTitle>
-                <CardDescription className="text-lg text-beige-dark mt-2 max-w-3xl mx-auto font-body">
-                    HighVibe Retreats is launching soon. Join the waitlist for early access and founder-level perks.
-                </CardDescription>
-                <p className="text-base text-foreground mt-4 max-w-3xl mx-auto font-body font-semibold">
-                    Founder Perk: first 250 verified sign-ups get 60 days of membership fees waived.
-                </p>
-            </CardHeader>
-            <CardContent className="flex justify-center">
-              <Button size="lg" onClick={() => {
-                  setDefaultRole("");
-                  setModalSource("landing-card");
-                  setIsWaitlistModalOpen(true);
-              }}>Join the Waitlist</Button>
-            </CardContent>
-        </Card>
+      <div className="w-full bg-[#2B2B2B] py-16 md:py-24 my-16 -mx-4 sm:-mx-6 md:-mx-8">
+        <div className="w-full max-w-4xl text-center mx-auto px-4">
+            <Card className="shadow-lg">
+                <CardHeader>
+                    <CardTitle className="font-headline text-3xl md:text-4xl">Be First In</CardTitle>
+                    <CardDescription className="text-lg text-beige-dark mt-2 max-w-3xl mx-auto font-body">
+                        HighVibe Retreats is launching soon. Join the waitlist for early access and founder-level perks.
+                    </CardDescription>
+                    <p className="text-base text-foreground mt-4 max-w-3xl mx-auto font-body font-semibold">
+                        Founder Perk: first 250 verified sign-ups get 60 days of membership fees waived.
+                    </p>
+                </CardHeader>
+                <CardContent className="flex justify-center">
+                  <Button size="lg" onClick={() => {
+                      setDefaultRole("");
+                      setModalSource("landing-card");
+                      setIsWaitlistModalOpen(true);
+                  }}>Join the Waitlist</Button>
+                </CardContent>
+            </Card>
+        </div>
       </div>
     </main>
     </>
