@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -132,8 +131,8 @@ export default function HomePageClient() {
 
       {heroImage && (
         <div className="w-full max-w-7xl mb-8">
-          <div className="bg-[#3A3A3A] p-3 md:p-5 rounded-xl">
-            <div className="relative aspect-[21/9] w-full rounded-lg overflow-hidden">
+          <div className="bg-[#3A3A3A] p-3 md:p-5">
+            <div className="relative aspect-[21/9] w-full overflow-hidden">
               <Image
                 src={heroImage.imageUrl}
                 alt={heroImage.description}
@@ -148,7 +147,7 @@ export default function HomePageClient() {
         </div>
       )}
 
-      <div className="w-full max-w-4xl text-center mb-4">
+      <div className="w-full max-w-4xl text-center mb-4 my-8">
         <h2 className="font-headline text-3xl md:text-4xl">Choose your role. Find your people.</h2>
         <p className="text-lg text-beige-dark mt-2 max-w-3xl mx-auto font-body">Book experiences or create them. HighVibe connects retreat leaders with aligned spaces and trusted vendors, all in one platform.</p>
       </div>
@@ -177,7 +176,7 @@ export default function HomePageClient() {
       </div>
 
       <div 
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full max-w-7xl"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full max-w-7xl mt-16"
         id="join"
       >
         {roles.map((role) => {
