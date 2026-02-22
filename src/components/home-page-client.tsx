@@ -150,23 +150,25 @@ export default function HomePageClient() {
         <p className="text-lg text-beige-dark mt-2 max-w-3xl mx-auto font-body">Book experiences or create them. HighVibe connects retreat leaders with aligned spaces and trusted vendors, all in one platform.</p>
       </div>
 
-      <div className="w-full max-w-5xl text-center my-12">
-        <h3 className="font-headline text-4xl mb-12">How It Works</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-left">
-          <div className="flex flex-col items-center md:items-start text-center md:text-left">
-            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary text-primary-foreground font-bold text-2xl mb-4 shrink-0">1</div>
-            <h4 className="font-headline text-2xl mb-2">Choose what you’re here for.</h4>
-            <p className="text-muted-foreground font-body">Whether you’re looking for a retreat or building one, select your role so HighVibe can match you with the right opportunities.</p>
-          </div>
-          <div className="flex flex-col items-center md:items-start text-center md:text-left">
-            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary text-primary-foreground font-bold text-2xl mb-4 shrink-0">2</div>
-            <h4 className="font-headline text-2xl mb-2">Find what fits, and be found.</h4>
-            <p className="text-muted-foreground font-body">Discover retreats aligned with what you’re looking for, or create a profile that helps the right attendees and collaborators find you.</p>
-          </div>
-          <div className="flex flex-col items-center md:items-start text-center md:text-left">
-            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary text-primary-foreground font-bold text-2xl mb-4 shrink-0">3</div>
-            <h4 className="font-headline text-2xl mb-2">Build better retreats together.</h4>
-            <p className="text-muted-foreground font-body">Connect with retreat leaders, spaces, and vendors to collaborate, curate, and bring meaningful experiences to life.</p>
+      <div className="w-full max-w-5xl my-8">
+        <div className="rounded-xl border border-beige bg-beige/10 p-6 shadow-sm md:p-10">
+          <h3 className="font-headline text-3xl mb-8 text-center">How It Works</h3>
+          <div className="grid grid-cols-1 gap-8 text-left md:grid-cols-3">
+            <div className="flex flex-col items-center text-center md:items-start md:text-left">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-xl font-bold text-primary-foreground mb-4">1</div>
+              <h4 className="font-headline text-xl mb-2">Choose what you’re here for.</h4>
+              <p className="text-sm font-body text-muted-foreground">Whether you’re looking for a retreat or building one, select your role so HighVibe can match you with the right opportunities.</p>
+            </div>
+            <div className="flex flex-col items-center text-center md:items-start md:text-left">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-xl font-bold text-primary-foreground mb-4">2</div>
+              <h4 className="font-headline text-xl mb-2">Find what fits, and be found.</h4>
+              <p className="text-sm font-body text-muted-foreground">Discover retreats aligned with what you’re looking for, or create a profile that helps the right attendees and collaborators find you.</p>
+            </div>
+            <div className="flex flex-col items-center text-center md:items-start md:text-left">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-xl font-bold text-primary-foreground mb-4">3</div>
+              <h4 className="font-headline text-xl mb-2">Build better retreats together.</h4>
+              <p className="text-sm font-body text-muted-foreground">Connect with retreat leaders, spaces, and vendors to collaborate, curate, and bring meaningful experiences to life.</p>
+            </div>
           </div>
         </div>
       </div>
