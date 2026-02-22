@@ -1,4 +1,4 @@
-type RoleBucket = "seeker" | "guide" | "host" | "vendor" | "partner";
+type RoleBucket = "seeker" | "guide" | "host" | "vendor";
 
 interface BuildEmailProps {
     firstName?: string;
@@ -59,21 +59,6 @@ const buildSeekerEmail = (): EmailContent => {
     return { subject, html, text };
 }
 
-const buildPartnerEmail = (): EmailContent => {
-    const subject = "You’re on the list — early access confirmed";
-    const html = `
-        <div>
-            <p>You’re on the list as a Partner / Collaborator.</p>
-            <p>We’ll reach out with invites as we open early access.</p>
-            <br/>
-            <p>Thank you for being early — we’re genuinely excited to build this with you. You’re exactly who we built HighVibe for.</p>
-        </div>
-    `;
-    const text = "You’re on the list as a Partner / Collaborator. We’ll reach out with invites as we open early access. Thank you for being early — we’re genuinely excited to build this with you. You’re exactly who we built HighVibe for.";
-    return { subject, html, text };
-}
-
-
 export function buildWaitlistEmail({ roleInterest, roleBucket, founderCode }: BuildEmailProps): EmailContent {
     const isProvider = ['guide', 'host', 'vendor'].includes(roleBucket);
 
@@ -83,10 +68,8 @@ export function buildWaitlistEmail({ roleInterest, roleBucket, founderCode }: Bu
         } else {
             return buildProviderNoCodeEmail();
         }
-    } else if (roleBucket === 'seeker') {
+    } else { // 'seeker'
         return buildSeekerEmail();
-    } else { // 'partner' or default
-        return buildPartnerEmail();
     }
 }
 
@@ -121,3 +104,5 @@ export function buildInviteWaveEmail(email: string): EmailContent {
     const text = `The wait is over! You're invited to join the HighVibe Retreats platform. Create your account here: ${process.env.NEXT_PUBLIC_BASE_URL}/join`;
     return { subject, html, text };
 }
+
+    

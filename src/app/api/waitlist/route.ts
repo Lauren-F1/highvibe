@@ -23,11 +23,10 @@ type RoleInterest =
   | "Host (I have a space)"
   | "Vendor (I offer services)"
   | "Seeker (I want to find/book retreats)"
-  | "Partner / Collaborator"
   | undefined
   | null;
 
-type RoleBucket = "seeker" | "guide" | "host" | "vendor" | "partner";
+type RoleBucket = "seeker" | "guide" | "host" | "vendor";
 
 function mapRoleToBucket(roleInterest: RoleInterest): RoleBucket {
     switch (roleInterest) {
@@ -35,8 +34,7 @@ function mapRoleToBucket(roleInterest: RoleInterest): RoleBucket {
         case "Guide (I want to lead retreats)": return 'guide';
         case "Host (I have a space)": return 'host';
         case "Vendor (I offer services)": return 'vendor';
-        case "Partner / Collaborator": return 'partner';
-        default: return 'partner';
+        default: return 'seeker';
     }
 }
 
@@ -176,3 +174,5 @@ export async function POST(request: Request) {
     );
   }
 }
+
+    

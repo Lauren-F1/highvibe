@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { WaitlistForm } from "./waitlist-form";
 
-type RoleShort = "Seeker" | "Guide" | "Host" | "Vendor" | "Partner / Collaborator" | "";
+type RoleShort = "Seeker" | "Guide" | "Host" | "Vendor" | "";
 
 interface WaitlistModalProps {
   isOpen: boolean;
@@ -25,7 +25,6 @@ const getRoleValue = (role?: RoleShort) => {
         case "Guide": return "Guide (I want to lead retreats)";
         case "Host": return "Host (I have a space)";
         case "Vendor": return "Vendor (I offer services)";
-        case "Partner / Collaborator": return "Partner / Collaborator";
         default: return undefined;
     }
 }
@@ -65,3 +64,5 @@ export function WaitlistModal({
     </Dialog>
   );
 }
+
+    
