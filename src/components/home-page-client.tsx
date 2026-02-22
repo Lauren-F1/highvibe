@@ -132,7 +132,7 @@ export default function HomePageClient() {
       {heroImage && (
         <div className="w-full max-w-7xl mb-8">
           <div className="bg-[#3A3A3A] p-3 md:p-5">
-            <div className="relative aspect-[21/9] w-full overflow-hidden">
+            <div className="relative aspect-[21/9] w-full">
               <Image
                 src={heroImage.imageUrl}
                 alt={heroImage.description}
@@ -147,7 +147,7 @@ export default function HomePageClient() {
         </div>
       )}
 
-      <div className="w-full max-w-4xl text-center mb-4 my-8">
+      <div className="w-full max-w-4xl text-center my-8">
         <h2 className="font-headline text-3xl md:text-4xl">Choose your role. Find your people.</h2>
         <p className="text-lg text-beige-dark mt-2 max-w-3xl mx-auto font-body">Book experiences or create them. HighVibe connects retreat leaders with aligned spaces and trusted vendors, all in one platform.</p>
       </div>
@@ -207,7 +207,7 @@ export default function HomePageClient() {
           )
         })}
       </div>
-      <div className="w-full bg-[#2B2B2B] py-16 md:py-24 mt-16 mb-16 -mx-4 sm:-mx-6 md:-mx-8">
+      <div className="w-full bg-[#2B2B2B] py-10 md:py-14 mt-16 mb-16 -mx-4 sm:-mx-6 md:-mx-8">
         <div className="w-full max-w-4xl text-center mx-auto px-4">
             <Card className="shadow-lg">
                 <CardHeader>
@@ -215,7 +215,7 @@ export default function HomePageClient() {
                     <CardDescription className="text-lg text-beige-dark mt-2 max-w-3xl mx-auto font-body">
                         HighVibe Retreats is launching soon. Join the waitlist for early access and founder-level perks.
                     </CardDescription>
-                    <p className="text-base text-foreground mt-4 max-w-3xl mx-auto font-body font-semibold">
+                    <p className="text-base text-foreground pt-4 max-w-3xl mx-auto font-body font-semibold">
                         Founder Perk: first 250 verified sign-ups get 60 days of membership fees waived.
                     </p>
                 </CardHeader>
