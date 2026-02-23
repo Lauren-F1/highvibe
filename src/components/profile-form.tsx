@@ -23,7 +23,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { useState } from 'react';
 import { improveProfileText } from '@/ai/flows/improve-profile-text-flow';
-import { Loader2, Wand2 } from 'lucide-react';
+import { Loader2, Sparkles } from 'lucide-react';
 
 const profileSchema = z.object({
     displayName: z.string().min(2, 'Display name is required'),
@@ -324,7 +324,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                                 disabled={isImprovingHeadline}
                                                 title="Improve with AI"
                                             >
-                                                {isImprovingHeadline ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
+                                                {isImprovingHeadline ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                                                 <span className="sr-only">Improve with AI</span>
                                             </Button>
                                         </div>
@@ -411,7 +411,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                                 disabled={isImprovingBio}
                                                 title="Improve with AI"
                                             >
-                                                {isImprovingBio ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
+                                                {isImprovingBio ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                                                 <span className="sr-only">Improve with AI</span>
                                             </Button>
                                         </div>
