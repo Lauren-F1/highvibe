@@ -25,7 +25,7 @@ export function Footer() {
             <p className="mt-4 text-sm text-muted-foreground sm:mt-0">
               © {new Date().getFullYear()} HighVibe Retreats Inc. All rights reserved.
             </p>
-            <div className="mt-4 flex space-x-6 sm:mt-0 items-center">
+            <div className="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-2 sm:mt-0 items-center">
               <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground">
                 About
               </Link>
@@ -37,6 +37,9 @@ export function Footer() {
               </Link>
               <Link href="/terms" className="text-sm text-muted-foreground hover:text-foreground">
                 Terms of Service
+              </Link>
+              <Link href="/privacy" className="text-sm text-muted-foreground hover:text-foreground">
+                Privacy Policy
               </Link>
               <Button variant="link" className="text-sm text-muted-foreground hover:text-foreground p-0 h-auto" onClick={() => setIsWaitlistModalOpen(true)}>
                 Get updates
