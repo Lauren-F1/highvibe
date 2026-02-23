@@ -34,7 +34,7 @@ const prompt = ai.definePrompt({
   name: 'retreatDescriptionPrompt',
   input: {schema: RetreatDescriptionInputSchema},
   output: {schema: RetreatDescriptionOutputSchema},
-  prompt: `You are an expert copywriter specializing in writing compelling retreat descriptions.
+  prompt: `You are an expert copywriter for HighVibe Retreats, a luxury brand and functional marketplace. Your writing should be compelling and reflect a blend of emotional storytelling and clear information.
 
   Based on the following keywords and retreat type, generate a draft retreat description.
 

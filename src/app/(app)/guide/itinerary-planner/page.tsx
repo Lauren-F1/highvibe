@@ -28,36 +28,13 @@ export default function ItineraryPlannerPage() {
     setItinerary('');
     
     try {
-        // This is where you would call the AI flow.
-        // For now, we will simulate the experience as requested.
-        // const result = await generateItinerary(data);
-        // setItinerary(result.itinerary);
+        const result = await generateItinerary(data as GenerateItineraryInput);
+        setItinerary(result.itinerary);
         
-        // Placeholder simulation:
-        setTimeout(() => {
-            const placeholderResponse = `### Day 1: Arrival & Grounding in ${data.destination || 'Paradise'}
-*   Afternoon: Guest arrivals, welcome drinks, and check-in.
-*   5:00 PM: Opening Circle & Intention Setting Ceremony.
-*   7:00 PM: Welcome Dinner featuring local, organic cuisine.
-
-### Day 2: Deep Dive - ${data.keywords.split(',')[0] || 'Core Activity'}
-*   8:00 AM: Morning Session (e.g., Yoga, Meditation).
-*   10:00 AM: Workshop focusing on the retreat's theme.
-*   1:00 PM: Nourishing Lunch.
-*   Afternoon: Free time for reflection, journaling, or enjoying the space.
-*   6:00 PM: Evening activity related to: ${data.keywords.split(',')[1] || 'Second Activity'}.
-
-...and so on for ${data.duration || 'X'} days.
-
-This is a placeholder response. Once the AI is fully enabled with your brand manifesto, this will be a complete, tailored itinerary.`;
-
-            setItinerary(placeholderResponse);
-            setIsLoading(false);
-            toast({
-                title: "Itinerary Draft Created!",
-                description: "The AI has generated a starting point for your retreat.",
-            });
-        }, 2000);
+        toast({
+            title: "Itinerary Draft Created!",
+            description: "The AI has generated a starting point for your retreat.",
+        });
 
     } catch (error) {
         console.error("Error generating itinerary:", error);
@@ -66,6 +43,7 @@ This is a placeholder response. Once the AI is fully enabled with your brand man
             title: "AI Planner Error",
             description: "Could not generate an itinerary at this time.",
         });
+    } finally {
         setIsLoading(false);
     }
   };

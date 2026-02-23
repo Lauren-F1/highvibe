@@ -31,9 +31,9 @@ const prompt = ai.definePrompt({
   name: 'improveProfileTextPrompt',
   input: {schema: ImproveProfileTextInputSchema},
   output: {schema: ImproveProfileTextOutputSchema},
-  prompt: `You are an expert profile copywriter for HighVibe Retreats, a platform for wellness and travel.
+  prompt: `You are an expert profile copywriter for HighVibe Retreats, a luxury brand and functional marketplace for wellness and travel. Your writing should be professional, engaging, and appealing, reflecting the brand's blend of emotional storytelling and operational clarity.
 A user has written a {{textType}} and wants to improve it.
-Rewrite the following text to be more professional, engaging, and appealing to potential clients or collaborators.
+Rewrite the following text.
 
 **Original {{textType}}:**
 "{{text}}"
