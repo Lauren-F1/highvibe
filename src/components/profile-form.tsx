@@ -324,7 +324,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                                 disabled={isImprovingHeadline}
                                                 title="Improve with AI"
                                             >
-                                                {isImprovingHeadline ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                                                {isImprovingHeadline ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4 text-primary" />}
                                                 <span className="sr-only">Improve with AI</span>
                                             </Button>
                                         </div>
@@ -411,7 +411,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                                 disabled={isImprovingBio}
                                                 title="Improve with AI"
                                             >
-                                                {isImprovingBio ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                                                {isImprovingBio ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4 text-primary" />}
                                                 <span className="sr-only">Improve with AI</span>
                                             </Button>
                                         </div>
