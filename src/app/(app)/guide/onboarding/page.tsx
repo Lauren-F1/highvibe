@@ -1,3 +1,4 @@
+
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { Mic, FileText } from 'lucide-react';
@@ -8,9 +9,9 @@ export default function GuideOnboardingChoicePage() {
       <div className="max-w-2xl mx-auto">
         <Card>
           <CardHeader className="text-center">
-            <CardTitle className="font-headline text-4xl">Welcome, Guide</CardTitle>
+            <CardTitle className="font-headline text-4xl">Hello HighVibe Guide</CardTitle>
             <CardDescription className="text-lg">
-              Let's create your profile so the perfect partners and seekers can find you. Choose how you'd like to get started.
+              Let’s build your profile so the right seekers and collaborators can find you. Choose how you’d like to get started.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
@@ -18,14 +19,14 @@ export default function GuideOnboardingChoicePage() {
                 <Card className="h-full flex flex-col items-center justify-center text-center p-6 bg-primary/10 border-primary/20 hover:bg-primary/20 hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 cursor-pointer">
                     <Mic className="h-12 w-12 text-primary mb-4" />
                     <h3 className="font-bold text-lg">Voice Onboarding</h3>
-                    <p className="text-sm text-muted-foreground">Not great with your thumbs? Speak your profile into existence.</p>
+                    <p className="text-sm text-muted-foreground">For those who prefer talking over typing. Say it out loud and we’ll turn it into a polished profile.</p>
                 </Card>
             </Link>
              <Link href="/guide/onboarding/classic" passHref>
                  <Card className="h-full flex flex-col items-center justify-center text-center p-6 bg-primary/10 border-primary/20 hover:bg-primary/20 hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 cursor-pointer">
                     <FileText className="h-12 w-12 text-primary mb-4" />
                     <h3 className="font-bold text-lg">Classic Onboarding</h3>
-                    <p className="text-sm text-muted-foreground">For those who prefer the traditional path. Fill out a simple form at your own pace.</p>
+                    <p className="text-sm text-muted-foreground">The timeless route. A simple form, you can fill out at your own pace.</p>
                 </Card>
             </Link>
           </CardContent>
