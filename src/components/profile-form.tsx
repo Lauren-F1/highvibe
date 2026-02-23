@@ -21,6 +21,9 @@ import { Checkbox } from './ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { useState } from 'react';
+import { improveProfileText } from '@/ai/flows/improve-profile-text-flow';
+import { Loader2, Wand2 } from 'lucide-react';
 
 const profileSchema = z.object({
     displayName: z.string().min(2, 'Display name is required'),
@@ -71,6 +74,9 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
     const router = useRouter();
     const { toast } = useToast();
     
+    const [isImprovingBio, setIsImprovingBio] = useState(false);
+    const [isImprovingHeadline, setIsImprovingHeadline] = useState(false);
+    
     const form = useForm<ProfileFormValues>({
         resolver: zodResolver(profileSchema),
         defaultValues: {
@@ -105,6 +111,31 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
     const { formState: { isDirty, isSubmitting } } = form;
     const watchedRoles = form.watch('roles');
     const hasProviderRole = watchedRoles?.some(r => ['guide', 'host', 'vendor'].includes(r));
+
+    const handleImproveText = async (fieldType: 'bio' | 'headline') => {
+        const fieldStateSetter = fieldType === 'bio' ? setIsImprovingBio : setIsImprovingHeadline;
+        fieldStateSetter(true);
+
+        const originalText = form.getValues(fieldType);
+        if (!originalText) {
+            toast({ title: "Nothing to improve", description: `Please enter a ${fieldType} first.`, variant: "destructive"});
+            fieldStateSetter(false);
+            return;
+        }
+
+        try {
+            const result = await improveProfileText({ text: originalText, textType: fieldType });
+            if (result.improvedText) {
+                form.setValue(fieldType, result.improvedText, { shouldDirty: true });
+                toast({ title: `${fieldType.charAt(0).toUpperCase() + fieldType.slice(1)} improved!`, description: "The AI has rewritten your text."});
+            }
+        } catch (error) {
+            console.error(`Error improving ${fieldType}:`, error);
+            toast({ title: `Could not improve ${fieldType}`, description: "The AI assistant encountered an error.", variant: "destructive"});
+        } finally {
+            fieldStateSetter(false);
+        }
+    };
 
     const onSubmit = async (data: ProfileFormValues) => {
         if (!firestore) return;
@@ -282,7 +313,21 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Headline</FormLabel>
-                                        <FormControl><Input {...field} placeholder="e.g., Yoga Instructor + Sound Healer" /></FormControl>
+                                        <div className="relative">
+                                            <FormControl><Input {...field} placeholder="e.g., Yoga Instructor + Sound Healer" /></FormControl>
+                                            <Button 
+                                                type="button" 
+                                                variant="ghost" 
+                                                size="icon" 
+                                                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
+                                                onClick={() => handleImproveText('headline')}
+                                                disabled={isImprovingHeadline}
+                                                title="Improve with AI"
+                                            >
+                                                {isImprovingHeadline ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
+                                                <span className="sr-only">Improve with AI</span>
+                                            </Button>
+                                        </div>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -355,7 +400,21 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Bio</FormLabel>
-                                        <FormControl><Textarea {...field} rows={5} placeholder="Share what you offer, your style, and what makes your retreats/services unique." /></FormControl>
+                                        <div className="relative">
+                                            <FormControl><Textarea {...field} rows={5} placeholder="Share what you offer, your style, and what makes your retreats/services unique." /></FormControl>
+                                             <Button 
+                                                type="button" 
+                                                variant="ghost" 
+                                                size="icon" 
+                                                className="absolute right-1 top-2 h-8 w-8"
+                                                onClick={() => handleImproveText('bio')}
+                                                disabled={isImprovingBio}
+                                                title="Improve with AI"
+                                            >
+                                                {isImprovingBio ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
+                                                <span className="sr-only">Improve with AI</span>
+                                            </Button>
+                                        </div>
                                         <FormMessage />
                                     </FormItem>
                                 )}
