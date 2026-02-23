@@ -178,10 +178,14 @@ export default function TermsPage() {
 
             <div className="space-y-2">
                 <h2 className="font-headline text-2xl pt-4">13. Limitation of Liability</h2>
-                <p>To the fullest extent permitted by law, HighVibe’s total liability shall not exceed the greater of:</p>
+                <p>To the fullest extent permitted by law:</p>
                 <ul className="list-disc list-inside space-y-1 pl-4">
-                    <li>The total fees paid to HighVibe in the 12 months preceding the claim, or</li>
-                    <li>$100 USD.</li>
+                  <li>HighVibe’s total liability shall not exceed the greater of:
+                    <ul className="list-[circle] list-inside pl-4">
+                      <li>The total fees paid to HighVibe in the 12 months preceding the claim, or</li>
+                      <li>$100 USD.</li>
+                    </ul>
+                  </li>
                 </ul>
                 <p>HighVibe shall not be liable for:</p>
                 <ul className="list-disc list-inside space-y-1 pl-4">
@@ -236,8 +240,6 @@ export default function TermsPage() {
                 <p>HighVibe may update these Terms at any time.</p>
                 <p>Continued use of the platform constitutes acceptance of the updated Terms.</p>
             </div>
-            
-            <p className="pt-8 text-sm text-muted-foreground">End of Terms.</p>
           </CardContent>
         </Card>
       </div>
