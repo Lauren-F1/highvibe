@@ -238,6 +238,9 @@ export default function CheckoutPage() {
                                 I have read and agree to the <Link href="/seeker-agreement" target="_blank" rel="noopener noreferrer" className="underline text-primary">Seeker Participation Agreement & Liability Waiver</Link>, understand that retreat participation involves inherent risks, and agree to binding arbitration under Nevada law.
                             </Label>
                         </div>
+                        <p className="text-xs text-muted-foreground pt-2">
+                            By confirming this booking, I also agree to the <Link href="/terms" target="_blank" rel="noopener noreferrer" className="underline text-primary">HighVibe Terms of Service</Link> and <Link href="/privacy" target="_blank" rel="noopener noreferrer" className="underline text-primary">Privacy Policy</Link>.
+                        </p>
                     </div>
                 </CardContent>
                 <CardFooter>
