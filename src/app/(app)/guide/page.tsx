@@ -471,7 +471,7 @@ export default function GuidePage() {
                         </div>
                         
                         <div className="my-6">
-                            <Card>
+                            <Card className="border-beige bg-beige/10">
                                 <CardHeader className="flex-row items-center justify-between">
                                     <div>
                                         <CardTitle className="flex items-center gap-2 font-headline text-2xl">
