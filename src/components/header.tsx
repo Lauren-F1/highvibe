@@ -63,7 +63,7 @@ export function Header() {
               priority
             />
           </Link>
-          <nav className="hidden items-center space-x-6 text-sm font-medium md:flex">
+          <nav className="hidden items-center space-x-6 text-sm font-medium md:flex font-ui">
             <Link href="/seeker" className="transition-colors hover:text-foreground/80 text-foreground/60">
               Seeker
             </Link>
@@ -98,7 +98,7 @@ export function Header() {
                             </Avatar>
                         </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-56" align="end" forceMount>
+                        <DropdownMenuContent className="w-56 font-ui" align="end" forceMount>
                         <DropdownMenuLabel className="font-normal">
                             <div className="flex flex-col space-y-1">
                             <p className="text-sm font-medium leading-none">{user.profile?.displayName || 'User'}</p>

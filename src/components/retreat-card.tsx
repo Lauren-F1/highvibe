@@ -116,11 +116,11 @@ export function RetreatCard({ retreat, isLux = false }: RetreatCardProps) {
         <div className="flex justify-between items-start gap-4 mb-4">
             <div className="flex-1">
                 <CardTitle className="font-headline text-2xl mb-2 pr-10">{retreat.title}</CardTitle>
-                <CardDescription className="flex items-center text-muted-foreground">
+                <CardDescription className="flex items-center text-muted-foreground font-ui">
                     <MapPin className="mr-2 h-4 w-4" />
                     {retreat.location}
                 </CardDescription>
-                 <div className="mt-2 space-y-1 text-xs text-muted-foreground">
+                 <div className="mt-2 space-y-1 text-xs text-muted-foreground font-ui">
                     {retreat.duration && (
                         <div className="flex items-center">
                             <Clock className="mr-2 h-3 w-3" />
@@ -149,7 +149,7 @@ export function RetreatCard({ retreat, isLux = false }: RetreatCardProps) {
         <Button asChild>
             <Link href={`/checkout/${retreat.id}`}>Book Retreat</Link>
         </Button>
-        <div className="text-right">
+        <div className="text-right font-ui">
           <div className="text-lg font-bold text-foreground">
             From ${retreat.price}
             <span className="text-sm font-normal text-muted-foreground"> / night</span>

@@ -10,8 +10,9 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Inter', 'sans-serif'],
+        body: ['Droid Serif', 'serif'],
         headline: ['"Cormorant Garamond"', 'serif'],
+        ui: ['Inter', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {
