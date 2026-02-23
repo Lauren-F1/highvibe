@@ -4,6 +4,7 @@
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -378,6 +379,9 @@ export default function GuidePage() {
                 {subscriptionBadge.icon}
                 {subscriptionBadge.label}
             </Badge>
+            <Button size="lg" variant="outline" asChild>
+              <Link href="/guide/itinerary-planner"><Sparkles className="mr-2 h-5 w-5" /> AI Itinerary Planner</Link>
+            </Button>
             <Button size="lg" onClick={handleCreateRetreatClick}>
                 <PlusCircle className="mr-2 h-5 w-5" />
                 Create New Retreat
@@ -471,7 +475,7 @@ export default function GuidePage() {
                         </div>
                         
                         <div className="my-6">
-                            <Card className="border-beige bg-beige/20">
+                            <Card className="border-beige-dark bg-beige-dark/20">
                                 <CardHeader className="flex-row items-center justify-between">
                                     <div>
                                         <CardTitle className="flex items-center gap-2 font-headline text-2xl">
