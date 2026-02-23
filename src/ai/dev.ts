@@ -3,3 +3,4 @@ config();
 
 import '@/ai/flows/retreat-description-generator.ts';
 import '@/ai/flows/commission-enforcement.ts';
+import '@/ai/flows/generate-message-suggestions.ts';

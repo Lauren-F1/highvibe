@@ -5,8 +5,11 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import type { Conversation, Message } from '@/lib/inbox-data';
-import { Send } from 'lucide-react';
+import { Send, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { generateMessageSuggestions, type MessageSuggestionsInput } from '@/ai/flows/generate-message-suggestions';
+import { useUser } from '@/firebase';
+import { useToast } from '@/hooks/use-toast';
 
 interface ConversationViewProps {
     conversation: Conversation;
@@ -15,14 +18,53 @@ interface ConversationViewProps {
 
 export function ConversationView({ conversation, onSendMessage }: ConversationViewProps) {
     const [newMessage, setNewMessage] = useState('');
+    const [suggestions, setSuggestions] = useState<string[]>([]);
+    const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+    const user = useUser();
+    const { toast } = useToast();
 
     const handleSend = () => {
         if (newMessage.trim()) {
             onSendMessage(conversation.id, newMessage);
             setNewMessage('');
+            setSuggestions([]); // Clear suggestions after sending
         }
     };
     
+    const handleGetSuggestions = async () => {
+        if (user.status !== 'authenticated' || !user.profile?.primaryRole) {
+            toast({
+                variant: 'destructive',
+                title: 'Could not generate suggestions',
+                description: 'Your primary role is not set.'
+            });
+            return;
+        }
+
+        setIsLoadingSuggestions(true);
+        setSuggestions([]);
+
+        try {
+            const input: MessageSuggestionsInput = {
+                conversationHistory: conversation.messages.slice(-10), // Send recent history
+                userRole: user.profile.primaryRole,
+                partnerRole: conversation.role,
+                retreatContext: conversation.retreat,
+            };
+            const result = await generateMessageSuggestions(input);
+            setSuggestions(result.suggestions);
+        } catch (error) {
+            console.error("Error generating message suggestions:", error);
+            toast({
+                variant: 'destructive',
+                title: 'AI Assistant Error',
+                description: 'Could not generate suggestions at this time.'
+            });
+        } finally {
+            setIsLoadingSuggestions(false);
+        }
+    };
+
     return (
         <Card className="flex flex-col h-full">
             <CardHeader className="flex flex-row items-center gap-4 p-6 border-b">
@@ -58,8 +100,25 @@ export function ConversationView({ conversation, onSendMessage }: ConversationVi
                     </div>
                 ))}
             </CardContent>
-            <CardFooter className="p-4 border-t">
-                <div className="flex w-full items-center space-x-2">
+            <CardFooter className="p-4 border-t flex flex-col items-start gap-2">
+                {isLoadingSuggestions && <p className="text-sm text-muted-foreground px-2">Generating ideas...</p>}
+                {suggestions.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                        {suggestions.map((suggestion, i) => (
+                            <Button
+                                key={i}
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setNewMessage(suggestion)}
+                                className="h-auto py-1.5 px-3 text-left"
+                            >
+                                {suggestion}
+                            </Button>
+                        ))}
+                    </div>
+                )}
+                
+                <div className="flex w-full items-start space-x-2">
                     <Textarea
                         placeholder="Type your message..."
                         value={newMessage}
@@ -72,10 +131,16 @@ export function ConversationView({ conversation, onSendMessage }: ConversationVi
                         }}
                         className="min-h-[60px]"
                     />
-                    <Button onClick={handleSend} size="icon" className="h-12 w-12 shrink-0">
-                        <Send className="h-5 w-5" />
-                        <span className="sr-only">Send</span>
-                    </Button>
+                    <div className="flex flex-col gap-2">
+                        <Button onClick={handleSend} size="icon" className="h-10 w-10 shrink-0">
+                            <Send className="h-5 w-5" />
+                            <span className="sr-only">Send</span>
+                        </Button>
+                        <Button onClick={handleGetSuggestions} size="icon" variant="ghost" className="h-10 w-10 shrink-0" disabled={isLoadingSuggestions}>
+                            <Sparkles className="h-5 w-5" />
+                            <span className="sr-only">Get AI Suggestions</span>
+                        </Button>
+                    </div>
                 </div>
             </CardFooter>
         </Card>
