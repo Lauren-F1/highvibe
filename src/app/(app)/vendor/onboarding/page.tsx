@@ -26,7 +26,7 @@ export default function VendorOnboardingChoicePage() {
                  <Card className="h-full flex flex-col items-center justify-center text-center p-6 bg-primary/10 border-primary/20 hover:bg-primary/20 hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 cursor-pointer">
                     <FileText className="h-12 w-12 text-primary mb-4" />
                     <h3 className="font-bold text-lg">Classic Onboarding</h3>
-                    <p className="text-sm text-muted-foreground">The timeless route. A simple form, you can fill out at your own pace.</p>
+                    <p className="text-sm text-muted-foreground">For those who prefer the timeless route. A simple form you can fill out at your own pace.</p>
                 </Card>
             </Link>
           </CardContent>
