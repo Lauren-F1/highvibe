@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -27,7 +26,7 @@ import { NextBestAction } from '@/components/next-best-action';
 import { cn } from '@/lib/utils';
 import { RetreatReadinessChecklist, type RetreatReadinessProps } from '@/components/retreat-readiness-checklist';
 import { WaitlistModal } from '@/components/waitlist-modal';
-import { ImageUpload } from '@/components/image-upload';
+import { VibeMatchModal } from '@/components/vibe-match-modal';
 
 
 const genericImage = placeholderImages.find(p => p.id === 'generic-placeholder')!;
@@ -87,6 +86,7 @@ export default function GuidePage() {
   const guideHeroImage = placeholderImages.find(p => p.id === 'guide-dashboard-hero')!;
   
   const [vibeImages, setVibeImages] = useState<string[]>([]);
+  const [isVibeModalOpen, setIsVibeModalOpen] = useState(false);
 
   const appliedHostFiltersCount = useMemo(() => {
     let count = 0;
@@ -345,6 +345,13 @@ export default function GuidePage() {
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
+      <VibeMatchModal
+        isOpen={isVibeModalOpen}
+        onOpenChange={setIsVibeModalOpen}
+        vibeImages={vibeImages}
+        onVibeImagesChange={setVibeImages}
+        activeRetreatId={activeRetreatId}
+      />
       <WaitlistModal isOpen={showFeatureGate} onOpenChange={setShowFeatureGate} source="feature-gate-guide-edit" />
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div className="md:mr-8">
@@ -463,31 +470,22 @@ export default function GuidePage() {
                         </div>
                         
                         <div className="my-6">
-                          <Card className="border-dashed border-beige">
-                              <CardHeader>
-                                  <CardTitle className="flex items-center gap-2 font-headline text-2xl">
-                                      <Sparkles className="text-beige" />
-                                      Match by Vibe
-                                  </CardTitle>
-                                  <CardDescription>
-                                      Have a specific aesthetic in mind? Upload inspiration images, and our AI will find partners with a similar visual style.
-                                  </CardDescription>
-                              </CardHeader>
-                              <CardContent>
-                                  <ImageUpload
-                                      value={vibeImages}
-                                      onChange={(urls) => setVibeImages(urls as string[])}
-                                      storagePath={`temp/vibe-matcher/${activeRetreatId}`}
-                                      multiple
-                                      maxFiles={4}
-                                  />
-                              </CardContent>
-                              <CardFooter>
-                                  <Button onClick={() => toast({ title: "Vibe Matching Coming Soon!" })} disabled={vibeImages.length === 0}>
-                                      Find Vibe Matches
-                                  </Button>
-                              </CardFooter>
-                          </Card>
+                            <Card>
+                                <CardHeader className="flex-row items-center justify-between">
+                                    <div>
+                                        <CardTitle className="flex items-center gap-2 font-headline text-2xl">
+                                            <Sparkles className="text-beige" />
+                                            Match by Vibe
+                                        </CardTitle>
+                                        <CardDescription className="mt-1">
+                                            Find partners with a similar aesthetic using AI.
+                                        </CardDescription>
+                                    </div>
+                                    <Button onClick={() => setIsVibeModalOpen(true)}>
+                                        Upload Mood Board
+                                    </Button>
+                                </CardHeader>
+                            </Card>
                         </div>
                         
                         <Separator />
