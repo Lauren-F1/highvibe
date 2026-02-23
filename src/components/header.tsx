@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -16,7 +15,7 @@ import {
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/firebase';
-import { getAuth } from 'firebase/auth';
+import { getAuth, User as FirebaseUser } from 'firebase/auth';
 import { isFirebaseEnabled } from '@/firebase/config';
 import { useInbox } from '@/context/InboxContext';
 import { useEffect, useState } from 'react';
@@ -38,11 +37,24 @@ export function Header() {
       const userEmail = user.data.email?.toLowerCase();
       const isAdminByEmail = userEmail ? adminEmails.includes(userEmail) : false;
 
-      user.data.getIdTokenResult().then(idTokenResult => {
-        if (idTokenResult.claims.admin === true || isAdminByEmail) {
-          setIsAdmin(true);
+      // In dev mode, user.data is a plain object without getIdTokenResult.
+      // We check if the function exists before calling it.
+      if (typeof (user.data as any).getIdTokenResult === 'function') {
+          (user.data as FirebaseUser).getIdTokenResult().then(idTokenResult => {
+            if (idTokenResult.claims.admin === true || isAdminByEmail) {
+              setIsAdmin(true);
+            } else {
+              setIsAdmin(false);
+            }
+          });
+      } else {
+        // This block will run in dev mode or if the user object is not a Firebase User instance.
+        if (isAdminByEmail) {
+            setIsAdmin(true);
+        } else {
+            setIsAdmin(false);
         }
-      });
+      }
     } else {
       setIsAdmin(false);
     }
