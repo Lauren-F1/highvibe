@@ -370,6 +370,27 @@
         "medicalDisclosureAcceptedAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "chargebackStatus": {
+          "type": "string",
+          "enum": ["none", "open", "submitted", "won", "lost"],
+          "description": "Status of a chargeback dispute."
+        },
+        "chargebackEvidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "url": { "type": "string", "format": "uri" },
+              "filename": { "type": "string" },
+              "uploadedAt": { "type": "string", "format": "date-time" }
+            }
+          },
+          "description": "Evidence submitted for a chargeback dispute."
+        },
+        "chargebackStripeDisputeId": {
+            "type": "string",
+            "description": "The ID of the dispute object from Stripe."
         }
       },
       "required": [

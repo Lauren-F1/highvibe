@@ -11,6 +11,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { useRouter } from 'next/navigation';
@@ -18,13 +19,35 @@ import { useUser } from '@/firebase';
 import { getAuth } from 'firebase/auth';
 import { isFirebaseEnabled } from '@/firebase/config';
 import { useInbox } from '@/context/InboxContext';
+import { useEffect, useState } from 'react';
 
 
 export function Header() {
   const router = useRouter();
   const user = useUser();
   const { unreadCount } = useInbox();
+  const [isAdmin, setIsAdmin] = useState(false);
   
+  useEffect(() => {
+    if (user.status === 'authenticated') {
+      const adminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAIL_ALLOWLIST || '')
+        .split(',')
+        .map(e => e.trim().toLowerCase())
+        .filter(Boolean);
+      
+      const userEmail = user.data.email?.toLowerCase();
+      const isAdminByEmail = userEmail ? adminEmails.includes(userEmail) : false;
+
+      user.data.getIdTokenResult().then(idTokenResult => {
+        if (idTokenResult.claims.admin === true || isAdminByEmail) {
+          setIsAdmin(true);
+        }
+      });
+    } else {
+      setIsAdmin(false);
+    }
+  }, [user]);
+
   const handleLogout = () => {
     document.cookie = 'isAdminBypass=; path=/; max-age=0'; // Clear admin bypass cookie
 
@@ -110,6 +133,16 @@ export function Header() {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild><Link href="/account">Profile</Link></DropdownMenuItem>
                         <DropdownMenuItem asChild><Link href="/billing">Billing</Link></DropdownMenuItem>
+                        {isAdmin && (
+                          <DropdownMenuGroup>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuLabel>Admin</DropdownMenuLabel>
+                              <DropdownMenuItem asChild><Link href="/admin/waitlist">Waitlist</Link></DropdownMenuItem>
+                              <DropdownMenuItem asChild><Link href="/admin/contact">Contact Submissions</Link></DropdownMenuItem>
+                              <DropdownMenuItem asChild><Link href="/admin/founder-codes">Founder Codes</Link></DropdownMenuItem>
+                              <DropdownMenuItem asChild><Link href="/admin/chargebacks">Chargebacks</Link></DropdownMenuItem>
+                          </DropdownMenuGroup>
+                        )}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={handleLogout}>
                             Log out
