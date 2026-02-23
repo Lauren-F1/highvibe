@@ -47,6 +47,7 @@ export default function CheckoutPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [isProcessing, setIsProcessing] = useState(false);
     const [liabilityAccepted, setLiabilityAccepted] = useState(false);
+    const [medicalDisclosureAccepted, setMedicalDisclosureAccepted] = useState(false);
 
     const retreatId = params.id as string;
 
@@ -93,6 +94,14 @@ export default function CheckoutPage() {
     if (!retreat) {
         notFound();
     }
+
+    const medicalDisclosureCategories = [
+      'Breathwork', 'Somatic Release', 'Cold Exposure', 'Fasting',
+      'Intensive Fitness', 'Advanced Yoga', 'High-Altitude Retreat'
+    ];
+    const requiresMedicalDisclosure = retreat.type?.some(t =>
+      medicalDisclosureCategories.includes(t as string)
+    );
     
     const creditAmount = credit?.issued_amount || 0;
     const retreatPackagePrice = retreat.price * 5; // e.g. 5 nights, mock package price
@@ -117,7 +126,7 @@ export default function CheckoutPage() {
 
             // Create Booking Doc
             const bookingRef = doc(collection(firestore, 'bookings'));
-            const bookingData = {
+            const bookingData: { [key: string]: any } = {
                 seekerId: user.data.uid,
                 retreatId: retreat.id,
                 manifestationId: credit?.manifestation_id || null, // Assuming credit is tied to manifestation
@@ -138,6 +147,12 @@ export default function CheckoutPage() {
                 liabilityWaiverAcceptedAt: serverTimestamp(),
                 liabilityWaiverVersion: "v1.0-02-01-2026",
             };
+
+            if (requiresMedicalDisclosure) {
+              bookingData.medicalDisclosureAccepted = true;
+              bookingData.medicalDisclosureAcceptedAt = serverTimestamp();
+            }
+    
             batch.set(bookingRef, bookingData);
     
             // Update Credit Doc (if applicable)
@@ -227,6 +242,24 @@ export default function CheckoutPage() {
                             <span>${total.toFixed(2)}</span>
                         </div>
                     </div>
+                    {requiresMedicalDisclosure && (
+                        <>
+                            <Separator />
+                            <div className="space-y-3 pt-4">
+                                <h3 className="font-semibold">Medical Acknowledgment</h3>
+                                <div className="flex items-start space-x-2">
+                                <Checkbox
+                                    id="medical"
+                                    checked={medicalDisclosureAccepted}
+                                    onCheckedChange={(checked) => setMedicalDisclosureAccepted(checked as boolean)}
+                                />
+                                <Label htmlFor="medical" className="text-sm font-normal text-muted-foreground leading-snug">
+                                    Some retreat activities may involve intense physical or emotional experiences. I confirm that I am physically and mentally fit to participate and understand I am responsible for consulting a medical professional if necessary.
+                                </Label>
+                                </div>
+                            </div>
+                        </>
+                    )}
                      <Separator />
                     <div className="space-y-3 pt-4">
                         <p className="text-sm text-muted-foreground">
@@ -244,7 +277,7 @@ export default function CheckoutPage() {
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <Button className="w-full" size="lg" onClick={handleConfirmBooking} disabled={isProcessing || !liabilityAccepted}>
+                    <Button className="w-full" size="lg" onClick={handleConfirmBooking} disabled={isProcessing || !liabilityAccepted || (requiresMedicalDisclosure && !medicalDisclosureAccepted)}>
                         {isProcessing ? 'Processing...' : 'Confirm & Pay'}
                     </Button>
                 </CardFooter>

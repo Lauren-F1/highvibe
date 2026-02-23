@@ -363,6 +363,13 @@
         },
         "liabilityWaiverIpAddress": {
           "type": "string"
+        },
+        "medicalDisclosureAccepted": {
+          "type": "boolean"
+        },
+        "medicalDisclosureAcceptedAt": {
+          "type": "string",
+          "format": "date-time"
         }
       },
       "required": [
