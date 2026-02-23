@@ -32,6 +32,7 @@ import { isFirebaseEnabled } from '@/firebase/config';
 
 const createSignupSchema = (role?: 'guide' | 'host' | 'vendor' | 'seeker') => {
   const isProvider = role && ['guide', 'host', 'vendor'].includes(role);
+  const isHost = role === 'host';
 
   const schema = z.object({
     firstName: z.string().min(1, 'First name is required'),
@@ -45,6 +46,11 @@ const createSignupSchema = (role?: 'guide' | 'host' | 'vendor' | 'seeker') => {
     providerAgreement: isProvider
       ? z.literal(true, {
           errorMap: () => ({ message: 'You must accept the provider agreement.' })
+        })
+      : z.boolean().optional(),
+    hostRider: isHost
+      ? z.literal(true, {
+          errorMap: () => ({ message: 'You must accept the Host Property Risk Rider.' })
         })
       : z.boolean().optional(),
   }).refine(data => data.password === data.confirmPassword, {
@@ -81,7 +87,7 @@ export function AuthForm({ mode, role }: AuthFormProps) {
   const form = useForm({
     resolver: zodResolver(mode === 'signup' ? signupSchema : formSchemaLogin),
     defaultValues: mode === 'signup' 
-        ? { email: '', password: '', firstName: '', lastName: '', confirmPassword: '', terms: false, providerAgreement: false }
+        ? { email: '', password: '', firstName: '', lastName: '', confirmPassword: '', terms: false, providerAgreement: false, hostRider: false }
         : { email: '', password: '' },
   });
   
@@ -129,6 +135,13 @@ export function AuthForm({ mode, role }: AuthFormProps) {
         userData.providerAgreementAccepted = true;
         userData.providerAgreementAcceptedAt = serverTimestamp();
         userData.providerAgreementVersion = "v1.0-02-01-2026";
+    }
+
+    const isHost = role === 'host';
+    if (isHost && data.hostRider) {
+        userData.hostRiderAccepted = true;
+        userData.hostRiderAcceptedAt = serverTimestamp();
+        userData.hostRiderVersion = "v1.0-02-01-2026";
     }
 
     await setDoc(userRef, userData);
@@ -183,6 +196,11 @@ export function AuthForm({ mode, role }: AuthFormProps) {
       const isProvider = role && ['guide', 'host', 'vendor'].includes(role);
       if (isProvider) {
           devProfile.providerAgreementAccepted = true;
+      }
+
+      const isHost = role === 'host';
+      if (isHost) {
+          devProfile.hostRiderAccepted = true;
       }
 
 
@@ -386,6 +404,29 @@ export function AuthForm({ mode, role }: AuthFormProps) {
                         <div className="space-y-1 leading-none">
                             <FormLabel>
                                 I agree to the <Link href="/provider-agreement" className="underline hover:text-primary" target="_blank">Provider Agreement</Link>.
+                            </FormLabel>
+                            <FormMessage />
+                        </div>
+                    </FormItem>
+                    )}
+                />
+            )}
+
+            {mode === 'signup' && role === 'host' && (
+                 <FormField
+                    control={form.control}
+                    name="hostRider"
+                    render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                        <FormControl>
+                            <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                            />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                            <FormLabel>
+                                I agree to the <Link href="/host-property-rider" className="underline hover:text-primary" target="_blank">Host Property Risk Rider</Link>.
                             </FormLabel>
                             <FormMessage />
                         </div>

@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "User": {
@@ -213,6 +214,19 @@
         "seekerAgreementVersion": {
           "type": "string",
           "description": "The version of the seeker agreement that was accepted."
+        },
+        "hostRiderAccepted": {
+          "type": "boolean",
+          "description": "Whether the host has accepted the Host Property Risk Rider."
+        },
+        "hostRiderAcceptedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the host rider was accepted."
+        },
+        "hostRiderVersion": {
+          "type": "string",
+          "description": "The version of the host rider that was accepted."
         }
       },
       "required": [
