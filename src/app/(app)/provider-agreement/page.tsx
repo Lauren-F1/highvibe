@@ -27,42 +27,52 @@ export default function ProviderAgreementPage() {
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">2. Platform Role</h2>
-                <p>HighVibe Retreats is a technology marketplace only.</p>
+                <h2 className="font-headline text-xl pt-4 font-bold">2. No Agency or Partnership</h2>
+                <p>Nothing in this Agreement creates any agency, partnership, employment, joint venture, or fiduciary relationship between HighVibe and any Provider.</p>
+                <p>Providers operate independently and at their own risk.</p>
+              </div>
+
+            <div className="space-y-2">
+                <h2 className="font-headline text-xl pt-4 font-bold">3. Platform Role</h2>
+                <p>HighVibe is solely a technology marketplace that facilitates introductions and payment processing between independent parties.</p>
                 <p>HighVibe does not:</p>
                 <ul className="list-disc list-inside space-y-1 pl-4">
-                    <li>Organize your retreat.</li>
-                    <li>Inspect your property.</li>
-                    <li>Supervise your services.</li>
-                    <li>Provide insurance coverage.</li>
-                    <li>Guarantee bookings or revenue.</li>
-                    <li>Act as a travel agency unless required by law.</li>
+                    <li>Organize, design, or create retreats</li>
+                    <li>Co-host events</li>
+                    <li>Supervise activities</li>
+                    <li>Control retreat content</li>
+                    <li>Control pricing</li>
+                    <li>Inspect properties</li>
+                    <li>Verify safety standards</li>
+                    <li>Act as an employer, joint venturer, or agent</li>
+                    <li>Endorse or guarantee any provider</li>
                 </ul>
-                <p>You are solely responsible for your business operations.</p>
+                <p>HighVibe’s role is limited to providing digital tools for listings, messaging, and payment processing.</p>
+                <p>All retreat planning, execution, and safety obligations remain solely with the Provider.</p>
             </div>
             
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">3. Legal Compliance</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">4. Legal Compliance</h2>
                 <p>You represent and warrant that:</p>
                 <ul className="list-disc list-inside space-y-1 pl-4">
-                    <li>They are legally permitted to provide their services.</li>
-                    <li>They comply with all local, state, national, and international laws.</li>
-                    <li>They maintain all required licenses and permits.</li>
-                    <li>They maintain appropriate commercial general liability insurance.</li>
-                    <li>Their listings are accurate and not misleading.</li>
+                    <li>You are legally permitted to provide your services.</li>
+                    <li>You comply with all local, state, national, and international laws.</li>
+                    <li>You maintain all required licenses and permits.</li>
+                    <li>Your listings are accurate and not misleading.</li>
                 </ul>
                 <p>You are solely responsible for regulatory compliance.</p>
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">4. Insurance Requirement</h2>
-                <p>You represent and warrant that you maintain commercial general liability insurance appropriate to your services.</p>
-                <p>Upon request, you agree to provide proof of insurance.</p>
-                <p>HighVibe does not provide insurance coverage for your retreat, property, or services.</p>
+                <h2 className="font-headline text-xl pt-4 font-bold">5. Insurance (Strongly Recommended)</h2>
+                <p>Providers are strongly encouraged to maintain commercial general liability insurance or other coverage appropriate to their retreat, property, or services.</p>
+                <p>HighVibe does not require proof of insurance and does not verify coverage.</p>
+                <p>Providers acknowledge that they are solely responsible for determining and obtaining appropriate insurance coverage for their activities.</p>
+                <p>Failure to maintain insurance does not transfer any liability to HighVibe.</p>
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">5. Safety and Risk Management</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">6. Safety and Risk Management</h2>
                 <p>You are solely responsible for:</p>
                 <ul className="list-disc list-inside space-y-1 pl-4">
                     <li>Participant safety</li>
@@ -77,7 +87,7 @@ export default function ProviderAgreementPage() {
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">6. Listings and Representations</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">7. Listings and Representations</h2>
                 <p>You agree that all information in your listings is accurate and not misleading.</p>
                 <p>You may not:</p>
                 <ul className="list-disc list-inside space-y-1 pl-4">
@@ -90,7 +100,7 @@ export default function ProviderAgreementPage() {
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">7. Payments and Stripe Authorization</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">8. Payments and Stripe Authorization</h2>
                 <p>All bookings must be processed through HighVibe using Stripe.</p>
                 <p>You authorize HighVibe to:</p>
                 <ul className="list-disc list-inside space-y-1 pl-4">
@@ -109,13 +119,13 @@ export default function ProviderAgreementPage() {
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">8. Refund Responsibility</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">9. Refund Responsibility</h2>
                 <p>You are responsible for clearly stating and honoring your cancellation and refund policies.</p>
                 <p>If you cancel a retreat or fail to deliver services, you are solely responsible for refunds and related damages.</p>
             </div>
 
              <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">9. No Circumvention</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">10. No Circumvention</h2>
                 <p>You may not solicit or accept off-platform payments from users introduced through HighVibe.</p>
                 <p>If you attempt to circumvent platform payments, HighVibe may:</p>
                 <ul className="list-disc list-inside space-y-1 pl-4">
@@ -127,7 +137,7 @@ export default function ProviderAgreementPage() {
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">10. Indemnification</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">11. Indemnification</h2>
                 <p>You agree to indemnify, defend, and hold harmless HighVibe, its officers, directors, employees, contractors, and affiliates from and against any claims, damages, losses, liabilities, and expenses (including legal fees) arising out of:</p>
                 <ul className="list-disc list-inside space-y-1 pl-4">
                     <li>Your retreat or service</li>
@@ -142,7 +152,7 @@ export default function ProviderAgreementPage() {
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">11. Limitation of Liability</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">12. Limitation of Liability</h2>
                 <p>To the fullest extent permitted by law:</p>
                 <p>HighVibe shall not be liable for:</p>
                  <ul className="list-disc list-inside space-y-1 pl-4">
@@ -160,7 +170,7 @@ export default function ProviderAgreementPage() {
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">12. Termination</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">13. Termination</h2>
                 <p>HighVibe may suspend or terminate your account for:</p>
                 <ul className="list-disc list-inside space-y-1 pl-4">
                     <li>Policy violations</li>
@@ -174,19 +184,19 @@ export default function ProviderAgreementPage() {
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">13. Governing Law and Arbitration</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">14. Governing Law and Arbitration</h2>
                 <p>This Agreement is governed by the laws of the State of Nevada, without regard to conflict of law principles.</p>
                 <p>Any dispute shall be resolved through binding arbitration on an individual basis.</p>
                 <p>You waive participation in class actions.</p>
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">14. Severability</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">15. Severability</h2>
                 <p>If any provision is deemed unenforceable, the remaining provisions remain in full force and effect.</p>
             </div>
             
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">15. Entire Agreement</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">16. Entire Agreement</h2>
                 <p>This Agreement constitutes the entire agreement between you and HighVibe regarding provider participation and supersedes all prior understandings.</p>
             </div>
 
