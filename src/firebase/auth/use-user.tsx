@@ -66,6 +66,11 @@ export interface UserProfile extends DocumentData {
   providerAgreementAccepted?: boolean;
   providerAgreementAcceptedAt?: any;
   providerAgreementVersion?: string;
+
+  // Seeker Agreement
+  seekerAgreementAccepted?: boolean;
+  seekerAgreementAcceptedAt?: any;
+  seekerAgreementVersion?: string;
 }
 
 export type AuthState =

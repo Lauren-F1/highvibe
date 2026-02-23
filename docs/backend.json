@@ -200,6 +200,19 @@
         "providerAgreementVersion": {
           "type": "string",
           "description": "The version of the provider agreement that was accepted."
+        },
+        "seekerAgreementAccepted": {
+          "type": "boolean",
+          "description": "Whether the seeker has accepted the participation agreement."
+        },
+        "seekerAgreementAcceptedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the seeker agreement was accepted."
+        },
+        "seekerAgreementVersion": {
+          "type": "string",
+          "description": "The version of the seeker agreement that was accepted."
         }
       },
       "required": [
@@ -323,6 +336,19 @@
               "platformFeeAmount"
             ]
           }
+        },
+        "liabilityWaiverAccepted": {
+          "type": "boolean"
+        },
+        "liabilityWaiverAcceptedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "liabilityWaiverVersion": {
+          "type": "string"
+        },
+        "liabilityWaiverIpAddress": {
+          "type": "string"
         }
       },
       "required": [
