@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -475,14 +476,14 @@ export default function GuidePage() {
                                     <div>
                                         <CardTitle className="flex items-center gap-2 font-headline text-2xl">
                                             <Sparkles className="text-beige" />
-                                            Match by Vibe
+                                            Match My Vibe
                                         </CardTitle>
                                         <CardDescription className="mt-1">
-                                            Find partners with a similar aesthetic using AI.
+                                            Upload inspiration from Pinterest or anywhere you gather ideas. We’ll connect you with hosts and vendors who align with your vibe.
                                         </CardDescription>
                                     </div>
                                     <Button onClick={() => setIsVibeModalOpen(true)}>
-                                        Upload Mood Board
+                                        Add Your Vibe
                                     </Button>
                                 </CardHeader>
                             </Card>
