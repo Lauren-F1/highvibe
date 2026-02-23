@@ -389,9 +389,10 @@
           "type": "string",
           "enum": [
             "Seeker (I want to find/book retreats)",
-            "Guide (I want to host retreats)",
+            "Guide (I want to lead retreats)",
             "Host (I have a space)",
-            "Vendor (I offer services)"
+            "Vendor (I offer services)",
+            "Partner / Collaborator"
           ]
         },
         "source": {

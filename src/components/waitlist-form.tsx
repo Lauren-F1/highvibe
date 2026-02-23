@@ -140,6 +140,7 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
                     <SelectItem value="Guide (I want to lead retreats)">Guide (I want to lead retreats)</SelectItem>
                     <SelectItem value="Host (I have a space)">Host (I have a space)</SelectItem>
                     <SelectItem value="Vendor (I offer services)">Vendor (I offer services)</SelectItem>
+                    <SelectItem value="Partner / Collaborator">Partner / Collaborator</SelectItem>
                 </SelectContent>
             </Select>
           )}

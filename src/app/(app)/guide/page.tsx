@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { PlusCircle, MoreHorizontal, CheckCircle, XCircle, Filter } from 'lucide-react';
+import { PlusCircle, MoreHorizontal, CheckCircle, XCircle, Filter, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -27,6 +27,7 @@ import { NextBestAction } from '@/components/next-best-action';
 import { cn } from '@/lib/utils';
 import { RetreatReadinessChecklist, type RetreatReadinessProps } from '@/components/retreat-readiness-checklist';
 import { WaitlistModal } from '@/components/waitlist-modal';
+import { ImageUpload } from '@/components/image-upload';
 
 
 const genericImage = placeholderImages.find(p => p.id === 'generic-placeholder')!;
@@ -84,6 +85,8 @@ export default function GuidePage() {
   const [currentConnectionRequests, setCurrentConnectionRequests] = useState(connectionRequests);
   const [showFeatureGate, setShowFeatureGate] = useState(false);
   const guideHeroImage = placeholderImages.find(p => p.id === 'guide-dashboard-hero')!;
+  
+  const [vibeImages, setVibeImages] = useState<string[]>([]);
 
   const appliedHostFiltersCount = useMemo(() => {
     let count = 0;
@@ -458,6 +461,35 @@ export default function GuidePage() {
                             <NextBestAction stage={partnershipStage} />
                             <RetreatReadinessChecklist {...readinessProps} />
                         </div>
+                        
+                        <div className="my-6">
+                          <Card className="border-dashed border-beige">
+                              <CardHeader>
+                                  <CardTitle className="flex items-center gap-2 font-headline text-2xl">
+                                      <Sparkles className="text-beige" />
+                                      Match by Vibe
+                                  </CardTitle>
+                                  <CardDescription>
+                                      Have a specific aesthetic in mind? Upload inspiration images, and our AI will find partners with a similar visual style.
+                                  </CardDescription>
+                              </CardHeader>
+                              <CardContent>
+                                  <ImageUpload
+                                      value={vibeImages}
+                                      onChange={(urls) => setVibeImages(urls as string[])}
+                                      storagePath={`temp/vibe-matcher/${activeRetreatId}`}
+                                      multiple
+                                      maxFiles={4}
+                                  />
+                              </CardContent>
+                              <CardFooter>
+                                  <Button onClick={() => toast({ title: "Vibe Matching Coming Soon!" })} disabled={vibeImages.length === 0}>
+                                      Find Vibe Matches
+                                  </Button>
+                              </CardFooter>
+                          </Card>
+                        </div>
+                        
                         <Separator />
                         
                         {/* Matches Available */}
@@ -695,5 +727,3 @@ export default function GuidePage() {
     </div>
   );
 }
-
-    
