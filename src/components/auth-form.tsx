@@ -53,6 +53,11 @@ const createSignupSchema = (role?: 'guide' | 'host' | 'vendor' | 'seeker') => {
           errorMap: () => ({ message: 'You must accept the Host Property Risk Rider.' })
         })
       : z.boolean().optional(),
+    insuranceResponsibility: isProvider
+      ? z.literal(true, {
+          errorMap: () => ({ message: 'You must acknowledge your insurance responsibility.' })
+        })
+      : z.boolean().optional(),
   }).refine(data => data.password === data.confirmPassword, {
       message: "Passwords don't match",
       path: ["confirmPassword"],
@@ -87,7 +92,7 @@ export function AuthForm({ mode, role }: AuthFormProps) {
   const form = useForm({
     resolver: zodResolver(mode === 'signup' ? signupSchema : formSchemaLogin),
     defaultValues: mode === 'signup' 
-        ? { email: '', password: '', firstName: '', lastName: '', confirmPassword: '', terms: false, providerAgreement: false, hostRider: false }
+        ? { email: '', password: '', firstName: '', lastName: '', confirmPassword: '', terms: false, providerAgreement: false, hostRider: false, insuranceResponsibility: false }
         : { email: '', password: '' },
   });
   
@@ -143,6 +148,13 @@ export function AuthForm({ mode, role }: AuthFormProps) {
         userData.hostRiderAcceptedAt = serverTimestamp();
         userData.hostRiderVersion = "v1.0-02-01-2026";
     }
+
+    if (isProvider && data.insuranceResponsibility) {
+        userData.insuranceResponsibilityAcknowledged = true;
+        userData.insuranceResponsibilityAcknowledgedAt = serverTimestamp();
+        userData.insuranceResponsibilityVersion = "v1.0-02-01-2026";
+    }
+
 
     await setDoc(userRef, userData);
   };
@@ -201,6 +213,10 @@ export function AuthForm({ mode, role }: AuthFormProps) {
       const isHost = role === 'host';
       if (isHost) {
           devProfile.hostRiderAccepted = true;
+      }
+
+      if (isProvider) {
+          devProfile.insuranceResponsibilityAcknowledged = true;
       }
 
 
@@ -434,6 +450,29 @@ export function AuthForm({ mode, role }: AuthFormProps) {
                     )}
                 />
             )}
+            
+            {mode === 'signup' && ['guide', 'host', 'vendor'].includes(role || '') && (
+                 <FormField
+                    control={form.control}
+                    name="insuranceResponsibility"
+                    render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                        <FormControl>
+                            <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                            />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                            <FormLabel>
+                                I understand that I am solely responsible for obtaining and maintaining any insurance appropriate to my retreat, property, or services.
+                            </FormLabel>
+                            <FormMessage />
+                        </div>
+                    </FormItem>
+                    )}
+                />
+            )}
 
             <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? 'Processing...' : (mode === 'login' ? 'Log In' : 'Create Account')}
@@ -466,3 +505,5 @@ export function AuthForm({ mode, role }: AuthFormProps) {
     </div>
   );
 }
+
+    

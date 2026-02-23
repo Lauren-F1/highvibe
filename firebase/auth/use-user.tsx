@@ -77,6 +77,11 @@ export interface UserProfile extends DocumentData {
   hostRiderAccepted?: boolean;
   hostRiderAcceptedAt?: any;
   hostRiderVersion?: string;
+
+  // Insurance Responsibility
+  insuranceResponsibilityAcknowledged?: boolean;
+  insuranceResponsibilityAcknowledgedAt?: any;
+  insuranceResponsibilityVersion?: string;
 }
 
 export type AuthState =
@@ -205,3 +210,5 @@ export function useUser(): AuthState {
 
   return { ...userState, app };
 }
+
+    

@@ -227,6 +227,19 @@
         "hostRiderVersion": {
           "type": "string",
           "description": "The version of the host rider that was accepted."
+        },
+        "insuranceResponsibilityAcknowledged": {
+          "type": "boolean",
+          "description": "Whether the provider has acknowledged their sole responsibility for insurance."
+        },
+        "insuranceResponsibilityAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the insurance responsibility was acknowledged."
+        },
+        "insuranceResponsibilityVersion": {
+          "type": "string",
+          "description": "The version of the insurance responsibility attestation that was accepted."
         }
       },
       "required": [
@@ -1223,3 +1236,5 @@
     }
   }
 }
+
+    
