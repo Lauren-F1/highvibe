@@ -187,6 +187,19 @@
               "$ref": "#/entities/Subscription"
             }
           }
+        },
+        "providerAgreementAccepted": {
+          "type": "boolean",
+          "description": "Whether the provider has accepted the provider agreement."
+        },
+        "providerAgreementAcceptedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the provider agreement was accepted."
+        },
+        "providerAgreementVersion": {
+          "type": "string",
+          "description": "The version of the provider agreement that was accepted."
         }
       },
       "required": [

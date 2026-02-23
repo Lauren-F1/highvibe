@@ -61,6 +61,11 @@ export interface UserProfile extends DocumentData {
 
   createdAt?: any;
   lastLoginAt?: any;
+
+  // Provider Agreement
+  providerAgreementAccepted?: boolean;
+  providerAgreementAcceptedAt?: any;
+  providerAgreementVersion?: string;
 }
 
 export type AuthState =

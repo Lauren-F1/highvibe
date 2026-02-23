@@ -29,6 +29,7 @@ import { cn } from '@/lib/utils';
 import { RetreatReadinessChecklist, type RetreatReadinessProps } from '@/components/retreat-readiness-checklist';
 import { WaitlistModal } from '@/components/waitlist-modal';
 import { VibeMatchModal } from '@/components/vibe-match-modal';
+import { useUser } from '@/firebase';
 
 
 const genericImage = placeholderImages.find(p => p.id === 'generic-placeholder')!;
@@ -69,6 +70,7 @@ const initialVendorFilters: VendorFiltersStateType = {
 
 export default function GuidePage() {
   const router = useRouter();
+  const user = useUser();
   const [activeRetreatId, setActiveRetreatId] = useState<string | null>(yourRetreats[0]?.id || null);
   const [subscriptionStatus] = useState<UserSubscriptionStatus>('active'); // mock status
   const { toast } = useToast();
@@ -89,6 +91,8 @@ export default function GuidePage() {
   
   const [vibeImages, setVibeImages] = useState<string[]>([]);
   const [isVibeModalOpen, setIsVibeModalOpen] = useState(false);
+
+  const isAgreementAccepted = user.status === 'authenticated' && user.profile?.providerAgreementAccepted === true;
 
   const appliedHostFiltersCount = useMemo(() => {
     let count = 0;
@@ -145,6 +149,14 @@ export default function GuidePage() {
 
 
   const handleCreateRetreatClick = () => {
+    if (!isAgreementAccepted) {
+        toast({
+            title: "Provider Agreement Required",
+            description: "Please accept the Provider Agreement in your profile to create a retreat.",
+            variant: "destructive",
+        });
+        return;
+    }
     router.push('/guide/retreats/new');
   };
 
@@ -192,6 +204,14 @@ export default function GuidePage() {
             title: 'Select a Retreat',
             description: 'Please select a retreat before inviting partners.',
             variant: 'destructive',
+        });
+        return;
+    }
+    if (!isAgreementAccepted) {
+        toast({
+            title: "Provider Agreement Required",
+            description: "Please accept the Provider Agreement in your profile to invite partners.",
+            variant: "destructive",
         });
         return;
     }
@@ -382,7 +402,7 @@ export default function GuidePage() {
             <Button size="lg" variant="outline" asChild>
               <Link href="/guide/itinerary-planner"><Sparkles className="mr-2 h-5 w-5" /> AI Itinerary Planner</Link>
             </Button>
-            <Button size="lg" onClick={handleCreateRetreatClick}>
+            <Button size="lg" onClick={handleCreateRetreatClick} disabled={!isAgreementAccepted} title={!isAgreementAccepted ? "Please accept the Provider Agreement to create a retreat" : ""}>
                 <PlusCircle className="mr-2 h-5 w-5" />
                 Create New Retreat
             </Button>

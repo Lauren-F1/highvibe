@@ -132,6 +132,8 @@ export default function HostDashboardPage() {
   const [isConnecting, setIsConnecting] = useState(false);
   const hostHeroImage = placeholderImages.find(p => p.id === 'host-dashboard-hero')!;
 
+  const isAgreementAccepted = currentUser.status === 'authenticated' && currentUser.profile?.providerAgreementAccepted === true;
+
   const appliedGuideFiltersCount = useMemo(() => {
     let count = 0;
     if (appliedGuideFilters.experienceTypes.length > 0) count++;
@@ -156,6 +158,14 @@ export default function HostDashboardPage() {
   }, [appliedVendorFilters]);
 
   const handleAddNewSpace = () => {
+      if (!isAgreementAccepted) {
+        toast({
+            title: "Provider Agreement Required",
+            description: "Please accept the Provider Agreement in your profile to list a space.",
+            variant: "destructive",
+        });
+        return;
+      }
       alert("Navigate to 'Add New Space' page.");
   }
   
@@ -352,6 +362,15 @@ export default function HostDashboardPage() {
       router.push(`/login?redirect=/host/dashboard`);
       return;
     }
+
+    if (!isAgreementAccepted) {
+        toast({
+            title: "Provider Agreement Required",
+            description: "Please accept the Provider Agreement in your profile to connect with partners.",
+            variant: "destructive",
+        });
+        return;
+    }
     
     if (currentUser.data.uid === targetProfile.uid) {
         toast({ title: "This is your own profile!", variant: "default" });
@@ -443,7 +462,7 @@ export default function HostDashboardPage() {
         <div className="flex-grow"></div>
 
         <div className="flex items-center gap-4 mt-4 md:mt-0 flex-shrink-0">
-            <Button size="lg" onClick={handleAddNewSpace}>
+            <Button size="lg" onClick={handleAddNewSpace} disabled={!isAgreementAccepted} title={!isAgreementAccepted ? "Please accept the Provider Agreement to list your space." : ""}>
               <PlusCircle className="mr-2 h-5 w-5" />
               List Your Space
             </Button>

@@ -30,19 +30,30 @@ import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from './ui/checkbox';
 import { isFirebaseEnabled } from '@/firebase/config';
 
-const formSchemaSignup = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().optional(),
-  email: z.string().email({ message: 'Please enter a valid email.' }),
-  password: z.string().min(8, { message: 'Password must be at least 8 characters.' }),
-  confirmPassword: z.string(),
-  terms: z.literal(true, {
-    errorMap: () => ({ message: 'You must accept the terms and conditions.' })
-  }),
-}).refine(data => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-});
+const createSignupSchema = (role?: 'guide' | 'host' | 'vendor' | 'seeker') => {
+  const isProvider = role && ['guide', 'host', 'vendor'].includes(role);
+
+  const schema = z.object({
+    firstName: z.string().min(1, 'First name is required'),
+    lastName: z.string().optional(),
+    email: z.string().email({ message: 'Please enter a valid email.' }),
+    password: z.string().min(8, { message: 'Password must be at least 8 characters.' }),
+    confirmPassword: z.string(),
+    terms: z.literal(true, {
+      errorMap: () => ({ message: 'You must accept the terms and conditions.' })
+    }),
+    providerAgreement: isProvider
+      ? z.literal(true, {
+          errorMap: () => ({ message: 'You must accept the provider agreement.' })
+        })
+      : z.boolean().optional(),
+  }).refine(data => data.password === data.confirmPassword, {
+      message: "Passwords don't match",
+      path: ["confirmPassword"],
+  });
+
+  return schema;
+}
 
 const formSchemaLogin = z.object({
   email: z.string().email({ message: 'Please enter a valid email.' }),
@@ -64,10 +75,13 @@ export function AuthForm({ mode, role }: AuthFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const signupSchema = createSignupSchema(role);
+  type SignupFormValues = z.infer<typeof signupSchema>;
+
   const form = useForm({
-    resolver: zodResolver(mode === 'signup' ? formSchemaSignup : formSchemaLogin),
+    resolver: zodResolver(mode === 'signup' ? signupSchema : formSchemaLogin),
     defaultValues: mode === 'signup' 
-        ? { email: '', password: '', firstName: '', lastName: '', confirmPassword: '', terms: false }
+        ? { email: '', password: '', firstName: '', lastName: '', confirmPassword: '', terms: false, providerAgreement: false }
         : { email: '', password: '' },
   });
   
@@ -89,14 +103,14 @@ export function AuthForm({ mode, role }: AuthFormProps) {
   };
 
 
-  const createUserProfileDocument = async (user: import('firebase/auth').User, data: z.infer<typeof formSchemaSignup>) => {
+  const createUserProfileDocument = async (user: import('firebase/auth').User, data: SignupFormValues) => {
     if (!firestore) return;
     const userRef = doc(firestore, 'users', user.uid);
     
     const displayName = [data.firstName, data.lastName].filter(Boolean).join(' ');
     const profileSlug = displayName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
     
-    const userData = {
+    const userData: any = {
       uid: user.uid,
       email: user.email?.toLowerCase(),
       displayName,
@@ -109,6 +123,14 @@ export function AuthForm({ mode, role }: AuthFormProps) {
       createdAt: serverTimestamp(),
       lastLoginAt: serverTimestamp(),
     };
+
+    const isProvider = role && ['guide', 'host', 'vendor'].includes(role);
+    if (isProvider && data.providerAgreement) {
+        userData.providerAgreementAccepted = true;
+        userData.providerAgreementAcceptedAt = serverTimestamp();
+        userData.providerAgreementVersion = "v1.0-02-01-2026";
+    }
+
     await setDoc(userRef, userData);
   };
 
@@ -148,7 +170,7 @@ export function AuthForm({ mode, role }: AuthFormProps) {
         displayName: displayName,
       };
 
-      const devProfile = {
+      const devProfile: any = {
         uid: 'dev-user-01',
         email: values.email,
         displayName: displayName,
@@ -157,6 +179,12 @@ export function AuthForm({ mode, role }: AuthFormProps) {
         onboardingComplete: true,
         profileComplete: true,
       };
+      
+      const isProvider = role && ['guide', 'host', 'vendor'].includes(role);
+      if (isProvider) {
+          devProfile.providerAgreementAccepted = true;
+      }
+
 
       localStorage.setItem('devUser', JSON.stringify(devUser));
       localStorage.setItem('devProfile', JSON.stringify(devProfile));
@@ -335,6 +363,29 @@ export function AuthForm({ mode, role }: AuthFormProps) {
                         <div className="space-y-1 leading-none">
                             <FormLabel>
                                 I agree to the <Link href="/terms" className="underline hover:text-primary" target="_blank">Terms of Service</Link>.
+                            </FormLabel>
+                            <FormMessage />
+                        </div>
+                    </FormItem>
+                    )}
+                />
+            )}
+            
+            {mode === 'signup' && ['guide', 'host', 'vendor'].includes(role || '') && (
+                 <FormField
+                    control={form.control}
+                    name="providerAgreement"
+                    render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                        <FormControl>
+                            <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                            />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                            <FormLabel>
+                                I agree to the <Link href="/provider-agreement" className="underline hover:text-primary" target="_blank">Provider Agreement</Link>.
                             </FormLabel>
                             <FormMessage />
                         </div>

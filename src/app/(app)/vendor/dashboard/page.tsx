@@ -20,6 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { type ConnectionStatus } from '@/components/guide-card';
 import { cn } from '@/lib/utils';
 import { placeholderImages } from '@/lib/placeholder-images';
+import { useUser } from '@/firebase';
 
 interface StatCardProps {
   title: string;
@@ -72,6 +73,7 @@ const initialHostFilters: VendorHostFiltersState = {
 export default function VendorDashboardPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const user = useUser();
 
   const [connectionRequests, setConnectionRequests] = useState(initialConnectionRequests);
   const [confirmedBookings, setConfirmedBookings] = useState(initialConfirmedBookings);
@@ -88,6 +90,8 @@ export default function VendorDashboardPage() {
   const [hostFiltersVisible, setHostFiltersVisible] = useState(false);
   const [hostSortOption, setHostSortOption] = useState('recommended');
   const vendorHeroImage = placeholderImages.find(p => p.id === 'vendor-dashboard-hero')!;
+
+  const isAgreementAccepted = user.status === 'authenticated' && user.profile?.providerAgreementAccepted === true;
 
   const appliedGuideFiltersCount = useMemo(() => {
     let count = 0;
@@ -175,6 +179,14 @@ export default function VendorDashboardPage() {
 
 
   const handleAddNewService = () => {
+    if (!isAgreementAccepted) {
+        toast({
+            title: "Provider Agreement Required",
+            description: "Please accept the Provider Agreement in your profile to add a new service.",
+            variant: "destructive",
+        });
+        return;
+    }
     alert("Navigate to 'Add New Service' page.");
   }
 
@@ -201,6 +213,14 @@ export default function VendorDashboardPage() {
   };
   
   const handleConnect = (partner: Guide | Host) => {
+      if (!isAgreementAccepted) {
+        toast({
+            title: "Provider Agreement Required",
+            description: "Please accept the Provider Agreement in your profile to connect with partners.",
+            variant: "destructive",
+        });
+        return;
+      }
       const existingStatus = getPartnerStatus(partner.id);
       if (existingStatus !== 'Not Connected' && existingStatus !== 'Declined') {
           toast({
@@ -264,7 +284,7 @@ export default function VendorDashboardPage() {
         <div className="flex-grow"></div>
 
         <div className="flex items-center gap-4 mt-4 md:mt-0 flex-shrink-0">
-            <Button size="lg" onClick={handleAddNewService}>
+            <Button size="lg" onClick={handleAddNewService} disabled={!isAgreementAccepted} title={!isAgreementAccepted ? "Please accept the Provider Agreement to add a new service" : ""}>
               <PlusCircle className="mr-2 h-5 w-5" />
               Add New Service
             </Button>
