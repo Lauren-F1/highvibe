@@ -182,21 +182,21 @@ export default function SeekerPage() {
                   <h2 className="font-headline text-6xl md:text-7xl tracking-[0.3em] text-center lg:w-full lg:mx-auto">MANIFEST</h2>
                 </div>
                 <div className="space-y-6 mt-8">
-                  <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
+                  <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-body">
                     Have a retreat in mind? Manifest it here—and we’ll connect you with hosts, guides, and vendors who match what you’re looking for.
                   </p>
-                  <Button size="lg" asChild className="w-full py-7 text-lg">
+                  <Button size="lg" asChild className="w-full py-7 text-lg font-ui">
                     <Link href="/seeker/manifest/new">Manifest a Retreat</Link>
                   </Button>
-                  <p className="text-xl md:text-2xl font-bold leading-relaxed">Manifest your retreat. Earn up to $500 toward the next one.</p>
-                  <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
+                  <p className="text-xl md:text-2xl font-bold leading-relaxed font-body">Manifest your retreat. Earn up to $500 toward the next one.</p>
+                  <p className="text-sm md:text-base text-muted-foreground leading-relaxed font-body">
                     HighVibe likes to end on a high note. Once your manifested retreat is complete, you’ll receive HighVibe credit equal to 3% of your retreat booking subtotal, up to $500. Use it toward your next retreat within 12 months. Happy manifesting!
                   </p>
                   <div className="pt-2">
                     <Button
                       variant="outline"
                       onClick={() => setIsHowItWorksOpen(true)}
-                      className="w-full border-beige-dark text-beige-dark hover:bg-accent text-base py-6 font-medium"
+                      className="w-full border-beige-dark text-beige-dark hover:bg-accent text-base py-6 font-medium font-ui"
                     >
                       How it works
                     </Button>
@@ -256,7 +256,7 @@ export default function SeekerPage() {
       <Card className="mb-8 p-4 md:p-6 bg-secondary">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
           <div className="space-y-2">
-            <Label htmlFor="type">What experience are you seeking?</Label>
+            <Label htmlFor="type" className="font-ui">What experience are you seeking?</Label>
             <Select value={experienceType} onValueChange={setExperienceType}>
               <SelectTrigger id="type">
                 <SelectValue placeholder="All Experiences" />
@@ -269,7 +269,7 @@ export default function SeekerPage() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="destination">Destination</Label>
+            <Label htmlFor="destination" className="font-ui">Destination</Label>
             <Select value={selectedContinent} onValueChange={(value) => {
               setSelectedContinent(value);
               setSelectedRegion('');
@@ -286,7 +286,7 @@ export default function SeekerPage() {
           </div>
           {showRegionFilter && (
               <div className="space-y-2">
-                <Label htmlFor="region">Region / Country</Label>
+                <Label htmlFor="region" className="font-ui">Region / Country</Label>
                 <Select onValueChange={setSelectedRegion} value={selectedRegion}>
                   <SelectTrigger id="region">
                     <SelectValue placeholder="Select a country or region" />
@@ -300,7 +300,7 @@ export default function SeekerPage() {
               </div>
           )}
           <div className="space-y-2">
-            <Label htmlFor="price">Budget</Label>
+            <Label htmlFor="price" className="font-ui">Budget</Label>
             <Select value={investmentRange} onValueChange={setInvestmentRange}>
               <SelectTrigger id="price">
                 <SelectValue placeholder="Any Range" />
@@ -313,7 +313,7 @@ export default function SeekerPage() {
             </Select>
           </div>
            <div className="space-y-2">
-              <Label htmlFor="timing">Timing (When are you hoping to go?)</Label>
+              <Label htmlFor="timing" className="font-ui">Timing (When are you hoping to go?)</Label>
               <Select value={timing} onValueChange={setTiming}>
                 <SelectTrigger id="timing">
                   <SelectValue placeholder="Just exploring" />
@@ -326,10 +326,10 @@ export default function SeekerPage() {
               </Select>
             </div>
           <div className="lg:col-span-full flex flex-wrap gap-2">
-            <Button size="lg" className="flex-grow" onClick={handleExploreClick}>Explore Experiences</Button>
-            <Button size="lg" variant="outline" asChild><Link href="/seeker/manifestations">My Manifestations</Link></Button>
-            <Button size="lg" variant="outline" asChild><Link href="/seeker/saved">View Saved</Link></Button>
-            {isFilterActive && <Button size="lg" variant="outline" onClick={handleClearFilters}>Clear Filters</Button>}
+            <Button size="lg" className="flex-grow font-ui" onClick={handleExploreClick}>Explore Experiences</Button>
+            <Button size="lg" variant="outline" asChild className="font-ui"><Link href="/seeker/manifestations">My Manifestations</Link></Button>
+            <Button size="lg" variant="outline" asChild className="font-ui"><Link href="/seeker/saved">View Saved</Link></Button>
+            {isFilterActive && <Button size="lg" variant="outline" onClick={handleClearFilters} className="font-ui">Clear Filters</Button>}
           </div>
         </div>
       </Card>
@@ -340,7 +340,7 @@ export default function SeekerPage() {
           <>
             <div className="mb-8">
               <h2 className="text-3xl font-bold tracking-tight mb-2 font-headline">Retreats We’re Loving</h2>
-              <p className="text-muted-foreground">A few favorites to get you inspired.</p>
+              <p className="text-muted-foreground font-body">A few favorites to get you inspired.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredRetreats.map((retreat) => (
