@@ -1,5 +1,4 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Mic, FileText } from 'lucide-react';
 
@@ -16,17 +15,17 @@ export default function HostOnboardingChoicePage() {
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
             <Link href="/host/onboarding/voice" passHref>
-                <Card className="h-full flex flex-col items-center justify-center text-center p-6 hover:bg-accent transition-colors cursor-pointer">
+                <Card className="h-full flex flex-col items-center justify-center text-center p-6 bg-primary/10 border-primary/20 hover:bg-primary/20 hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 cursor-pointer">
                     <Mic className="h-12 w-12 text-primary mb-4" />
                     <h3 className="font-bold text-lg">Voice Onboarding</h3>
-                    <p className="text-sm text-muted-foreground">Prefer talking over typing? Speak your profile into existence and let our AI handle the details.</p>
+                    <p className="text-sm text-muted-foreground">Not great with your thumbs? Speak your profile into existence.</p>
                 </Card>
             </Link>
              <Link href="/host/onboarding/classic" passHref>
-                 <Card className="h-full flex flex-col items-center justify-center text-center p-6 hover:bg-accent transition-colors cursor-pointer">
+                 <Card className="h-full flex flex-col items-center justify-center text-center p-6 bg-primary/10 border-primary/20 hover:bg-primary/20 hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 cursor-pointer">
                     <FileText className="h-12 w-12 text-primary mb-4" />
                     <h3 className="font-bold text-lg">Classic Onboarding</h3>
-                    <p className="text-sm text-muted-foreground">For the traditionalists. Fill out a simple form to build your profile at your own pace.</p>
+                    <p className="text-sm text-muted-foreground">For those who prefer the traditional path. Fill out a simple form at your own pace.</p>
                 </Card>
             </Link>
           </CardContent>
