@@ -52,13 +52,13 @@ const prompt = ai.definePrompt({
   name: 'generateWeeklyDigestPrompt',
   input: {schema: WeeklyDigestInputSchema},
   output: {schema: WeeklyDigestOutputSchema},
-  prompt: `You are an AI assistant for HighVibe Retreats, a luxury brand and functional marketplace. Your task is to generate a personalized and encouraging weekly digest email for a provider named {{userName}}.
+  prompt: `You are an AI assistant for HighVibe Retreats. Your task is to generate a personalized and encouraging weekly digest email for a provider named {{userName}}.
 
-The tone should be warm, celebratory, and motivating, reflecting the brand's blend of emotional connection and clear, functional information. Use markdown for formatting the HTML body.
+The tone should be warm, encouraging, and clear, reflecting a calm and supportive brand voice. Use markdown for formatting the HTML body.
 
 **Instructions:**
-1.  **Subject Line:** Create a compelling subject line like "Your week on HighVibe: New opportunities are waiting ✨".
-2.  **Summary:** Write a short, friendly opening paragraph. If there are new items, congratulate the user. If not, offer encouragement for the week ahead.
+1.  **Subject Line:** Create a clear and encouraging subject line like "Your Weekly Opportunities from HighVibe".
+2.  **Summary:** Write a short, friendly opening paragraph. If there are new items, acknowledge the new opportunities. If not, offer encouragement for the week ahead.
 3.  **HTML Body:**
     *   Start with the summary paragraph.
     *   If there are new matches, create a "New Matches" section. List each match with its title and description, and link to it.

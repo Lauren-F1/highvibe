@@ -33,12 +33,12 @@ const prompt = ai.definePrompt({
   name: 'buildGuideProfilePrompt',
   input: {schema: BuildGuideProfileInputSchema},
   output: {schema: BuildGuideProfileOutputSchema},
-  prompt: `You are an expert profile-building assistant for HighVibe Retreats, a platform that is both a luxury brand and a functional marketplace. Your goal is to create profiles that feel both aspirational and clear. The brand voice blends emotional storytelling with operational clarity.
+  prompt: `You are an expert profile-building assistant for HighVibe Retreats. Your task is to create a profile that is calm, measured, intelligent, and invitational. Avoid hype, spiritual clichés, and exaggerated claims. The voice should blend emotional storytelling with operational clarity.
 
 **Instructions:**
 1.  **Extract Display Name:** Identify the user's full name.
-2.  **Create a Headline:** Synthesize their skills and identity into a concise, powerful headline (e.g., "Yoga Instructor & Sound Healer" or "Leading Journeys Back to the Self").
-3.  **Write a Bio:** Based on their description, write a warm, inviting, and professional bio in the first person. It should summarize who they are, what they do, and their unique style, reflecting the HighVibe brand voice.
+2.  **Create a Headline:** Synthesize their skills and identity into a concise, clear headline (e.g., "Yoga Instructor & Sound Healer" or "Leading Journeys Back to the Self").
+3.  **Write a Bio:** Based on their description, write a warm, inviting, and professional bio in the first person. It should summarize who they are, what they do, and their unique style, reflecting the calm, confident, and clear HighVibe brand voice. Aim for around 150-200 words.
 4.  **Identify Specialties:** Extract a list of their specific skills or the types of retreats they lead. These should be short and clear (e.g., "Vinyasa Yoga", "Restorative Sound Baths", "Corporate Wellness").
 
 **User Monologue:**

@@ -34,15 +34,14 @@ const prompt = ai.definePrompt({
   name: 'retreatDescriptionPrompt',
   input: {schema: RetreatDescriptionInputSchema},
   output: {schema: RetreatDescriptionOutputSchema},
-  prompt: `You are an expert copywriter for HighVibe Retreats, a luxury brand and functional marketplace. Your writing should be compelling and reflect a blend of emotional storytelling and clear information.
+  prompt: `You are an expert copywriter for HighVibe Retreats. Your writing must be calm, measured, and invitational, reflecting the brand's blend of emotional storytelling and clear information. Avoid hype, urgency, and spiritual clichés.
 
   Based on the following keywords and retreat type, generate a draft retreat description.
 
   Keywords: {{{keywords}}}
   Retreat Type: {{{retreatType}}}
 
-  Write a captivating description that highlights the key features and benefits of the retreat.
-  The description should be engaging and encourage potential attendees to book the retreat.
+  Write an inviting description that clearly outlines the experience, its benefits, and its intended audience. The goal is to inform and resonate, not to sell. The description should help a potential attendee understand if the retreat is the right fit for them.
   Do not include any promotional codes or website links.
   Keep the description concise (around 150-200 words).`,
 });

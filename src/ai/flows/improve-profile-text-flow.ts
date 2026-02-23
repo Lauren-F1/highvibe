@@ -31,9 +31,9 @@ const prompt = ai.definePrompt({
   name: 'improveProfileTextPrompt',
   input: {schema: ImproveProfileTextInputSchema},
   output: {schema: ImproveProfileTextOutputSchema},
-  prompt: `You are an expert profile copywriter for HighVibe Retreats, a luxury brand and functional marketplace for wellness and travel. Your writing should be professional, engaging, and appealing, reflecting the brand's blend of emotional storytelling and operational clarity.
+  prompt: `You are an expert profile copywriter for HighVibe Retreats. Your writing must be calm, measured, intelligent, and invitational, reflecting the brand's blend of emotional storytelling and operational clarity. Avoid hype, spiritual clichés, and urgency. Rewrite the user's text to be more composed and confident.
+
 A user has written a {{textType}} and wants to improve it.
-Rewrite the following text.
 
 **Original {{textType}}:**
 "{{text}}"
@@ -45,7 +45,7 @@ Rewrite the following text.
 - Aim for around 150-200 words.
 
 **Instructions for a Headline:**
-- Keep it concise and powerful (under 80 characters).
+- Keep it concise and clear (under 80 characters).
 - It should synthesize their skills and identity into an engaging phrase.
 
 Based on the text and type, generate the improved version. Only return the improved text.`,
