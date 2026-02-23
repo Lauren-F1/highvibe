@@ -28,19 +28,21 @@ export default function TermsPage() {
 
             <div className="space-y-2">
                 <h2 className="font-headline text-xl pt-4 font-bold">2. Description of the Platform</h2>
-                <p>HighVibe Retreats is a technology marketplace that facilitates connections between:</p>
-                <ul className="list-disc list-inside space-y-1 pl-4">
-                    <li>Seekers (retreat attendees)</li>
-                    <li>Guides (retreat leaders)</li>
-                    <li>Hosts (property providers)</li>
-                    <li>Vendors (service providers)</li>
-                </ul>
-                <p>HighVibe is not the organizer, operator, supervisor, insurer, or guarantor of any retreat, property, or service unless explicitly stated in writing.</p>
-                <p>We provide marketplace tools including listings, messaging, and payment processing infrastructure via Stripe.</p>
+                <p>HighVibe Retreats is a technology marketplace that enables independent Seekers, Guides, Hosts, and Vendors to connect.</p>
+                <p>HighVibe does not organize, design, manage, operate, or control retreats or corporate events.</p>
+                <p>HighVibe does not act as a travel agency, event planner, employer, sponsor, or corporate services provider.</p>
+                <p>All retreats and services are created and operated solely by independent Providers.</p>
+            </div>
+
+            <div className="space-y-2">
+                <h2 className="font-headline text-xl pt-4 font-bold">3. No Control Over Events</h2>
+                <p>HighVibe does not control or direct the content, structure, schedule, safety measures, or execution of any retreat.</p>
+                <p>HighVibe makes no representations regarding the suitability of a retreat for corporate, professional, or employer-sponsored participation.</p>
+                <p>Any company or organization booking through the platform does so independently and assumes full responsibility for its participation decisions.</p>
             </div>
             
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">3. Role-Based Responsibilities</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">4. Role-Based Responsibilities</h2>
                 <p>Guides, Hosts, and Vendors represent and warrant that:</p>
                 <ul className="list-disc list-inside space-y-1 pl-4">
                     <li>They are legally permitted to provide their services.</li>
@@ -62,7 +64,7 @@ export default function TermsPage() {
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">4. Listings and Content</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">5. Listings and Content</h2>
                 <p>Users are responsible for the accuracy and legality of their listings.</p>
                 <p>By posting content, you grant HighVibe a non-exclusive, worldwide, royalty-free license to use, display, reproduce, and distribute your content for platform operation and marketing.</p>
                 <p>You represent that you own or have the necessary rights to all content submitted.</p>
@@ -70,7 +72,7 @@ export default function TermsPage() {
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">5. Payments and Fees</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">6. Payments and Fees</h2>
                 <p>All bookings and payments must be processed through HighVibe using Stripe.</p>
                 <p>By using the platform, you authorize HighVibe and Stripe to process payments on your behalf and deduct applicable platform and processing fees.</p>
                 <p>Platform fees and subscription fees are disclosed at the point of purchase.</p>
@@ -86,7 +88,7 @@ export default function TermsPage() {
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">6. Refunds and Disputes</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">7. Refunds and Disputes</h2>
                 <p>Refund policies are determined by the Guide or Host unless otherwise specified.</p>
                 <p>HighVibe does not guarantee refunds.</p>
                 <p>We may facilitate communication between parties but are not obligated to resolve disputes in favor of either party.</p>
@@ -94,7 +96,7 @@ export default function TermsPage() {
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">7. Manifest Credit and Promotions</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">8. Manifest Credit and Promotions</h2>
                 <p>Manifest Credit is a promotional incentive.</p>
                 <p>Eligible Seekers may receive a credit equal to 3% of a completed retreat booking subtotal, capped at $500.</p>
                 <p>Credits:</p>
@@ -109,7 +111,7 @@ export default function TermsPage() {
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">8. Prohibited Conduct</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">9. Prohibited Conduct</h2>
                 <p>You agree not to:</p>
                 <ul className="list-disc list-inside space-y-1 pl-4">
                     <li>Misrepresent identity or qualifications</li>
@@ -124,7 +126,7 @@ export default function TermsPage() {
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">9. Suspension and Termination</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">10. Suspension and Termination</h2>
                 <p>HighVibe may suspend or terminate accounts at its sole discretion for:</p>
                 <ul className="list-disc list-inside space-y-1 pl-4">
                     <li>Violations of these Terms</li>
@@ -137,7 +139,7 @@ export default function TermsPage() {
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">10. Assumption of Risk</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">11. Assumption of Risk</h2>
                 <p>Participation in retreats involves inherent risks including, but not limited to:</p>
                 <ul className="list-disc list-inside space-y-1 pl-4">
                     <li>Physical activity</li>
@@ -152,7 +154,7 @@ export default function TermsPage() {
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">11. Release of Liability</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">12. Release of Liability</h2>
                 <p>To the fullest extent permitted by law, you release HighVibe Retreats and its officers, directors, employees, contractors, and affiliates from all claims arising from:</p>
                 <ul className="list-disc list-inside space-y-1 pl-4">
                   <li>Retreat participation</li>
@@ -167,7 +169,7 @@ export default function TermsPage() {
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">12. Indemnification</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">13. Indemnification</h2>
                 <p>You agree to indemnify and hold harmless HighVibe from any claims, damages, losses, liabilities, or expenses arising out of:</p>
                 <ul className="list-disc list-inside space-y-1 pl-4">
                     <li>Your listings</li>
@@ -179,7 +181,7 @@ export default function TermsPage() {
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">13. Limitation of Liability</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">14. Limitation of Liability</h2>
                 <p>To the fullest extent permitted by law, HighVibe’s total liability shall not exceed the greater of:</p>
                 <ul className="list-disc list-inside space-y-1 pl-4">
                   <li>The total fees paid to HighVibe in the 12 months preceding the claim, or</li>
@@ -196,7 +198,7 @@ export default function TermsPage() {
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">14. No Guarantee</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">15. No Guarantee</h2>
                 <p>HighVibe does not guarantee:</p>
                 <ul className="list-disc list-inside space-y-1 pl-4">
                     <li>Bookings</li>
@@ -209,7 +211,7 @@ export default function TermsPage() {
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">15. Force Majeure</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">16. Force Majeure</h2>
                 <p>HighVibe is not liable for delays or failures caused by events beyond reasonable control, including:</p>
                 <ul className="list-disc list-inside space-y-1 pl-4">
                     <li>Natural disasters</li>
@@ -221,30 +223,30 @@ export default function TermsPage() {
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">16. Electronic Communications</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">17. Electronic Communications</h2>
                 <p>By using HighVibe, you consent to receive communications electronically.</p>
                 <p>Electronic communication satisfies legal notice requirements.</p>
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">17. Dispute Resolution and Arbitration</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">18. Dispute Resolution and Arbitration</h2>
                 <p>These Terms are governed by the laws of the State of Nevada, without regard to conflict of law principles.</p>
                 <p>Any dispute shall be resolved through binding arbitration on an individual basis.</p>
                 <p>You waive the right to participate in class actions.</p>
             </div>
             
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">18. Severability</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">19. Severability</h2>
                 <p>If any provision of these Terms is found unenforceable, the remaining provisions shall remain in full force and effect.</p>
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">19. Entire Agreement</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">20. Entire Agreement</h2>
                 <p>These Terms constitute the entire agreement between you and HighVibe regarding use of the platform and supersede all prior agreements or understandings.</p>
             </div>
             
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">20. Updates</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">21. Updates</h2>
                 <p>HighVibe may update these Terms at any time.</p>
                 <p>Continued use of the platform constitutes acceptance of the updated Terms.</p>
             </div>
