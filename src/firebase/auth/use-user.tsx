@@ -51,6 +51,13 @@ export interface UserProfile extends DocumentData {
 
   // Seeker fields
   savedRetreatIds?: string[];
+  
+  // Notification/Manifestation Settings
+  accepts_manifestations?: boolean;
+  manifestation_notification_frequency?: 'immediate' | 'daily_digest';
+  max_manifestations_per_week?: number;
+  weekly_digest_enabled?: boolean;
+  countries_served?: string[];
 
   createdAt?: any;
   lastLoginAt?: any;

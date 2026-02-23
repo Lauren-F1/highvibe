@@ -161,6 +161,10 @@
         "max_manifestations_per_week": {
           "type": "number"
         },
+        "weekly_digest_enabled": {
+          "type": "boolean",
+          "description": "Whether the user has enabled the weekly AI-powered opportunity digest."
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time"
@@ -1137,5 +1141,3 @@
     }
   }
 }
-
-    

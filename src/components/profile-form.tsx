@@ -59,6 +59,7 @@ const profileSchema = z.object({
     manifestation_notification_frequency: z.string().optional(),
     max_manifestations_per_week: z.coerce.number().min(0).optional(),
     countries_served: z.string().optional(),
+    weekly_digest_enabled: z.boolean().default(true),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -105,6 +106,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
             manifestation_notification_frequency: userProfile.manifestation_notification_frequency || 'immediate',
             max_manifestations_per_week: userProfile.max_manifestations_per_week ?? undefined,
             countries_served: userProfile.countries_served?.join(', ') || '',
+            weekly_digest_enabled: userProfile.weekly_digest_enabled ?? true,
         },
     });
     
@@ -676,7 +678,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
 
                     {hasProviderRole && (
                          <AccordionItem value="manifestation-settings">
-                            <AccordionTrigger className="text-xl font-headline">Manifestation Settings</AccordionTrigger>
+                            <AccordionTrigger className="text-xl font-headline">Notification Settings</AccordionTrigger>
                             <AccordionContent className="pt-6 space-y-8">
                                 <FormField
                                     control={form.control}
@@ -698,10 +700,28 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                                 />
                                 <FormField
                                     control={form.control}
+                                    name="weekly_digest_enabled"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-row items-center justify-between rounded-lg border border-input p-4">
+                                            <div className="space-y-0.5">
+                                                <FormLabel>Weekly AI Opportunity Digest</FormLabel>
+                                                <FormDescription className="leading-relaxed">Receive a weekly email summarizing your best new matches.</FormDescription>
+                                            </div>
+                                            <FormControl>
+                                                <Switch
+                                                    checked={field.value}
+                                                    onCheckedChange={field.onChange}
+                                                />
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
                                     name="manifestation_notification_frequency"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Notification Frequency</FormLabel>
+                                            <FormLabel>Immediate Notification Frequency</FormLabel>
                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                 <FormControl>
                                                     <SelectTrigger><SelectValue placeholder="Select frequency..." /></SelectTrigger>
