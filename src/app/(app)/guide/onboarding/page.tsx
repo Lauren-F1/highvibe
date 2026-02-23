@@ -1,26 +1,34 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { Mic, FileText } from 'lucide-react';
 
-export default function GuideOnboardingPage() {
+export default function GuideOnboardingChoicePage() {
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-2xl mx-auto">
         <Card>
-          <CardHeader>
-            <CardTitle>Welcome, Guide!</CardTitle>
-            <CardDescription>
-              Let's set up your profile so you can start creating retreats and connecting with partners.
+          <CardHeader className="text-center">
+            <CardTitle className="font-headline text-4xl">Welcome, Guide</CardTitle>
+            <CardDescription className="text-lg">
+              Let's create your profile so the perfect partners and seekers can find you. Choose how you'd like to get started.
             </CardDescription>
           </CardHeader>
-          <CardContent className="text-center p-8">
-            <h2 className="text-xl font-bold mb-4">Onboarding Coming Soon</h2>
-            <p className="text-muted-foreground mb-6">
-              This is a placeholder for the Guide onboarding flow. For now, you can proceed to your dashboard.
-            </p>
-            <Button asChild size="lg">
-                <Link href="/guide">Go to Dashboard</Link>
-            </Button>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+            <Link href="/guide/onboarding/voice" passHref>
+                <Card className="h-full flex flex-col items-center justify-center text-center p-6 hover:bg-accent transition-colors cursor-pointer">
+                    <Mic className="h-12 w-12 text-primary mb-4" />
+                    <h3 className="font-bold text-lg">Voice Onboarding</h3>
+                    <p className="text-sm text-muted-foreground">Speak your profile into existence. It's fast, easy, and feels like magic.</p>
+                </Card>
+            </Link>
+             <Link href="/guide/onboarding/classic" passHref>
+                 <Card className="h-full flex flex-col items-center justify-center text-center p-6 hover:bg-accent transition-colors cursor-pointer">
+                    <FileText className="h-12 w-12 text-primary mb-4" />
+                    <h3 className="font-bold text-lg">Classic Onboarding</h3>
+                    <p className="text-sm text-muted-foreground">Fill out a simple form to build your profile step-by-step.</p>
+                </Card>
+            </Link>
           </CardContent>
         </Card>
       </div>
