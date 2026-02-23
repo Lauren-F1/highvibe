@@ -19,14 +19,14 @@ export default function GuideOnboardingChoicePage() {
                 <Card className="h-full flex flex-col items-center justify-center text-center p-6 hover:bg-accent transition-colors cursor-pointer">
                     <Mic className="h-12 w-12 text-primary mb-4" />
                     <h3 className="font-bold text-lg">Voice Onboarding</h3>
-                    <p className="text-sm text-muted-foreground">Speak your profile into existence. It's fast, easy, and feels like magic.</p>
+                    <p className="text-sm text-muted-foreground">Prefer talking over typing? Speak your profile into existence and let our AI handle the details.</p>
                 </Card>
             </Link>
              <Link href="/guide/onboarding/classic" passHref>
                  <Card className="h-full flex flex-col items-center justify-center text-center p-6 hover:bg-accent transition-colors cursor-pointer">
                     <FileText className="h-12 w-12 text-primary mb-4" />
                     <h3 className="font-bold text-lg">Classic Onboarding</h3>
-                    <p className="text-sm text-muted-foreground">Fill out a simple form to build your profile step-by-step.</p>
+                    <p className="text-sm text-muted-foreground">For the traditionalists. Fill out a simple form to build your profile at your own pace.</p>
                 </Card>
             </Link>
           </CardContent>
