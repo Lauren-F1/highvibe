@@ -3,7 +3,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Logo } from '@/components/icons/logo';
+import { Logo } from './icons/logo';
 import { placeholderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
 import React, { useEffect, useState } from 'react';
@@ -12,16 +12,7 @@ import { WaitlistModal } from './waitlist-modal';
 import { Button } from './ui/button';
 import * as analytics from '@/lib/analytics';
 import Image from 'next/image';
-
-const RoleIcon = ({ roleId }: { roleId: string }) => {
-  const icons: Record<string, React.ReactNode> = {
-    seeker: <svg width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>,
-    guide: <svg width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>,
-    vendor: <svg width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 12c0-4.42-3-8-8-8s-8 3.58-8 8c0 2.05.79 3.93 2.08 5.34L4 20h16l-2.08-2.66A7.94 7.94 0 0 0 20 12z"></path><path d="M12 12c-2.21 0-4-1.79-4-4"></path></svg>,
-    host: <svg width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>,
-  };
-  return <div className="text-primary">{icons[roleId] || null}</div>;
-};
+import { RoleIcon } from './icons/role-icon';
 
 interface Role {
   id: 'seeker' | 'guide' | 'vendor' | 'host';
@@ -125,7 +116,7 @@ export default function HomePageClient() {
     />
     <main className="flex min-h-screen w-full flex-col items-center bg-background p-4 sm:p-6 md:p-8">
       <div className="w-full max-w-7xl text-center mb-4">
-        <Logo />
+        <Logo className="h-24" />
       </div>
 
       {heroImage && (

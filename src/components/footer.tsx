@@ -15,7 +15,7 @@ export function Footer() {
         <div className="container mx-auto px-6 py-8">
           <div className="flex flex-col items-center justify-between sm:flex-row">
             <Link href="/">
-              <Logo className="w-[140px] h-auto" />
+              <Logo className="w-[140px] h-[35px]" />
             </Link>
             <p className="mt-4 text-sm text-muted-foreground sm:mt-0">
               © {new Date().getFullYear()} HighVibe Retreats Inc. All rights reserved.

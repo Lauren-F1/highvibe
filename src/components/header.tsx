@@ -38,7 +38,7 @@ export function Header() {
       const userEmail = user.data.email?.toLowerCase();
       const isAdminByEmail = userEmail ? adminEmails.includes(userEmail) : false;
 
-      if (typeof (user.data as any).getIdTokenResult === 'function') {
+      if (user.data && typeof (user.data as any).getIdTokenResult === 'function') {
           (user.data as FirebaseUser).getIdTokenResult().then(idTokenResult => {
             if (idTokenResult.claims.admin === true || isAdminByEmail) {
               setIsAdmin(true);
@@ -88,7 +88,7 @@ export function Header() {
       <div className="container flex h-24 items-center">
         <div className="mr-auto flex items-center">
           <Link href="/" className="mr-6">
-            <Logo className="w-[252px] h-auto" />
+            <Logo className="w-[252px] h-[63px]" />
           </Link>
           <nav className="hidden items-center space-x-6 text-sm font-medium md:flex font-ui">
             <Link href="/seeker" className="transition-colors hover:text-foreground/80 text-foreground/60">
