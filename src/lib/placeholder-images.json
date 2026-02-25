@@ -63,7 +63,7 @@
     {
       "id": "resort-hero",
       "description": "A beautiful resort view to be displayed on the homepage.",
-      "imageUrl": "/resort-hero.jpg",
+      "imageUrl": "/resort-image.png",
       "imageHint": "resort view"
     },
     {
