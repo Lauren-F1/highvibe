@@ -1,9 +1,9 @@
+
 'use client';
 
 import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardFooter, CardTitle } from '@/components/ui/card';
 import { MapPin, Clock, CheckCircle, Bookmark } from 'lucide-react';
-import type { ImagePlaceholder } from '@/lib/placeholder-images';
 import { useUser, useFirestore } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
@@ -22,7 +22,7 @@ interface RetreatCardProps {
     location: string;
     price: number;
     rating: number;
-    image: ImagePlaceholder;
+    image: string;
     duration?: string;
     included?: string;
   };
@@ -135,9 +135,8 @@ export function RetreatCard({ retreat, isLux = false }: RetreatCardProps) {
             </div>
             <div className="relative w-20 h-20 shrink-0">
                  <Image
-                    src={retreat.image.imageUrl}
-                    alt={retreat.image.description}
-                    data-ai-hint={retreat.image.imageHint}
+                    src={retreat.image}
+                    alt={retreat.title}
                     fill
                     className="object-cover rounded-md"
                 />
@@ -160,3 +159,5 @@ export function RetreatCard({ retreat, isLux = false }: RetreatCardProps) {
     </Card>
   );
 }
+
+    

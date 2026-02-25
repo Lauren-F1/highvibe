@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -14,7 +15,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { yourRetreats, hosts, vendors, UserSubscriptionStatus, destinations, connectionRequests, confirmedBookings, type Host, type Vendor } from '@/lib/mock-data';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { placeholderImages } from '@/lib/placeholder-images';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -32,7 +32,7 @@ import { VibeMatchModal } from '@/components/vibe-match-modal';
 import { useUser } from '@/firebase';
 
 
-const genericImage = placeholderImages.find(p => p.id === 'generic-placeholder')!;
+const genericImage = '/generic-placeholder.jpg';
 
 const initialHostFilters: HostFiltersState = {
   continent: 'anywhere',
@@ -87,7 +87,7 @@ export default function GuidePage() {
 
   const [currentConnectionRequests, setCurrentConnectionRequests] = useState(connectionRequests);
   const [showFeatureGate, setShowFeatureGate] = useState(false);
-  const guideHeroImage = placeholderImages.find(p => p.id === 'guide-dashboard-hero')!;
+  const guideHeroImage = '/guide-dashboard-hero.jpg';
   
   const [vibeImages, setVibeImages] = useState<string[]>([]);
   const [isVibeModalOpen, setIsVibeModalOpen] = useState(false);
@@ -296,7 +296,7 @@ export default function GuidePage() {
         if (hostFilters.region) {
             filtered = filtered.filter(host => host.location === hostFilters.region);
         } else {
-            const regionsInContinent = destinations[hostFilters.continent] || [];
+            const regionsInContinent = destinations[hostFilters.continent as keyof typeof destinations] || [];
             filtered = filtered.filter(host => regionsInContinent.includes(host.location));
         }
     }
@@ -383,9 +383,8 @@ export default function GuidePage() {
 
         <div className="relative h-[104px] w-[420px] hidden lg:block mx-auto flex-shrink-0 rounded-xl shadow-md overflow-hidden">
             <Image
-                src={guideHeroImage.imageUrl}
-                alt={guideHeroImage.description}
-                data-ai-hint={guideHeroImage.imageHint}
+                src={guideHeroImage}
+                alt={'Guide leading yoga at sunset'}
                 fill
                 className="object-cover"
                 style={{ objectPosition: 'center 60%' }}
@@ -432,9 +431,8 @@ export default function GuidePage() {
                   <TableCell>
                     <div className="relative h-12 w-12 rounded-md overflow-hidden bg-secondary">
                       <Image
-                        src={retreat.image?.imageUrl || genericImage.imageUrl}
-                        alt={retreat.image?.description || genericImage.description}
-                        data-ai-hint={retreat.image?.imageHint || genericImage.imageHint}
+                        src={retreat.image || genericImage}
+                        alt={retreat.name}
                         fill
                         className="object-cover"
                       />
@@ -750,3 +748,5 @@ export default function GuidePage() {
     </div>
   );
 }
+
+    

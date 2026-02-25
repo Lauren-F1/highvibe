@@ -7,8 +7,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
-import type { ImagePlaceholder } from '@/lib/placeholder-images';
-import { placeholderImages } from '@/lib/placeholder-images';
 import { Badge } from './ui/badge';
 import Link from 'next/link';
 
@@ -34,7 +32,7 @@ export interface Guide {
   specialty: string;
   rating: number;
   reviewCount: number;
-  avatar?: ImagePlaceholder;
+  avatar?: string;
   upcomingRetreatsCount: number;
   retreatTypes?: string[];
   vibeTags?: string[];
@@ -50,10 +48,10 @@ export interface GuideCardProps {
   connectionStatus?: ConnectionStatus;
 }
 
-const defaultAvatar = placeholderImages.find(p => p.id === 'profile-avatar-placeholder')!;
+const defaultAvatarUrl = '/profile-avatar-placeholder.jpg';
 
 export function GuideCard({ guide, onConnect, onViewMessage, connectionStatus = 'Not Connected' }: GuideCardProps) {
-  const avatar = guide.avatar || defaultAvatar;
+  const avatarUrl = guide.avatar || defaultAvatarUrl;
 
   const renderActionButton = () => {
     if (!onConnect) return null;
@@ -90,9 +88,8 @@ export function GuideCard({ guide, onConnect, onViewMessage, connectionStatus = 
       <CardContent className="flex items-center gap-4 p-4 flex-grow">
         <Avatar className="h-16 w-16">
           <AvatarImage 
-            src={avatar.imageUrl} 
-            alt={guide.name} 
-            data-ai-hint={avatar.imageHint}
+            src={avatarUrl} 
+            alt={guide.name}
           />
           <AvatarFallback>{guide.name.charAt(0)}</AvatarFallback>
         </Avatar>
@@ -140,3 +137,5 @@ function Rating({ value, max = 5, className }: RatingProps) {
     </div>
   );
 }
+
+    

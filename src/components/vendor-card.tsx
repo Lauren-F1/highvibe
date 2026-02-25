@@ -8,7 +8,6 @@ import { Star, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 import type { Vendor } from '@/lib/mock-data';
-import { placeholderImages } from '@/lib/placeholder-images';
 import { Badge } from './ui/badge';
 import Link from 'next/link';
 import { type ConnectionStatus } from './host-card';
@@ -22,10 +21,10 @@ export interface VendorCardProps {
   connectionStatus?: ConnectionStatus;
 }
 
-const defaultAvatar = placeholderImages.find(p => p.id === 'friendly-host-portrait')!;
+const defaultAvatarUrl = '/friendly-host-portrait.jpg';
 
 export function VendorCard({ vendor, onConnect, onViewMessage, distance, connectionStatus = 'Not Invited' }: VendorCardProps) {
-  const avatar = vendor.avatar || defaultAvatar;
+  const avatarUrl = vendor.avatar || defaultAvatarUrl;
 
   const renderActionButton = () => {
     if (!onConnect || !onViewMessage) return null;
@@ -57,9 +56,8 @@ export function VendorCard({ vendor, onConnect, onViewMessage, distance, connect
       <CardContent className="flex items-center gap-4 p-4 flex-grow">
         <Avatar className="h-16 w-16">
           <AvatarImage 
-            src={avatar.imageUrl} 
+            src={avatarUrl} 
             alt={vendor.name} 
-            data-ai-hint={avatar.imageHint}
           />
           <AvatarFallback>{vendor.name.charAt(0)}</AvatarFallback>
         </Avatar>
@@ -117,7 +115,5 @@ function Rating({ value, max = 5, className }: RatingProps) {
     </div>
   );
 }
-
-    
 
     

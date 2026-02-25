@@ -1,10 +1,10 @@
+
 'use client';
 
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Logo } from '@/components/icons/logo';
-import { placeholderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
 import React, { useState, useEffect, CSSProperties } from 'react';
 import { Button } from '@/components/ui/button';
@@ -41,8 +41,8 @@ const parsePriceRange = (rangeValue: string) => {
 
 
 export default function SeekerPage() {
-  const heroImage = placeholderImages.find(p => p.id === 'seeker-hero-panoramic');
-  const manifestImage = placeholderImages.find(p => p.id === 'spanish-villa-sunset');
+  const heroImage = '/seeker-hero-panoramic.jpg';
+  const manifestImage = '/spanish-villa-sunset.jpg';
   
   // Filter states
   const [experienceType, setExperienceType] = useState('all-experiences');
@@ -209,9 +209,8 @@ export default function SeekerPage() {
             {manifestImage && (
               <div className="relative w-full h-[560px] rounded-2xl overflow-hidden hidden lg:block">
                 <Image
-                  src={manifestImage.imageUrl}
-                  alt={manifestImage.description}
-                  data-ai-hint={manifestImage.imageHint}
+                  src={manifestImage}
+                  alt={'Hot air balloons over a unique landscape'}
                   fill
                   className="object-cover"
                 />
@@ -230,9 +229,8 @@ export default function SeekerPage() {
       {heroImage && (
         <div className="relative mb-8 w-full aspect-[21/9] rounded-lg overflow-hidden flex items-center justify-center text-center">
           <Image
-            src={heroImage.imageUrl}
-            alt={heroImage.description}
-            data-ai-hint={heroImage.imageHint}
+            src={heroImage}
+            alt={'A person on a boat on a serene lake'}
             fill
             className="object-cover"
             priority
@@ -387,3 +385,5 @@ export default function SeekerPage() {
     </>
   );
 }
+
+    

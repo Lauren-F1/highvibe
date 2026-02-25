@@ -1,4 +1,5 @@
 
+
 "use client";
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
@@ -19,7 +20,6 @@ import { VendorHostFilters, type VendorHostFiltersState } from '@/components/ven
 import { useToast } from '@/hooks/use-toast';
 import { type ConnectionStatus } from '@/components/guide-card';
 import { cn } from '@/lib/utils';
-import { placeholderImages } from '@/lib/placeholder-images';
 import { useUser } from '@/firebase';
 
 interface StatCardProps {
@@ -89,7 +89,7 @@ export default function VendorDashboardPage() {
   const [hostFiltersDirty, setHostFiltersDirty] = useState(false);
   const [hostFiltersVisible, setHostFiltersVisible] = useState(false);
   const [hostSortOption, setHostSortOption] = useState('recommended');
-  const vendorHeroImage = placeholderImages.find(p => p.id === 'vendor-dashboard-hero')!;
+  const vendorHeroImage = '/vendor-dashboard-hero.jpg';
 
   const isAgreementAccepted = user.status === 'authenticated' && user.profile?.providerAgreementAccepted === true;
 
@@ -272,9 +272,8 @@ export default function VendorDashboardPage() {
 
         <div className="relative h-[104px] w-[420px] hidden lg:block mx-auto flex-shrink-0 rounded-xl shadow-md overflow-hidden">
             <Image
-                src={vendorHeroImage.imageUrl}
-                alt={vendorHeroImage.description}
-                data-ai-hint={vendorHeroImage.imageHint}
+                src={vendorHeroImage}
+                alt={'A table with vendor offerings'}
                 fill
                 className="object-cover"
                 style={{ objectPosition: 'center center' }}
@@ -561,3 +560,5 @@ export default function VendorDashboardPage() {
     </div>
   );
 }
+
+    

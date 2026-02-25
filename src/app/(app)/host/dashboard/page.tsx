@@ -14,7 +14,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
 
-import { placeholderImages } from '@/lib/placeholder-images';
 import { vendors as allVendors, type Vendor, matchingGuidesForVendor as allGuides } from '@/lib/mock-data';
 import { VendorCard } from '@/components/vendor-card';
 import { VendorFilters, type VendorFiltersState } from '@/components/vendor-filters';
@@ -28,22 +27,22 @@ import { SpaceReadinessChecklist, type SpaceReadinessProps } from '@/components/
 import { cn } from '@/lib/utils';
 
 
-const genericImage = placeholderImages.find(p => p.id === 'generic-placeholder')!;
+const genericImage = '/generic-placeholder.jpg';
 
 const hostSpaces = [
-  { id: 'space1', name: 'The Glass House', location: 'Topanga, California', capacity: 25, rate: 2200, status: 'Published', bookings: 3, image: placeholderImages.find(p => p.id === 'modern-event-space')!, hostLat: 34.09, hostLng: -118.6,
+  { id: 'space1', name: 'The Glass House', location: 'Topanga, California', capacity: 25, rate: 2200, status: 'Published', bookings: 3, image: '/modern-event-space.jpg', hostLat: 34.09, hostLng: -118.6,
     description: 'A stunning modern home with panoramic views, perfect for intimate workshops and corporate offsites.',
     amenities: ['Pool', 'Wi-Fi', 'A/C', 'Full kitchen onsite'],
-    propertyShowcaseUrls: Array(6).fill(placeholderImages.find(p => p.id === 'modern-event-space')!.imageUrl),
+    propertyShowcaseUrls: Array(6).fill('/modern-event-space.jpg'),
     availabilitySet: true,
   },
-  { id: 'space2', name: 'Sacred Valley Hacienda', location: 'Cusco, Peru', capacity: 18, rate: 1500, status: 'Published', bookings: 5, image: placeholderImages.find(p => p.id === 'spanish-villa-sunset')!, hostLat: -13.53, hostLng: -71.96,
+  { id: 'space2', name: 'Sacred Valley Hacienda', location: 'Cusco, Peru', capacity: 18, rate: 1500, status: 'Published', bookings: 5, image: '/spanish-villa-sunset.jpg', hostLat: -13.53, hostLng: -71.96,
     description: 'A historic hacienda in the heart of the Andes, offering a unique blend of culture and comfort.',
     amenities: [], // Incomplete
-    propertyShowcaseUrls: Array(4).fill(placeholderImages.find(p => p.id === 'spanish-villa-sunset')!.imageUrl), // Incomplete
+    propertyShowcaseUrls: Array(4).fill('/spanish-villa-sunset.jpg'), // Incomplete
     availabilitySet: true,
   },
-  { id: 'space3', name: 'Mountain View Lodge', location: 'Asheville, North Carolina', capacity: 40, rate: 0, status: 'Draft', bookings: 0, image: placeholderImages.find(p => p.id === 'mountain-hike')!, hostLat: 35.59, hostLng: -82.55,
+  { id: 'space3', name: 'Mountain View Lodge', location: 'Asheville, North Carolina', capacity: 40, rate: 0, status: 'Draft', bookings: 0, image: '/mountain-hike.jpg', hostLat: 35.59, hostLng: -82.55,
     description: '', // Incomplete
     amenities: [], // Incomplete
     propertyShowcaseUrls: [], // Incomplete
@@ -130,7 +129,7 @@ export default function HostDashboardPage() {
   const currentUser = useUser();
   const firestore = useFirestore();
   const [isConnecting, setIsConnecting] = useState(false);
-  const hostHeroImage = placeholderImages.find(p => p.id === 'host-dashboard-hero')!;
+  const hostHeroImage = '/host-dashboard-hero.jpg';
 
   const isAgreementAccepted = currentUser.status === 'authenticated' && currentUser.profile?.providerAgreementAccepted === true;
 
@@ -401,7 +400,7 @@ export default function HostDashboardPage() {
           },
           [targetProfile.uid as string]: {
             displayName: targetProfile.name,
-            avatarUrl: targetProfile.avatar?.imageUrl || '',
+            avatarUrl: 'avatar' in targetProfile ? targetProfile.avatar : '',
           }
         },
         createdAt: serverTimestamp(),
@@ -450,9 +449,8 @@ export default function HostDashboardPage() {
 
         <div className="relative h-[104px] w-[420px] hidden lg:block mx-auto flex-shrink-0 rounded-xl shadow-md overflow-hidden">
             <Image
-                src={hostHeroImage.imageUrl}
-                alt={hostHeroImage.description}
-                data-ai-hint={hostHeroImage.imageHint}
+                src={hostHeroImage}
+                alt={'Cozy cabin in forest'}
                 fill
                 className="object-cover"
                 style={{ objectPosition: 'center 40%' }}
@@ -503,9 +501,8 @@ export default function HostDashboardPage() {
                   <TableCell>
                     <div className="relative h-12 w-16 rounded-md overflow-hidden bg-secondary">
                       <Image
-                        src={space.image?.imageUrl || genericImage.imageUrl}
-                        alt={space.image?.description || genericImage.description}
-                        data-ai-hint={space.image?.imageHint || genericImage.imageHint}
+                        src={space.image || genericImage}
+                        alt={space.name}
                         fill
                         className="object-cover"
                       />

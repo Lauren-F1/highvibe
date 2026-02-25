@@ -4,9 +4,7 @@
 import Image from 'next/image';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { MapPin, Users, Bed, Bath } from 'lucide-react';
-import type { ImagePlaceholder } from '@/lib/placeholder-images';
 import { Button } from './ui/button';
-import { placeholderImages } from '@/lib/placeholder-images';
 import Link from 'next/link';
 import { Badge } from './ui/badge';
 import { type ConnectionStatus } from './guide-card';
@@ -21,7 +19,7 @@ export interface Host {
   bathrooms: number;
   pricePerNight: number;
   propertyType: string;
-  image?: ImagePlaceholder;
+  image?: string;
   luxApproved: boolean;
   premiumMembership?: boolean;
   roomStyleTags?: string[];
@@ -48,11 +46,11 @@ interface HostCardProps {
   connectActionLabel?: string;
 }
 
-const defaultImage = placeholderImages.find(p => p.id === 'generic-placeholder')!;
+const defaultImageUrl = '/generic-placeholder.jpg';
 
 
 export function HostCard({ host, onConnect, onViewMessage, connectionStatus = 'Not Invited', connectActionLabel = "Invite" }: HostCardProps) {
-  const image = host.image || defaultImage;
+  const imageUrl = host.image || defaultImageUrl;
 
   const renderActionButton = () => {
     if (!onConnect || !onViewMessage) return null;
@@ -88,9 +86,8 @@ export function HostCard({ host, onConnect, onViewMessage, connectionStatus = 'N
     <Card className="w-full overflow-hidden transition-shadow duration-300 hover:shadow-xl flex flex-col h-full">
       <div className="relative aspect-[4/3] w-full">
          <Image
-            src={image.imageUrl}
-            alt={image.description}
-            data-ai-hint={image.imageHint}
+            src={imageUrl}
+            alt={host.name}
             fill
             className="object-cover"
         />
@@ -146,3 +143,5 @@ export function HostCard({ host, onConnect, onViewMessage, connectionStatus = 'N
     </Card>
   );
 }
+
+    
