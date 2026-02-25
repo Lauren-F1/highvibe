@@ -6,7 +6,7 @@ import Image from 'next/image';
 
 export function Logo({ className }: { className?: string }) {
   return (
-    <div className={cn('relative h-32 w-full max-w-2xl mx-auto', className)}>
+    <div className={cn('relative w-full h-full', className)}>
       <Image
         src="/logo.svg"
         alt="HighVibe Retreats Logo"
