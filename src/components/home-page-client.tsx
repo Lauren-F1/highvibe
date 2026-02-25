@@ -116,7 +116,7 @@ export default function HomePageClient() {
     />
     <main className="flex min-h-screen w-full flex-col items-center bg-background p-4 sm:p-6 md:p-8">
       <div className="w-full max-w-7xl text-center mb-4">
-        <Logo />
+        <Logo className="max-w-none" />
       </div>
 
       {heroImage && (
@@ -124,7 +124,7 @@ export default function HomePageClient() {
           <div className="p-3 md:p-5" style={{ borderRadius: 0, background: 'linear-gradient(180deg, rgba(198,184,164,0.14) 0%, rgba(198,184,164,0.30) 100%)' }}>
             <div className="relative aspect-[21/9] w-full">
               <Image
-                src={heroImage.imageUrl}
+                src="/resort-image.png"
                 alt={heroImage.description}
                 data-ai-hint={heroImage.imageHint}
                 fill
@@ -226,3 +226,5 @@ export default function HomePageClient() {
     </>
   );
 }
+
+    
