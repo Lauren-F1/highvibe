@@ -1,8 +1,8 @@
+
 'use client';
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import Image from 'next/image';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +19,7 @@ import { getAuth, User as FirebaseUser } from 'firebase/auth';
 import { isFirebaseEnabled } from '@/firebase/config';
 import { useInbox } from '@/context/InboxContext';
 import { useEffect, useState } from 'react';
+import { Logo } from './icons/logo';
 
 
 export function Header() {
@@ -37,8 +38,6 @@ export function Header() {
       const userEmail = user.data.email?.toLowerCase();
       const isAdminByEmail = userEmail ? adminEmails.includes(userEmail) : false;
 
-      // In dev mode, user.data is a plain object without getIdTokenResult.
-      // We check if the function exists before calling it.
       if (typeof (user.data as any).getIdTokenResult === 'function') {
           (user.data as FirebaseUser).getIdTokenResult().then(idTokenResult => {
             if (idTokenResult.claims.admin === true || isAdminByEmail) {
@@ -48,7 +47,6 @@ export function Header() {
             }
           });
       } else {
-        // This block will run in dev mode or if the user object is not a Firebase User instance.
         if (isAdminByEmail) {
             setIsAdmin(true);
         } else {
@@ -90,13 +88,7 @@ export function Header() {
       <div className="container flex h-24 items-center">
         <div className="mr-auto flex items-center">
           <Link href="/" className="mr-6">
-            <Image
-              src="/logo.svg"
-              alt="HighVibe Retreats"
-              width={252}
-              height={90}
-              priority
-            />
+            <Logo className="w-[252px] h-auto" />
           </Link>
           <nav className="hidden items-center space-x-6 text-sm font-medium md:flex font-ui">
             <Link href="/seeker" className="transition-colors hover:text-foreground/80 text-foreground/60">

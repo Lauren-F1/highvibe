@@ -1,7 +1,7 @@
+
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import Image from 'next/image';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Logo } from '@/components/icons/logo';
 import { placeholderImages } from '@/lib/placeholder-images';
@@ -11,18 +11,21 @@ import { useToast } from '@/hooks/use-toast';
 import { WaitlistModal } from './waitlist-modal';
 import { Button } from './ui/button';
 import * as analytics from '@/lib/analytics';
+import Image from 'next/image';
 
-const ROLE_ICON_SRC: Record<string, string> = {
-  seeker: '/seeker.svg',
-  guide: '/guide.svg',
-  vendor: '/vendor.svg',
-  host: '/host.svg',
+const RoleIcon = ({ roleId }: { roleId: string }) => {
+  const icons: Record<string, React.ReactNode> = {
+    seeker: <svg width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>,
+    guide: <svg width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>,
+    vendor: <svg width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 12c0-4.42-3-8-8-8s-8 3.58-8 8c0 2.05.79 3.93 2.08 5.34L4 20h16l-2.08-2.66A7.94 7.94 0 0 0 20 12z"></path><path d="M12 12c-2.21 0-4-1.79-4-4"></path></svg>,
+    host: <svg width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>,
+  };
+  return <div className="text-primary">{icons[roleId] || null}</div>;
 };
 
 interface Role {
   id: 'seeker' | 'guide' | 'vendor' | 'host';
   href: string;
-  icon: string;
   primaryLabel: string;
   title: string;
   description: string;
@@ -32,7 +35,6 @@ const roles: Role[] = [
     {
       id: 'seeker',
       href: "/seeker",
-      icon: ROLE_ICON_SRC.seeker,
       primaryLabel: "Seeker",
       title: "I’m Seeking a Retreat",
       description: "Discover retreats aligned with leadership, wellness, creativity, healing, and personal growth. Get notified when experiences that match what you’re seeking become available."
@@ -40,7 +42,6 @@ const roles: Role[] = [
     {
       id: 'guide',
       href: "/guide",
-      icon: ROLE_ICON_SRC.guide,
       primaryLabel: "Guide",
       title: "I’m Leading a Retreat",
       description: "Design and lead meaningful retreat experiences. Find the right space, connect with aligned seekers, and collaborate with trusted vendors to bring your vision to life."
@@ -48,7 +49,6 @@ const roles: Role[] = [
     {
       id: 'vendor',
       href: "/vendor",
-      icon: ROLE_ICON_SRC.vendor,
       primaryLabel: "Vendor",
       title: "I’m Offering Retreat Services",
       "description": "Offer services that make retreats unforgettable — from wellness and music to food, transportation, and curated local experiences. Connect with guides and hosts looking to elevate their retreats."
@@ -56,7 +56,6 @@ const roles: Role[] = [
     {
       id: 'host',
       href: "/host",
-      icon: ROLE_ICON_SRC.host,
       primaryLabel: "Host",
       title: "I’m Listing a Retreat Space",
       description: "List a property designed for retreats, gatherings, and immersive experiences. Connect with guides seeking beautiful, well-suited spaces for meaningful retreat experiences."
@@ -195,7 +194,7 @@ export default function HomePageClient() {
                 <CardHeader className="items-center text-center p-0">
                   <CardTitle className="font-headline text-5xl text-beige tracking-wider mb-3">{role.primaryLabel}</CardTitle>
                   <div className="flex items-center justify-center mb-3 h-24 w-24">
-                     <Image src={role.icon} alt={`${role.primaryLabel} icon`} width={96} height={96} />
+                     <RoleIcon roleId={role.id} />
                   </div>
                   <h3 className="font-body text-2xl text-foreground font-semibold">{role.title}</h3>
                 </CardHeader>

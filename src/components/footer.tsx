@@ -1,10 +1,10 @@
 
 'use client';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useState } from 'react';
 import { WaitlistModal } from './waitlist-modal';
 import { Button } from './ui/button';
+import { Logo } from './icons/logo';
 
 export function Footer() {
   const [isWaitlistModalOpen, setIsWaitlistModalOpen] = useState(false);
@@ -15,12 +15,7 @@ export function Footer() {
         <div className="container mx-auto px-6 py-8">
           <div className="flex flex-col items-center justify-between sm:flex-row">
             <Link href="/">
-              <Image
-                src="/logo.svg"
-                alt="HighVibe Retreats"
-                width={140}
-                height={50}
-              />
+              <Logo className="w-[140px] h-auto" />
             </Link>
             <p className="mt-4 text-sm text-muted-foreground sm:mt-0">
               © {new Date().getFullYear()} HighVibe Retreats Inc. All rights reserved.
@@ -56,5 +51,3 @@ export function Footer() {
     </>
   );
 }
-
-    
