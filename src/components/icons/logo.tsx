@@ -5,18 +5,13 @@ import Image from 'next/image';
 
 export function Logo({ className }: { className?: string }) {
   return (
-    <div className={cn(className)}>
+    <div className={cn('relative', className)}>
       <Image
         src="/logo.svg"
         alt="HighVibe Retreats Logo"
-        width={1200}
-        height={192}
+        fill
         priority
-        style={{
-          width: '100%',
-          maxWidth: '100%',
-          height: 'auto',
-        }}
+        className="object-contain"
       />
     </div>
   );
