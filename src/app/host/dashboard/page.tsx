@@ -1,2 +1,2 @@
-// This file resolved to the same path as a page in the (app) group and has been removed to fix a routing conflict.
-export { default } from '../(app)/host/dashboard/page';
+// This file resolves the Next.js routing conflict by re-exporting the intended page from the (app) group.
+export { default } from '@/app/(app)/host/dashboard/page';
