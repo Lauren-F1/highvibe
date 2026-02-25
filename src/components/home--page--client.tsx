@@ -1,7 +1,6 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import Image from 'next/image';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Logo } from '@/components/icons/logo';
 import { placeholderImages } from '@/lib/placeholder-images';
@@ -11,18 +10,21 @@ import { useToast } from '@/hooks/use-toast';
 import { WaitlistModal } from './waitlist-modal';
 import { Button } from './ui/button';
 import * as analytics from '@/lib/analytics';
+import Image from 'next/image';
 
-const ROLE_ICON_SRC: Record<string, string> = {
-  seeker: '/seeker.svg',
-  guide: '/guide.svg',
-  vendor: '/vendor.svg',
-  host: '/host.svg',
+const RoleIcon = ({ roleId }: { roleId: string }) => {
+  const icons: Record<string, React.ReactNode> = {
+    seeker: <svg width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>,
+    guide: <svg width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>,
+    vendor: <svg width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 12c0-4.42-3-8-8-8s-8 3.58-8 8c0 2.05.79 3.93 2.08 5.34L4 20h16l-2.08-2.66A7.94 7.94 0 0 0 20 12z"></path><path d="M12 12c-2.21 0-4-1.79-4-4"></path></svg>,
+    host: <svg width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>,
+  };
+  return <div className="text-primary">{icons[roleId] || null}</div>;
 };
 
 interface Role {
   id: 'seeker' | 'guide' | 'vendor' | 'host';
   href: string;
-  icon: string;
   primaryLabel: string;
   title: string;
   description: string;
@@ -32,7 +34,6 @@ const roles: Role[] = [
     {
       id: 'seeker',
       href: "/seeker",
-      icon: ROLE_ICON_SRC.seeker,
       primaryLabel: "Seeker",
       title: "I’m Seeking a Retreat",
       description: "Discover retreats aligned with leadership, wellness, creativity, healing, and personal growth. Get notified when experiences that match what you’re seeking become available."
@@ -40,7 +41,6 @@ const roles: Role[] = [
     {
       id: 'guide',
       href: "/guide",
-      icon: ROLE_ICON_SRC.guide,
       primaryLabel: "Guide",
       title: "I’m Leading a Retreat",
       description: "Design and lead meaningful retreat experiences. Find the right space, connect with aligned seekers, and collaborate with trusted vendors to bring your vision to life."
@@ -48,7 +48,6 @@ const roles: Role[] = [
     {
       id: 'vendor',
       href: "/vendor",
-      icon: ROLE_ICON_SRC.vendor,
       primaryLabel: "Vendor",
       title: "I’m Offering Retreat Services",
       "description": "Offer services that make retreats unforgettable — from wellness and music to food, transportation, and curated local experiences. Connect with guides and hosts looking to elevate their retreats."
@@ -56,7 +55,6 @@ const roles: Role[] = [
     {
       id: 'host',
       href: "/host",
-      icon: ROLE_ICON_SRC.host,
       primaryLabel: "Host",
       title: "I’m Listing a Retreat Space",
       description: "List a property designed for retreats, gatherings, and immersive experiences. Connect with guides seeking beautiful, well-suited spaces for meaningful retreat experiences."
@@ -131,16 +129,18 @@ export default function HomePageClient() {
 
       {heroImage && (
         <div className="w-full max-w-7xl mb-8">
-          <div className="relative aspect-[21/9] w-full rounded-lg overflow-hidden">
-            <Image
-              src={heroImage.imageUrl}
-              alt={heroImage.description}
-              data-ai-hint={heroImage.imageHint}
-              fill
-              className="object-cover"
-              priority
-              style={{ objectPosition: 'center 60%' }}
-            />
+          <div className="p-3 md:p-5" style={{ borderRadius: 0, background: 'linear-gradient(180deg, rgba(198,184,164,0.14) 0%, rgba(198,184,164,0.30) 100%)' }}>
+            <div className="relative aspect-[21/9] w-full">
+              <Image
+                src={heroImage.imageUrl}
+                alt={heroImage.description}
+                data-ai-hint={heroImage.imageHint}
+                fill
+                className="object-cover"
+                priority
+                style={{ objectPosition: 'center 60%', borderRadius: 0 }}
+              />
+            </div>
           </div>
         </div>
       )}
@@ -150,31 +150,32 @@ export default function HomePageClient() {
         <p className="text-lg text-beige-dark mt-2 max-w-3xl mx-auto font-body">Book experiences or create them. HighVibe connects retreat leaders with aligned spaces and trusted vendors, all in one platform.</p>
       </div>
 
-      <div className="w-full max-w-5xl my-16">
-        <div className="bg-secondary/50 rounded-xl border border-input p-8 md:p-10">
+      <div className="w-full max-w-5xl my-8">
+        <div className="rounded-xl border border-beige bg-beige/10 p-6 shadow-sm md:p-10">
           <h3 className="font-headline text-3xl mb-8 text-center">How It Works</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
-            <div className="flex flex-col items-center md:items-start text-center md:text-left">
-              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary text-primary-foreground font-bold text-xl mb-4 shrink-0">1</div>
+          <div className="grid grid-cols-1 gap-8 text-left md:grid-cols-3">
+            <div className="flex flex-col items-center text-center md:items-start md:text-left">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-xl font-bold text-primary-foreground mb-4">1</div>
               <h4 className="font-headline text-xl mb-2">Choose what you’re here for.</h4>
-              <p className="text-sm text-muted-foreground font-body">Whether you’re looking for a retreat or building one, select your role so HighVibe can match you with the right opportunities.</p>
+              <p className="text-sm font-body text-muted-foreground">Whether you’re looking for a retreat or building one, select your role so HighVibe can match you with the right opportunities.</p>
             </div>
-            <div className="flex flex-col items-center md:items-start text-center md:text-left">
-              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary text-primary-foreground font-bold text-xl mb-4 shrink-0">2</div>
+            <div className="flex flex-col items-center text-center md:items-start md:text-left">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-xl font-bold text-primary-foreground mb-4">2</div>
               <h4 className="font-headline text-xl mb-2">Find what fits, and be found.</h4>
-              <p className="text-sm text-muted-foreground font-body">Discover retreats aligned with what you’re looking for, or create a profile that helps the right attendees and collaborators find you.</p>
+              <p className="text-sm font-body text-muted-foreground">Discover retreats aligned with what you’re looking for, or create a profile that helps the right attendees and collaborators find you.</p>
             </div>
-            <div className="flex flex-col items-center md:items-start text-center md:text-left">
-              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary text-primary-foreground font-bold text-xl mb-4 shrink-0">3</div>
+            <div className="flex flex-col items-center text-center md:items-start md:text-left">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-xl font-bold text-primary-foreground mb-4">3</div>
               <h4 className="font-headline text-xl mb-2">Build better retreats together.</h4>
-              <p className="text-sm text-muted-foreground font-body">Connect with retreat leaders, spaces, and vendors to collaborate, curate, and bring meaningful experiences to life.</p>
+              <p className="text-sm font-body text-muted-foreground">Connect with retreat leaders, spaces, and vendors to collaborate, curate, and bring meaningful experiences to life.</p>
             </div>
           </div>
         </div>
       </div>
 
       <div 
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full max-w-7xl mb-8"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full max-w-7xl mt-8 mb-8"
+        id="join"
       >
         {roles.map((role) => {
           return (
@@ -192,7 +193,7 @@ export default function HomePageClient() {
                 <CardHeader className="items-center text-center p-0">
                   <CardTitle className="font-headline text-5xl text-beige tracking-wider mb-3">{role.primaryLabel}</CardTitle>
                   <div className="flex items-center justify-center mb-3 h-24 w-24">
-                     <Image src={role.icon} alt={`${role.primaryLabel} icon`} width={96} height={96} />
+                     <RoleIcon roleId={role.id} />
                   </div>
                   <h3 className="font-body text-2xl text-foreground font-semibold">{role.title}</h3>
                 </CardHeader>
@@ -204,25 +205,30 @@ export default function HomePageClient() {
           )
         })}
       </div>
-      <div className="w-full max-w-4xl text-center my-16">
-        <Card>
-            <CardHeader>
-                <CardTitle className="font-headline text-3xl md:text-4xl">Be First In</CardTitle>
-                <CardDescription className="text-lg text-beige-dark mt-2 max-w-3xl mx-auto font-body">
-                    HighVibe Retreats is launching soon. Join the waitlist for early access and founder-level perks.
-                </CardDescription>
-                <p className="text-base text-foreground mt-4 max-w-3xl mx-auto font-body font-semibold">
-                    Founder Perk: first 250 verified sign-ups get 60 days of membership fees waived.
-                </p>
-            </CardHeader>
-            <CardContent className="flex justify-center">
-              <Button size="lg" onClick={() => {
-                  setDefaultRole("");
-                  setModalSource("landing-card");
-                  setIsWaitlistModalOpen(true);
-              }}>Join the Waitlist</Button>
-            </CardContent>
-        </Card>
+      <div 
+        className="w-full py-10 md:py-14 my-8 -mx-4 sm:-mx-6 md:-mx-8"
+        style={{ background: 'linear-gradient(180deg, rgba(198,184,164,0.14) 0%, rgba(198,184,164,0.30) 100%)' }}
+      >
+        <div className="w-full max-w-4xl text-center mx-auto px-4">
+            <Card className="shadow-lg">
+                <CardHeader>
+                    <CardTitle className="font-headline text-3xl md:text-4xl">Be First In</CardTitle>
+                    <CardDescription className="text-lg text-beige-dark mt-2 max-w-3xl mx-auto font-body">
+                        HighVibe Retreats is launching soon. Join the waitlist for early access and founder-level perks.
+                    </CardDescription>
+                    <p className="text-base text-foreground pt-4 max-w-3xl mx-auto font-body font-semibold">
+                        Founder Perk: first 250 verified sign-ups get 60 days of membership fees waived.
+                    </p>
+                </CardHeader>
+                <CardContent className="flex justify-center">
+                  <Button size="lg" onClick={() => {
+                      setDefaultRole("");
+                      setModalSource("landing-card");
+                      setIsWaitlistModalOpen(true);
+                  }}>Join the Waitlist</Button>
+                </CardContent>
+            </Card>
+        </div>
       </div>
     </main>
     </>
