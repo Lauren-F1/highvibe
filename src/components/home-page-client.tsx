@@ -3,7 +3,6 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Logo } from './icons/logo';
-import { placeholderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
 import React, { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -57,7 +56,6 @@ export default function HomePageClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
-  const heroImage = placeholderImages.find((img) => img.id === 'resort-hero');
   
   const [isWaitlistModalOpen, setIsWaitlistModalOpen] = useState(false);
   const [defaultRole, setDefaultRole] = useState<"Seeker" | "Guide" | "Host" | "Vendor" | "">("");
@@ -114,18 +112,20 @@ export default function HomePageClient() {
         defaultRole={defaultRole}
     />
     <main className="flex min-h-screen w-full flex-col items-center bg-background p-4 sm:p-6 md:p-8">
-      <div className="w-full max-w-7xl text-center mb-4">
-        <Logo className="h-64" />
-      </div>
+      {/* Container for logo and hero, to ensure they have the same max-width */}
+      <div className="w-full max-w-7xl">
+        {/* Logo Section */}
+        <div className="w-full text-center mb-4">
+          <Logo />
+        </div>
 
-      {heroImage && (
-        <div className="w-full max-w-7xl mb-8">
+        {/* Hero Image Section */}
+        <div className="mb-8">
           <div className="p-3 md:p-5" style={{ borderRadius: 0, background: 'linear-gradient(180deg, rgba(198,184,164,0.14) 0%, rgba(198,184,164,0.30) 100%)' }}>
             <div className="relative aspect-[21/9] w-full">
               <Image
                 src="/resort-image.png"
-                alt={heroImage.description}
-                data-ai-hint={heroImage.imageHint}
+                alt="A beautiful resort view with a pool overlooking a lush valley."
                 fill
                 className="object-cover"
                 priority
@@ -134,7 +134,7 @@ export default function HomePageClient() {
             </div>
           </div>
         </div>
-      )}
+      </div>
 
       <div className="w-full max-w-4xl text-center mb-12">
         <h2 className="font-headline text-3xl md:text-4xl">Choose your role. Find your people.</h2>
