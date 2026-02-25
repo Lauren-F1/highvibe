@@ -131,12 +131,7 @@ export function HostCard({ host, onConnect, onViewMessage, connectionStatus = 'N
                         <Badge variant="secondary">Featured</Badge>
                     )}
                     {host.luxApproved && (
-                        <Image
-                            src="https://placehold.co/28x28/c6b8a4/c6b8a4.png"
-                            alt="LUX Approved"
-                            width={28}
-                            height={28}
-                        />
+                        <Badge variant="outline">LUX</Badge>
                     )}
                 </div>
             </div>
@@ -151,5 +146,3 @@ export function HostCard({ host, onConnect, onViewMessage, connectionStatus = 'N
     </Card>
   );
 }
-
-    

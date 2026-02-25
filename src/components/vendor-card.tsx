@@ -68,7 +68,7 @@ export function VendorCard({ vendor, onConnect, onViewMessage, distance, connect
             <CardTitle className="text-lg flex items-center">{vendor.name} {statusBadge()}</CardTitle>
             <div className="flex items-center gap-2">
                 {vendor.premiumMembership && <Badge variant="secondary">Featured</Badge>}
-                {vendor.luxApproved && <Image src="https://placehold.co/28x28/c6b8a4/c6b8a4.png" alt="LUX Approved" width={28} height={28} />}
+                {vendor.luxApproved && <Badge variant="outline">LUX</Badge>}
             </div>
           </div>
           <CardDescription>{vendor.category}</CardDescription>
