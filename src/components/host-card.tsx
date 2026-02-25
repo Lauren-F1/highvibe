@@ -132,7 +132,7 @@ export function HostCard({ host, onConnect, onViewMessage, connectionStatus = 'N
                     )}
                     {host.luxApproved && (
                         <Image
-                            src="/lux.png"
+                            src="https://placehold.co/28x28/c6b8a4/c6b8a4.png"
                             alt="LUX Approved"
                             width={28}
                             height={28}
@@ -151,3 +151,5 @@ export function HostCard({ host, onConnect, onViewMessage, connectionStatus = 'N
     </Card>
   );
 }
+
+    

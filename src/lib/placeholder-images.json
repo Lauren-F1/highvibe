@@ -63,13 +63,13 @@
     {
       "id": "resort-hero",
       "description": "A beautiful resort view to be displayed on the homepage.",
-      "imageUrl": "/resort-image.png",
+      "imageUrl": "https://images.unsplash.com/photo-1689729739836-7fcc2c84d788?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxyZXNvcnQlMjB2aWV3fGVufDB8fHx8MTc3MTk4MTU3Mnww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "resort view"
     },
     {
       "id": "seeker-hero-panoramic",
       "description": "A beautiful new hero image.",
-      "imageUrl": "/my-new-hero.png",
+      "imageUrl": "https://images.unsplash.com/photo-1599845530975-9b22c951ec69?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxuZXclMjBoZXJvfGVufDB8fHx8MTc3MTk4MTU3Mnww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "new hero"
     },
     {
@@ -87,7 +87,7 @@
     {
       "id": "hacienda-leather-interior",
       "description": "A beautiful desert retreat.",
-      "imageUrl": "/desert-retreat.png",
+      "imageUrl": "https://images.unsplash.com/photo-1757525474436-115f054d7930?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxkZXNlcnQlMjByZXRyZWF0fGVufDB8fHx8MTc3MTk4MTU3Mnww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "desert retreat"
     },
     {
@@ -129,25 +129,25 @@
     {
       "id": "spanish-villa-sunset",
       "description": "A beautiful desert retreat.",
-      "imageUrl": "/desert-retreat.png",
+      "imageUrl": "https://images.unsplash.com/photo-1762255097010-49e99eadd616?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8ZGVzZXJ0JTIwcmV0cmVhdHxlbnwwfHx8fDE3NzE5ODE1NzJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "desert retreat"
     },
     {
       "id": "guide-dashboard-hero",
       "description": "Guide leading yoga at sunset.",
-      "imageUrl": "/guide-yoga-sunset.png",
+      "imageUrl": "https://images.unsplash.com/photo-1624704200567-760cf26ae848?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx5b2dhJTIwc3Vuc2V0fGVufDB8fHx8MTc3MTg4OTQ3OXww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "yoga sunset"
     },
     {
       "id": "host-dashboard-hero",
       "description": "A cozy cabin in a forest setting.",
-      "imageUrl": "/host-cabin.png",
+      "imageUrl": "https://images.unsplash.com/photo-1637687222430-ca092fb9062a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxjYWJpbiUyMGZvcmVzdHxlbnwwfHx8fDE3NzE5NTc0MTB8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "cabin forest"
     },
     {
       "id": "vendor-dashboard-hero",
       "description": "A table with vendor offerings.",
-      "imageUrl": "/vendor-table.png",
+      "imageUrl": "https://images.unsplash.com/photo-1770665568496-681c24e27328?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHx2ZW5kb3IlMjBvZmZlcmluZ3N8ZW58MHx8fHwxNzcxOTgxNTcyfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "vendor offerings"
     }
   ]
