@@ -115,3 +115,24 @@ export const manifestNiceToHaves = ['Spa', 'Ocean view'];
 export const lodgingPreferences = ['Villa', 'Retreat Center'];
 export const luxuryTiers = ['Essentials', 'Elevated', 'Luxury', 'Ultra-Luxury'];
 export const dietaryPreferences = ['Vegetarian', 'Vegan', 'No preference'];
+
+/**
+ * Back-compat exports used by various pages/components.
+ * Keep these in sync with the mock datasets above.
+ */
+export const destinations = allRetreats;
+export const continents = [
+  { value: 'asia', label: 'Asia' },
+  { value: 'europe', label: 'Europe' },
+  { value: 'north-america', label: 'North America' },
+  { value: 'south-america', label: 'South America' },
+  { value: 'africa', label: 'Africa' },
+  { value: 'oceania', label: 'Oceania' },
+];
+
+export const matchingHostsForVendor = hosts;
+
+// These are lightweight placeholders so imports resolve.
+// Replace with real data models when you wire up Firestore.
+export const connectionRequests: any[] = [];
+export const confirmedBookings: any[] = [];
