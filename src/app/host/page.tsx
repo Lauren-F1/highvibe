@@ -1,1 +1,3 @@
-// This file is intentionally left blank to resolve a routing conflict. The active page is located at src/app/(app)/host/page.tsx.
+// This file's content has been modified to resolve a Next.js routing conflict.
+// It no longer exports a default component, so it won't be treated as a page.
+export {};
