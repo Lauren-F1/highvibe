@@ -116,7 +116,7 @@ export default function HomePageClient() {
     />
     <main className="flex min-h-screen w-full flex-col items-center bg-background p-4 sm:p-6 md:p-8">
       <div className="w-full max-w-7xl text-center mb-4">
-        <Logo className="h-24" />
+        <Logo />
       </div>
 
       {heroImage && (
