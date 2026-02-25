@@ -19,7 +19,7 @@ export default function HostClassicOnboardingPage() {
               This is a placeholder for a traditional, form-based onboarding flow. For now, you can proceed to your dashboard.
             </p>
             <Button asChild size="lg">
-                <Link href="/host">Go to Dashboard</Link>
+                <Link href="/host/dashboard">Go to Dashboard</Link>
             </Button>
           </CardContent>
         </Card>

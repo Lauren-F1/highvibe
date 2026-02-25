@@ -1,5 +1,2 @@
-import { redirect } from 'next/navigation';
-
-export default function HostPage() {
-    redirect('/host/dashboard');
-}
+// This file is inert to resolve a routing conflict with src/app/(app)/host/page.tsx
+export default function Page() { return null; }

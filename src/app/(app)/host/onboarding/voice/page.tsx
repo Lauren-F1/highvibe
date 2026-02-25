@@ -19,7 +19,7 @@ export default function HostVoiceOnboardingPage() {
               Soon, you'll be able to describe your space and have AI build your profile automatically. For now, please proceed to your dashboard.
             </p>
             <Button asChild size="lg">
-                <Link href="/host">Go to Dashboard</Link>
+                <Link href="/host/dashboard">Go to Dashboard</Link>
             </Button>
           </CardContent>
         </Card>
