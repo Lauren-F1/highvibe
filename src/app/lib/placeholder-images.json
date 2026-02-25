@@ -1,0 +1,113 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "yoga-beach",
+      "description": "Yoga on a serene beach at sunrise.",
+      "imageUrl": "https://picsum.photos/seed/yoga1/1200/800",
+      "imageHint": "yoga beach"
+    },
+    {
+      "id": "meditation-forest",
+      "description": "Person meditating in a lush forest.",
+      "imageUrl": "https://picsum.photos/seed/med1/1200/800",
+      "imageHint": "meditation forest"
+    },
+    {
+      "id": "mountain-hike",
+      "description": "Hiker looking over mountain range.",
+      "imageUrl": "https://picsum.photos/seed/hike1/1200/800",
+      "imageHint": "mountain landscape"
+    },
+    {
+      "id": "cozy-cabin",
+      "description": "Rustic cabin interior.",
+      "imageUrl": "https://picsum.photos/seed/cabin1/1200/800",
+      "imageHint": "cabin interior"
+    },
+    {
+      "id": "healthy-food-chef",
+      "description": "Chef plating a healthy meal.",
+      "imageUrl": "https://picsum.photos/seed/chef1/1200/800",
+      "imageHint": "healthy food"
+    },
+    {
+      "id": "spa-massage",
+      "description": "Relaxing massage at a spa.",
+      "imageUrl": "https://picsum.photos/seed/spa1/1200/800",
+      "imageHint": "spa massage"
+    },
+    {
+      "id": "modern-event-space",
+      "description": "Bright and modern event space.",
+      "imageUrl": "https://picsum.photos/seed/event1/1200/800",
+      "imageHint": "event space"
+    },
+    {
+      "id": "friendly-host-portrait",
+      "description": "Welcoming portrait of a host.",
+      "imageUrl": "https://picsum.photos/seed/host1/400/400",
+      "imageHint": "woman portrait"
+    },
+    {
+      "id": "vendor-photographer",
+      "description": "Professional photographer.",
+      "imageUrl": "https://picsum.photos/seed/photo1/400/400",
+      "imageHint": "photographer portrait"
+    },
+    {
+      "id": "space-owner-villa",
+      "description": "Luxurious villa with pool.",
+      "imageUrl": "https://picsum.photos/seed/villa1/1200/800",
+      "imageHint": "luxury villa"
+    },
+    {
+      "id": "resort-hero",
+      "description": "Beautiful resort view.",
+      "imageUrl": "https://picsum.photos/seed/resort1/1920/1080",
+      "imageHint": "resort view"
+    },
+    {
+      "id": "seeker-hero-panoramic",
+      "description": "Person on a boat on a serene lake.",
+      "imageUrl": "https://picsum.photos/seed/lake1/1920/1080",
+      "imageHint": "serene lake"
+    },
+    {
+      "id": "host-bali-villa",
+      "description": "Open-air luxury villa in Bali.",
+      "imageUrl": "https://picsum.photos/seed/bali1/1200/800",
+      "imageHint": "bali villa"
+    },
+    {
+      "id": "host-kyoto-ryokan",
+      "description": "Traditional Japanese ryokan.",
+      "imageUrl": "https://picsum.photos/seed/kyoto1/1200/800",
+      "imageHint": "japan interior"
+    },
+    {
+      "id": "spanish-villa-sunset",
+      "description": "Spanish villa at sunset.",
+      "imageUrl": "https://picsum.photos/seed/spain1/1200/800",
+      "imageHint": "dream destination"
+    },
+    {
+      "id": "guide-dashboard-hero",
+      "description": "Guide leading yoga at sunset.",
+      "imageUrl": "https://picsum.photos/seed/guide1/1200/400",
+      "imageHint": "yoga sunset"
+    },
+    {
+      "id": "host-dashboard-hero",
+      "description": "Cozy cabin in a forest.",
+      "imageUrl": "https://picsum.photos/seed/hostdash1/1200/400",
+      "imageHint": "cabin forest"
+    },
+    {
+      "id": "vendor-dashboard-hero",
+      "description": "Table with vendor offerings.",
+      "imageUrl": "https://picsum.photos/seed/vendor1/1200/400",
+      "imageHint": "vendor offerings"
+    }
+  ]
+}
