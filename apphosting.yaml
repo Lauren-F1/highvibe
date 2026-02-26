@@ -51,3 +51,13 @@ env:
     value: "info@highviberetreats.com"
     availability:
       - RUNTIME
+
+  - variable: WAITLIST_DISABLE_EMAIL_SEND
+    value: "false"
+    availability:
+      - RUNTIME
+
+  - variable: WAITLIST_DISABLE_FIRESTORE_WRITE
+    value: "false"
+    availability:
+      - RUNTIME

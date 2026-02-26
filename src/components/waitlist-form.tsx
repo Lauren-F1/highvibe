@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -100,20 +99,29 @@ export function WaitlistForm({ source, defaultRole, onRoleChange }: WaitlistForm
         const text = await response.text();
         console.error('Server returned non-JSON response:', text);
         setErrorMessage('Server error (non-JSON response).');
-        setDebugMessage(text.substring(0, 200)); // Show snippet of HTML error
+        setDebugMessage(text.substring(0, 200)); 
         setFormState('error');
         return;
       }
 
       if (!response.ok || !result.ok) {
-        const errorMsg = result.error || 'An unknown server error occurred.';
+        const errorMsg = result.message || result.error || 'An unknown server error occurred.';
         setErrorMessage(errorMsg);
-        if (result.debug) setDebugMessage(result.debug);
+        
+        const debugParts = [];
+        if (result.requestId) debugParts.push(`Request: ${result.requestId}`);
+        if (result.stage) debugParts.push(`Stage: ${result.stage}`);
+        
+        if (debugParts.length > 0) {
+            setDebugMessage(debugParts.join(' | '));
+        } else if (result.debug) {
+            setDebugMessage(result.debug);
+        }
+        
         setFormState('error');
         return;
       }
 
-      // Check for duplicate submission
       if (result.duplicate) {
         analytics.event('waitlist_duplicate', { category: 'engagement', label: source });
         setFormState('duplicate');
@@ -139,7 +147,6 @@ export function WaitlistForm({ source, defaultRole, onRoleChange }: WaitlistForm
     }
   };
 
-  // Duplicate state
   if (formState === 'duplicate') {
     return (
       <div className="text-center p-8 bg-secondary rounded-lg">
@@ -151,7 +158,6 @@ export function WaitlistForm({ source, defaultRole, onRoleChange }: WaitlistForm
     );
   }
 
-  // Success state
   if (formState === 'submitted') {
     return (
       <div className="text-center p-8 bg-secondary rounded-lg space-y-6">

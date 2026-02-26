@@ -40,17 +40,26 @@ function mapRoleToBucket(roleInterest: RoleInterest): RoleBucket {
 export async function POST(request: Request) {
   const requestId = Math.random().toString(36).substring(7).toUpperCase();
   let emailForLog = "unknown";
+  
+  let fsAttempted = false;
+  let fsSucceeded = false;
+  let emailAttempted = false;
+  let emailSucceeded = false;
+
+  const disableEmail = process.env.WAITLIST_DISABLE_EMAIL_SEND === 'true';
+  const disableFirestore = process.env.WAITLIST_DISABLE_FIRESTORE_WRITE === 'true';
 
   try {
     const { getFirebaseAdmin, getResolvedProjectId } = await import('@/lib/firebase-admin');
     const { projectId, keyUsed } = getResolvedProjectId();
     
     // CONFIG_SNAPSHOT: Verify runtime environment
-    console.log(`[${requestId}] CONFIG_SNAPSHOT: projectId=${projectId}, keyUsed=${keyUsed}, hasResendKey=${!!process.env.RESEND_API_KEY}`);
+    console.log(`[${requestId}] CONFIG_SNAPSHOT: projectId=${projectId}, keyUsed=${keyUsed}, hasResendKey=${!!process.env.RESEND_API_KEY}, disableFs=${disableFirestore}, disableEmail=${disableEmail}`);
 
     const rawBody = await request.text();
     if (!rawBody) {
-        return NextResponse.json({ ok: false, requestId, error: 'Empty request body' }, { status: 400 });
+        console.log(`WAITLIST_RESULT: ${requestId}, ${fsAttempted}, ${fsSucceeded}, ${emailAttempted}, ${emailSucceeded}, 400`);
+        return NextResponse.json({ ok: false, requestId, stage: "input", message: 'Empty request body' }, { status: 400 });
     }
     const body = JSON.parse(rawBody);
     emailForLog = body.email || "unknown";
@@ -58,145 +67,127 @@ export async function POST(request: Request) {
     const maskedEmail = emailForLog.replace(/^(.)(.*)(@.*)$/, (_, a, b, c) => a + b.replace(/./g, '*') + c);
     console.log(`[${requestId}] WAITLIST_START email=${maskedEmail}`);
 
-    const { claimFounderCode } = await import('@/lib/access-codes');
-    const { sendEmail } = await import('@/lib/email');
-    
     const validation = waitlistSchema.safeParse(body);
-
     if (!validation.success) {
       const errorMessage = validation.error.errors[0]?.message || 'Invalid input.';
       console.warn(`[${requestId}] WAITLIST_VALIDATION_ERROR`, validation.error.issues);
-      return NextResponse.json({ ok: false, requestId, error: errorMessage, code: "validation_failed" }, { status: 400 });
+      console.log(`WAITLIST_RESULT: ${requestId}, ${fsAttempted}, ${fsSucceeded}, ${emailAttempted}, ${emailSucceeded}, 400`);
+      return NextResponse.json({ ok: false, requestId, stage: "input", message: errorMessage }, { status: 400 });
     }
 
     const { firstName, email, roleInterest, source, utm_source, utm_medium, utm_campaign, utm_term, utm_content } = validation.data;
     const emailLower = email.toLowerCase();
     const roleBucket = mapRoleToBucket(roleInterest as RoleInterest);
 
-    const { db: firestoreDb, FieldValue } = await getFirebaseAdmin();
-    const waitlistRef = firestoreDb.collection('waitlist').doc(emailLower);
-    
-    let docSnap;
-    try {
-        docSnap = await waitlistRef.get();
-    } catch (dbError: any) {
-        console.error(`[${requestId}] WAITLIST_ERROR (Firestore Get)`, {
-            message: dbError.message,
-            code: dbError.code,
-            stack: dbError.stack
-        });
-        return NextResponse.json({ 
-            ok: false, 
-            requestId,
-            error: 'Database connection failed.', 
-            detail: dbError.message 
-        }, { status: 500 });
-    }
-
-    const dataToUpdate: any = {
-      updatedAt: FieldValue.serverTimestamp(),
-      roleBucket,
-      ...(docSnap.exists && { submitCount: FieldValue.increment(1) }),
-      ...(firstName && { firstName }),
-      ...(roleInterest && { roleInterest }),
-      source: source,
-      ...(utm_source && { utm_source }),
-      ...(utm_medium && { utm_medium }),
-      ...(utm_campaign && { utm_campaign }),
-      ...(utm_term && { utm_term }),
-      ...(utm_content && { utm_content }),
-    };
-
-    if (!docSnap.exists) {
-        dataToUpdate.createdAt = FieldValue.serverTimestamp();
-        dataToUpdate.email = emailLower;
-        dataToUpdate.status = 'new';
-        dataToUpdate.submitCount = 1;
-    }
-
     let assignedCode: string | null = null;
-    const isEligibleForCode = ['guide', 'host', 'vendor'].includes(roleBucket);
-    const hasCodeAlready = docSnap.exists && docSnap.data()?.founderCode;
+    let isDuplicate = false;
 
-    if (isEligibleForCode && !hasCodeAlready) {
-      const isAdminTest = process.env.NODE_ENV === 'development' || (process.env.LAUNCH_MODE === 'true' && (process.env.ADMIN_EMAIL_ALLOWLIST || '').includes(emailLower));
-      
-      if (isAdminTest) {
-        assignedCode = `TEST-${Date.now()}`;
-        dataToUpdate.founderCodeTest = true;
-      } else {
+    // --- FIRESTORE STAGE ---
+    if (!disableFirestore) {
+        fsAttempted = true;
         try {
-            assignedCode = await claimFounderCode(emailLower, roleBucket as 'guide'|'host'|'vendor', firestoreDb, FieldValue);
-        } catch (codeError: any) {
-            console.error(`[${requestId}] WAITLIST_ERROR (Claim Code)`, codeError.message);
+            const { db: firestoreDb, FieldValue } = await getFirebaseAdmin();
+            const { claimFounderCode } = await import('@/lib/access-codes');
+            const waitlistRef = firestoreDb.collection('waitlist').doc(emailLower);
+            
+            const docSnap = await waitlistRef.get();
+            isDuplicate = docSnap.exists;
+
+            const dataToUpdate: any = {
+              updatedAt: FieldValue.serverTimestamp(),
+              roleBucket,
+              ...(docSnap.exists && { submitCount: FieldValue.increment(1) }),
+              ...(firstName && { firstName }),
+              ...(roleInterest && { roleInterest }),
+              source: source,
+              ...(utm_source && { utm_source }),
+              ...(utm_medium && { utm_medium }),
+              ...(utm_campaign && { utm_campaign }),
+              ...(utm_term && { utm_term }),
+              ...(utm_content && { utm_content }),
+            };
+
+            if (!docSnap.exists) {
+                dataToUpdate.createdAt = FieldValue.serverTimestamp();
+                dataToUpdate.email = emailLower;
+                dataToUpdate.status = 'new';
+                dataToUpdate.submitCount = 1;
+            }
+
+            const isEligibleForCode = ['guide', 'host', 'vendor'].includes(roleBucket);
+            const hasCodeAlready = docSnap.exists && docSnap.data()?.founderCode;
+
+            if (isEligibleForCode && !hasCodeAlready) {
+              const isAdminTest = process.env.NODE_ENV === 'development' || (process.env.LAUNCH_MODE === 'true' && (process.env.ADMIN_EMAIL_ALLOWLIST || '').includes(emailLower));
+              if (isAdminTest) {
+                assignedCode = `TEST-${Date.now()}`;
+                dataToUpdate.founderCodeTest = true;
+              } else {
+                assignedCode = await claimFounderCode(emailLower, roleBucket as 'guide'|'host'|'vendor', firestoreDb, FieldValue);
+              }
+
+              if (assignedCode) {
+                dataToUpdate.founderCode = assignedCode;
+                dataToUpdate.founderCodeAssignedAt = FieldValue.serverTimestamp();
+                dataToUpdate.founderCodeRoleBucket = roleBucket;
+                dataToUpdate.founderCodeStatus = 'assigned';
+              }
+            } else if (hasCodeAlready) {
+              assignedCode = docSnap.data()?.founderCode;
+            }
+
+            await waitlistRef.set(dataToUpdate, { merge: true });
+            fsSucceeded = true;
+            console.log(`[${requestId}] WAITLIST_FIRESTORE_OK`);
+        } catch (dbError: any) {
+            console.error(`[${requestId}] WAITLIST_ERROR (Firestore)`, {
+                message: dbError.message,
+                stack: dbError.stack
+            });
+            console.log(`WAITLIST_RESULT: ${requestId}, ${fsAttempted}, ${fsSucceeded}, ${emailAttempted}, ${emailSucceeded}, 500`);
+            return NextResponse.json({ ok: false, requestId, stage: "firestore", message: dbError.message }, { status: 500 });
         }
-      }
-
-      if (assignedCode) {
-        dataToUpdate.founderCode = assignedCode;
-        dataToUpdate.founderCodeAssignedAt = FieldValue.serverTimestamp();
-        dataToUpdate.founderCodeRoleBucket = roleBucket;
-        dataToUpdate.founderCodeStatus = 'assigned';
-      }
-    } else if (hasCodeAlready) {
-      assignedCode = docSnap.data()?.founderCode;
     }
 
-    try {
-        await waitlistRef.set(dataToUpdate, { merge: true });
-        console.log(`[${requestId}] WAITLIST_FIRESTORE_OK`);
-    } catch (saveError: any) {
-        console.error(`[${requestId}] WAITLIST_ERROR (Firestore Set)`, {
-            message: saveError.message,
-            stack: saveError.stack
+    // --- EMAIL STAGE ---
+    if (!disableEmail) {
+        emailAttempted = true;
+        const emailContent = buildWaitlistEmail({
+            firstName: firstName || undefined,
+            roleInterest: roleInterest || undefined,
+            roleBucket,
+            founderCode: assignedCode,
         });
-        return NextResponse.json({ 
-            ok: false, 
-            requestId,
-            error: 'Failed to save your spot in the database.', 
-            detail: saveError.message 
-        }, { status: 500 });
+
+        try {
+            const { sendEmail } = await import('@/lib/email');
+            await sendEmail({ ...emailContent, to: emailLower });
+            emailSucceeded = true;
+            console.log(`[${requestId}] WAITLIST_EMAIL_OK`);
+            
+            if (!disableFirestore && fsSucceeded) {
+                const { db: firestoreDb, FieldValue } = await getFirebaseAdmin();
+                await firestoreDb.collection('waitlist').doc(emailLower).update({
+                    emailStatus: 'sent',
+                    emailSentAt: FieldValue.serverTimestamp(),
+                });
+            }
+        } catch (emailError: any) {
+            console.error(`[${requestId}] WAITLIST_ERROR (Email)`, {
+                message: emailError.message,
+                stack: emailError.stack
+            });
+            console.log(`WAITLIST_RESULT: ${requestId}, ${fsAttempted}, ${fsSucceeded}, ${emailAttempted}, ${emailSucceeded}, 500`);
+            return NextResponse.json({ ok: false, requestId, stage: "email", message: emailError.message }, { status: 500 });
+        }
     }
 
-    let emailSentSuccessfully = true;
-    const shouldSendEmail = !docSnap.exists || docSnap.data()?.emailStatus !== 'sent';
-    
-    if (shouldSendEmail) {
-      const emailContent = buildWaitlistEmail({
-          firstName: firstName || undefined,
-          roleInterest: roleInterest || undefined,
-          roleBucket,
-          founderCode: assignedCode,
-      });
-
-      try {
-        await sendEmail({ ...emailContent, to: emailLower });
-        console.log(`[${requestId}] WAITLIST_EMAIL_OK`);
-        await waitlistRef.update({
-            emailStatus: 'sent',
-            emailSentAt: FieldValue.serverTimestamp(),
-            lastEmailError: FieldValue.delete(),
-        });
-      } catch (emailError: any) {
-        console.error(`[${requestId}] WAITLIST_ERROR (Email Send)`, {
-            message: emailError.message,
-            stack: emailError.stack
-        });
-        await waitlistRef.update({
-            emailStatus: `failed`,
-            lastEmailError: emailError.message,
-            emailSentAt: FieldValue.serverTimestamp(),
-        });
-        emailSentSuccessfully = false;
-      }
-    }
-
+    console.log(`WAITLIST_RESULT: ${requestId}, ${fsAttempted}, ${fsSucceeded}, ${emailAttempted}, ${emailSucceeded}, 200`);
     return NextResponse.json({ 
         ok: true, 
         requestId,
         founderCode: assignedCode, 
-        duplicate: docSnap.exists,
-        message: emailSentSuccessfully ? undefined : "Saved to waitlist, but email confirmation is pending."
+        duplicate: isDuplicate
     });
 
   } catch (error: any) {
@@ -205,15 +196,7 @@ export async function POST(request: Request) {
         stack: error.stack,
         email: emailForLog
     });
-    
-    return NextResponse.json({
-        ok: false,
-        requestId,
-        error: 'An unexpected server error occurred.',
-        code: 'internal_server_error',
-        detail: error.message
-      },
-      { status: 500 }
-    );
+    console.log(`WAITLIST_RESULT: ${requestId}, ${fsAttempted}, ${fsSucceeded}, ${emailAttempted}, ${emailSucceeded}, 500`);
+    return NextResponse.json({ ok: false, requestId, stage: "unknown", message: error.message }, { status: 500 });
   }
 }
