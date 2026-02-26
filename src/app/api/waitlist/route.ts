@@ -39,18 +39,21 @@ function mapRoleToBucket(roleInterest: RoleInterest): RoleBucket {
 }
 
 export async function POST(request: Request) {
-  let body: any;
+  const requestId = Math.random().toString(36).substring(7).toUpperCase();
+  let emailForLog = "unknown";
+
   try {
     const rawBody = await request.text();
     if (!rawBody) {
-        return NextResponse.json({ ok: false, error: 'Empty request body' }, { status: 400 });
+        return NextResponse.json({ ok: false, requestId, error: 'Empty request body' }, { status: 400 });
     }
-    body = JSON.parse(rawBody);
-  } catch (e) {
-    return NextResponse.json({ ok: false, error: 'Invalid JSON payload' }, { status: 400 });
-  }
+    const body = JSON.parse(rawBody);
+    emailForLog = body.email || "unknown";
+    
+    // Mask email for logging: j***@example.com
+    const maskedEmail = emailForLog.replace(/^(.)(.*)(@.*)$/, (_, a, b, c) => a + b.replace(/./g, '*') + c);
+    console.log(`[${requestId}] WAITLIST_START email=${maskedEmail}`);
 
-  try {
     const { getFirebaseAdmin } = await import('@/lib/firebase-admin');
     const { claimFounderCode } = await import('@/lib/access-codes');
     const { sendEmail } = await import('@/lib/email');
@@ -59,8 +62,8 @@ export async function POST(request: Request) {
 
     if (!validation.success) {
       const errorMessage = validation.error.errors[0]?.message || 'Invalid input.';
-      console.error('WAITLIST_VALIDATION_ERROR', { issues: validation.error.issues });
-      return NextResponse.json({ ok: false, error: errorMessage, code: "validation_failed" }, { status: 400 });
+      console.warn(`[${requestId}] WAITLIST_VALIDATION_ERROR`, validation.error.issues);
+      return NextResponse.json({ ok: false, requestId, error: errorMessage, code: "validation_failed" }, { status: 400 });
     }
 
     const { firstName, email, roleInterest, source, utm_source, utm_medium, utm_campaign, utm_term, utm_content } = validation.data;
@@ -70,16 +73,20 @@ export async function POST(request: Request) {
     const { db: firestoreDb, FieldValue } = await getFirebaseAdmin();
     const waitlistRef = firestoreDb.collection('waitlist').doc(emailLower);
     
-    // Safely attempt to get the document
     let docSnap;
     try {
         docSnap = await waitlistRef.get();
     } catch (dbError: any) {
-        console.error('FIRESTORE_GET_ERROR', dbError);
+        console.error(`[${requestId}] WAITLIST_ERROR (Firestore Get)`, {
+            message: dbError.message,
+            code: dbError.code,
+            stack: dbError.stack
+        });
         return NextResponse.json({ 
             ok: false, 
-            error: 'Database connection failed.', 
-            debug: dbError.message 
+            requestId,
+            error: 'Database connection failed. Access token refresh or project config issue.', 
+            detail: dbError.message 
         }, { status: 500 });
     }
 
@@ -118,8 +125,7 @@ export async function POST(request: Request) {
         try {
             assignedCode = await claimFounderCode(emailLower, roleBucket as 'guide'|'host'|'vendor', firestoreDb, FieldValue);
         } catch (codeError: any) {
-            console.error('CLAIM_CODE_ERROR', codeError);
-            // Don't fail the whole request if code claiming fails, just log it.
+            console.error(`[${requestId}] WAITLIST_ERROR (Claim Code)`, codeError.message);
         }
       }
 
@@ -135,12 +141,17 @@ export async function POST(request: Request) {
 
     try {
         await waitlistRef.set(dataToUpdate, { merge: true });
+        console.log(`[${requestId}] WAITLIST_FIRESTORE_OK`);
     } catch (saveError: any) {
-        console.error('WAITLIST_SAVE_ERROR', saveError);
+        console.error(`[${requestId}] WAITLIST_ERROR (Firestore Set)`, {
+            message: saveError.message,
+            stack: saveError.stack
+        });
         return NextResponse.json({ 
             ok: false, 
-            error: 'Failed to save your spot. Please try again.', 
-            debug: saveError.message 
+            requestId,
+            error: 'Failed to save your spot in the database.', 
+            detail: saveError.message 
         }, { status: 500 });
     }
 
@@ -157,13 +168,17 @@ export async function POST(request: Request) {
 
       try {
         await sendEmail({ ...emailContent, to: emailLower });
+        console.log(`[${requestId}] WAITLIST_EMAIL_OK`);
         await waitlistRef.update({
             emailStatus: 'sent',
             emailSentAt: FieldValue.serverTimestamp(),
             lastEmailError: FieldValue.delete(),
         });
       } catch (emailError: any) {
-        console.error('WAITLIST_EMAIL_ERROR', { message: emailError.message });
+        console.error(`[${requestId}] WAITLIST_ERROR (Email Send)`, {
+            message: emailError.message,
+            stack: emailError.stack
+        });
         await waitlistRef.update({
             emailStatus: `failed`,
             lastEmailError: emailError.message,
@@ -175,28 +190,27 @@ export async function POST(request: Request) {
 
     const isDuplicate = docSnap.exists;
 
-    if (!emailSentSuccessfully) {
-        return NextResponse.json({
-            ok: true,
-            founderCode: assignedCode,
-            duplicate: isDuplicate,
-            message: "We saved your spot on the waitlist, but the email confirmation is temporarily unavailable."
-        });
-    }
-
-    return NextResponse.json({ ok: true, founderCode: assignedCode, duplicate: isDuplicate });
+    return NextResponse.json({ 
+        ok: true, 
+        requestId,
+        founderCode: assignedCode, 
+        duplicate: isDuplicate,
+        message: emailSentSuccessfully ? undefined : "Saved to waitlist, but email confirmation is pending."
+    });
 
   } catch (error: any) {
-    console.error('WAITLIST_GLOBAL_ERROR', {
+    console.error(`[${requestId}] WAITLIST_ERROR (Global)`, {
         message: error.message,
-        email: body?.email,
+        stack: error.stack,
+        email: emailForLog
     });
     
     return NextResponse.json({
         ok: false,
+        requestId,
         error: 'An unexpected server error occurred.',
         code: 'internal_server_error',
-        debug: error.message
+        detail: error.message
       },
       { status: 500 }
     );

@@ -16,10 +16,18 @@ interface FirebaseAdminInstances {
 export async function getFirebaseAdmin(): Promise<FirebaseAdminInstances> {
   if (!firestoreDb || !fieldValue) {
     if (!getApps().length) {
-      console.log('Initializing Firebase Admin SDK...');
-      initializeApp({
-          projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-      });
+      const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID;
+      console.log(`[ADMIN_INIT] Initializing Firebase Admin SDK for project: ${projectId || 'default'}`);
+      
+      try {
+        initializeApp({
+            projectId: projectId,
+        });
+        console.log('[ADMIN_INIT] Firebase Admin initialized successfully.');
+      } catch (initError: any) {
+        console.error('[ADMIN_INIT] Firebase Admin failed to initialize:', initError.message);
+        throw initError;
+      }
     }
     firestoreDb = getFirestore();
     fieldValue = admin.firestore.FieldValue;
