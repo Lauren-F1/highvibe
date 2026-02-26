@@ -61,13 +61,14 @@ export async function POST(request: Request) {
   console.log(`WAITLIST_RUNTIME_ENV [${requestId}] ${JSON.stringify(envCheck)}`);
 
   try {
+    // FAIL FAST: Check for missing secret before doing any work
     if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.includes('REPLACE')) {
       console.error(`[${requestId}] WAITLIST_CONFIG_ERROR: RESEND_API_KEY is missing at runtime.`);
       return NextResponse.json({ 
         ok: false, 
         requestId, 
         stage: "config", 
-        message: "RESEND_API_KEY missing at runtime. Verify secret mapping in Firebase console." 
+        message: "RESEND_API_KEY missing at runtime. Verify secret mapping in Firebase console Settings -> Environment Variables." 
       }, { 
         status: 500,
         headers: { 'Cache-Control': 'no-store, max-age=0' }

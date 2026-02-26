@@ -28,6 +28,7 @@ export async function GET() {
     ok: true,
     requestId,
     projectId: resolvedProjectId,
+    envKeyUsed,
     runtimeEnvKeysPresent: {
       FIREBASE_PROJECT_ID: !!process.env.FIREBASE_PROJECT_ID,
       GCLOUD_PROJECT: !!process.env.GCLOUD_PROJECT,
@@ -54,8 +55,9 @@ export async function GET() {
     results.firestore.ok = false;
     
     const rawMsg = error.message || '';
+    // Provide actionable feedback for common ADC issues in App Hosting
     if (rawMsg.includes('plugin') || rawMsg.includes('token') || rawMsg.includes('metadata') || rawMsg.includes('500')) {
-      results.firestore.detail = "Authentication failure. Ensure App Hosting service account has 'Cloud Datastore User' role and FIREBASE_PROJECT_ID is correct.";
+      results.firestore.detail = "Authentication failure. Ensure App Hosting service account has 'Cloud Datastore User' role and FIREBASE_PROJECT_ID is correct in apphosting.yaml.";
     } else {
       results.firestore.detail = rawMsg;
     }
@@ -86,6 +88,7 @@ export async function GET() {
   }
 
   // LOG THE RESULT FOR CLOUD LOGGING INSPECTION
+  // This is the source of truth for current runtime environment
   console.log(`HEALTH_WAITLIST_JSON ${JSON.stringify(results)}`);
 
   return NextResponse.json(results, { 
