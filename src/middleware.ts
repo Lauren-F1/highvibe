@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 // This is the strict allowlist of public-facing pages during Launch Mode.
-const LAUNCH_MODE_ALLOWLIST = ['/', '/terms', '/privacy', '/login'];
+const LAUNCH_MODE_ALLOWLIST = ['/', '/terms', '/privacy', '/login', '/how-it-works'];
 
 export function middleware(request: NextRequest) {
   // Check if Launch Mode is active. The variable must be the string "true".

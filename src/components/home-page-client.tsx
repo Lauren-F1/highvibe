@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { WaitlistModal } from './waitlist-modal';
 import { Button } from './ui/button';
 import * as analytics from '@/lib/analytics';
+import { HOMEPAGE_PERK_TEASER } from '@/lib/waitlist-constants';
 
 const ROLE_ICON_SRC: Record<string, string> = {
   seeker: '/seeker.svg',
@@ -215,7 +216,7 @@ export default function HomePageClient() {
                         HighVibe Retreats is launching soon. Join the waitlist for early access and founder-level perks.
                     </CardDescription>
                     <p className="text-base text-foreground pt-4 max-w-3xl mx-auto font-body font-semibold">
-                        Founder Perk: first 250 verified sign-ups get 60 days of membership fees waived.
+                        {HOMEPAGE_PERK_TEASER}
                     </p>
                 </CardHeader>
                 <CardContent className="flex justify-center">

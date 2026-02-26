@@ -10,7 +10,13 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import * as analytics from '@/lib/analytics';
+import {
+  SUCCESS_MESSAGE,
+  DUPLICATE_MESSAGE,
+  NEXT_STEPS,
+} from '@/lib/waitlist-constants';
 
 const waitlistSchema = z.object({
   firstName: z.string().optional(),
@@ -23,12 +29,13 @@ type WaitlistFormInputs = z.infer<typeof waitlistSchema>;
 interface WaitlistFormProps {
     source: string;
     defaultRole?: string;
+    onRoleChange?: (formValue: string) => void;
 }
 
-export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
+export function WaitlistForm({ source, defaultRole, onRoleChange }: WaitlistFormProps) {
   const { toast } = useToast();
   const searchParams = useSearchParams();
-  const [formState, setFormState] = useState<'idle' | 'submitting' | 'submitted' | 'error'>('idle');
+  const [formState, setFormState] = useState<'idle' | 'submitting' | 'submitted' | 'duplicate' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { register, handleSubmit, formState: { errors }, control, reset } = useForm<WaitlistFormInputs>({
@@ -38,13 +45,28 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
     }
   });
 
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.origin);
+      toast({
+        title: 'Link copied!',
+        description: 'Share it with a friend to invite them to HighVibe.',
+      });
+    } catch {
+      toast({
+        title: 'Could not copy link',
+        description: 'You can share this URL: ' + window.location.origin,
+      });
+    }
+  };
+
   const onSubmit = async (data: WaitlistFormInputs) => {
     analytics.event('waitlist_submit', { category: 'engagement', label: source });
     setFormState('submitting');
     setErrorMessage(null);
 
     const { firstName, email, roleInterest } = data;
-    
+
     const payload: Record<string, any> = {
         email: email.trim(),
         source: source || 'unknown',
@@ -59,7 +81,7 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
     if (roleInterest) payload.roleInterest = roleInterest;
 
     Object.keys(payload).forEach(key => (payload[key] === null || payload[key] === undefined) && delete payload[key]);
-    
+
     try {
       const response = await fetch('/api/waitlist', {
         method: 'POST',
@@ -75,7 +97,14 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
         setFormState('error');
         return;
       }
-      
+
+      // Check for duplicate submission
+      if (result.duplicate) {
+        analytics.event('waitlist_duplicate', { category: 'engagement', label: source });
+        setFormState('duplicate');
+        return;
+      }
+
       analytics.event('waitlist_success', { category: 'engagement', label: source });
       setFormState('submitted');
 
@@ -84,13 +113,8 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
             title: "We saved your spot!",
             description: "Email confirmation is temporarily unavailable.",
         });
-      } else {
-        toast({
-            title: "You're on the list!",
-            description: "We'll email you when HighVibe opens.",
-        });
       }
-      
+
       reset();
     } catch (error: any) {
       console.error('Waitlist form submission error:', error);
@@ -98,12 +122,45 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
       setFormState('error');
     }
   };
-  
-  if (formState === 'submitted') {
+
+  // Duplicate state
+  if (formState === 'duplicate') {
     return (
       <div className="text-center p-8 bg-secondary rounded-lg">
-        <h3 className="font-bold text-xl">You’re on the list.</h3>
-        <p className="text-muted-foreground mt-2">We’ll email you when HighVibe opens.</p>
+        <h3 className="font-bold text-xl">{DUPLICATE_MESSAGE}</h3>
+        <p className="text-muted-foreground mt-2">
+          We&apos;ll email you when HighVibe opens.
+        </p>
+      </div>
+    );
+  }
+
+  // Success state
+  if (formState === 'submitted') {
+    return (
+      <div className="text-center p-8 bg-secondary rounded-lg space-y-6">
+        <h3 className="font-bold text-xl">{SUCCESS_MESSAGE}</h3>
+
+        <div className="text-left mx-auto max-w-sm space-y-3">
+          <h4 className="font-semibold text-base">What happens next</h4>
+          <ul className="space-y-2">
+            {NEXT_STEPS.map((step) => (
+              <li key={step} className="text-sm text-muted-foreground flex items-start gap-2">
+                <span className="mt-1 block h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                {step}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="flex flex-col gap-3 pt-2">
+          <Button asChild>
+            <Link href="/how-it-works">Preview how HighVibe works</Link>
+          </Button>
+          <Button variant="outline" onClick={handleCopyLink}>
+            Invite a friend
+          </Button>
+        </div>
       </div>
     );
   }
@@ -126,12 +183,18 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
         </div>
       </div>
       <div className="space-y-2">
-        <Label htmlFor="roleInterest">I’m interested in joining as a…</Label>
+        <Label htmlFor="roleInterest">I&apos;m interested in joining as a…</Label>
         <Controller
           name="roleInterest"
           control={control}
           render={({ field }) => (
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <Select
+              onValueChange={(value) => {
+                field.onChange(value);
+                onRoleChange?.(value);
+              }}
+              defaultValue={field.value}
+            >
                 <SelectTrigger id="roleInterest">
                     <SelectValue placeholder="Select a role…" />
                 </SelectTrigger>
@@ -149,9 +212,6 @@ export function WaitlistForm({ source, defaultRole }: WaitlistFormProps) {
       <Button type="submit" disabled={formState === 'submitting'} className="w-full">
         {formState === 'submitting' ? 'Submitting...' : 'Join the Waitlist'}
       </Button>
-      <p className="text-xs text-muted-foreground text-center !mt-2">
-        Verified = confirmed email. Limited to the intro launch window; not offered again.
-      </p>
     </form>
   );
 }

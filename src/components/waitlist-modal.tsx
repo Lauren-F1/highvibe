@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -8,6 +9,13 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { WaitlistForm } from "./waitlist-form";
+import {
+  FOUNDER_PERK_BY_ROLE,
+  FOUNDER_PERK_DISCLAIMER,
+  roleLabelToBucket,
+  formValueToRoleBucket,
+  type RoleBucket,
+} from "@/lib/waitlist-constants";
 
 type RoleShort = "Seeker" | "Guide" | "Host" | "Vendor" | "";
 
@@ -30,15 +38,33 @@ const getRoleValue = (role?: RoleShort) => {
 }
 
 
-export function WaitlistModal({ 
-  isOpen, 
-  onOpenChange, 
+export function WaitlistModal({
+  isOpen,
+  onOpenChange,
   source,
   defaultRole
 }: WaitlistModalProps) {
-  
+
   const roleInterestValue = getRoleValue(defaultRole);
   const isLaunchMode = process.env.NEXT_PUBLIC_LAUNCH_MODE === 'true';
+
+  // Track the currently selected role for dynamic perk copy
+  const [currentRoleBucket, setCurrentRoleBucket] = useState<RoleBucket | null>(
+    defaultRole ? roleLabelToBucket(defaultRole) : null
+  );
+
+  // Sync when defaultRole changes (e.g. user clicks a different role card)
+  useEffect(() => {
+    setCurrentRoleBucket(defaultRole ? roleLabelToBucket(defaultRole) : null);
+  }, [defaultRole]);
+
+  const handleRoleChange = (formValue: string) => {
+    setCurrentRoleBucket(formValueToRoleBucket(formValue));
+  };
+
+  const perkCopy = currentRoleBucket
+    ? FOUNDER_PERK_BY_ROLE[currentRoleBucket]
+    : FOUNDER_PERK_DISCLAIMER;
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -54,15 +80,17 @@ export function WaitlistModal({
             HighVibe Retreats is launching soon. Join the waitlist for early access and founder-level perks.
           </DialogDescription>
           <p className="text-base text-foreground pt-4 max-w-3xl mx-auto font-body font-semibold">
-                Founder Perk: first 250 verified sign-ups get 60 days of membership fees waived.
-            </p>
+            {perkCopy}
+          </p>
         </DialogHeader>
         <div className="pt-4">
-          <WaitlistForm source={source || 'homepage'} defaultRole={roleInterestValue} />
+          <WaitlistForm
+            source={source || 'homepage'}
+            defaultRole={roleInterestValue}
+            onRoleChange={handleRoleChange}
+          />
         </div>
       </DialogContent>
     </Dialog>
   );
 }
-
-    

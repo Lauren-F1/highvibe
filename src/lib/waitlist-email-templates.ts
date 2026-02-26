@@ -1,3 +1,5 @@
+import { NEXT_STEPS } from '@/lib/waitlist-constants';
+
 type RoleBucket = "seeker" | "guide" | "host" | "vendor";
 
 interface BuildEmailProps {
@@ -13,12 +15,33 @@ interface EmailContent {
     text: string;
 }
 
-const buildProviderWithCodeEmail = (roleInterest: string, founderCode: string): EmailContent => {
-    const subject = "You’re on the list — your Access Pass code is inside";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://highviberetreats.com';
+
+const nextStepsHtml = `
+    <p style="font-weight:600; margin-top:24px;">What happens next</p>
+    <ul>
+        ${NEXT_STEPS.map(s => `<li>${s}</li>`).join('\n        ')}
+    </ul>
+`;
+
+const nextStepsText = `\nWhat happens next:\n${NEXT_STEPS.map(s => `- ${s}`).join('\n')}`;
+
+const howItWorksLink = `<p style="margin-top:24px;"><a href="${BASE_URL}/how-it-works" style="color:#c45d3e; font-weight:600;">Preview how HighVibe works &rarr;</a></p>`;
+const howItWorksLinkText = `\nPreview how HighVibe works: ${BASE_URL}/how-it-works`;
+
+const closingHtml = `<p style="margin-top:24px;">Thank you for being early — we're genuinely excited to build this with you.</p>`;
+const closingText = `\nThank you for being early — we're genuinely excited to build this with you.`;
+
+const buildProviderWithCodeEmail = (roleInterest: string, roleBucket: RoleBucket, founderCode: string): EmailContent => {
+    const roleName = roleBucket.charAt(0).toUpperCase() + roleBucket.slice(1);
+    const quota = roleBucket === 'vendor' ? 50 : 100;
+
+    const subject = "You're on the HighVibe Retreats waitlist.";
     const html = `
         <div>
-            <p>You’re officially on the list as a ${roleInterest}.</p>
-            <p>Here’s your Founding Members Access Pass code: <strong>${founderCode}</strong></p>
+            <p>You're on the HighVibe Retreats waitlist.</p>
+            <p>As one of the first ${quota} ${roleName}s, you've earned 60 days of membership free.</p>
+            <p>Here's your Founding Members Access Pass code: <strong>${founderCode}</strong></p>
             <p>Activate after launch to get 60 days on us.</p>
             <br/>
             <p><strong>Access Pass terms:</strong></p>
@@ -28,34 +51,44 @@ const buildProviderWithCodeEmail = (roleInterest: string, founderCode: string): 
                 <li>Once activated, 60 days on us begins immediately</li>
                 <li>We reserve the right to revoke codes in cases of abuse or misrepresentation</li>
             </ul>
-            <br/>
-            <p>Thank you for being early — we’re genuinely excited to build this with you. You’re exactly who we built HighVibe for.</p>
+            ${nextStepsHtml}
+            ${howItWorksLink}
+            ${closingHtml}
         </div>
     `;
-    const text = `You’re officially on the list as a ${roleInterest}. Here’s your Founding Members Access Pass code: ${founderCode}. Activate after launch to get 60 days on us. Terms apply. Thank you for being early — we’re genuinely excited to build this with you.`;
+    const text = `You're on the HighVibe Retreats waitlist.\n\nAs one of the first ${quota} ${roleName}s, you've earned 60 days of membership free.\n\nHere's your Founding Members Access Pass code: ${founderCode}\nActivate after launch to get 60 days on us.\n\nAccess Pass terms:\n- Single-use and non-transferable\n- Code must be activated within 60 days of launch\n- Once activated, 60 days on us begins immediately\n- We reserve the right to revoke codes in cases of abuse or misrepresentation${nextStepsText}${howItWorksLinkText}${closingText}`;
     return { subject, html, text };
 }
 
 const buildProviderNoCodeEmail = (): EmailContent => {
-    const subject = "You’re on the list — early access confirmed";
-    const bodyContent = "We’ve had a big wave of early interest, and Founding Members Access Passes for this early release have been fully claimed. You’re still confirmed for early access, and we’ll email you as soon as we launch. Thank you for being early — we’re genuinely excited to build this with you. You’re exactly who we built HighVibe for.";
-    const html = `<p>${bodyContent}</p>`;
-    const text = bodyContent;
+    const subject = "You're on the HighVibe Retreats waitlist.";
+    const html = `
+        <div>
+            <p>You're on the HighVibe Retreats waitlist.</p>
+            <p>We've had an overwhelming response and our founder perks for free membership have been fully claimed.</p>
+            <p>You're still confirmed for early access, and we'll email you as soon as we launch.</p>
+            ${nextStepsHtml}
+            ${howItWorksLink}
+            ${closingHtml}
+        </div>
+    `;
+    const text = `You're on the HighVibe Retreats waitlist.\n\nWe've had an overwhelming response and our founder perks for free membership have been fully claimed.\n\nYou're still confirmed for early access, and we'll email you as soon as we launch.${nextStepsText}${howItWorksLinkText}${closingText}`;
     return { subject, html, text };
 }
 
 const buildSeekerEmail = (): EmailContent => {
-    const subject = "You’re on the list — HighVibe is opening soon";
+    const subject = "You're on the HighVibe Retreats waitlist.";
     const html = `
         <div>
-            <p>You’re on the list.</p>
-            <p>Good news: there’s no fee to seek and explore. We’ll notify you as soon as HighVibe launches.</p>
-            <p>Return after launch for a chance to Manifest up to $500 toward a future retreat (terms apply).</p>
-            <br/>
-            <p>Thank you for being early — we’re genuinely excited to build this with you.</p>
+            <p>You're on the HighVibe Retreats waitlist.</p>
+            <p>Great news — there are no fees to use the platform.</p>
+            <p>We'll notify you as soon as HighVibe launches so you can start discovering retreats aligned with what you're looking for.</p>
+            ${nextStepsHtml}
+            ${howItWorksLink}
+            ${closingHtml}
         </div>
     `;
-    const text = "You’re on the list. Good news: there’s no fee to seek and explore. We’ll notify you as soon as HighVibe launches. Return after launch for a chance to Manifest up to $500 toward a future retreat (terms apply). Thank you for being early — we’re genuinely excited to build this with you.";
+    const text = `You're on the HighVibe Retreats waitlist.\n\nGreat news — there are no fees to use the platform.\n\nWe'll notify you as soon as HighVibe launches so you can start discovering retreats aligned with what you're looking for.${nextStepsText}${howItWorksLinkText}${closingText}`;
     return { subject, html, text };
 }
 
@@ -64,7 +97,7 @@ export function buildWaitlistEmail({ roleInterest, roleBucket, founderCode }: Bu
 
     if (isProvider) {
         if (founderCode) {
-            return buildProviderWithCodeEmail(roleInterest || roleBucket, founderCode);
+            return buildProviderWithCodeEmail(roleInterest || roleBucket, roleBucket, founderCode);
         } else {
             return buildProviderNoCodeEmail();
         }
@@ -75,7 +108,7 @@ export function buildWaitlistEmail({ roleInterest, roleBucket, founderCode }: Bu
 
 // Stub for a future email verification flow
 export function buildVerificationEmail(email: string, token: string): EmailContent {
-    const verificationLink = `${process.env.NEXT_PUBLIC_BASE_URL}/api/verify-email?token=${token}`;
+    const verificationLink = `${BASE_URL}/api/verify-email?token=${token}`;
     const subject = "Verify your email for HighVibe Retreats";
     const html = `
         <div>
@@ -89,20 +122,18 @@ export function buildVerificationEmail(email: string, token: string): EmailConte
 
 // Stub for a future invite wave email
 export function buildInviteWaveEmail(email: string): EmailContent {
+    const unsubscribeLink = `${BASE_URL}/preferences?email=${encodeURIComponent(email)}`;
     const subject = "You're invited to join HighVibe Retreats!";
-    const unsubscribeLink = `${process.env.NEXT_PUBLIC_BASE_URL}/preferences?email=${encodeURIComponent(email)}`;
     const html = `
         <div>
             <p>The wait is over! You're invited to join the HighVibe Retreats platform.</p>
-            <a href="${process.env.NEXT_PUBLIC_BASE_URL}/join">Create Your Account Now</a>
+            <a href="${BASE_URL}/join">Create Your Account Now</a>
             <br/><br/>
             <p style="font-size: 12px; color: #888;">
                 To unsubscribe from future marketing emails, <a href="${unsubscribeLink}">click here</a>.
             </p>
         </div>
     `;
-    const text = `The wait is over! You're invited to join the HighVibe Retreats platform. Create your account here: ${process.env.NEXT_PUBLIC_BASE_URL}/join`;
+    const text = `The wait is over! You're invited to join the HighVibe Retreats platform. Create your account here: ${BASE_URL}/join`;
     return { subject, html, text };
 }
-
-    

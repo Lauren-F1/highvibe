@@ -137,15 +137,18 @@ export async function POST(request: Request) {
       }
     }
 
+    const isDuplicate = docSnap.exists;
+
     if (!emailSentSuccessfully) {
-        return NextResponse.json({ 
-            ok: true, 
+        return NextResponse.json({
+            ok: true,
             founderCode: assignedCode,
+            duplicate: isDuplicate,
             message: "We saved your spot on the waitlist, but the email confirmation is temporarily unavailable."
         });
     }
 
-    return NextResponse.json({ ok: true, founderCode: assignedCode });
+    return NextResponse.json({ ok: true, founderCode: assignedCode, duplicate: isDuplicate });
 
   } catch (error: any) {
     const payload = await request.json().catch(() => ({}));
