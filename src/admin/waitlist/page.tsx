@@ -185,7 +185,6 @@ export default function WaitlistAdminPage() {
                   <SelectItem value="Guide (I want to host retreats)">Guide (I want to host retreats)</SelectItem>
                   <SelectItem value="Host (I have a space)">Host (I have a space)</SelectItem>
                   <SelectItem value="Vendor (I offer services)">Vendor (I offer services)</SelectItem>
-                  <SelectItem value="Partner / Collaborator">Partner / Collaborator</SelectItem>
                 </SelectContent>
               </Select>
                <Select value={statusFilter} onValueChange={setStatusFilter}>

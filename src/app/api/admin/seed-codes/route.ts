@@ -30,12 +30,9 @@ export async function GET(request: Request) {
       }, { status: 403 });
     }
     
-    // 1. Check for a strong admin secret
-    // SECURITY WARNING: Hardcoded secret for temporary deployment. 
-    // TODO: Remove this and configure the ADMIN_SEED_SECRET in Secret Manager.
-    console.warn("SECURITY WARNING: Using a temporary, hardcoded ADMIN_SEED_SECRET. This is not secure for production.");
-    const adminSecret = "temp_hardcoded_secret_for_deployment_please_change";
-    if (!adminSecret || adminSecret === 'changeme_to_a_long_random_string' || adminSecret.length < 20) {
+    // 1. Check for a strong admin secret from environment
+    const adminSecret = process.env.ADMIN_SEED_SECRET;
+    if (!adminSecret || adminSecret.length < 20) {
       console.error('CRITICAL: ADMIN_SEED_SECRET is not set or is insecure.');
       return NextResponse.json({
           ok: false,
