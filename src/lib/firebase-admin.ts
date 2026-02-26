@@ -1,4 +1,3 @@
-
 import "server-only";
 import * as admin from 'firebase-admin';
 import { getApps, initializeApp } from 'firebase-admin/app';
@@ -13,17 +12,33 @@ interface FirebaseAdminInstances {
   FieldValue: typeof admin.firestore.FieldValue;
 }
 
+/**
+ * Derives the Project ID from environment variables based on precedence.
+ */
+export function getResolvedProjectId() {
+  const keys = ['FIREBASE_PROJECT_ID', 'GCLOUD_PROJECT', 'GOOGLE_CLOUD_PROJECT', 'NEXT_PUBLIC_FIREBASE_PROJECT_ID'];
+  for (const key of keys) {
+    if (process.env[key]) {
+      return { projectId: process.env[key] as string, keyUsed: key };
+    }
+  }
+  return { projectId: undefined, keyUsed: 'none' };
+}
+
 export async function getFirebaseAdmin(): Promise<FirebaseAdminInstances> {
   if (!firestoreDb || !fieldValue) {
     if (!getApps().length) {
-      const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID;
-      console.log(`[ADMIN_INIT] Initializing Firebase Admin SDK for project: ${projectId || 'default'}`);
+      const { projectId, keyUsed } = getResolvedProjectId();
+      const isGcp = !!process.env.GCLOUD_PROJECT || !!process.env.GOOGLE_CLOUD_PROJECT;
+      
+      console.log(`[ADMIN_INIT] Initializing. projectId=${projectId} (source=${keyUsed}), isGcp=${isGcp}`);
       
       try {
+        // Initialize using Application Default Credentials (ADC)
         initializeApp({
             projectId: projectId,
         });
-        console.log('[ADMIN_INIT] Firebase Admin initialized successfully.');
+        console.log('[ADMIN_INIT] Firebase Admin initialized successfully using ADC.');
       } catch (initError: any) {
         console.error('[ADMIN_INIT] Firebase Admin failed to initialize:', initError.message);
         throw initError;

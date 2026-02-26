@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { buildWaitlistEmail } from '@/lib/waitlist-email-templates';
@@ -43,6 +42,12 @@ export async function POST(request: Request) {
   let emailForLog = "unknown";
 
   try {
+    const { getFirebaseAdmin, getResolvedProjectId } = await import('@/lib/firebase-admin');
+    const { projectId, keyUsed } = getResolvedProjectId();
+    
+    // CONFIG_SNAPSHOT: Verify runtime environment
+    console.log(`[${requestId}] CONFIG_SNAPSHOT: projectId=${projectId}, keyUsed=${keyUsed}, hasResendKey=${!!process.env.RESEND_API_KEY}`);
+
     const rawBody = await request.text();
     if (!rawBody) {
         return NextResponse.json({ ok: false, requestId, error: 'Empty request body' }, { status: 400 });
@@ -50,11 +55,9 @@ export async function POST(request: Request) {
     const body = JSON.parse(rawBody);
     emailForLog = body.email || "unknown";
     
-    // Mask email for logging: j***@example.com
     const maskedEmail = emailForLog.replace(/^(.)(.*)(@.*)$/, (_, a, b, c) => a + b.replace(/./g, '*') + c);
     console.log(`[${requestId}] WAITLIST_START email=${maskedEmail}`);
 
-    const { getFirebaseAdmin } = await import('@/lib/firebase-admin');
     const { claimFounderCode } = await import('@/lib/access-codes');
     const { sendEmail } = await import('@/lib/email');
     
@@ -85,7 +88,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ 
             ok: false, 
             requestId,
-            error: 'Database connection failed. Access token refresh or project config issue.', 
+            error: 'Database connection failed.', 
             detail: dbError.message 
         }, { status: 500 });
     }
@@ -188,13 +191,11 @@ export async function POST(request: Request) {
       }
     }
 
-    const isDuplicate = docSnap.exists;
-
     return NextResponse.json({ 
         ok: true, 
         requestId,
         founderCode: assignedCode, 
-        duplicate: isDuplicate,
+        duplicate: docSnap.exists,
         message: emailSentSuccessfully ? undefined : "Saved to waitlist, but email confirmation is pending."
     });
 

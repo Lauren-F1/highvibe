@@ -7,6 +7,11 @@ env:
       - BUILD
       - RUNTIME
 
+  - variable: FIREBASE_PROJECT_ID
+    value: "studio-634317332-6568b"
+    availability:
+      - RUNTIME
+
   - variable: ADMIN_EMAIL_ALLOWLIST
     value: "info@highviberetreats.com"
     availability:
@@ -40,7 +45,6 @@ env:
   - variable: RESEND_API_KEY
     secret: RESEND_API_KEY
     availability:
-      - BUILD
       - RUNTIME
 
   - variable: TEST_EMAIL_TO
