@@ -24,9 +24,7 @@ export async function GET() {
     // Ignore error in resolution step
   }
 
-  console.log(`[${requestId}] HEALTH_WAITLIST_START requestId=${requestId} projectId=${resolvedProjectId} keyUsed=${envKeyUsed}`);
-
-  const results = {
+  const results: any = {
     ok: true,
     requestId,
     projectId: resolvedProjectId,
@@ -37,12 +35,6 @@ export async function GET() {
       RESEND_API_KEY: !!process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.includes('REPLACE'),
       EMAIL_FROM: !!process.env.EMAIL_FROM,
       LAUNCH_MODE: !!process.env.LAUNCH_MODE,
-    },
-    env: {
-      FIREBASE_PROJECT_ID_present: !!process.env.FIREBASE_PROJECT_ID,
-      RESEND_API_KEY_present: !!process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.includes('REPLACE'),
-      EMAIL_FROM_present: !!process.env.EMAIL_FROM,
-      LAUNCH_MODE: process.env.LAUNCH_MODE || null,
     },
     firestore: { ok: false, detail: '' as string | undefined },
     resend: { ok: false, detail: '' as string | undefined },
@@ -62,14 +54,11 @@ export async function GET() {
     results.firestore.ok = false;
     
     const rawMsg = error.message || '';
-    // Sanitize message to hide sensitive low-level gRPC/token errors
     if (rawMsg.includes('plugin') || rawMsg.includes('token') || rawMsg.includes('metadata') || rawMsg.includes('500')) {
       results.firestore.detail = "Authentication failure. Ensure App Hosting service account has 'Cloud Datastore User' role and FIREBASE_PROJECT_ID is correct.";
     } else {
       results.firestore.detail = rawMsg;
     }
-    
-    console.error(`[${requestId}] HEALTH_FIRESTORE_FAIL:`, results.firestore.detail);
   }
 
   // 2. Resend Check (Non-sending validation)
@@ -93,11 +82,16 @@ export async function GET() {
       results.ok = false;
       results.resend.ok = false;
       results.resend.detail = error.message || 'Resend connectivity failed';
-      console.error(`[${requestId}] HEALTH_RESEND_FAIL:`, results.resend.detail);
     }
   }
 
-  console.log(`[${requestId}] HEALTH_WAITLIST_RESULT requestId=${requestId} firestoreOk=${results.firestore.ok} resendOk=${results.resend.ok}`);
+  // LOG THE RESULT FOR CLOUD LOGGING INSPECTION
+  console.log(`HEALTH_WAITLIST_JSON ${JSON.stringify(results)}`);
 
-  return NextResponse.json(results, { status: results.ok ? 200 : 500 });
+  return NextResponse.json(results, { 
+    status: results.ok ? 200 : 500,
+    headers: {
+      'Cache-Control': 'no-store, max-age=0'
+    }
+  });
 }

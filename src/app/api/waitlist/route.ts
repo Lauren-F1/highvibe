@@ -49,8 +49,18 @@ export async function POST(request: Request) {
   const disableEmail = process.env.WAITLIST_DISABLE_EMAIL_SEND === 'true';
   const disableFirestore = process.env.WAITLIST_DISABLE_FIRESTORE_WRITE === 'true';
 
+  // RUNTIME ENV CHECK LOGGING
+  const envCheck = {
+    FIREBASE_PROJECT_ID: !!process.env.FIREBASE_PROJECT_ID,
+    GCLOUD_PROJECT: !!process.env.GCLOUD_PROJECT,
+    GOOGLE_CLOUD_PROJECT: !!process.env.GOOGLE_CLOUD_PROJECT,
+    RESEND_API_KEY: !!process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.includes('REPLACE'),
+    EMAIL_FROM: !!process.env.EMAIL_FROM,
+    LAUNCH_MODE: !!process.env.LAUNCH_MODE,
+  };
+  console.log(`WAITLIST_RUNTIME_ENV [${requestId}] ${JSON.stringify(envCheck)}`);
+
   try {
-    // HARD CONFIG CHECK: STOP GUESSING
     if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.includes('REPLACE')) {
       console.error(`[${requestId}] WAITLIST_CONFIG_ERROR: RESEND_API_KEY is missing at runtime.`);
       return NextResponse.json({ 
@@ -58,7 +68,10 @@ export async function POST(request: Request) {
         requestId, 
         stage: "config", 
         message: "RESEND_API_KEY missing at runtime. Verify secret mapping in Firebase console." 
-      }, { status: 500 });
+      }, { 
+        status: 500,
+        headers: { 'Cache-Control': 'no-store, max-age=0' }
+      });
     }
 
     const { getFirebaseAdmin, getResolvedProjectId } = await import('@/lib/firebase-admin');
@@ -68,7 +81,6 @@ export async function POST(request: Request) {
 
     const rawBody = await request.text();
     if (!rawBody) {
-        console.log(`WAITLIST_RESULT: ${requestId}, ${fsAttempted}, ${fsSucceeded}, ${emailAttempted}, ${emailSucceeded}, 400`);
         return NextResponse.json({ ok: false, requestId, stage: "input", message: 'Empty request body' }, { status: 400 });
     }
     const body = JSON.parse(rawBody);
@@ -80,8 +92,6 @@ export async function POST(request: Request) {
     const validation = waitlistSchema.safeParse(body);
     if (!validation.success) {
       const errorMessage = validation.error.errors[0]?.message || 'Invalid input.';
-      console.warn(`[${requestId}] WAITLIST_VALIDATION_ERROR`, validation.error.issues);
-      console.log(`WAITLIST_RESULT: ${requestId}, ${fsAttempted}, ${fsSucceeded}, ${emailAttempted}, ${emailSucceeded}, 400`);
       return NextResponse.json({ ok: false, requestId, stage: "input", message: errorMessage }, { status: 400 });
     }
 
@@ -154,7 +164,6 @@ export async function POST(request: Request) {
                 message: dbError.message,
                 stack: dbError.stack
             });
-            console.log(`WAITLIST_RESULT: ${requestId}, ${fsAttempted}, ${fsSucceeded}, ${emailAttempted}, ${emailSucceeded}, 500`);
             return NextResponse.json({ ok: false, requestId, stage: "firestore", message: dbError.message }, { status: 500 });
         }
     }
@@ -187,7 +196,6 @@ export async function POST(request: Request) {
                 message: emailError.message,
                 stack: emailError.stack
             });
-            console.log(`WAITLIST_RESULT: ${requestId}, ${fsAttempted}, ${fsSucceeded}, ${emailAttempted}, ${emailSucceeded}, 500`);
             return NextResponse.json({ ok: false, requestId, stage: "email", message: emailError.message }, { status: 500 });
         }
     }
@@ -198,6 +206,8 @@ export async function POST(request: Request) {
         requestId,
         founderCode: assignedCode, 
         duplicate: isDuplicate
+    }, {
+      headers: { 'Cache-Control': 'no-store, max-age=0' }
     });
 
   } catch (error: any) {
@@ -206,7 +216,6 @@ export async function POST(request: Request) {
         stack: error.stack,
         email: emailForLog
     });
-    console.log(`WAITLIST_RESULT: ${requestId}, ${fsAttempted}, ${fsSucceeded}, ${emailAttempted}, ${emailSucceeded}, 500`);
     return NextResponse.json({ ok: false, requestId, stage: "unknown", message: error.message }, { status: 500 });
   }
 }
