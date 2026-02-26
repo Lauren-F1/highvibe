@@ -35,6 +35,7 @@ export async function getFirebaseAdmin(): Promise<FirebaseAdminInstances> {
       
       try {
         // Initialize using Application Default Credentials (ADC)
+        // This is the correct way for App Hosting / Cloud Run
         initializeApp({
             projectId: projectId,
         });

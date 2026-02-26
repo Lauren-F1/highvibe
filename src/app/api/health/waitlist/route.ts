@@ -46,7 +46,7 @@ export async function GET() {
     const { getFirebaseAdmin } = await import('@/lib/firebase-admin');
     const { db } = await getFirebaseAdmin();
     
-    // Simple connectivity check
+    // Simple connectivity check - read a dummy path
     await db.collection('meta').doc('healthcheck').get();
     results.firestore.ok = true;
     delete results.firestore.detail;
@@ -88,7 +88,6 @@ export async function GET() {
   }
 
   // LOG THE RESULT FOR CLOUD LOGGING INSPECTION
-  // This is the source of truth for current runtime environment
   console.log(`HEALTH_WAITLIST_JSON ${JSON.stringify(results)}`);
 
   return NextResponse.json(results, { 

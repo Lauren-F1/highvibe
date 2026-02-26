@@ -61,7 +61,7 @@ export async function POST(request: Request) {
   console.log(`WAITLIST_RUNTIME_ENV [${requestId}] ${JSON.stringify(envCheck)}`);
 
   try {
-    // FAIL FAST: Check for missing secret before doing any work
+    // FAIL FAST: Check for missing secret
     if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.includes('REPLACE')) {
       console.error(`[${requestId}] WAITLIST_CONFIG_ERROR: RESEND_API_KEY is missing at runtime.`);
       return NextResponse.json({ 
@@ -75,10 +75,7 @@ export async function POST(request: Request) {
       });
     }
 
-    const { getFirebaseAdmin, getResolvedProjectId } = await import('@/lib/firebase-admin');
-    const { projectId, keyUsed } = getResolvedProjectId();
-    
-    console.log(`[${requestId}] CONFIG_SNAPSHOT: projectId=${projectId}, keyUsed=${keyUsed}, hasResendKey=${!!process.env.RESEND_API_KEY}, disableFs=${disableFirestore}, disableEmail=${disableEmail}`);
+    const { getFirebaseAdmin } = await import('@/lib/firebase-admin');
 
     const rawBody = await request.text();
     if (!rawBody) {
