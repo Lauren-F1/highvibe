@@ -22,24 +22,22 @@ export function getResolvedProjectId() {
       return { projectId: process.env[key] as string, keyUsed: key };
     }
   }
-  return { projectId: undefined, keyUsed: 'none' };
+  // Hardcoded fallback for this specific project to resolve ADC lookup failures in App Hosting environments.
+  return { projectId: 'studio-634317332-6568b', keyUsed: 'hardcoded-fallback' };
 }
 
 export async function getFirebaseAdmin(): Promise<FirebaseAdminInstances> {
   if (!firestoreDb || !fieldValue) {
     if (!getApps().length) {
       const { projectId, keyUsed } = getResolvedProjectId();
-      const isGcp = !!process.env.GCLOUD_PROJECT || !!process.env.GOOGLE_CLOUD_PROJECT;
-      
-      console.log(`[ADMIN_INIT] Initializing. projectId=${projectId} (source=${keyUsed}), isGcp=${isGcp}`);
       
       try {
         // Initialize using Application Default Credentials (ADC)
-        // This is the correct way for App Hosting / Cloud Run
+        // Providing the projectId explicitly is the recommended fix for the "Getting metadata from plugin failed" error.
         initializeApp({
             projectId: projectId,
         });
-        console.log('[ADMIN_INIT] Firebase Admin initialized successfully using ADC.');
+        console.log(`[ADMIN_INIT] Firebase Admin initialized. projectId=${projectId} (source=${keyUsed})`);
       } catch (initError: any) {
         console.error('[ADMIN_INIT] Firebase Admin failed to initialize:', initError.message);
         throw initError;

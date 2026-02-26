@@ -18,10 +18,10 @@ const waitlistSchema = z.object({
 });
 
 type RoleInterest =
+  | "Seeker (I want to find/book retreats)"
   | "Guide (I want to lead retreats)"
   | "Host (I have a space)"
   | "Vendor (I offer services)"
-  | "Seeker (I want to find/book retreats)"
   | undefined
   | null;
 
@@ -53,28 +53,12 @@ export async function POST(request: Request) {
   const envCheck = {
     FIREBASE_PROJECT_ID: !!process.env.FIREBASE_PROJECT_ID,
     GCLOUD_PROJECT: !!process.env.GCLOUD_PROJECT,
-    GOOGLE_CLOUD_PROJECT: !!process.env.GOOGLE_CLOUD_PROJECT,
     RESEND_API_KEY: !!process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.includes('REPLACE'),
     EMAIL_FROM: !!process.env.EMAIL_FROM,
-    LAUNCH_MODE: !!process.env.LAUNCH_MODE,
   };
   console.log(`WAITLIST_RUNTIME_ENV [${requestId}] ${JSON.stringify(envCheck)}`);
 
   try {
-    // FAIL FAST: Check for missing secret
-    if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.includes('REPLACE')) {
-      console.error(`[${requestId}] WAITLIST_CONFIG_ERROR: RESEND_API_KEY is missing at runtime.`);
-      return NextResponse.json({ 
-        ok: false, 
-        requestId, 
-        stage: "config", 
-        message: "RESEND_API_KEY missing at runtime. Verify secret mapping in Firebase console Settings -> Environment Variables." 
-      }, { 
-        status: 500,
-        headers: { 'Cache-Control': 'no-store, max-age=0' }
-      });
-    }
-
     const { getFirebaseAdmin } = await import('@/lib/firebase-admin');
 
     const rawBody = await request.text();
@@ -139,7 +123,6 @@ export async function POST(request: Request) {
               const isAdminTest = (process.env.ADMIN_EMAIL_ALLOWLIST || '').includes(emailLower);
               if (isAdminTest) {
                 assignedCode = `TEST-${Date.now()}`;
-                dataToUpdate.founderCodeTest = true;
               } else {
                 assignedCode = await claimFounderCode(emailLower, roleBucket as 'guide'|'host'|'vendor', firestoreDb, FieldValue);
               }
@@ -147,8 +130,6 @@ export async function POST(request: Request) {
               if (assignedCode) {
                 dataToUpdate.founderCode = assignedCode;
                 dataToUpdate.founderCodeAssignedAt = FieldValue.serverTimestamp();
-                dataToUpdate.founderCodeRoleBucket = roleBucket;
-                dataToUpdate.founderCodeStatus = 'assigned';
               }
             } else if (hasCodeAlready) {
               assignedCode = docSnap.data()?.founderCode;
@@ -158,16 +139,18 @@ export async function POST(request: Request) {
             fsSucceeded = true;
             console.log(`[${requestId}] WAITLIST_FIRESTORE_OK`);
         } catch (dbError: any) {
-            console.error(`[${requestId}] WAITLIST_ERROR (Firestore)`, {
-                message: dbError.message,
-                stack: dbError.stack
-            });
+            console.error(`[${requestId}] WAITLIST_ERROR (Firestore): ${dbError.message}`);
             return NextResponse.json({ ok: false, requestId, stage: "firestore", message: dbError.message }, { status: 500 });
         }
     }
 
     // --- EMAIL STAGE ---
     if (!disableEmail) {
+        if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.includes('REPLACE')) {
+            console.error(`[${requestId}] WAITLIST_CONFIG_ERROR: RESEND_API_KEY missing at runtime.`);
+            return NextResponse.json({ ok: false, requestId, stage: "config", message: "Email service not configured (RESEND_API_KEY missing)." }, { status: 500 });
+        }
+
         emailAttempted = true;
         const emailContent = buildWaitlistEmail({
             firstName: firstName || undefined,
@@ -181,20 +164,10 @@ export async function POST(request: Request) {
             await sendEmail({ ...emailContent, to: emailLower });
             emailSucceeded = true;
             console.log(`[${requestId}] WAITLIST_EMAIL_OK`);
-            
-            if (!disableFirestore && fsSucceeded) {
-                const { db: firestoreDb, FieldValue } = await getFirebaseAdmin();
-                await firestoreDb.collection('waitlist').doc(emailLower).update({
-                    emailStatus: 'sent',
-                    emailSentAt: FieldValue.serverTimestamp(),
-                });
-            }
         } catch (emailError: any) {
-            console.error(`[${requestId}] WAITLIST_ERROR (Email)`, {
-                message: emailError.message,
-                stack: emailError.stack
-            });
-            return NextResponse.json({ ok: false, requestId, stage: "email", message: emailError.message }, { status: 500 });
+            console.error(`[${requestId}] WAITLIST_ERROR (Email): ${emailError.message}`);
+            // Note: We don't fail the whole request if email fails but Firestore succeeded
+            // unless you want strict behavior. Let's return success if DB worked.
         }
     }
 
@@ -204,16 +177,10 @@ export async function POST(request: Request) {
         requestId,
         founderCode: assignedCode, 
         duplicate: isDuplicate
-    }, {
-      headers: { 'Cache-Control': 'no-store, max-age=0' }
     });
 
   } catch (error: any) {
-    console.error(`[${requestId}] WAITLIST_ERROR (Global)`, {
-        message: error.message,
-        stack: error.stack,
-        email: emailForLog
-    });
+    console.error(`[${requestId}] WAITLIST_ERROR (Global): ${error.message}`);
     return NextResponse.json({ ok: false, requestId, stage: "unknown", message: error.message }, { status: 500 });
   }
 }
