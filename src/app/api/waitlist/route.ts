@@ -50,10 +50,20 @@ export async function POST(request: Request) {
   const disableFirestore = process.env.WAITLIST_DISABLE_FIRESTORE_WRITE === 'true';
 
   try {
+    // HARD CONFIG CHECK: STOP GUESSING
+    if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.includes('REPLACE')) {
+      console.error(`[${requestId}] WAITLIST_CONFIG_ERROR: RESEND_API_KEY is missing at runtime.`);
+      return NextResponse.json({ 
+        ok: false, 
+        requestId, 
+        stage: "config", 
+        message: "RESEND_API_KEY missing at runtime. Verify secret mapping in Firebase console." 
+      }, { status: 500 });
+    }
+
     const { getFirebaseAdmin, getResolvedProjectId } = await import('@/lib/firebase-admin');
     const { projectId, keyUsed } = getResolvedProjectId();
     
-    // CONFIG_SNAPSHOT: Verify runtime environment
     console.log(`[${requestId}] CONFIG_SNAPSHOT: projectId=${projectId}, keyUsed=${keyUsed}, hasResendKey=${!!process.env.RESEND_API_KEY}, disableFs=${disableFirestore}, disableEmail=${disableEmail}`);
 
     const rawBody = await request.text();
@@ -118,7 +128,7 @@ export async function POST(request: Request) {
             const hasCodeAlready = docSnap.exists && docSnap.data()?.founderCode;
 
             if (isEligibleForCode && !hasCodeAlready) {
-              const isAdminTest = process.env.NODE_ENV === 'development' || (process.env.LAUNCH_MODE === 'true' && (process.env.ADMIN_EMAIL_ALLOWLIST || '').includes(emailLower));
+              const isAdminTest = (process.env.ADMIN_EMAIL_ALLOWLIST || '').includes(emailLower);
               if (isAdminTest) {
                 assignedCode = `TEST-${Date.now()}`;
                 dataToUpdate.founderCodeTest = true;

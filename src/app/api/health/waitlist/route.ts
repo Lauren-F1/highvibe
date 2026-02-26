@@ -16,13 +16,12 @@ export async function GET() {
   let envKeyUsed = 'none';
   
   try {
-    // Use the central utility to see what the server thinks the project ID is
     const { getResolvedProjectId } = await import('@/lib/firebase-admin');
     const { projectId, keyUsed } = getResolvedProjectId();
     resolvedProjectId = projectId || 'unknown';
     envKeyUsed = keyUsed;
   } catch (e) {
-    // Ignore error in resolution step, let the Firestore check report it
+    // Ignore error in resolution step
   }
 
   console.log(`[${requestId}] HEALTH_WAITLIST_START requestId=${requestId} projectId=${resolvedProjectId} keyUsed=${envKeyUsed}`);
@@ -31,6 +30,14 @@ export async function GET() {
     ok: true,
     requestId,
     projectId: resolvedProjectId,
+    runtimeEnvKeysPresent: {
+      FIREBASE_PROJECT_ID: !!process.env.FIREBASE_PROJECT_ID,
+      GCLOUD_PROJECT: !!process.env.GCLOUD_PROJECT,
+      GOOGLE_CLOUD_PROJECT: !!process.env.GOOGLE_CLOUD_PROJECT,
+      RESEND_API_KEY: !!process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.includes('REPLACE'),
+      EMAIL_FROM: !!process.env.EMAIL_FROM,
+      LAUNCH_MODE: !!process.env.LAUNCH_MODE,
+    },
     env: {
       FIREBASE_PROJECT_ID_present: !!process.env.FIREBASE_PROJECT_ID,
       RESEND_API_KEY_present: !!process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.includes('REPLACE'),
@@ -46,8 +53,7 @@ export async function GET() {
     const { getFirebaseAdmin } = await import('@/lib/firebase-admin');
     const { db } = await getFirebaseAdmin();
     
-    // Simple read check against a non-existent or existing doc.
-    // Connectivity is verified if the promise resolves/rejects cleanly vs timing out or auth-failing.
+    // Simple connectivity check
     await db.collection('meta').doc('healthcheck').get();
     results.firestore.ok = true;
     delete results.firestore.detail;
@@ -55,10 +61,10 @@ export async function GET() {
     results.ok = false;
     results.firestore.ok = false;
     
-    // Sanitize error message to remove low-level gRPC/metadata phrases
     const rawMsg = error.message || '';
+    // Sanitize message to hide sensitive low-level gRPC/token errors
     if (rawMsg.includes('plugin') || rawMsg.includes('token') || rawMsg.includes('metadata') || rawMsg.includes('500')) {
-      results.firestore.detail = "Authentication failure or Project ID mismatch. Ensure Firebase App Hosting has the 'Cloud Datastore User' role and FIREBASE_PROJECT_ID is correct.";
+      results.firestore.detail = "Authentication failure. Ensure App Hosting service account has 'Cloud Datastore User' role and FIREBASE_PROJECT_ID is correct.";
     } else {
       results.firestore.detail = rawMsg;
     }
@@ -75,7 +81,6 @@ export async function GET() {
   } else {
     try {
       const resend = new Resend(resendKey);
-      // Validate by listing domains (a common read-only operation)
       const domainList = await resend.domains.list();
       
       if (domainList.error) {
