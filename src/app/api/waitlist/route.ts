@@ -41,7 +41,11 @@ function mapRoleToBucket(roleInterest: RoleInterest): RoleBucket {
 export async function POST(request: Request) {
   let body: any;
   try {
-    body = await request.json();
+    const rawBody = await request.text();
+    if (!rawBody) {
+        return NextResponse.json({ ok: false, error: 'Empty request body' }, { status: 400 });
+    }
+    body = JSON.parse(rawBody);
   } catch (e) {
     return NextResponse.json({ ok: false, error: 'Invalid JSON payload' }, { status: 400 });
   }
@@ -65,7 +69,19 @@ export async function POST(request: Request) {
 
     const { db: firestoreDb, FieldValue } = await getFirebaseAdmin();
     const waitlistRef = firestoreDb.collection('waitlist').doc(emailLower);
-    const docSnap = await waitlistRef.get();
+    
+    // Safely attempt to get the document
+    let docSnap;
+    try {
+        docSnap = await waitlistRef.get();
+    } catch (dbError: any) {
+        console.error('FIRESTORE_GET_ERROR', dbError);
+        return NextResponse.json({ 
+            ok: false, 
+            error: 'Database connection failed.', 
+            debug: dbError.message 
+        }, { status: 500 });
+    }
 
     const dataToUpdate: any = {
       updatedAt: FieldValue.serverTimestamp(),
@@ -99,7 +115,12 @@ export async function POST(request: Request) {
         assignedCode = `TEST-${Date.now()}`;
         dataToUpdate.founderCodeTest = true;
       } else {
-        assignedCode = await claimFounderCode(emailLower, roleBucket as 'guide'|'host'|'vendor', firestoreDb, FieldValue);
+        try {
+            assignedCode = await claimFounderCode(emailLower, roleBucket as 'guide'|'host'|'vendor', firestoreDb, FieldValue);
+        } catch (codeError: any) {
+            console.error('CLAIM_CODE_ERROR', codeError);
+            // Don't fail the whole request if code claiming fails, just log it.
+        }
       }
 
       if (assignedCode) {
@@ -112,7 +133,16 @@ export async function POST(request: Request) {
       assignedCode = docSnap.data()?.founderCode;
     }
 
-    await waitlistRef.set(dataToUpdate, { merge: true });
+    try {
+        await waitlistRef.set(dataToUpdate, { merge: true });
+    } catch (saveError: any) {
+        console.error('WAITLIST_SAVE_ERROR', saveError);
+        return NextResponse.json({ 
+            ok: false, 
+            error: 'Failed to save your spot. Please try again.', 
+            debug: saveError.message 
+        }, { status: 500 });
+    }
 
     let emailSentSuccessfully = true;
     const shouldSendEmail = !docSnap.exists || docSnap.data()?.emailStatus !== 'sent';
@@ -157,24 +187,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, founderCode: assignedCode, duplicate: isDuplicate });
 
   } catch (error: any) {
-    console.error('WAITLIST_ERROR_HANDLER', {
+    console.error('WAITLIST_GLOBAL_ERROR', {
         message: error.message,
         email: body?.email,
     });
     
-    let userFriendlyError = 'An unexpected error occurred. Please try again later.';
-    let errorCode = 'internal_server_error';
-
-    if (error.message && (error.message.includes('Resend API key') || error.message.includes('RESEND_API_KEY'))) {
-        userFriendlyError = 'Email service is not configured correctly on the server.';
-        errorCode = 'missing_resend_key';
-    }
-
     return NextResponse.json({
         ok: false,
-        error: userFriendlyError,
-        code: errorCode,
-        debug: process.env.NODE_ENV === 'development' ? error.message : undefined
+        error: 'An unexpected server error occurred.',
+        code: 'internal_server_error',
+        debug: error.message
       },
       { status: 500 }
     );

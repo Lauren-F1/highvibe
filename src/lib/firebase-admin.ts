@@ -2,6 +2,7 @@
 import "server-only";
 import * as admin from 'firebase-admin';
 import { getApps, initializeApp } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
 
 // This is a lazy-loaded, cached instance of the Firestore DB.
 let firestoreDb: admin.firestore.Firestore;
@@ -15,9 +16,12 @@ interface FirebaseAdminInstances {
 export async function getFirebaseAdmin(): Promise<FirebaseAdminInstances> {
   if (!firestoreDb || !fieldValue) {
     if (!getApps().length) {
-      initializeApp();
+      console.log('Initializing Firebase Admin SDK...');
+      initializeApp({
+          projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+      });
     }
-    firestoreDb = admin.firestore();
+    firestoreDb = getFirestore();
     fieldValue = admin.firestore.FieldValue;
   }
   return { db: firestoreDb, FieldValue: fieldValue };

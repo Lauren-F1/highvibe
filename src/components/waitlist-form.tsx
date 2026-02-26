@@ -38,6 +38,7 @@ export function WaitlistForm({ source, defaultRole, onRoleChange }: WaitlistForm
   const searchParams = useSearchParams();
   const [formState, setFormState] = useState<'idle' | 'submitting' | 'submitted' | 'duplicate' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [debugMessage, setDebugMessage] = useState<string | null>(null);
 
   const { register, handleSubmit, formState: { errors }, control, reset } = useForm<WaitlistFormInputs>({
     resolver: zodResolver(waitlistSchema),
@@ -65,6 +66,7 @@ export function WaitlistForm({ source, defaultRole, onRoleChange }: WaitlistForm
     analytics.event('waitlist_submit', { category: 'engagement', label: source });
     setFormState('submitting');
     setErrorMessage(null);
+    setDebugMessage(null);
 
     const { firstName, email, roleInterest } = data;
 
@@ -97,7 +99,8 @@ export function WaitlistForm({ source, defaultRole, onRoleChange }: WaitlistForm
       } else {
         const text = await response.text();
         console.error('Server returned non-JSON response:', text);
-        setErrorMessage('Server error (non-JSON response). Please contact support.');
+        setErrorMessage('Server error (non-JSON response).');
+        setDebugMessage(text.substring(0, 200)); // Show snippet of HTML error
         setFormState('error');
         return;
       }
@@ -105,6 +108,7 @@ export function WaitlistForm({ source, defaultRole, onRoleChange }: WaitlistForm
       if (!response.ok || !result.ok) {
         const errorMsg = result.error || 'An unknown server error occurred.';
         setErrorMessage(errorMsg);
+        if (result.debug) setDebugMessage(result.debug);
         setFormState('error');
         return;
       }
@@ -129,7 +133,8 @@ export function WaitlistForm({ source, defaultRole, onRoleChange }: WaitlistForm
       reset();
     } catch (error: any) {
       console.error('Waitlist form submission error:', error);
-      setErrorMessage('Could not connect to the server. Please check your internet connection.');
+      setErrorMessage('Could not connect to the server.');
+      setDebugMessage(error.message);
       setFormState('error');
     }
   };
@@ -180,8 +185,13 @@ export function WaitlistForm({ source, defaultRole, onRoleChange }: WaitlistForm
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
        {formState === 'error' && (
           <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-            <p className="text-destructive text-sm text-center">{errorMessage}</p>
-            <p className="text-destructive/70 text-xs text-center mt-1">Please try again.</p>
+            <p className="text-destructive text-sm text-center font-semibold">{errorMessage}</p>
+            {debugMessage && (
+                <p className="text-destructive/70 text-[10px] text-center mt-2 font-mono break-all">
+                    Detail: {debugMessage}
+                </p>
+            )}
+            <p className="text-destructive/70 text-xs text-center mt-2">Please try again or contact support.</p>
           </div>
         )}
       <div className="space-y-4">

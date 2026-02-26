@@ -1,3 +1,4 @@
+
 import type admin from 'firebase-admin';
 
 type RoleBucket = 'guide' | 'host' | 'vendor';
@@ -16,6 +17,11 @@ export async function claimFounderCode(
   firestoreDb: admin.firestore.Firestore,
   FieldValue: typeof admin.firestore.FieldValue
 ): Promise<string | null> {
+  if (!email || !roleBucket || !firestoreDb) {
+      console.error('claimFounderCode: Missing required parameters', { email, roleBucket });
+      return null;
+  }
+
   try {
     const code = await firestoreDb.runTransaction(async (transaction) => {
       const availableCodesQuery = firestoreDb.collection('founder_codes')
@@ -44,6 +50,7 @@ export async function claimFounderCode(
     return code;
   } catch (error) {
     console.error('Error claiming founder code in transaction:', error);
-    return null;
+    // Rethrow to be caught by the API route's error handler
+    throw error;
   }
 }
