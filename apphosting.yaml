@@ -18,12 +18,6 @@ env:
       - BUILD
       - RUNTIME
 
-  - variable: NEXT_PUBLIC_ADMIN_EMAIL_ALLOWLIST
-    value: "info@highviberetreats.com"
-    availability:
-      - BUILD
-      - RUNTIME
-
   - variable: NEXT_PUBLIC_LAUNCH_MODE
     value: "true"
     availability:
