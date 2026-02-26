@@ -1,145 +1,212 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function isAdmin() {
-      return request.auth != null && request.auth.token.admin == true;
-    }
+    /**
+     * RETREAT APP SECURITY RULES (PROTOTYPING MODE)
+     * 
+     * Core Philosophy:
+     * This ruleset enforces a strict user-ownership and multi-party collaborator model. 
+     * It relies heavily on denormalization for authorization to ensure rules are fast 
+     * and performant without requiring expensive get() calls.
+     * 
+     * Data Structure:
+     * - User-private data is nested under /users/{userId}.
+     * - Publicly discoverable profiles and listings (Hosts, Vendors, Spaces, Retreats) 
+     *   exist at the top level with owner-only write permissions.
+     * - Bookings and Transactions utilize a shared-access model where both the seeker 
+     *   and the entity owner (host/vendor/spaceOwner) can view the data.
+     * 
+     * Key Security Decisions:
+     * - Authorization Independence: Every document contains the UIDs required for 
+     *   access decisions (e.g., hostId, seekerId, spaceOwnerId).
+     * - Structural Segregation: User-specific private settings (SeekerProfile) 
+     *   are nested under the user's root document to prevent accidental exposure.
+     * - Prototyping Flexibility: Schema validation is limited to relational integrity 
+     *   fields (IDs) to allow for rapid iteration on content fields.
+     */
 
-    // Function to check if a user is authenticated
-    function isAuthenticated() {
+    // --- GLOBAL HELPER FUNCTIONS ---
+
+    /** Checks if the request is from an authenticated user. */
+    function isSignedIn() {
       return request.auth != null;
     }
 
-    // Function to check if the user is the owner of the document
+    /** Checks if the authenticated user's UID matches the provided userId. */
     function isOwner(userId) {
-      return request.auth.uid == userId;
+      return isSignedIn() && request.auth.uid == userId;
     }
 
+    /** Checks if the authenticated user owns the document and the document exists. */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    /** Checks if the authenticated user's UID matches an ID field in the document data. */
+    function isDataOwner(ownerId) {
+      return isSignedIn() && request.auth.uid == ownerId;
+    }
+
+    /** Checks if the authenticated user's UID matches an ID field in the incoming request data. */
+    function isIncomingDataOwner(ownerId) {
+      return isSignedIn() && request.auth.uid == ownerId;
+    }
+
+    // --- COLLECTION RULES ---
+
+    /**
+     * @description Core user account data. Access is strictly limited to the account owner.
+     * @path /users/{userId}
+     * @allow (get, list, create, update) if auth.uid == userId
+     * @deny Any access where auth.uid != userId
+     * @principle Ownership: Restricts access to a user's own data tree.
+     */
     match /users/{userId} {
-      // Public profile data is readable by anyone.
-      // Private data like email should not be world-readable.
-      allow read: if true; 
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
 
-      // A user can create their own profile document upon signup.
-      allow create: if isOwner(userId);
-      
-      // A user can update their own profile document.
-      allow update: if isOwner(userId);
-    }
-
-    match /waitlist_seekers/{seekerId} {
-      // Anyone can add themselves to the waitlist.
-      allow create: if request.resource.data.email is string &&
-                     request.resource.data.email == request.resource.data.email.lower() &&
-                     request.resource.data.status == 'active' &&
-                     request.resource.data.createdAt == request.time;
-      
-      // Only admins can read, update, or delete waitlist entries.
-      allow read, update, delete: if isAdmin();
-    }
-
-    match /waitlist/{email} {
-      // API endpoint with admin SDK handles writes.
-      allow create, update: if isAdmin();
-      
-      // Only admins can read or delete waitlist entries.
-      allow read, delete: if isAdmin();
-    }
-
-    match /founder_codes/{code} {
-      // Only admins can read/write codes directly.
-      // The transaction in the backend function will operate with admin privileges.
-      allow read, write: if isAdmin();
-    }
-
-    match /counters/founder_quota {
-      // Only admins can read/write the quota document directly.
-      // The transaction in the backend function will operate with admin privileges.
-      allow read, write: if isAdmin();
-    }
-
-    match /contact_submissions/{submissionId} {
-      // Anyone can submit the contact form.
-      allow create: if request.resource.data.email is string &&
-                     request.resource.data.name is string &&
-                     request.resource.data.message is string &&
-                     request.resource.data.createdAt == request.time;
-      
-      // Only admins can read, update, or delete submissions.
-      allow read, update, delete: if isAdmin();
-    }
-
-    match /conversations/{conversationId} {
-      // Only participants of the conversation can read or write to it.
-      allow read, update, create: if isAuthenticated() && request.auth.uid in resource.data.participants;
-      allow delete: if false; // Disallow deleting conversations for now.
-
-      match /messages/{messageId} {
-        // Only participants of the parent conversation can read or write messages.
-        allow read, create: if isAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
-        allow update, delete: if isAuthenticated() && request.auth.uid == resource.data.senderId;
+      /**
+       * @description Private seeker profile details. Exclusively accessible by the owner.
+       * @path /users/{userId}/seekerProfile/{seekerProfileId}
+       * @allow (get, create) if auth.uid == userId
+       * @deny Public reading or listing by other users.
+       * @principle Ownership: Enforces document ownership for nested private data.
+       */
+      match /seekerProfile/{seekerProfileId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+        allow delete: if isExistingOwner(userId);
       }
     }
 
-    match /manifestations/{manifestationId} {
-      // A user can create their own manifestation.
-      allow create: if isAuthenticated() && request.resource.data.seeker_id == request.auth.uid;
-    
-      // The owner of a manifestation can read or update it. Admin can also read/update.
-      allow read, update: if isAuthenticated() && (resource.data.seeker_id == request.auth.uid || isAdmin());
-
-      // Manifestations can't be deleted by users.
-      allow delete: if isAdmin();
+    /**
+     * @description Publicly viewable Host profiles. Managed by the associated User.
+     * @path /hosts/{hostId}
+     * @allow (read) for all signed-in users. (write) if auth.uid matches document's userId.
+     * @deny Updates to the userId field.
+     * @principle Public Read with Owner-Only Writes.
+     */
+    match /hosts/{hostId} {
+      allow get, list: if isSignedIn();
+      allow create: if isIncomingDataOwner(request.resource.data.userId);
+      allow update: if isDataOwner(resource.data.userId) && request.resource.data.userId == resource.data.userId;
+      allow delete: if isDataOwner(resource.data.userId);
     }
 
-    match /matches/{matchId} {
-        // Matches are created by server-side logic (admin).
-        allow create, update, delete: if isAdmin();
-        // A match can be read by the matched provider or the manifestation seeker.
-        allow read: if isAuthenticated() && (resource.data.provider_id == request.auth.uid || get(/databases/$(database)/documents/manifestations/$(resource.data.manifestation_id)).data.seeker_id == request.auth.uid);
+    /**
+     * @description Publicly viewable Vendor profiles. Managed by the associated User.
+     * @path /vendors/{vendorId}
+     * @allow (read) for all signed-in users. (write) if auth.uid matches document's userId.
+     * @principle Public Read with Owner-Only Writes.
+     */
+    match /vendors/{vendorId} {
+      allow get, list: if isSignedIn();
+      allow create: if isIncomingDataOwner(request.resource.data.userId);
+      allow update: if isDataOwner(resource.data.userId) && request.resource.data.userId == resource.data.userId;
+      allow delete: if isDataOwner(resource.data.userId);
     }
 
-    match /proposals/{proposalId} {
-      // A provider can create a proposal for a manifestation.
-      allow create: if isAuthenticated() && request.resource.data.provider_id == request.auth.uid;
-      // The seeker can update the status (accept/decline), the provider can withdraw (update status).
-      allow update: if isAuthenticated() && (request.resource.data.provider_id == request.auth.uid || get(/databases/$(database)/documents/manifestations/$(resource.data.manifestation_id)).data.seeker_id == request.auth.uid);
-      // A proposal can be read by the seeker who owns the manifestation and the provider who wrote it.
-      allow read: if isAuthenticated() && (resource.data.provider_id == request.auth.uid || get(/databases/$(database)/documents/manifestations/$(resource.data.manifestation_id)).data.seeker_id == request.auth.uid);
-      allow delete: if false; // Disallow deletion for record keeping.
+    /**
+     * @description Publicly viewable Space Owner profiles. Managed by the associated User.
+     * @path /spaceOwners/{spaceOwnerId}
+     * @allow (read) for all signed-in users. (write) if auth.uid matches document's userId.
+     * @principle Public Read with Owner-Only Writes.
+     */
+    match /spaceOwners/{spaceOwnerId} {
+      allow get, list: if isSignedIn();
+      allow create: if isIncomingDataOwner(request.resource.data.userId);
+      allow update: if isDataOwner(resource.data.userId) && request.resource.data.userId == resource.data.userId;
+      allow delete: if isDataOwner(resource.data.userId);
     }
 
+    /**
+     * @description Publicly discoverable retreat listings.
+     * @path /retreats/{retreatId}
+     * @allow (read) for all signed-in users. (write) if auth.uid matches hostId.
+     * @principle Relational Integrity: Ensures retreats are linked to the creator.
+     */
+    match /retreats/{retreatId} {
+      allow get, list: if isSignedIn();
+      allow create: if isIncomingDataOwner(request.resource.data.hostId);
+      allow update: if isDataOwner(resource.data.hostId) && request.resource.data.hostId == resource.data.hostId;
+      allow delete: if isDataOwner(resource.data.hostId);
+
+      /**
+       * @description Images for retreats. Self-authorizing via denormalized hostId.
+       * @path /retreats/{retreatId}/images/{imageId}
+       * @allow (write) if hostId in data matches auth.uid.
+       */
+      match /images/{imageId} {
+        allow get, list: if isSignedIn();
+        allow create: if isIncomingDataOwner(request.resource.data.hostId);
+        allow update: if isDataOwner(resource.data.hostId) && request.resource.data.hostId == resource.data.hostId;
+        allow delete: if isDataOwner(resource.data.hostId);
+      }
+    }
+
+    /**
+     * @description Publicly discoverable space listings.
+     * @path /spaces/{spaceId}
+     * @allow (read) for all signed-in users. (write) if auth.uid matches spaceOwnerId.
+     * @principle Authorization Independence: Uses denormalized spaceOwnerId.
+     */
+    match /spaces/{spaceId} {
+      allow get, list: if isSignedIn();
+      allow create: if isIncomingDataOwner(request.resource.data.spaceOwnerId);
+      allow update: if isDataOwner(resource.data.spaceOwnerId) && request.resource.data.spaceOwnerId == resource.data.spaceOwnerId;
+      allow delete: if isDataOwner(resource.data.spaceOwnerId);
+
+      /**
+       * @description Images for spaces. Self-authorizing via denormalized spaceOwnerId.
+       * @path /spaces/{spaceId}/images/{imageId}
+       */
+      match /images/{imageId} {
+        allow get, list: if isSignedIn();
+        allow create: if isIncomingDataOwner(request.resource.data.spaceOwnerId);
+        allow update: if isDataOwner(resource.data.spaceOwnerId) && request.resource.data.spaceOwnerId == resource.data.spaceOwnerId;
+        allow delete: if isDataOwner(resource.data.spaceOwnerId);
+      }
+    }
+
+    /**
+     * @description Bookings shared between a Seeker and an Entity Owner.
+     * @path /bookings/{bookingId}
+     * @allow (get, list) if auth.uid is seekerId OR bookedEntityOwnerId.
+     * @allow (create) if auth.uid is seekerId.
+     * @principle Shared Access: Grants visibility to both parties involved in a transaction.
+     */
     match /bookings/{bookingId} {
-      // Bookings are created by a trusted server process after payment.
-      allow create: if isAdmin();
-      
-      // The seeker who made the booking and any involved provider can read it.
-      allow read: if isAuthenticated() && (
-                    resource.data.seekerId == request.auth.uid ||
-                    request.auth.uid in resource.data.lineItems.map(item => item.providerId) ||
-                    isAdmin()
-                  );
+      allow get, list: if isDataOwner(resource.data.seekerId) || isDataOwner(resource.data.bookedEntityOwnerId);
+      allow create: if isIncomingDataOwner(request.resource.data.seekerId);
+      allow update: if isDataOwner(resource.data.seekerId) && request.resource.data.seekerId == resource.data.seekerId;
+      allow delete: if isDataOwner(resource.data.seekerId);
 
-      // Bookings are immutable by clients once created.
-      allow update, delete: if isAdmin();
+      /**
+       * @description Financial transactions. Viewable by both parties, but read-only for users.
+       * @path /bookings/{bookingId}/transactions/{transactionId}
+       * @allow (write) if false; // System/Backend only.
+       */
+      match /transactions/{transactionId} {
+        allow get, list: if isDataOwner(resource.data.seekerId) || isDataOwner(resource.data.bookedEntityOwnerId);
+        allow create, update, delete: if false; 
+      }
     }
 
-    match /notifications/{notificationId} {
-        allow create: if isAdmin(); // Created by server logic
-        allow read, update: if isAuthenticated() && resource.data.userId == request.auth.uid; // Only readable/updatable by the recipient
-        allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
-    }
-
-    match /manifest_credits/{creditId} {
-      // Credits are created by server-side logic (admin).
-      allow create: if isAdmin();
-      // A credit can be read by the seeker who owns it or an admin.
-      allow read: if isAuthenticated() && (resource.data.seeker_id == request.auth.uid || isAdmin());
-      // Credits are updated by server-side logic (admin) when redeemed or expired.
-      allow update: if isAdmin();
-      allow delete: if false;
+    /**
+     * @description User reviews for services and spaces.
+     * @path /reviews/{reviewId}
+     * @allow (read) for all signed-in users. (write) if auth.uid is reviewerId.
+     * @principle Public Read with Owner-Only Writes.
+     */
+    match /reviews/{reviewId} {
+      allow get, list: if isSignedIn();
+      allow create: if isIncomingDataOwner(request.resource.data.reviewerId);
+      allow update: if isDataOwner(resource.data.reviewerId) && request.resource.data.reviewerId == resource.data.reviewerId;
+      allow delete: if isDataOwner(resource.data.reviewerId);
     }
   }
 }

@@ -1,1240 +1,926 @@
-
 {
   "entities": {
     "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "User",
-      "description": "A user of the application.",
       "type": "object",
+      "description": "Represents a user account in the RETREAT app, serving as the base for various user roles. All specific profiles (Host, Seeker, Vendor, SpaceOwner) link back to this core user entity.",
       "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity."
+        },
         "email": {
           "type": "string",
+          "description": "The email address of the user, used for communication and as a unique identifier for login. (Format: email)",
           "format": "email"
         },
-        "displayName": {
-          "type": "string"
-        },
-        "headline": {
-          "type": "string"
-        },
-        "bio": {
-          "type": "string"
-        },
-        "profileSlug": {
-          "type": "string"
-        },
-        "profileComplete": {
-          "type": "boolean"
-        },
-        "avatarUrl": {
+        "username": {
           "type": "string",
-          "format": "uri"
-        },
-        "galleryUrls": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uri"
-          },
-          "description": "A small, personal photo gallery (max 6 images)."
-        },
-        "roles": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "enum": [
-              "guide",
-              "host",
-              "vendor",
-              "seeker"
-            ]
-          }
-        },
-        "primaryRole": {
-          "type": "string",
-          "enum": [
-            "guide",
-            "host",
-            "vendor",
-            "seeker"
-          ]
-        },
-        "locationLabel": {
-          "type": "string"
-        },
-        "locationLat": {
-          "type": "number"
-        },
-        "locationLng": {
-          "type": "number"
-        },
-        "isWillingToTravel": {
-          "type": "boolean"
-        },
-        "travelRadiusMiles": {
-          "type": "number"
-        },
-        "countries_served": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "vendorCategories": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Categories for vendor services."
-        },
-        "vendorWebsite": {
-          "type": "string",
-          "format": "uri"
-        },
-        "instagramUrl": {
-          "type": "string",
-          "format": "uri",
-          "description": "Link to vendor's Instagram profile."
-        },
-        "offerings": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Short list of specific services or offerings for a vendor."
-        },
-        "portfolioUrls": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uri"
-          },
-          "description": "Image gallery for a vendor's portfolio (max 8 images)."
-        },
-        "serviceRadiusMiles": {
-          "type": "number",
-          "description": "Specific service radius for a vendor."
-        },
-        "hostVibe": {
-          "type": "string",
-          "description": "The general vibe or aesthetic of a host's space."
-        },
-        "hostAmenities": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "propertyShowcaseUrls": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uri"
-          },
-          "description": "Image gallery for a host's property showcase (max 10 images)."
-        },
-        "typicalCapacity": {
-          "type": "number",
-          "description": "Typical guest capacity for a host's property."
-        },
-        "guideRetreatTypes": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "savedRetreatIds": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "List of retreat IDs the user has saved."
-        },
-        "accepts_manifestations": {
-          "type": "boolean"
-        },
-        "manifestation_notification_frequency": {
-          "type": "string",
-          "enum": [
-            "immediate",
-            "daily_digest"
-          ]
-        },
-        "max_manifestations_per_week": {
-          "type": "number"
-        },
-        "weekly_digest_enabled": {
-          "type": "boolean",
-          "description": "Whether the user has enabled the weekly AI-powered opportunity digest."
+          "description": "An optional display name or username for the user."
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
-        },
-        "lastLoginAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "subscriptions": {
-          "type": "object",
-          "description": "User's subscription status for different roles.",
-          "properties": {
-            "guide": {
-              "$ref": "#/entities/Subscription"
-            },
-            "host": {
-              "$ref": "#/entities/Subscription"
-            },
-            "vendor": {
-              "$ref": "#/entities/Subscription"
-            }
-          }
-        },
-        "providerAgreementAccepted": {
-          "type": "boolean",
-          "description": "Whether the provider has accepted the provider agreement."
-        },
-        "providerAgreementAcceptedAt": {
-          "type": "string",
-          "format": "date-time",
-          "description": "The timestamp when the provider agreement was accepted."
-        },
-        "providerAgreementVersion": {
-          "type": "string",
-          "description": "The version of the provider agreement that was accepted."
-        },
-        "seekerAgreementAccepted": {
-          "type": "boolean",
-          "description": "Whether the seeker has accepted the participation agreement."
-        },
-        "seekerAgreementAcceptedAt": {
-          "type": "string",
-          "format": "date-time",
-          "description": "The timestamp when the seeker agreement was accepted."
-        },
-        "seekerAgreementVersion": {
-          "type": "string",
-          "description": "The version of the seeker agreement that was accepted."
-        },
-        "hostRiderAccepted": {
-          "type": "boolean",
-          "description": "Whether the host has accepted the Host Property Risk Rider."
-        },
-        "hostRiderAcceptedAt": {
-          "type": "string",
-          "format": "date-time",
-          "description": "The timestamp when the host rider was accepted."
-        },
-        "hostRiderVersion": {
-          "type": "string",
-          "description": "The version of the host rider that was accepted."
-        },
-        "insuranceResponsibilityAcknowledged": {
-          "type": "boolean",
-          "description": "Whether the provider has acknowledged their sole responsibility for insurance."
-        },
-        "insuranceResponsibilityAcknowledgedAt": {
-          "type": "string",
-          "format": "date-time",
-          "description": "The timestamp when the insurance responsibility was acknowledged."
-        },
-        "insuranceResponsibilityVersion": {
-          "type": "string",
-          "description": "The version of the insurance responsibility attestation that was accepted."
-        }
-      },
-      "required": [
-        "email",
-        "createdAt",
-        "roles",
-        "profileComplete"
-      ]
-    },
-    "Subscription": {
-      "title": "Subscription",
-      "description": "Details of a user's subscription plan for a specific role.",
-      "type": "object",
-      "properties": {
-        "tier": {
-          "type": "string",
-          "description": "The plan identifier (e.g., 'starter', 'pro')."
-        },
-        "subscriptionStatus": {
-          "type": "string",
-          "enum": [
-            "active",
-            "trialing",
-            "past_due",
-            "canceled"
-          ],
-          "description": "The status of the subscription."
-        },
-        "stripeSubscriptionId": {
-          "type": "string",
-          "description": "The ID of the subscription in Stripe."
-        },
-        "currentPeriodEnd": {
-          "type": "string",
-          "format": "date-time",
-          "description": "The end of the current billing cycle."
-        },
-        "proCommitmentStart": {
-          "type": "string",
-          "format": "date-time",
-          "description": "The start date of a Pro plan commitment."
-        },
-        "proCommitmentEnd": {
-          "type": "string",
-          "format": "date-time",
-          "description": "The end date of a Pro plan commitment."
-        },
-        "lastProDowngradeEffectiveDate": {
-          "type": "string",
-          "format": "date-time",
-          "description": "The date a Pro downgrade became effective."
-        },
-        "downgradeToTier": {
-          "type": "string",
-          "description": "The plan to downgrade to at the end of the billing cycle."
-        }
-      },
-      "required": [
-        "tier",
-        "subscriptionStatus"
-      ]
-    },
-    "Booking": {
-      "title": "Booking",
-      "description": "A confirmed and paid booking for a retreat or service.",
-      "type": "object",
-      "properties": {
-        "seekerId": {
-          "type": "string"
-        },
-        "retreatId": {
-          "type": "string"
-        },
-        "manifestationId": {
-          "type": "string"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "totalAmount": {
-          "type": "number"
-        },
-        "currency": {
-          "type": "string"
-        },
-        "lineItems": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "providerId": {
-                "type": "string"
-              },
-              "providerRole": {
-                "type": "string",
-                "enum": [
-                  "guide",
-                  "host",
-                  "vendor"
-                ]
-              },
-              "description": {
-                "type": "string"
-              },
-              "amount": {
-                "type": "number"
-              },
-              "platformFeePctApplied": {
-                "type": "number"
-              },
-              "platformFeeAmount": {
-                "type": "number",
-                "description": "The calculated platform fee amount for this line item."
-              }
-            },
-            "required": [
-              "providerId",
-              "amount",
-              "platformFeePctApplied",
-              "platformFeeAmount"
-            ]
-          }
-        },
-        "liabilityWaiverAccepted": {
-          "type": "boolean"
-        },
-        "liabilityWaiverAcceptedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "liabilityWaiverVersion": {
-          "type": "string"
-        },
-        "liabilityWaiverIpAddress": {
-          "type": "string"
-        },
-        "medicalDisclosureAccepted": {
-          "type": "boolean"
-        },
-        "medicalDisclosureAcceptedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "chargebackStatus": {
-          "type": "string",
-          "enum": ["none", "open", "submitted", "won", "lost"],
-          "description": "Status of a chargeback dispute."
-        },
-        "chargebackEvidence": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "url": { "type": "string", "format": "uri" },
-              "filename": { "type": "string" },
-              "uploadedAt": { "type": "string", "format": "date-time" }
-            }
-          },
-          "description": "Evidence submitted for a chargeback dispute."
-        },
-        "chargebackStripeDisputeId": {
-            "type": "string",
-            "description": "The ID of the dispute object from Stripe."
-        }
-      },
-      "required": [
-        "seekerId",
-        "createdAt",
-        "totalAmount",
-        "lineItems"
-      ]
-    },
-    "WaitlistSeeker": {
-      "title": "Waitlist Seeker",
-      "description": "A user who has signed up for the waitlist.",
-      "type": "object",
-      "properties": {
-        "email": {
-          "type": "string",
-          "format": "email",
-          "description": "The user's email address."
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "description": "The timestamp when the user signed up."
-        },
-        "sourcePage": {
-          "type": "string",
-          "description": "The page from which the user signed up."
-        },
-        "filtersSnapshot": {
-          "type": "object",
-          "properties": {
-            "experienceType": {
-              "type": "string"
-            },
-            "destination": {
-              "type": "string"
-            },
-            "regionCountry": {
-              "type": "string"
-            },
-            "investmentRange": {
-              "type": "string"
-            },
-            "timing": {
-              "type": "string"
-            }
-          },
-          "description": "A snapshot of the user's filter selections."
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "active",
-            "unsubscribed"
-          ]
-        }
-      },
-      "required": [
-        "email",
-        "createdAt",
-        "status"
-      ]
-    },
-    "WaitlistSubmission": {
-      "title": "Waitlist Submission",
-      "description": "A submission to the general waitlist.",
-      "type": "object",
-      "properties": {
-        "email": {
-          "type": "string",
-          "format": "email"
-        },
-        "firstName": {
-          "type": "string"
-        },
-        "roleInterest": {
-          "type": "string",
-          "enum": [
-            "Seeker (I want to find/book retreats)",
-            "Guide (I want to lead retreats)",
-            "Host (I have a space)",
-            "Vendor (I offer services)",
-            "Partner / Collaborator"
-          ]
-        },
-        "source": {
-          "type": "string"
-        },
-        "createdAt": {
-          "type": "string",
+          "description": "Timestamp when the user account was created. (Format: date-time)",
           "format": "date-time"
         },
         "updatedAt": {
           "type": "string",
+          "description": "Timestamp when the user account was last updated. (Format: date-time)",
           "format": "date-time"
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "new",
-            "invited"
-          ]
-        },
-        "submitCount": {
-          "type": "number"
-        },
-        "userAgent": {
-          "type": "string"
-        },
-        "founderCode": {
-          "type": "string"
-        },
-        "founderCodeStatus": {
-          "type": "string",
-          "enum": [
-            "assigned"
-          ]
-        },
-        "roleBucket": {
-          "type": "string",
-          "enum": [
-            "seeker",
-            "guide",
-            "host",
-            "vendor"
-          ]
-        },
-        "emailStatus": {
-          "type": "string",
-          "enum": [
-            "sent",
-            "failed"
-          ]
-        },
-        "emailSentAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "lastEmailError": {
-          "type": "string"
-        },
-        "founderCodeAssignedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "founderCodeRoleBucket": {
-          "type": "string",
-          "enum": [
-            "guide",
-            "host",
-            "vendor"
-          ]
-        },
-        "founderCodeTest": {
-          "type": "boolean"
-        },
-        "invitedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "utm_source": {
-          "type": "string"
-        },
-        "utm_medium": {
-          "type": "string"
-        },
-        "utm_campaign": {
-          "type": "string"
-        },
-        "utm_term": {
-          "type": "string"
-        },
-        "utm_content": {
-          "type": "string"
         }
       },
       "required": [
+        "id",
         "email",
         "createdAt",
-        "status",
-        "source"
+        "updatedAt"
       ]
     },
-    "ContactSubmission": {
-      "title": "Contact Submission",
-      "description": "A message submitted through the contact form.",
+    "HostProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "HostProfile",
       "type": "object",
+      "description": "Represents the profile of a host who can create and manage retreat listings.",
       "properties": {
-        "name": {
-          "type": "string"
-        },
-        "email": {
+        "id": {
           "type": "string",
+          "description": "Unique identifier for the HostProfile entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the associated User. (Relationship: User 1:N HostProfile)"
+        },
+        "companyName": {
+          "type": "string",
+          "description": "The name of the company or organization managed by the host."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the host's background, expertise, or company mission."
+        },
+        "contactEmail": {
+          "type": "string",
+          "description": "The contact email address for the host. (Format: email)",
           "format": "email"
         },
-        "role": {
+        "contactPhone": {
           "type": "string",
-          "enum": [
-            "Seeker",
-            "Guide",
-            "Host",
-            "Vendor",
-            "Other"
-          ]
+          "description": "The contact phone number for the host."
         },
-        "message": {
-          "type": "string"
+        "websiteUrl": {
+          "type": "string",
+          "description": "The website URL for the host or their company. (Format: uri)",
+          "format": "uri"
         },
         "createdAt": {
           "type": "string",
+          "description": "Timestamp when the host profile was created. (Format: date-time)",
           "format": "date-time"
         },
-        "userId": {
-          "type": "string"
-        },
-        "pageContext": {
-          "type": "string"
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the host profile was last updated. (Format: date-time)",
+          "format": "date-time"
         }
       },
       "required": [
+        "id",
+        "userId",
+        "companyName",
+        "description",
+        "contactEmail",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "SeekerProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SeekerProfile",
+      "type": "object",
+      "description": "Represents the profile of a seeker who searches and books retreats, vendor services, or spaces.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the SeekerProfile entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the associated User. (Relationship: User 1:N SeekerProfile)"
+        },
+        "firstName": {
+          "type": "string",
+          "description": "The first name of the seeker."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The last name of the seeker."
+        },
+        "preferences": {
+          "type": "array",
+          "description": "An array of preferred retreat types, activities, or interests (e.g., 'yoga', 'meditation', 'hiking').",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the seeker profile was created. (Format: date-time)",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the seeker profile was last updated. (Format: date-time)",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "firstName",
+        "lastName",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "VendorProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "VendorProfile",
+      "type": "object",
+      "description": "Represents the profile of a vendor who offers services to hosts or retreats (e.g., catering, photography, instruction).",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the VendorProfile entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the associated User. (Relationship: User 1:N VendorProfile)"
+        },
+        "companyName": {
+          "type": "string",
+          "description": "The name of the vendor's company or individual's professional name."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the vendor's services and expertise."
+        },
+        "vendorType": {
+          "type": "string",
+          "description": "The type of services the vendor offers (e.g., 'Catering', 'Yoga Instructor', 'Photographer')."
+        },
+        "servicesOffered": {
+          "type": "array",
+          "description": "A list of specific services provided by the vendor.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "pricingDetails": {
+          "type": "string",
+          "description": "A summary or link to detailed pricing information for the vendor's services."
+        },
+        "contactEmail": {
+          "type": "string",
+          "description": "The contact email address for the vendor. (Format: email)",
+          "format": "email"
+        },
+        "contactPhone": {
+          "type": "string",
+          "description": "The contact phone number for the vendor."
+        },
+        "websiteUrl": {
+          "type": "string",
+          "description": "The website URL for the vendor or their business. (Format: uri)",
+          "format": "uri"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the vendor profile was created. (Format: date-time)",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the vendor profile was last updated. (Format: date-time)",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "companyName",
+        "description",
+        "vendorType",
+        "servicesOffered",
+        "contactEmail",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "SpaceOwnerProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SpaceOwnerProfile",
+      "type": "object",
+      "description": "Represents the profile of a space owner who lists properties for retreats or events.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the SpaceOwnerProfile entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the associated User. (Relationship: User 1:N SpaceOwnerProfile)"
+        },
+        "companyName": {
+          "type": "string",
+          "description": "The name of the company or individual managing the spaces."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the space owner's business or property management philosophy."
+        },
+        "contactEmail": {
+          "type": "string",
+          "description": "The contact email address for the space owner. (Format: email)",
+          "format": "email"
+        },
+        "contactPhone": {
+          "type": "string",
+          "description": "The contact phone number for the space owner."
+        },
+        "websiteUrl": {
+          "type": "string",
+          "description": "The website URL for the space owner's business. (Format: uri)",
+          "format": "uri"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the space owner profile was created. (Format: date-time)",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the space owner profile was last updated. (Format: date-time)",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "companyName",
+        "description",
+        "contactEmail",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Space": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Space",
+      "type": "object",
+      "description": "Represents a physical space available for rent by a SpaceOwner, suitable for retreats or events.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Space entity."
+        },
+        "spaceOwnerId": {
+          "type": "string",
+          "description": "Reference to the SpaceOwnerProfile who owns or manages this space. (Relationship: SpaceOwnerProfile 1:N Space)"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the space."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the space, its features, and suitability for events."
+        },
+        "addressLine1": {
+          "type": "string",
+          "description": "The primary street address of the space."
+        },
+        "addressLine2": {
+          "type": "string",
+          "description": "Secondary address information (e.g., apartment, suite, building number)."
+        },
+        "city": {
+          "type": "string",
+          "description": "The city where the space is located."
+        },
+        "stateProvince": {
+          "type": "string",
+          "description": "The state or province where the space is located."
+        },
+        "postalCode": {
+          "type": "string",
+          "description": "The postal code of the space's location."
+        },
+        "country": {
+          "type": "string",
+          "description": "The country where the space is located."
+        },
+        "capacity": {
+          "type": "number",
+          "description": "The maximum number of people the space can accommodate."
+        },
+        "amenities": {
+          "type": "array",
+          "description": "A list of amenities available at the space (e.g., 'WiFi', 'Kitchen', 'Parking', 'Projector').",
+          "items": {
+            "type": "string"
+          }
+        },
+        "hourlyRate": {
+          "type": "number",
+          "description": "The hourly rental rate for the space."
+        },
+        "dailyRate": {
+          "type": "number",
+          "description": "The daily rental rate for the space."
+        },
+        "spaceImageIds": {
+          "type": "array",
+          "description": "References to images associated with this space. (Relationship: Space 1:N SpaceImage)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the space listing was created. (Format: date-time)",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the space listing was last updated. (Format: date-time)",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "spaceOwnerId",
         "name",
-        "email",
-        "message",
-        "createdAt"
-      ]
-    },
-    "Conversation": {
-      "title": "Conversation",
-      "description": "A conversation thread between two or more users.",
-      "type": "object",
-      "properties": {
-        "participants": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Array of user UIDs participating in the conversation."
-        },
-        "participantInfo": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "object",
-            "properties": {
-              "displayName": {
-                "type": "string"
-              },
-              "avatarUrl": {
-                "type": "string",
-                "format": "uri"
-              }
-            }
-          }
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "lastMessageAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "lastMessageSnippet": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "participants",
+        "description",
+        "addressLine1",
+        "city",
+        "stateProvince",
+        "postalCode",
+        "country",
+        "capacity",
         "createdAt",
-        "lastMessageAt"
+        "updatedAt"
       ]
     },
-    "Message": {
-      "title": "Message",
-      "description": "A single message within a conversation.",
+    "SpaceImage": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SpaceImage",
       "type": "object",
+      "description": "Represents an image uploaded for a specific space listing.",
       "properties": {
-        "senderId": {
-          "type": "string"
-        },
-        "text": {
-          "type": "string"
-        },
-        "createdAt": {
+        "id": {
           "type": "string",
+          "description": "Unique identifier for the SpaceImage entity."
+        },
+        "spaceId": {
+          "type": "string",
+          "description": "Reference to the Space this image belongs to. (Relationship: Space 1:N SpaceImage)"
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "The URL or path to the image file. (Format: uri)",
+          "format": "uri"
+        },
+        "description": {
+          "type": "string",
+          "description": "An optional descriptive caption for the image."
+        },
+        "uploadedAt": {
+          "type": "string",
+          "description": "Timestamp when the image was uploaded. (Format: date-time)",
           "format": "date-time"
         }
       },
       "required": [
-        "senderId",
-        "text",
-        "createdAt"
+        "id",
+        "spaceId",
+        "imageUrl",
+        "uploadedAt"
       ]
     },
-    "Manifestation": {
-      "title": "Manifestation",
-      "description": "A user's dream retreat request to be matched with providers.",
+    "Retreat": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Retreat",
       "type": "object",
+      "description": "Represents a retreat event listing, created and managed by a Host.",
       "properties": {
-        "guidingPreference": {
+        "id": {
           "type": "string",
-          "description": "Indicates if the seeker needs a guide ('match_guide') or is the guide themselves."
+          "description": "Unique identifier for the Retreat entity."
         },
-        "seeker_id": {
-          "type": "string"
-        },
-        "created_at": {
+        "hostId": {
           "type": "string",
-          "format": "date-time"
-        },
-        "updated_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "draft",
-            "submitted",
-            "matching",
-            "proposals_open",
-            "assembling",
-            "booked",
-            "completed",
-            "closed"
-          ]
-        },
-        "destination": {
-          "type": "object",
-          "properties": {
-            "country": {
-              "type": "string"
-            },
-            "region": {
-              "type": "string"
-            },
-            "city": {
-              "type": "string"
-            }
-          }
-        },
-        "date_pref": {
-          "type": "object",
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "exact_range",
-                "flexible"
-              ]
-            },
-            "start_date": {
-              "type": "string",
-              "format": "date-time"
-            },
-            "end_date": {
-              "type": "string",
-              "format": "date-time"
-            },
-            "month": {
-              "type": "string"
-            },
-            "season": {
-              "type": "string"
-            }
-          }
-        },
-        "group_size": {
-          "type": "number"
-        },
-        "retreat_types": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "must_haves": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "nice_to_haves": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "lodging_preference": {
-          "type": "string"
-        },
-        "luxury_tier": {
-          "type": "string",
-          "enum": [
-            "Essentials",
-            "Elevated",
-            "Luxury",
-            "Ultra-Luxury"
-          ]
-        },
-        "budget_range": {
-          "type": "string"
-        },
-        "dietary_preference": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "notes_text": {
-          "type": "string"
-        },
-        "credit_policy": {
-          "type": "object",
-          "properties": {
-            "percent": {
-              "type": "number"
-            },
-            "cap_amount": {
-              "type": "number"
-            },
-            "currency": {
-              "type": "string"
-            },
-            "validity_days": {
-              "type": "number"
-            },
-            "trigger": {
-              "type": "string"
-            }
-          }
-        },
-        "matched_summary_counts": {
-          "type": "object",
-          "properties": {
-            "hosts": {
-              "type": "number"
-            },
-            "guides": {
-              "type": "number"
-            },
-            "vendors": {
-              "type": "number"
-            }
-          }
-        },
-        "shortlist": {
-          "type": "object",
-          "properties": {
-            "hosts": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "guides": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "vendors": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        },
-        "last_notified_at": {
-          "type": "string",
-          "format": "date-time"
-        }
-      },
-      "required": [
-        "seeker_id",
-        "created_at",
-        "status",
-        "group_size",
-        "luxury_tier",
-        "notes_text"
-      ]
-    },
-    "Proposal": {
-      "title": "Proposal",
-      "description": "A provider's proposal in response to a Manifestation.",
-      "type": "object",
-      "properties": {
-        "manifestation_id": {
-          "type": "string"
-        },
-        "provider_id": {
-          "type": "string"
-        },
-        "role": {
-          "type": "string",
-          "enum": [
-            "host",
-            "guide",
-            "vendor"
-          ]
-        },
-        "services_committed": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "availability_confirmed": {
-          "type": "boolean"
-        },
-        "price_range": {
-          "type": "object",
-          "properties": {
-            "min": {
-              "type": "number"
-            },
-            "max": {
-              "type": "number"
-            },
-            "currency": {
-              "type": "string"
-            }
-          }
-        },
-        "message": {
-          "type": "string"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "submitted",
-            "withdrawn",
-            "accepted",
-            "declined"
-          ]
-        }
-      },
-      "required": [
-        "manifestation_id",
-        "provider_id",
-        "role",
-        "availability_confirmed",
-        "message",
-        "createdAt",
-        "status"
-      ]
-    },
-    "Match": {
-      "title": "Match",
-      "description": "A potential match between a Manifestation and a Provider.",
-      "type": "object",
-      "properties": {
-        "manifestation_id": {
-          "type": "string"
-        },
-        "provider_id": {
-          "type": "string"
-        },
-        "role": {
-          "type": "string",
-          "enum": [
-            "host",
-            "guide",
-            "vendor"
-          ]
-        },
-        "match_score": {
-          "type": "number"
-        },
-        "notified": {
-          "type": "boolean"
-        },
-        "notification_wave": {
-          "type": "number"
-        },
-        "matched_at": {
-          "type": "string",
-          "format": "date-time"
-        }
-      },
-      "required": [
-        "manifestation_id",
-        "provider_id",
-        "role",
-        "match_score",
-        "matched_at"
-      ]
-    },
-    "Notification": {
-      "title": "Notification",
-      "description": "An in-app notification for a user.",
-      "type": "object",
-      "properties": {
-        "userId": {
-          "type": "string"
+          "description": "Reference to the HostProfile who created this retreat. (Relationship: HostProfile 1:N Retreat)"
         },
         "title": {
-          "type": "string"
-        },
-        "body": {
-          "type": "string"
-        },
-        "link": {
-          "type": "string"
-        },
-        "read": {
-          "type": "boolean"
-        },
-        "createdAt": {
           "type": "string",
-          "format": "date-time"
-        }
-      },
-      "required": [
-        "userId",
-        "title",
-        "body",
-        "read",
-        "createdAt"
-      ]
-    },
-    "ManifestCredit": {
-      "title": "Manifest Credit",
-      "description": "A credit earned by a Seeker for a completed Manifestation.",
-      "type": "object",
-      "properties": {
-        "seeker_id": {
-          "type": "string"
+          "description": "The title of the retreat."
         },
-        "manifestation_id": {
-          "type": "string"
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the retreat, including activities, schedule, and philosophy."
         },
-        "issued_amount": {
-          "type": "number"
+        "type": {
+          "type": "string",
+          "description": "The category or type of retreat (e.g., 'Yoga', 'Meditation', 'Wellness', 'Adventure')."
+        },
+        "startDate": {
+          "type": "string",
+          "description": "The start date of the retreat. (Format: date)",
+          "format": "date"
+        },
+        "endDate": {
+          "type": "string",
+          "description": "The end date of the retreat. (Format: date)",
+          "format": "date"
+        },
+        "costPerPerson": {
+          "type": "number",
+          "description": "The cost per person to attend the retreat."
         },
         "currency": {
-          "type": "string"
-        },
-        "issue_date": {
           "type": "string",
-          "format": "date-time"
+          "description": "The currency in which the cost is specified (e.g., 'USD', 'EUR', 'GBP')."
         },
-        "expiry_date": {
+        "capacity": {
+          "type": "number",
+          "description": "The maximum number of attendees for the retreat."
+        },
+        "currentAttendees": {
+          "type": "number",
+          "description": "The current number of attendees registered for the retreat."
+        },
+        "locationDescription": {
           "type": "string",
-          "format": "date-time"
+          "description": "A descriptive string for the retreat's location (e.g., 'Bali, Indonesia', 'Mountain Resort')."
         },
-        "redeemed_amount": {
-          "type": "number"
-        },
-        "redemption_booking_id": {
-          "type": "string"
-        },
-        "redeemed_date": {
+        "spaceId": {
           "type": "string",
-          "format": "date-time"
+          "description": "Optional reference to a specific Space entity where the retreat is held. (Relationship: Space 0:1 Retreat)"
         },
-        "status": {
-          "type": "string",
-          "enum": [
-            "available",
-            "redeemed",
-            "expired"
-          ]
-        }
-      },
-      "required": [
-        "seeker_id",
-        "manifestation_id",
-        "issued_amount",
-        "issue_date",
-        "expiry_date",
-        "status"
-      ]
-    },
-    "FounderCode": {
-      "title": "Founder Code",
-      "description": "A unique access pass code for founding members.",
-      "type": "object",
-      "properties": {
-        "roleBucket": {
-          "type": "string",
-          "enum": [
-            "guide",
-            "vendor",
-            "host"
-          ]
+        "vendorIds": {
+          "type": "array",
+          "description": "References to VendorProfile entities providing services for this retreat. (Relationship: Retreat N:N VendorProfile)",
+          "items": {
+            "type": "string"
+          }
         },
-        "status": {
-          "type": "string",
-          "enum": [
-            "available",
-            "claimed"
-          ]
-        },
-        "claimedBy": {
-          "type": "string",
-          "format": "email"
-        },
-        "claimedAt": {
-          "type": "string",
-          "format": "date-time"
+        "retreatImageIds": {
+          "type": "array",
+          "description": "References to images associated with this retreat. (Relationship: Retreat 1:N RetreatImage)",
+          "items": {
+            "type": "string"
+          }
         },
         "createdAt": {
           "type": "string",
+          "description": "Timestamp when the retreat listing was created. (Format: date-time)",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the retreat listing was last updated. (Format: date-time)",
           "format": "date-time"
         }
       },
       "required": [
-        "roleBucket",
-        "status",
-        "createdAt"
+        "id",
+        "hostId",
+        "title",
+        "description",
+        "type",
+        "startDate",
+        "endDate",
+        "costPerPerson",
+        "currency",
+        "capacity",
+        "locationDescription",
+        "createdAt",
+        "updatedAt"
       ]
     },
-    "FounderQuota": {
-      "title": "Founder Quota",
-      "description": "Tracks the number of founder codes assigned per role.",
+    "RetreatImage": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "RetreatImage",
       "type": "object",
+      "description": "Represents an image uploaded for a specific retreat listing.",
       "properties": {
-        "guideCount": {
-          "type": "number"
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the RetreatImage entity."
         },
-        "vendorCount": {
-          "type": "number"
+        "retreatId": {
+          "type": "string",
+          "description": "Reference to the Retreat this image belongs to. (Relationship: Retreat 1:N RetreatImage)"
         },
-        "hostCount": {
-          "type": "number"
+        "imageUrl": {
+          "type": "string",
+          "description": "The URL or path to the image file. (Format: uri)",
+          "format": "uri"
+        },
+        "description": {
+          "type": "string",
+          "description": "An optional descriptive caption for the image."
+        },
+        "uploadedAt": {
+          "type": "string",
+          "description": "Timestamp when the image was uploaded. (Format: date-time)",
+          "format": "date-time"
         }
       },
       "required": [
-        "guideCount",
-        "vendorCount",
-        "hostCount"
+        "id",
+        "retreatId",
+        "imageUrl",
+        "uploadedAt"
+      ]
+    },
+    "Booking": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Booking",
+      "type": "object",
+      "description": "Represents a booking made by a seeker for a retreat, vendor service, or space.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Booking entity."
+        },
+        "seekerId": {
+          "type": "string",
+          "description": "Reference to the SeekerProfile who made the booking. (Relationship: SeekerProfile 1:N Booking)"
+        },
+        "bookedEntityType": {
+          "type": "string",
+          "description": "The type of entity being booked (e.g., 'retreat', 'vendor', 'space').",
+          "items": {
+            "type": "string"
+          }
+        },
+        "bookedEntityId": {
+          "type": "string",
+          "description": "The ID of the specific entity (Retreat, VendorProfile, or Space) that was booked."
+        },
+        "quantity": {
+          "type": "number",
+          "description": "The quantity booked (e.g., number of attendees for a retreat, hours for a space)."
+        },
+        "startDate": {
+          "type": "string",
+          "description": "The start date and time for the booking. (Format: date-time)",
+          "format": "date-time"
+        },
+        "endDate": {
+          "type": "string",
+          "description": "The end date and time for the booking. (Format: date-time)",
+          "format": "date-time"
+        },
+        "totalAmount": {
+          "type": "number",
+          "description": "The total monetary amount for the booking before commissions."
+        },
+        "currency": {
+          "type": "string",
+          "description": "The currency of the total amount (e.g., 'USD', 'EUR')."
+        },
+        "commissionRate": {
+          "type": "number",
+          "description": "The commission rate applied to this booking (e.g., 0.10 for 10%)."
+        },
+        "commissionAmount": {
+          "type": "number",
+          "description": "The calculated commission amount for this booking."
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the booking (e.g., 'pending', 'confirmed', 'cancelled', 'completed').",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the booking was created. (Format: date-time)",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the booking was last updated. (Format: date-time)",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "seekerId",
+        "bookedEntityType",
+        "bookedEntityId",
+        "quantity",
+        "startDate",
+        "endDate",
+        "totalAmount",
+        "currency",
+        "commissionRate",
+        "commissionAmount",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Transaction": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Transaction",
+      "type": "object",
+      "description": "Records financial transactions related to bookings, including payments, refunds, and payouts.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Transaction entity."
+        },
+        "bookingId": {
+          "type": "string",
+          "description": "Reference to the Booking associated with this transaction. (Relationship: Booking 1:N Transaction)"
+        },
+        "paymentGatewayTransactionId": {
+          "type": "string",
+          "description": "The unique transaction ID provided by the external payment gateway."
+        },
+        "amount": {
+          "type": "number",
+          "description": "The monetary amount of the transaction."
+        },
+        "currency": {
+          "type": "string",
+          "description": "The currency of the transaction amount (e.g., 'USD', 'EUR')."
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of transaction (e.g., 'payment', 'refund', 'payout').",
+          "items": {
+            "type": "string"
+          }
+        },
+        "status": {
+          "type": "string",
+          "description": "The status of the transaction (e.g., 'successful', 'failed', 'pending').",
+          "items": {
+            "type": "string"
+          }
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp when the transaction occurred. (Format: date-time)",
+          "format": "date-time"
+        },
+        "description": {
+          "type": "string",
+          "description": "An optional description or memo for the transaction."
+        }
+      },
+      "required": [
+        "id",
+        "bookingId",
+        "paymentGatewayTransactionId",
+        "amount",
+        "currency",
+        "type",
+        "status",
+        "timestamp"
+      ]
+    },
+    "Review": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Review",
+      "type": "object",
+      "description": "Stores user-generated reviews and ratings for retreats, vendors, or spaces.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Review entity."
+        },
+        "reviewerId": {
+          "type": "string",
+          "description": "Reference to the User who submitted the review. (Relationship: User 1:N Review)"
+        },
+        "reviewedEntityType": {
+          "type": "string",
+          "description": "The type of entity being reviewed (e.g., 'retreat', 'vendor', 'space').",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reviewedEntityId": {
+          "type": "string",
+          "description": "The ID of the specific entity (Retreat, VendorProfile, or Space) that was reviewed."
+        },
+        "rating": {
+          "type": "number",
+          "description": "The rating given (e.g., an integer from 1 to 5)."
+        },
+        "comment": {
+          "type": "string",
+          "description": "The textual comment or feedback provided by the reviewer."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the review was created. (Format: date-time)",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the review was last updated. (Format: date-time)",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "reviewerId",
+        "reviewedEntityType",
+        "reviewedEntityId",
+        "rating",
+        "comment",
+        "createdAt",
+        "updatedAt"
       ]
     }
   },
   "auth": {
     "providers": [
-      "google.com",
-      "password"
+      "password",
+      "anonymous"
     ]
   },
   "firestore": {
-    "/users/{userId}": {
-      "schema": {
-        "$ref": "#/entities/User"
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores core user account data. This collection acts as the root for user-specific data. Authorization for documents in this collection is strictly tied to `request.auth.uid == userId`."
+        }
       },
-      "description": "User profile information."
-    },
-    "/waitlist_seekers/{seekerId}": {
-      "schema": {
-        "$ref": "#/entities/WaitlistSeeker"
+      {
+        "path": "/users/{userId}/seekerProfile/{seekerProfileId}",
+        "definition": {
+          "entityName": "SeekerProfile",
+          "schema": {
+            "$ref": "#/backend/entities/SeekerProfile"
+          },
+          "description": "Stores the private profile details for a seeker. This profile is exclusively accessible by the owner user. `seekerProfileId` is typically identical to `userId` for simplified authorization. Authorization is `request.auth.uid == userId`.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user (from Firebase Authentication)."
+            },
+            {
+              "name": "seekerProfileId",
+              "description": "The unique ID of the seeker profile, typically matching the userId for a 1:1 relationship."
+            }
+          ]
+        }
       },
-      "description": "Collection of users who have signed up for the waitlist."
-    },
-    "/waitlist/{email}": {
-      "schema": {
-        "$ref": "#/entities/WaitlistSubmission"
+      {
+        "path": "/hosts/{hostId}",
+        "definition": {
+          "entityName": "HostProfile",
+          "schema": {
+            "$ref": "#/backend/entities/HostProfile"
+          },
+          "description": "Stores publicly viewable profiles for hosts. Each document includes a 'userId' field (linking to the core User entity) to enable authorization independence. Hosts can manage their own profile (`request.auth.uid == resource.data.userId`), while all authenticated users can read. Includes denormalized 'userId' for authorization independence."
+        }
       },
-      "description": "General waitlist submissions, with email as document ID."
-    },
-    "/contact_submissions/{submissionId}": {
-      "schema": {
-        "$ref": "#/entities/ContactSubmission"
+      {
+        "path": "/vendors/{vendorId}",
+        "definition": {
+          "entityName": "VendorProfile",
+          "schema": {
+            "$ref": "#/backend/entities/VendorProfile"
+          },
+          "description": "Stores publicly viewable profiles for vendors. Each document includes a 'userId' field (linking to the core User entity) to enable authorization independence. Vendors can manage their own profile (`request.auth.uid == resource.data.userId`), while all authenticated users can read. Includes denormalized 'userId' for authorization independence."
+        }
       },
-      "description": "Collection of contact form submissions."
-    },
-    "/conversations/{conversationId}": {
-      "schema": {
-        "$ref": "#/entities/Conversation"
+      {
+        "path": "/spaceOwners/{spaceOwnerId}",
+        "definition": {
+          "entityName": "SpaceOwnerProfile",
+          "schema": {
+            "$ref": "#/backend/entities/SpaceOwnerProfile"
+          },
+          "description": "Stores publicly viewable profiles for space owners. Each document includes a 'userId' field (linking to the core User entity) to enable authorization independence. Space owners can manage their own profile (`request.auth.uid == resource.data.userId`), while all authenticated users can read. Includes denormalized 'userId' for authorization independence."
+        }
       },
-      "description": "Conversation threads between users."
-    },
-    "/conversations/{conversationId}/messages/{messageId}": {
-      "schema": {
-        "$ref": "#/entities/Message"
+      {
+        "path": "/retreats/{retreatId}",
+        "definition": {
+          "entityName": "Retreat",
+          "schema": {
+            "$ref": "#/backend/entities/Retreat"
+          },
+          "description": "Stores details for retreat listings, which are publicly discoverable by seekers. Each document includes 'hostId' for authorization independence. Hosts (`request.auth.uid == resource.data.hostId`) can manage their retreats, while all authenticated users can read. Assumes a 'status' field (e.g., 'PUBLISHED') for public visibility if drafts are present."
+        }
       },
-      "description": "Messages within a conversation."
-    },
-    "/manifestations/{manifestationId}": {
-      "schema": {
-        "$ref": "#/entities/Manifestation"
+      {
+        "path": "/retreats/{retreatId}/images/{imageId}",
+        "definition": {
+          "entityName": "RetreatImage",
+          "schema": {
+            "$ref": "#/backend/entities/RetreatImage"
+          },
+          "description": "Stores images associated with a specific retreat. Each document includes denormalized 'hostId' (from the parent Retreat) for authorization independence, allowing the owning host to manage images without `get()` calls to the parent retreat. All authenticated users can read.",
+          "params": [
+            {
+              "name": "retreatId",
+              "description": "The unique ID of the retreat."
+            },
+            {
+              "name": "imageId",
+              "description": "The unique ID of the retreat image."
+            }
+          ]
+        }
       },
-      "description": "Collection of user-submitted retreat manifestations."
-    },
-    "/matches/{matchId}": {
-      "schema": {
-        "$ref": "#/entities/Match"
+      {
+        "path": "/spaces/{spaceId}",
+        "definition": {
+          "entityName": "Space",
+          "schema": {
+            "$ref": "#/backend/entities/Space"
+          },
+          "description": "Stores details for space listings, publicly discoverable. Each document includes 'spaceOwnerId' for authorization independence. Space owners (`request.auth.uid == resource.data.spaceOwnerId`) can manage their spaces, while all authenticated users can read."
+        }
       },
-      "description": "Potential matches between manifestations and providers."
-    },
-    "/proposals/{proposalId}": {
-      "schema": {
-        "$ref": "#/entities/Proposal"
+      {
+        "path": "/spaces/{spaceId}/images/{imageId}",
+        "definition": {
+          "entityName": "SpaceImage",
+          "schema": {
+            "$ref": "#/backend/entities/SpaceImage"
+          },
+          "description": "Stores images associated with a specific space. Each document includes denormalized 'spaceOwnerId' (from the parent Space) for authorization independence, allowing the owning space owner to manage images without `get()` calls to the parent space. All authenticated users can read.",
+          "params": [
+            {
+              "name": "spaceId",
+              "description": "The unique ID of the space."
+            },
+            {
+              "name": "imageId",
+              "description": "The unique ID of the space image."
+            }
+          ]
+        }
       },
-      "description": "Provider proposals for manifestations."
-    },
-    "/bookings/{bookingId}": {
-      "schema": {
-        "$ref": "#/entities/Booking"
+      {
+        "path": "/bookings/{bookingId}",
+        "definition": {
+          "entityName": "Booking",
+          "schema": {
+            "$ref": "#/backend/entities/Booking"
+          },
+          "description": "Stores details of a booking made by a seeker. To achieve authorization independence, each document includes 'seekerId', 'bookedEntityType', 'bookedEntityId', 'bookedEntityOwnerId' (the ID of the host/vendor/space owner of the booked item), and 'bookedEntityOwnerType'. This allows both the seeker and the relevant owner to access their associated bookings without `get()` calls. Read/Write for seeker, Read for booked entity owner. Backend services handle creation/updates."
+        }
       },
-      "description": "Confirmed and paid bookings."
-    },
-    "/notifications/{notificationId}": {
-      "schema": {
-        "$ref": "#/entities/Notification"
+      {
+        "path": "/bookings/{bookingId}/transactions/{transactionId}",
+        "definition": {
+          "entityName": "Transaction",
+          "schema": {
+            "$ref": "#/backend/entities/Transaction"
+          },
+          "description": "Records financial transactions related to a specific booking. Each document denormalizes 'seekerId', 'bookedEntityOwnerId', and 'bookedEntityOwnerType' from its parent booking for authorization independence, allowing both the seeker and the relevant owner to view transactions without `get()` calls. Read-only for users, write access by backend services (e.g., Cloud Functions).",
+          "params": [
+            {
+              "name": "bookingId",
+              "description": "The unique ID of the booking."
+            },
+            {
+              "name": "transactionId",
+              "description": "The unique ID of the transaction."
+            }
+          ]
+        }
       },
-      "description": "In-app notifications for users."
-    },
-    "/manifest_credits/{creditId}": {
-      "schema": {
-        "$ref": "#/entities/ManifestCredit"
-      },
-      "description": "A user's earned credits from manifestations."
-    },
-    "/founder_codes/{codeId}": {
-      "schema": {
-        "$ref": "#/entities/FounderCode"
-      },
-      "description": "Collection of unique founder access codes."
-    },
-    "/counters/founder_quota": {
-      "schema": {
-        "$ref": "#/entities/FounderQuota"
-      },
-      "description": "Singleton document to track founder code capacity."
-    }
+      {
+        "path": "/reviews/{reviewId}",
+        "definition": {
+          "entityName": "Review",
+          "schema": {
+            "$ref": "#/backend/entities/Review"
+          },
+          "description": "Stores user reviews and ratings for retreats, vendors, or spaces. Each document includes 'reviewerId', 'reviewedEntityType', 'reviewedEntityId', and denormalized 'reviewedEntityOwnerId' (the ID of the owner of the entity being reviewed) for authorization independence. All authenticated users can read reviews. Only the 'reviewerId' can create, update, or delete their own review."
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure is designed to adhere strictly to the core principles of Authorization Independence, Structural Segregation, and clear Access Modeling to ensure security, scalability, and debuggability. A key focus is on eliminating hierarchical authorization dependencies (avoiding `get()` calls in security rules) and enabling efficient, secure `list` operations (QAPs).\n\n**Authorization Independence via Denormalization:**\nThis design heavily relies on denormalization to embed authorization context directly within each document. For instance:\n*   **User Profiles (Host, Vendor, SpaceOwner):** Each `HostProfile`, `VendorProfile`, and `SpaceOwnerProfile` document will explicitly contain a `userId` field (linking to the core Firebase `uid`). This allows security rules for these top-level profile collections to directly check `request.auth.uid == resource.data.userId` without needing to fetch the parent `User` document.\n*   **Images (SpaceImage, RetreatImage):** `SpaceImage` documents, which are subcollections of `/spaces/{spaceId}`, will denormalize `spaceOwnerId` from their parent `Space` document. Similarly, `RetreatImage` documents, subcollections of `/retreats/{retreatId}`, will denormalize `hostId` from their parent `Retreat` document. This means a rule for an `image` document can verify ownership with `request.auth.uid == resource.data.spaceOwnerId` or `request.auth.uid == resource.data.hostId`, making the image document self-authorizing and allowing atomic operations.\n*   **Bookings:** `Booking` documents require multi-party authorization (by the `seeker` and the `host`/`vendor`/`spaceOwner` of the booked entity). Therefore, each `Booking` document explicitly includes `seekerId` (the user who made the booking), `bookedEntityType`, `bookedEntityId`, `bookedEntityOwnerId` (the ID of the owner of the entity being booked, e.g., `hostId`, `vendorId`), and `bookedEntityOwnerType`. This allows rules to grant access to either party (`request.auth.uid == resource.data.seekerId` OR `request.auth.uid == resource.data.bookedEntityOwnerId`) without any `get()` operations.\n*   **Transactions:** As subcollections of `Booking` documents, `Transaction` documents further denormalize `seekerId`, `bookedEntityOwnerId`, and `bookedEntityOwnerType` from their parent `Booking`. This ensures that `Transaction` documents are authorization-independent, providing secure access for both the seeker and the booked entity owner.\n*   **Reviews:** `Review` documents will include `reviewerId`, `reviewedEntityType`, `reviewedEntityId`, and `reviewedEntityOwnerId` (the ID of the owner of the entity that was reviewed, e.g., `hostId` for a reviewed retreat). This enables secure `list` operations for a specific host/vendor/space owner to see reviews pertaining to their listings, and allows the `reviewerId` to manage their own reviews.\n\n**Structural Segregation for QAPs (Rules are not Filters):**\nCollections are designed to have a homogeneous security posture, simplifying security rules and enabling efficient QAPs (Query-Aligned Security Policies).\n*   **Public Listings:** Collections like `/hosts`, `/vendors`, `/spaceOwners`, `/retreats`, and `/spaces` are designed for broad public readership (all authenticated users). Write/update/delete access is strictly limited to the `userId`/`hostId`/`spaceOwnerId` embedded within the respective documents. This segregation ensures that public data can be queried efficiently without security rules needing to filter large sets of data (as the client query should already specify public data if needed, or the rules will only allow publicly readable fields/documents).\n*   **Private User-Specific Data:** `SeekerProfile` is placed as a subcollection `/users/{userId}/seekerProfile/{seekerProfileId}` to strongly link it to the authenticated user, making its access highly restrictive (`request.auth.uid == userId`).\n*   **Bookings and Transactions:** These are sensitive and require specific permissions. By including `seekerId` and `bookedEntityOwnerId` directly, both parties can perform targeted queries to retrieve their relevant bookings or transactions, and the rules can enforce these granular permissions directly on the document data, rather than traversing parent hierarchies or relying on filtering data that shouldn't be accessible at all.\n*   **Reviews:** Reviews are generally public, so `/reviews/{reviewId}` allows all authenticated users to read. Write/update/delete is restricted to the `reviewerId`. Querying for reviews related to a specific `reviewedEntityOwnerId` is efficient due to the denormalized field."
   }
 }
-
-    
