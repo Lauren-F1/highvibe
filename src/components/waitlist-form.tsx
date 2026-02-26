@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -89,7 +90,17 @@ export function WaitlistForm({ source, defaultRole, onRoleChange }: WaitlistForm
         body: JSON.stringify(payload),
       });
 
-      const result = await response.json();
+      let result;
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.indexOf("application/json") !== -1) {
+        result = await response.json();
+      } else {
+        const text = await response.text();
+        console.error('Server returned non-JSON response:', text);
+        setErrorMessage('Server error (non-JSON response). Please contact support.');
+        setFormState('error');
+        return;
+      }
 
       if (!response.ok || !result.ok) {
         const errorMsg = result.error || 'An unknown server error occurred.';
@@ -111,7 +122,7 @@ export function WaitlistForm({ source, defaultRole, onRoleChange }: WaitlistForm
       if (result.message) {
         toast({
             title: "We saved your spot!",
-            description: "Email confirmation is temporarily unavailable.",
+            description: result.message,
         });
       }
 
@@ -168,7 +179,10 @@ export function WaitlistForm({ source, defaultRole, onRoleChange }: WaitlistForm
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
        {formState === 'error' && (
-          <p className="text-destructive text-sm text-center">{errorMessage} Please try again.</p>
+          <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+            <p className="text-destructive text-sm text-center">{errorMessage}</p>
+            <p className="text-destructive/70 text-xs text-center mt-1">Please try again.</p>
+          </div>
         )}
       <div className="space-y-4">
         <div className="space-y-2">

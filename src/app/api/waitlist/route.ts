@@ -39,12 +39,18 @@ function mapRoleToBucket(roleInterest: RoleInterest): RoleBucket {
 }
 
 export async function POST(request: Request) {
+  let body: any;
+  try {
+    body = await request.json();
+  } catch (e) {
+    return NextResponse.json({ ok: false, error: 'Invalid JSON payload' }, { status: 400 });
+  }
+
   try {
     const { getFirebaseAdmin } = await import('@/lib/firebase-admin');
     const { claimFounderCode } = await import('@/lib/access-codes');
     const { sendEmail } = await import('@/lib/email');
     
-    const body = await request.json();
     const validation = waitlistSchema.safeParse(body);
 
     if (!validation.success) {
@@ -127,7 +133,7 @@ export async function POST(request: Request) {
             lastEmailError: FieldValue.delete(),
         });
       } catch (emailError: any) {
-        console.error('WAITLIST_EMAIL_ERROR', { message: emailError.message, name: emailError.name, statusCode: emailError.statusCode });
+        console.error('WAITLIST_EMAIL_ERROR', { message: emailError.message });
         await waitlistRef.update({
             emailStatus: `failed`,
             lastEmailError: emailError.message,
@@ -151,19 +157,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, founderCode: assignedCode, duplicate: isDuplicate });
 
   } catch (error: any) {
-    const payload = await request.json().catch(() => ({}));
-    console.error('WAITLIST_ERROR', {
+    console.error('WAITLIST_ERROR_HANDLER', {
         message: error.message,
-        stack: error.stack,
-        email: payload.email,
-        roleBucket: payload.roleInterest ? mapRoleToBucket(payload.roleInterest) : 'unknown',
-        source: payload.source,
+        email: body?.email,
     });
     
     let userFriendlyError = 'An unexpected error occurred. Please try again later.';
     let errorCode = 'internal_server_error';
 
-    if (error.message && error.message.includes('Resend API key')) {
+    if (error.message && (error.message.includes('Resend API key') || error.message.includes('RESEND_API_KEY'))) {
         userFriendlyError = 'Email service is not configured correctly on the server.';
         errorCode = 'missing_resend_key';
     }
@@ -172,6 +174,7 @@ export async function POST(request: Request) {
         ok: false,
         error: userFriendlyError,
         code: errorCode,
+        debug: process.env.NODE_ENV === 'development' ? error.message : undefined
       },
       { status: 500 }
     );
