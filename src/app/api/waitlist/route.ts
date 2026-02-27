@@ -79,7 +79,7 @@ export async function POST(request: Request) {
               ok: false, 
               requestId, 
               stage: "config", 
-              message: "Email service not configured (RESEND_API_KEY missing). Ensure Secret Manager Secret Accessor is granted to firebase-app-hosting-compute@studio-634317332-6568b.iam.gserviceaccount.com" 
+              message: "Email service not configured. Ensure 'Secret Manager Secret Accessor' is granted to firebase-app-hosting-compute@studio-634317332-6568b.iam.gserviceaccount.com" 
             }, { status: 500 });
         }
     }
