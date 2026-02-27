@@ -1,6 +1,6 @@
 # Settings to manage and configure a Firebase App Hosting backend.
 # https://firebase.google.com/docs/app-hosting/configure
-# FORCE_ROLLOUT_ID: 2025-02-25T23:30:00Z - Triggering build to apply database and secret fixes.
+# FORCE_ROLLOUT_ID: 2025-02-27T12:00:00Z - Forcing a fresh build to resolve stale deployment.
 env:
   - variable: LAUNCH_MODE
     value: "true"

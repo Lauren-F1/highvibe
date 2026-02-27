@@ -117,7 +117,6 @@ export async function POST(request: Request) {
             await waitlistRef.set(dataToUpdate, { merge: true });
         } catch (dbError: any) {
             console.error(`[${requestId}] WAITLIST_FIRESTORE_ERROR: ${dbError.message}`);
-            // If it's the specific metadata error, give a friendly message
             const friendlyMsg = dbError.message.includes('2 UNKNOWN') 
                 ? "Database temporarily unavailable (Project resolution error)." 
                 : "Database connection failed. " + dbError.message;
@@ -138,7 +137,7 @@ export async function POST(request: Request) {
             await sendEmail({ ...emailContent, to: emailLower });
         } catch (emailError: any) {
             console.error(`[${requestId}] WAITLIST_EMAIL_ERROR: ${emailError.message}`);
-            // We proceed even if email fails, as long as Firestore succeeded
+            // We proceed even if email fails
         }
     }
 
