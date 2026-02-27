@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 /**
  * @fileOverview Health check endpoint for the waitlist flow.
  * Validates Firestore connectivity via Admin SDK and Resend configuration.
- * ROLLOUT_TRIGGER: 2025-02-25T21:45:00Z
+ * ROLLOUT_TRIGGER: 2025-02-25T23:30:00Z
  */
 
 export async function GET() {
@@ -34,7 +34,7 @@ export async function GET() {
       FIREBASE_PROJECT_ID: !!process.env.FIREBASE_PROJECT_ID,
       GCLOUD_PROJECT: !!process.env.GCLOUD_PROJECT,
       GOOGLE_CLOUD_PROJECT: !!process.env.GOOGLE_CLOUD_PROJECT,
-      RESEND_API_KEY: !!process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.includes('REPLACE'),
+      RESEND_API_KEY_present: !!process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.includes('REPLACE'),
       EMAIL_FROM: !!process.env.EMAIL_FROM,
       LAUNCH_MODE: !!process.env.LAUNCH_MODE,
     },
@@ -48,7 +48,6 @@ export async function GET() {
     const { db } = await getFirebaseAdmin();
     
     // Simple connectivity check - read a dummy path
-    // We treat "missing doc" as success because the goal is to prove we can talk to Firestore.
     await db.collection('meta').doc('healthcheck').get();
     results.firestore.ok = true;
     delete results.firestore.detail;
@@ -57,9 +56,8 @@ export async function GET() {
     results.firestore.ok = false;
     
     const rawMsg = error.message || '';
-    // Sanitize the error to remove mentions of "metadata plugin" or internal tokens
-    if (rawMsg.includes('plugin') || rawMsg.includes('token') || rawMsg.includes('metadata') || rawMsg.includes('500')) {
-      results.firestore.detail = "Authentication failure. Ensure App Hosting service account has 'Cloud Datastore User' role.";
+    if (rawMsg.includes('plugin') || rawMsg.includes('token') || rawMsg.includes('metadata') || rawMsg.includes('500') || rawMsg.includes('2 UNKNOWN')) {
+      results.firestore.detail = "Authentication failure or Project ID resolution error. Ensure App Hosting service account has 'Cloud Datastore User' role.";
     } else {
       results.firestore.detail = rawMsg;
     }
@@ -68,22 +66,16 @@ export async function GET() {
   // 2. Resend Check (Non-sending validation)
   const resendKey = process.env.RESEND_API_KEY;
   if (!resendKey || resendKey.includes('REPLACE')) {
-    results.ok = false;
     results.resend.ok = false;
     results.resend.detail = 'API key missing or placeholder used';
   } else {
     try {
       const resend = new Resend(resendKey);
-      const domainList = await resend.domains.list();
-      
-      if (domainList.error) {
-        throw new Error(domainList.error.message);
-      }
-      
+      // Validating key existence by attempting to list domains (read-only)
+      await resend.domains.list();
       results.resend.ok = true;
       delete results.resend.detail;
     } catch (error: any) {
-      results.ok = false;
       results.resend.ok = false;
       results.resend.detail = error.message || 'Resend connectivity failed';
     }

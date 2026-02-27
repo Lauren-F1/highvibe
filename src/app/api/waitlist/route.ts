@@ -46,7 +46,7 @@ export async function POST(request: Request) {
   // Check if configuration is missing - make it NON-BLOCKING
   const resendKey = process.env.RESEND_API_KEY;
   if (!resendKey || resendKey.includes('REPLACE') || resendKey.length < 5) {
-      console.warn(`[${requestId}] WAITLIST_CONFIG_WARNING: RESEND_API_KEY missing. Falling back to database-only mode.`);
+      console.warn(`[${requestId}] WAITLIST_CONFIG_WARNING: RESEND_API_KEY missing or invalid. Skipping email stage.`);
       disableEmail = true;
   }
 
@@ -117,20 +117,23 @@ export async function POST(request: Request) {
             await waitlistRef.set(dataToUpdate, { merge: true });
         } catch (dbError: any) {
             console.error(`[${requestId}] WAITLIST_FIRESTORE_ERROR: ${dbError.message}`);
-            return NextResponse.json({ ok: false, requestId, stage: "firestore", message: "Database connection failed. " + dbError.message }, { status: 500 });
+            // If it's the specific metadata error, give a friendly message
+            const friendlyMsg = dbError.message.includes('2 UNKNOWN') 
+                ? "Database temporarily unavailable (Project resolution error)." 
+                : "Database connection failed. " + dbError.message;
+            return NextResponse.json({ ok: false, requestId, stage: "firestore", message: friendlyMsg }, { status: 500 });
         }
     }
 
     // --- EMAIL STAGE (Optional/Non-blocking) ---
-    if (!disableEmail && process.env.RESEND_API_KEY) {
-        const emailContent = buildWaitlistEmail({
-            firstName: firstName || undefined,
-            roleInterest: roleInterest || undefined,
-            roleBucket,
-            founderCode: assignedCode,
-        });
-
+    if (!disableEmail) {
         try {
+            const emailContent = buildWaitlistEmail({
+                firstName: firstName || undefined,
+                roleInterest: roleInterest || undefined,
+                roleBucket,
+                founderCode: assignedCode,
+            });
             const { sendEmail } = await import('@/lib/email');
             await sendEmail({ ...emailContent, to: emailLower });
         } catch (emailError: any) {

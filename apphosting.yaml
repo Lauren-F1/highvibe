@@ -1,6 +1,6 @@
 # Settings to manage and configure a Firebase App Hosting backend.
 # https://firebase.google.com/docs/app-hosting/configure
-# FORCE_ROLLOUT_ID: 2025-02-25T21:45:00Z - Forcing fresh deployment to pick up Secret Manager IAM changes.
+# FORCE_ROLLOUT_ID: 2025-02-25T23:30:00Z - Triggering build to apply database and secret fixes.
 env:
   - variable: LAUNCH_MODE
     value: "true"
