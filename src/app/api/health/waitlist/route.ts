@@ -41,7 +41,7 @@ export async function GET() {
     resend: { ok: false, detail: '' as string | undefined },
   };
 
-  // 1. Firestore Check (Using ONLY Admin SDK + ADC)
+  // 1. Firestore Check (Using Admin SDK ONLY)
   try {
     const { getFirebaseAdmin } = await import('@/lib/firebase-admin');
     const { db } = await getFirebaseAdmin();
@@ -55,9 +55,8 @@ export async function GET() {
     results.firestore.ok = false;
     
     const rawMsg = error.message || '';
-    // Provide actionable feedback for common ADC issues in App Hosting
     if (rawMsg.includes('plugin') || rawMsg.includes('token') || rawMsg.includes('metadata') || rawMsg.includes('500')) {
-      results.firestore.detail = "Authentication failure. Ensure App Hosting service account has 'Cloud Datastore User' role and FIREBASE_PROJECT_ID is correct in apphosting.yaml.";
+      results.firestore.detail = "Authentication failure. Ensure App Hosting service account has 'Cloud Datastore User' role.";
     } else {
       results.firestore.detail = rawMsg;
     }

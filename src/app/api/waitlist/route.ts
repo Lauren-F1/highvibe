@@ -71,6 +71,14 @@ export async function POST(request: Request) {
     const maskedEmail = emailForLog.replace(/^(.)(.*)(@.*)$/, (_, a, b, c) => a + b.replace(/./g, '*') + c);
     console.log(`[${requestId}] WAITLIST_START email=${maskedEmail}`);
 
+    // CONFIG FAIL-FAST
+    if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.includes('REPLACE')) {
+        console.error(`[${requestId}] WAITLIST_CONFIG_ERROR: RESEND_API_KEY missing at runtime.`);
+        if (!disableEmail) {
+            return NextResponse.json({ ok: false, requestId, stage: "config", message: "Email service not configured (RESEND_API_KEY missing)." }, { status: 500 });
+        }
+    }
+
     const validation = waitlistSchema.safeParse(body);
     if (!validation.success) {
       const errorMessage = validation.error.errors[0]?.message || 'Invalid input.';
@@ -140,17 +148,12 @@ export async function POST(request: Request) {
             console.log(`[${requestId}] WAITLIST_FIRESTORE_OK`);
         } catch (dbError: any) {
             console.error(`[${requestId}] WAITLIST_ERROR (Firestore): ${dbError.message}`);
-            return NextResponse.json({ ok: false, requestId, stage: "firestore", message: dbError.message }, { status: 500 });
+            return NextResponse.json({ ok: false, requestId, stage: "firestore", message: "Database connection failed. " + dbError.message }, { status: 500 });
         }
     }
 
     // --- EMAIL STAGE ---
     if (!disableEmail) {
-        if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.includes('REPLACE')) {
-            console.error(`[${requestId}] WAITLIST_CONFIG_ERROR: RESEND_API_KEY missing at runtime.`);
-            return NextResponse.json({ ok: false, requestId, stage: "config", message: "Email service not configured (RESEND_API_KEY missing)." }, { status: 500 });
-        }
-
         emailAttempted = true;
         const emailContent = buildWaitlistEmail({
             firstName: firstName || undefined,
@@ -167,7 +170,6 @@ export async function POST(request: Request) {
         } catch (emailError: any) {
             console.error(`[${requestId}] WAITLIST_ERROR (Email): ${emailError.message}`);
             // Note: We don't fail the whole request if email fails but Firestore succeeded
-            // unless you want strict behavior. Let's return success if DB worked.
         }
     }
 
