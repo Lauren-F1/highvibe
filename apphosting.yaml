@@ -1,6 +1,7 @@
+
 # Settings to manage and configure a Firebase App Hosting backend.
 # https://firebase.google.com/docs/app-hosting/configure
-# FORCE_ROLLOUT_ID: 2025-02-27T21:45:00Z - Triggering fresh build to resolve Firestore "2 UNKNOWN" connection error.
+# FORCE_ROLLOUT_ID: 2025-02-27T23:35:00Z - Forcing fresh build to apply database and startup fixes.
 env:
   - variable: LAUNCH_MODE
     value: "true"
