@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 /**
  * @fileOverview Health check endpoint for the waitlist flow.
  * Validates Firestore connectivity via Admin SDK and Resend configuration.
- * ROLLOUT_TRIGGER: 2025-02-25T18:45:00Z
+ * ROLLOUT_TRIGGER: 2025-02-25T21:45:00Z
  */
 
 export async function GET() {
