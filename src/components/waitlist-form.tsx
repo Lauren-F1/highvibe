@@ -111,11 +111,10 @@ export function WaitlistForm({ source, defaultRole, onRoleChange }: WaitlistForm
         const debugParts = [];
         if (result.requestId) debugParts.push(`Request: ${result.requestId}`);
         if (result.stage) debugParts.push(`Stage: ${result.stage}`);
+        if (result.debug) debugParts.push(`Debug: ${result.debug}`);
         
         if (debugParts.length > 0) {
             setDebugMessage(debugParts.join(' | '));
-        } else if (result.debug) {
-            setDebugMessage(result.debug);
         }
         
         setFormState('error');
@@ -194,7 +193,7 @@ export function WaitlistForm({ source, defaultRole, onRoleChange }: WaitlistForm
             <p className="text-destructive text-sm text-center font-semibold">{errorMessage}</p>
             {debugMessage && (
                 <p className="text-destructive/70 text-[10px] text-center mt-2 font-mono break-all">
-                    Detail: {debugMessage}
+                    {debugMessage}
                 </p>
             )}
             <p className="text-destructive/70 text-xs text-center mt-2">Please try again or contact support.</p>

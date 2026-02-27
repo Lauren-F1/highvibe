@@ -45,6 +45,8 @@ export async function getFirebaseAdmin(): Promise<FirebaseAdminInstances> {
         throw initError;
       }
     }
+    
+    // Ensure we are getting the firestore instance for the default app
     firestoreDb = getFirestore();
     fieldValue = admin.firestore.FieldValue;
   }
