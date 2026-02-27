@@ -52,7 +52,6 @@ export async function POST(request: Request) {
   // RUNTIME ENV CHECK LOGGING
   const envCheck = {
     FIREBASE_PROJECT_ID: !!process.env.FIREBASE_PROJECT_ID,
-    GCLOUD_PROJECT: !!process.env.GCLOUD_PROJECT,
     RESEND_API_KEY: !!process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.includes('REPLACE'),
     EMAIL_FROM: !!process.env.EMAIL_FROM,
   };
@@ -75,7 +74,12 @@ export async function POST(request: Request) {
     if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.includes('REPLACE')) {
         console.error(`[${requestId}] WAITLIST_CONFIG_ERROR: RESEND_API_KEY missing at runtime.`);
         if (!disableEmail) {
-            return NextResponse.json({ ok: false, requestId, stage: "config", message: "Email service not configured (RESEND_API_KEY missing)." }, { status: 500 });
+            return NextResponse.json({ 
+              ok: false, 
+              requestId, 
+              stage: "config", 
+              message: "Email service not configured (RESEND_API_KEY missing). Ensure Secret Manager Secret Accessor is granted to firebase-app-hosting-compute@studio-634317332-6568b.iam.gserviceaccount.com" 
+            }, { status: 500 });
         }
     }
 
@@ -153,7 +157,7 @@ export async function POST(request: Request) {
     }
 
     // --- EMAIL STAGE ---
-    if (!disableEmail) {
+    if (!disableEmail && process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.includes('REPLACE')) {
         emailAttempted = true;
         const emailContent = buildWaitlistEmail({
             firstName: firstName || undefined,
