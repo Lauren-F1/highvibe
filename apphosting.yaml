@@ -1,6 +1,6 @@
 # Settings to manage and configure a Firebase App Hosting backend.
 # https://firebase.google.com/docs/app-hosting/configure
-# ROLLOUT_TRIGGER: 2025-02-25T20:15:00Z - Triggering fresh rollout to pick up Secret Manager permissions
+# ROLLOUT_TRIGGER: 2025-02-25T20:45:00Z - Triggering fresh rollout to pick up Secret Manager permissions
 env:
   - variable: LAUNCH_MODE
     value: "true"

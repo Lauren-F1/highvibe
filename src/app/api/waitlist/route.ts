@@ -40,7 +40,7 @@ function mapRoleToBucket(roleInterest: RoleInterest): RoleBucket {
 export async function POST(request: Request) {
   const requestId = Math.random().toString(36).substring(7).toUpperCase();
   
-  const disableEmail = process.env.WAITLIST_DISABLE_EMAIL_SEND === 'true';
+  let disableEmail = process.env.WAITLIST_DISABLE_EMAIL_SEND === 'true';
   const disableFirestore = process.env.WAITLIST_DISABLE_FIRESTORE_WRITE === 'true';
 
   // Log runtime environment presence for debugging
@@ -62,15 +62,10 @@ export async function POST(request: Request) {
     
     // Check if configuration is missing
     if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.includes('REPLACE')) {
-        console.error(`[${requestId}] WAITLIST_CONFIG_ERROR: RESEND_API_KEY missing at runtime.`);
-        if (!disableEmail) {
-            return NextResponse.json({ 
-              ok: false, 
-              requestId, 
-              stage: "config", 
-              message: "Email service not configured. Ensure 'Secret Manager Secret Accessor' is granted to firebase-app-hosting-compute@studio-634317332-6568b.iam.gserviceaccount.com" 
-            }, { status: 500 });
-        }
+        console.error(`[${requestId}] WAITLIST_CONFIG_WARNING: RESEND_API_KEY missing at runtime. Falling back to non-blocking mode.`);
+        // Instead of hard-failing, we just disable the email for this specific request
+        // so the user can still join the waitlist in the database.
+        disableEmail = true;
     }
 
     const validation = waitlistSchema.safeParse(body);
@@ -158,7 +153,8 @@ export async function POST(request: Request) {
         ok: true, 
         requestId,
         founderCode: assignedCode, 
-        duplicate: isDuplicate
+        duplicate: isDuplicate,
+        message: disableEmail ? "We've saved your spot! (Confirmation email will follow once service is configured)." : undefined
     });
 
   } catch (error: any) {
