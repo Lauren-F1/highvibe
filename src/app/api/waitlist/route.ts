@@ -54,6 +54,7 @@ export async function POST(request: Request) {
     FIREBASE_PROJECT_ID: !!process.env.FIREBASE_PROJECT_ID,
     RESEND_API_KEY: !!process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.includes('REPLACE'),
     EMAIL_FROM: !!process.env.EMAIL_FROM,
+    LAUNCH_MODE: !!process.env.LAUNCH_MODE,
   };
   console.log(`WAITLIST_RUNTIME_ENV [${requestId}] ${JSON.stringify(envCheck)}`);
 
