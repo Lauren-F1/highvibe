@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUser } from "@/firebase";
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, Suspense } from 'react';
 import { cn } from '@/lib/utils';
 import { isFirebaseEnabled } from "@/firebase/config";
 import { useInbox } from "@/context/InboxContext";
@@ -64,6 +64,14 @@ function ConversationListItem({ convo, isSelected, onSelect, onMarkAsUnread }: {
 }
 
 export default function InboxPage() {
+  return (
+    <Suspense fallback={<div className="container mx-auto px-4 py-12 text-center">Loading...</div>}>
+      <InboxContent />
+    </Suspense>
+  );
+}
+
+function InboxContent() {
   const user = useUser();
   const router = useRouter();
   const searchParams = useSearchParams();

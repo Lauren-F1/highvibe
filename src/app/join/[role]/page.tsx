@@ -4,7 +4,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AuthForm } from '@/components/auth-form';
 import { useUser } from '@/firebase';
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 
 const roleDisplayNames: Record<string, string> = {
     guide: 'Guide',
@@ -14,6 +14,14 @@ const roleDisplayNames: Record<string, string> = {
 };
 
 export default function JoinRolePage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <JoinRoleContent />
+    </Suspense>
+  );
+}
+
+function JoinRoleContent() {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();

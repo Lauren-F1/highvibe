@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useUser, useFirestore } from '@/firebase';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -9,6 +9,14 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription }
 import { useToast } from '@/hooks/use-toast';
 
 export default function SeekerAgreementPage() {
+  return (
+    <Suspense fallback={<div className="container mx-auto px-4 py-12 text-center">Loading...</div>}>
+      <SeekerAgreementContent />
+    </Suspense>
+  );
+}
+
+function SeekerAgreementContent() {
   const user = useUser();
   const firestore = useFirestore();
   const router = useRouter();
