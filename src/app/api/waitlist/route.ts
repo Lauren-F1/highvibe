@@ -39,22 +39,15 @@ function mapRoleToBucket(roleInterest: RoleInterest): RoleBucket {
 
 export async function POST(request: Request) {
   const requestId = Math.random().toString(36).substring(7).toUpperCase();
-  let emailForLog = "unknown";
   
-  let fsAttempted = false;
-  let fsSucceeded = false;
-  let emailAttempted = false;
-  let emailSucceeded = false;
-
   const disableEmail = process.env.WAITLIST_DISABLE_EMAIL_SEND === 'true';
   const disableFirestore = process.env.WAITLIST_DISABLE_FIRESTORE_WRITE === 'true';
 
-  // RUNTIME ENV CHECK LOGGING
+  // Log runtime environment presence for debugging
   const envCheck = {
     FIREBASE_PROJECT_ID: !!process.env.FIREBASE_PROJECT_ID,
     RESEND_API_KEY: !!process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.includes('REPLACE'),
     EMAIL_FROM: !!process.env.EMAIL_FROM,
-    LAUNCH_MODE: !!process.env.LAUNCH_MODE,
   };
   console.log(`WAITLIST_RUNTIME_ENV [${requestId}] ${JSON.stringify(envCheck)}`);
 
@@ -66,12 +59,8 @@ export async function POST(request: Request) {
         return NextResponse.json({ ok: false, requestId, stage: "input", message: 'Empty request body' }, { status: 400 });
     }
     const body = JSON.parse(rawBody);
-    emailForLog = body.email || "unknown";
     
-    const maskedEmail = emailForLog.replace(/^(.)(.*)(@.*)$/, (_, a, b, c) => a + b.replace(/./g, '*') + c);
-    console.log(`[${requestId}] WAITLIST_START email=${maskedEmail}`);
-
-    // CONFIG FAIL-FAST
+    // Check if configuration is missing
     if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.includes('REPLACE')) {
         console.error(`[${requestId}] WAITLIST_CONFIG_ERROR: RESEND_API_KEY missing at runtime.`);
         if (!disableEmail) {
@@ -86,8 +75,7 @@ export async function POST(request: Request) {
 
     const validation = waitlistSchema.safeParse(body);
     if (!validation.success) {
-      const errorMessage = validation.error.errors[0]?.message || 'Invalid input.';
-      return NextResponse.json({ ok: false, requestId, stage: "input", message: errorMessage }, { status: 400 });
+      return NextResponse.json({ ok: false, requestId, stage: "input", message: validation.error.errors[0]?.message }, { status: 400 });
     }
 
     const { firstName, email, roleInterest, source, utm_source, utm_medium, utm_campaign, utm_term, utm_content } = validation.data;
@@ -99,7 +87,6 @@ export async function POST(request: Request) {
 
     // --- FIRESTORE STAGE ---
     if (!disableFirestore) {
-        fsAttempted = true;
         try {
             const { db: firestoreDb, FieldValue } = await getFirebaseAdmin();
             const { claimFounderCode } = await import('@/lib/access-codes');
@@ -133,13 +120,7 @@ export async function POST(request: Request) {
             const hasCodeAlready = docSnap.exists && docSnap.data()?.founderCode;
 
             if (isEligibleForCode && !hasCodeAlready) {
-              const isAdminTest = (process.env.ADMIN_EMAIL_ALLOWLIST || '').includes(emailLower);
-              if (isAdminTest) {
-                assignedCode = `TEST-${Date.now()}`;
-              } else {
-                assignedCode = await claimFounderCode(emailLower, roleBucket as 'guide'|'host'|'vendor', firestoreDb, FieldValue);
-              }
-
+              assignedCode = await claimFounderCode(emailLower, roleBucket as 'guide'|'host'|'vendor', firestoreDb, FieldValue);
               if (assignedCode) {
                 dataToUpdate.founderCode = assignedCode;
                 dataToUpdate.founderCodeAssignedAt = FieldValue.serverTimestamp();
@@ -149,17 +130,14 @@ export async function POST(request: Request) {
             }
 
             await waitlistRef.set(dataToUpdate, { merge: true });
-            fsSucceeded = true;
-            console.log(`[${requestId}] WAITLIST_FIRESTORE_OK`);
         } catch (dbError: any) {
-            console.error(`[${requestId}] WAITLIST_ERROR (Firestore): ${dbError.message}`);
+            console.error(`[${requestId}] WAITLIST_FIRESTORE_ERROR: ${dbError.message}`);
             return NextResponse.json({ ok: false, requestId, stage: "firestore", message: "Database connection failed. " + dbError.message }, { status: 500 });
         }
     }
 
     // --- EMAIL STAGE ---
     if (!disableEmail && process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.includes('REPLACE')) {
-        emailAttempted = true;
         const emailContent = buildWaitlistEmail({
             firstName: firstName || undefined,
             roleInterest: roleInterest || undefined,
@@ -170,15 +148,12 @@ export async function POST(request: Request) {
         try {
             const { sendEmail } = await import('@/lib/email');
             await sendEmail({ ...emailContent, to: emailLower });
-            emailSucceeded = true;
-            console.log(`[${requestId}] WAITLIST_EMAIL_OK`);
         } catch (emailError: any) {
-            console.error(`[${requestId}] WAITLIST_ERROR (Email): ${emailError.message}`);
-            // Note: We don't fail the whole request if email fails but Firestore succeeded
+            console.error(`[${requestId}] WAITLIST_EMAIL_ERROR: ${emailError.message}`);
+            // We proceed even if email fails, as long as Firestore succeeded
         }
     }
 
-    console.log(`WAITLIST_RESULT: ${requestId}, ${fsAttempted}, ${fsSucceeded}, ${emailAttempted}, ${emailSucceeded}, 200`);
     return NextResponse.json({ 
         ok: true, 
         requestId,
@@ -187,7 +162,7 @@ export async function POST(request: Request) {
     });
 
   } catch (error: any) {
-    console.error(`[${requestId}] WAITLIST_ERROR (Global): ${error.message}`);
+    console.error(`[${requestId}] WAITLIST_GLOBAL_ERROR: ${error.message}`);
     return NextResponse.json({ ok: false, requestId, stage: "unknown", message: error.message }, { status: 500 });
   }
 }

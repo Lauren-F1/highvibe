@@ -1,6 +1,6 @@
 # Settings to manage and configure a Firebase App Hosting backend.
 # https://firebase.google.com/docs/app-hosting/configure
-# ROLLOUT_TRIGGER: 2025-02-25T19:30:00Z - Forcing rollout to pick up IAM changes
+# ROLLOUT_TRIGGER: 2025-02-25T20:15:00Z - Triggering fresh rollout to pick up Secret Manager permissions
 env:
   - variable: LAUNCH_MODE
     value: "true"
@@ -32,7 +32,7 @@ env:
       - RUNTIME
 
   - variable: NEXT_PUBLIC_BASE_URL
-    value: "https://highviberetreats.com"
+    value: "https://highvibe-retreats.web.app"
     availability:
       - BUILD
       - RUNTIME
