@@ -24,6 +24,7 @@ export function getResolvedProjectId() {
     }
   }
   // Hardcoded fallback for this specific project to resolve ADC lookup failures in App Hosting.
+  // This is the primary fix for the "Getting metadata from plugin failed" / "2 UNKNOWN" error.
   return { projectId: 'studio-634317332-6568b', keyUsed: 'hardcoded-fallback' };
 }
 

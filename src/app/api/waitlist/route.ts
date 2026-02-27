@@ -43,31 +43,20 @@ export async function POST(request: Request) {
   let disableEmail = process.env.WAITLIST_DISABLE_EMAIL_SEND === 'true';
   const disableFirestore = process.env.WAITLIST_DISABLE_FIRESTORE_WRITE === 'true';
 
-  // Log runtime environment presence for debugging
-  const envCheck = {
-    FIREBASE_PROJECT_ID: !!process.env.FIREBASE_PROJECT_ID,
-    RESEND_API_KEY: !!process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.includes('REPLACE'),
-    EMAIL_FROM: !!process.env.EMAIL_FROM,
-  };
-  console.log(`WAITLIST_RUNTIME_ENV [${requestId}] ${JSON.stringify(envCheck)}`);
+  // Check if configuration is missing - make it NON-BLOCKING
+  const resendKey = process.env.RESEND_API_KEY;
+  if (!resendKey || resendKey.includes('REPLACE') || resendKey.length < 5) {
+      console.warn(`[${requestId}] WAITLIST_CONFIG_WARNING: RESEND_API_KEY missing. Falling back to database-only mode.`);
+      disableEmail = true;
+  }
 
   try {
-    const { getFirebaseAdmin } = await import('@/lib/firebase-admin');
-
     const rawBody = await request.text();
     if (!rawBody) {
         return NextResponse.json({ ok: false, requestId, stage: "input", message: 'Empty request body' }, { status: 400 });
     }
     const body = JSON.parse(rawBody);
     
-    // Check if configuration is missing
-    if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.includes('REPLACE')) {
-        console.error(`[${requestId}] WAITLIST_CONFIG_WARNING: RESEND_API_KEY missing at runtime. Falling back to non-blocking mode.`);
-        // Instead of hard-failing, we just disable the email for this specific request
-        // so the user can still join the waitlist in the database.
-        disableEmail = true;
-    }
-
     const validation = waitlistSchema.safeParse(body);
     if (!validation.success) {
       return NextResponse.json({ ok: false, requestId, stage: "input", message: validation.error.errors[0]?.message }, { status: 400 });
@@ -83,6 +72,7 @@ export async function POST(request: Request) {
     // --- FIRESTORE STAGE ---
     if (!disableFirestore) {
         try {
+            const { getFirebaseAdmin } = await import('@/lib/firebase-admin');
             const { db: firestoreDb, FieldValue } = await getFirebaseAdmin();
             const { claimFounderCode } = await import('@/lib/access-codes');
             const waitlistRef = firestoreDb.collection('waitlist').doc(emailLower);
@@ -131,8 +121,8 @@ export async function POST(request: Request) {
         }
     }
 
-    // --- EMAIL STAGE ---
-    if (!disableEmail && process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.includes('REPLACE')) {
+    // --- EMAIL STAGE (Optional/Non-blocking) ---
+    if (!disableEmail && process.env.RESEND_API_KEY) {
         const emailContent = buildWaitlistEmail({
             firstName: firstName || undefined,
             roleInterest: roleInterest || undefined,
@@ -159,6 +149,6 @@ export async function POST(request: Request) {
 
   } catch (error: any) {
     console.error(`[${requestId}] WAITLIST_GLOBAL_ERROR: ${error.message}`);
-    return NextResponse.json({ ok: false, requestId, stage: "unknown", message: error.message }, { status: 500 });
+    return NextResponse.json({ ok: false, requestId, stage: "global", message: error.message }, { status: 500 });
   }
 }
