@@ -39,14 +39,15 @@ function mapRoleToBucket(roleInterest: RoleInterest): RoleBucket {
 
 export async function POST(request: Request) {
   const requestId = Math.random().toString(36).substring(7).toUpperCase();
+  console.log(`[${requestId}] WAITLIST_REQUEST_START`);
   
   let disableEmail = process.env.WAITLIST_DISABLE_EMAIL_SEND === 'true';
   const disableFirestore = process.env.WAITLIST_DISABLE_FIRESTORE_WRITE === 'true';
 
-  // Check if configuration is missing - make it NON-BLOCKING
+  // Check if Resend API key is available
   const resendKey = process.env.RESEND_API_KEY;
   if (!resendKey || resendKey.includes('REPLACE') || resendKey.length < 5) {
-      console.warn(`[${requestId}] WAITLIST_CONFIG_WARNING: RESEND_API_KEY missing or invalid. Skipping email stage.`);
+      console.warn(`[${requestId}] WAITLIST_CONFIG_WARNING: RESEND_API_KEY missing or placeholder. Email will be skipped.`);
       disableEmail = true;
   }
 
@@ -115,16 +116,17 @@ export async function POST(request: Request) {
             }
 
             await waitlistRef.set(dataToUpdate, { merge: true });
+            console.log(`[${requestId}] WAITLIST_FIRESTORE_SUCCESS: ${emailLower}`);
         } catch (dbError: any) {
             console.error(`[${requestId}] WAITLIST_FIRESTORE_ERROR: ${dbError.message}`);
-            const friendlyMsg = dbError.message.includes('2 UNKNOWN') 
-                ? "Database temporarily unavailable (Project resolution error)." 
-                : "Database connection failed. " + dbError.message;
-            return NextResponse.json({ ok: false, requestId, stage: "firestore", message: friendlyMsg }, { status: 500 });
+            // If the database fails, we must report it because we can't save the lead.
+            const friendlyMsg = "Database connection failed. Please try again in a few minutes.";
+            return NextResponse.json({ ok: false, requestId, stage: "firestore", message: friendlyMsg, debug: dbError.message }, { status: 500 });
         }
     }
 
-    // --- EMAIL STAGE (Optional/Non-blocking) ---
+    // --- EMAIL STAGE (Non-blocking) ---
+    // We return success to the user even if the email fails, as long as the data is in Firestore.
     if (!disableEmail) {
         try {
             const emailContent = buildWaitlistEmail({
@@ -135,9 +137,10 @@ export async function POST(request: Request) {
             });
             const { sendEmail } = await import('@/lib/email');
             await sendEmail({ ...emailContent, to: emailLower });
+            console.log(`[${requestId}] WAITLIST_EMAIL_SUCCESS: ${emailLower}`);
         } catch (emailError: any) {
-            console.error(`[${requestId}] WAITLIST_EMAIL_ERROR: ${emailError.message}`);
-            // We proceed even if email fails
+            console.error(`[${requestId}] WAITLIST_EMAIL_ERROR (Non-blocking): ${emailError.message}`);
+            // Not returning an error here because the user is already saved in Firestore.
         }
     }
 
@@ -146,11 +149,11 @@ export async function POST(request: Request) {
         requestId,
         founderCode: assignedCode, 
         duplicate: isDuplicate,
-        message: disableEmail ? "We've saved your spot! (Confirmation email will follow once service is configured)." : undefined
+        message: disableEmail ? "We've saved your spot! (Confirmation email will be sent once configuration is complete)." : undefined
     });
 
   } catch (error: any) {
     console.error(`[${requestId}] WAITLIST_GLOBAL_ERROR: ${error.message}`);
-    return NextResponse.json({ ok: false, requestId, stage: "global", message: error.message }, { status: 500 });
+    return NextResponse.json({ ok: false, requestId, stage: "global", message: 'An unexpected error occurred.' }, { status: 500 });
   }
 }

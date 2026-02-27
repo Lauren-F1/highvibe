@@ -14,7 +14,7 @@ interface FirebaseAdminInstances {
 
 /**
  * Derives the Project ID from environment variables based on precedence.
- * Includes a hardcoded fallback for studio-634317332-6568b to fix ADC lookup failures.
+ * Hardcoded fallback for studio-634317332-6568b is used to bypass metadata server errors.
  */
 export function getResolvedProjectId() {
   const keys = ['FIREBASE_PROJECT_ID', 'GCLOUD_PROJECT', 'GOOGLE_CLOUD_PROJECT', 'NEXT_PUBLIC_FIREBASE_PROJECT_ID'];
@@ -23,9 +23,8 @@ export function getResolvedProjectId() {
       return { projectId: process.env[key] as string, keyUsed: key };
     }
   }
-  // Hardcoded fallback for this specific project to resolve ADC lookup failures in App Hosting.
   // This is the primary fix for the "Getting metadata from plugin failed" / "2 UNKNOWN" error.
-  return { projectId: 'studio-634317332-6568b', keyUsed: 'hardcoded-fallback' };
+  return { projectId: 'studio-634317332-6568b', keyUsed: 'hardcoded-primary' };
 }
 
 export async function getFirebaseAdmin(): Promise<FirebaseAdminInstances> {
@@ -34,12 +33,13 @@ export async function getFirebaseAdmin(): Promise<FirebaseAdminInstances> {
       const { projectId, keyUsed } = getResolvedProjectId();
       
       try {
-        // Initialize using Application Default Credentials (ADC)
-        // Providing the projectId explicitly is the recommended fix for the "Getting metadata from plugin failed" error.
+        // Initialize using the resolved Project ID. 
+        // Providing the projectId explicitly prevents the SDK from trying to 
+        // reach the metadata server, which often fails in App Hosting compute.
         initializeApp({
             projectId: projectId,
         });
-        console.log(`[ADMIN_INIT] Firebase Admin initialized. projectId=${projectId} (source=${keyUsed})`);
+        console.log(`[ADMIN_INIT] Firebase Admin initialized successfully. projectId=${projectId} (source=${keyUsed})`);
       } catch (initError: any) {
         console.error('[ADMIN_INIT] Firebase Admin failed to initialize:', initError.message);
         throw initError;
