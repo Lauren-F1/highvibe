@@ -14,6 +14,7 @@ interface FirebaseAdminInstances {
 
 /**
  * Derives the Project ID from environment variables based on precedence.
+ * Includes a hardcoded fallback for studio-634317332-6568b to fix ADC lookup failures.
  */
 export function getResolvedProjectId() {
   const keys = ['FIREBASE_PROJECT_ID', 'GCLOUD_PROJECT', 'GOOGLE_CLOUD_PROJECT', 'NEXT_PUBLIC_FIREBASE_PROJECT_ID'];
@@ -22,7 +23,7 @@ export function getResolvedProjectId() {
       return { projectId: process.env[key] as string, keyUsed: key };
     }
   }
-  // Hardcoded fallback for this specific project to resolve ADC lookup failures in App Hosting environments.
+  // Hardcoded fallback for this specific project to resolve ADC lookup failures in App Hosting.
   return { projectId: 'studio-634317332-6568b', keyUsed: 'hardcoded-fallback' };
 }
 
