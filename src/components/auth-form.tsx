@@ -122,6 +122,7 @@ export function AuthForm({ mode, role }: AuthFormProps) {
     const profileSlug = displayName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
     
     const userData: any = {
+      id: user.uid,
       uid: user.uid,
       email: user.email?.toLowerCase(),
       displayName,
@@ -250,16 +251,31 @@ export function AuthForm({ mode, role }: AuthFormProps) {
 
     // PRODUCTION FIREBASE MODE
     const auth = getAuth(app!);
-    const firestoreDb = useFirestore();
 
     try {
       if (mode === 'signup') {
-        const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
-        await createUserProfileDocument(userCredential.user, values);
-        toast({ title: 'Account created!', description: "Let's get started." });
+        try {
+          const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+          await createUserProfileDocument(userCredential.user, values);
+          toast({ title: 'Account created!', description: "Let's get started." });
+        } catch (signupErr: any) {
+          if (signupErr.code === 'auth/email-already-in-use') {
+            // Account exists (possibly from a previous failed signup). Try signing in instead.
+            try {
+              await signInWithEmailAndPassword(auth, values.email, values.password);
+              toast({ title: 'Welcome back!', description: 'Signed in to your existing account.' });
+            } catch {
+              setError('An account with this email already exists. Please log in with your password.');
+              setLoading(false);
+              return;
+            }
+          } else {
+            throw signupErr;
+          }
+        }
       } else { // login
         const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
-        
+
         const adminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAIL_ALLOWLIST || '')
             .split(',')
             .map(e => e.trim().toLowerCase())
@@ -268,13 +284,19 @@ export function AuthForm({ mode, role }: AuthFormProps) {
         if (userCredential.user.email && adminEmails.includes(userCredential.user.email.toLowerCase())) {
             document.cookie = 'isAdminBypass=true; path=/; max-age=86400'; // 1 day
         }
-        
-        if (firestoreDb) {
-            const userDocRef = doc(firestoreDb, 'users', userCredential.user.uid);
-            await setDoc(userDocRef, { lastLoginAt: serverTimestamp() }, { merge: true });
+
+        // Non-blocking lastLoginAt update — don't let Firestore errors block login
+        if (firestore) {
+            try {
+              const userDocRef = doc(firestore, 'users', userCredential.user.uid);
+              await setDoc(userDocRef, { id: userCredential.user.uid, lastLoginAt: serverTimestamp() }, { merge: true });
+            } catch (e) {
+              console.warn('Failed to update lastLoginAt:', e);
+            }
         }
       }
     } catch (err: any) {
+      console.error('Auth error:', err.code, err.message);
       setError(getFriendlyErrorMessage(err.code));
     } finally {
       setLoading(false);

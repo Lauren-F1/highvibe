@@ -6,3 +6,5 @@ export const firebaseConfig = {
   "measurementId": "",
   "messagingSenderId": "453088920311"
 };
+
+export const isFirebaseEnabled = !!firebaseConfig.apiKey;

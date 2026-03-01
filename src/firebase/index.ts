@@ -48,3 +48,7 @@ export * from './non-blocking-updates';
 export * from './non-blocking-login';
 export * from './errors';
 export * from './error-emitter';
+
+// Re-export the high-level useUser hook (with status, profile, etc.)
+// This overrides the low-level useAuthState from provider.tsx
+export { useUser } from './auth/use-user';
