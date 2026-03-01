@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { useUser, UserProfile } from '@/firebase/auth/use-user';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
@@ -26,8 +26,8 @@ async function getProfileBySlug(db: any, slug: string): Promise<UserProfile | nu
   return { uid: userDoc.id, ...userDoc.data() } as UserProfile;
 }
 
-export default function PublicProfilePage({ params }: { params: { slug: string } }) {
-  const { slug } = params;
+export default function PublicProfilePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params);
   const currentUser = useUser();
   const firestore = useFirestore();
   const router = useRouter();

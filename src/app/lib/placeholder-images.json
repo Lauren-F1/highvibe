@@ -21,9 +21,9 @@
     },
     {
       "id": "cozy-cabin",
-      "description": "Rustic cabin interior.",
-      "imageUrl": "https://picsum.photos/seed/cabin1/1200/800",
-      "imageHint": "cabin interior"
+      "description": "Rustic cabin retreat in the woods.",
+      "imageUrl": "https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=1200&h=800&fit=crop",
+      "imageHint": "cabin retreat"
     },
     {
       "id": "healthy-food-chef",
@@ -39,9 +39,9 @@
     },
     {
       "id": "modern-event-space",
-      "description": "Bright and modern event space.",
-      "imageUrl": "https://picsum.photos/seed/event1/1200/800",
-      "imageHint": "event space"
+      "description": "Bright and modern retreat gathering space.",
+      "imageUrl": "https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&h=800&fit=crop",
+      "imageHint": "modern event space"
     },
     {
       "id": "friendly-host-portrait",
@@ -57,15 +57,15 @@
     },
     {
       "id": "space-owner-villa",
-      "description": "Luxurious villa with pool.",
-      "imageUrl": "https://picsum.photos/seed/villa1/1200/800",
-      "imageHint": "luxury villa"
+      "description": "Luxurious modern villa with infinity pool.",
+      "imageUrl": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&h=800&fit=crop",
+      "imageHint": "luxury villa pool"
     },
     {
       "id": "resort-hero",
-      "description": "Beautiful resort view.",
-      "imageUrl": "https://picsum.photos/seed/resort1/1920/1080",
-      "imageHint": "resort view"
+      "description": "Beautiful retreat resort overlooking the ocean.",
+      "imageUrl": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1920&h=1080&fit=crop",
+      "imageHint": "resort ocean view"
     },
     {
       "id": "seeker-hero-panoramic",
@@ -75,21 +75,21 @@
     },
     {
       "id": "host-bali-villa",
-      "description": "Open-air luxury villa in Bali.",
-      "imageUrl": "https://picsum.photos/seed/bali1/1200/800",
-      "imageHint": "bali villa"
+      "description": "Open-air luxury villa in Bali with tropical pool.",
+      "imageUrl": "https://images.unsplash.com/photo-1602002418816-5c0aeef426aa?w=1200&h=800&fit=crop",
+      "imageHint": "bali villa pool"
     },
     {
       "id": "host-kyoto-ryokan",
-      "description": "Traditional Japanese ryokan.",
-      "imageUrl": "https://picsum.photos/seed/kyoto1/1200/800",
-      "imageHint": "japan interior"
+      "description": "Traditional Japanese ryokan with garden view.",
+      "imageUrl": "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=1200&h=800&fit=crop",
+      "imageHint": "japanese style home"
     },
     {
       "id": "spanish-villa-sunset",
-      "description": "Spanish villa at sunset.",
-      "imageUrl": "https://picsum.photos/seed/spain1/1200/800",
-      "imageHint": "dream destination"
+      "description": "Mediterranean villa with terrace at sunset.",
+      "imageUrl": "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=1200&h=800&fit=crop",
+      "imageHint": "luxury villa exterior"
     },
     {
       "id": "guide-dashboard-hero",
@@ -99,9 +99,9 @@
     },
     {
       "id": "host-dashboard-hero",
-      "description": "Cozy cabin in a forest.",
-      "imageUrl": "https://picsum.photos/seed/hostdash1/1200/400",
-      "imageHint": "cabin forest"
+      "description": "Beautiful retreat property with mountain views.",
+      "imageUrl": "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1200&h=400&fit=crop",
+      "imageHint": "modern home exterior"
     },
     {
       "id": "vendor-dashboard-hero",

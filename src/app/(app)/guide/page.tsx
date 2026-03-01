@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -13,7 +13,7 @@ import { PlusCircle, MoreHorizontal, CheckCircle, XCircle, Filter, Sparkles } fr
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { yourRetreats, hosts, vendors, UserSubscriptionStatus, destinations, connectionRequests, confirmedBookings, type Host, type Vendor } from '@/lib/mock-data';
+import { yourRetreats as mockRetreats, hosts, vendors, UserSubscriptionStatus, destinations, connectionRequests, confirmedBookings, type Host, type Vendor } from '@/lib/mock-data';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
@@ -29,7 +29,41 @@ import { cn } from '@/lib/utils';
 import { RetreatReadinessChecklist, type RetreatReadinessProps } from '@/components/retreat-readiness-checklist';
 import { WaitlistModal } from '@/components/waitlist-modal';
 import { VibeMatchModal } from '@/components/vibe-match-modal';
-import { useUser } from '@/firebase';
+import { useUser, useFirestore } from '@/firebase';
+import { collection, query, where, getDocs, doc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
+
+interface FirestoreRetreat {
+  id: string;
+  hostId: string;
+  title: string;
+  description: string;
+  type: string;
+  startDate: string;
+  endDate: string;
+  costPerPerson: number;
+  currency: string;
+  capacity: number;
+  currentAttendees: number;
+  locationDescription: string;
+  status: string;
+  included?: string;
+}
+
+// Adapt Firestore retreats to the shape the dashboard expects
+function toDisplayRetreat(r: FirestoreRetreat) {
+  return {
+    id: r.id,
+    name: r.title,
+    status: r.status === 'published' ? 'Published' : r.status === 'paused' ? 'Paused' : 'Draft',
+    bookings: r.currentAttendees || 0,
+    income: (r.currentAttendees || 0) * r.costPerPerson,
+    location: r.locationDescription,
+    image: undefined as string | undefined,
+    datesSet: !!r.startDate && !!r.endDate,
+    capacity: r.capacity,
+    firestoreId: r.id,
+  };
+}
 
 
 const genericImage = '/generic-placeholder.jpg';
@@ -71,9 +105,43 @@ const initialVendorFilters: VendorFiltersStateType = {
 export default function GuidePage() {
   const router = useRouter();
   const user = useUser();
-  const [activeRetreatId, setActiveRetreatId] = useState<string | null>(yourRetreats[0]?.id || null);
+  const firestore = useFirestore();
+  const [firestoreRetreats, setFirestoreRetreats] = useState<ReturnType<typeof toDisplayRetreat>[]>([]);
+  const [retreatsLoaded, setRetreatsLoaded] = useState(false);
+
+  // Load retreats from Firestore
+  useEffect(() => {
+    if (!firestore || user.status !== 'authenticated' || !user.data?.uid) return;
+
+    const loadRetreats = async () => {
+      try {
+        const q = query(collection(firestore, 'retreats'), where('hostId', '==', user.data!.uid));
+        const snap = await getDocs(q);
+        const retreats = snap.docs.map(d => toDisplayRetreat(d.data() as FirestoreRetreat));
+        setFirestoreRetreats(retreats);
+      } catch (error) {
+        console.warn('Failed to load retreats from Firestore, using mock data:', error);
+      } finally {
+        setRetreatsLoaded(true);
+      }
+    };
+
+    loadRetreats();
+  }, [firestore, user.status, user.data?.uid]);
+
+  // Use Firestore retreats if available, fall back to mock
+  const yourRetreats = retreatsLoaded && firestoreRetreats.length > 0 ? firestoreRetreats : mockRetreats;
+
+  const [activeRetreatId, setActiveRetreatId] = useState<string | null>(null);
   const [subscriptionStatus] = useState<UserSubscriptionStatus>('active'); // mock status
   const { toast } = useToast();
+
+  // Set initial active retreat once data is ready
+  useEffect(() => {
+    if (yourRetreats.length > 0 && !activeRetreatId) {
+      setActiveRetreatId(yourRetreats[0].id);
+    }
+  }, [yourRetreats, activeRetreatId]);
   
   const [hostFilters, setHostFilters] = useState<HostFiltersState>(initialHostFilters);
   const [sortOption, setSortOption] = useState('recommended');
@@ -451,10 +519,43 @@ export default function GuidePage() {
                         <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}><MoreHorizontal className="h-4 w-4"/></Button>
                       </DropdownMenuTrigger>
                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => setShowFeatureGate(true)}>Edit</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => {
+                            if ((retreat as any).firestoreId) {
+                              router.push(`/guide/retreats/${retreat.id}/edit`);
+                            } else {
+                              setShowFeatureGate(true);
+                            }
+                          }}>Edit</DropdownMenuItem>
                           <DropdownMenuItem onClick={() => alert('Duplicate clicked')}>Duplicate</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => alert('Unpublish clicked')}>Unpublish</DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive" onClick={() => alert('Delete clicked')}>Delete</DropdownMenuItem>
+                          <DropdownMenuItem onClick={async () => {
+                            if ((retreat as any).firestoreId && firestore) {
+                              try {
+                                const ref = doc(firestore, 'retreats', retreat.id);
+                                const newStatus = retreat.status === 'Published' ? 'paused' : 'published';
+                                await updateDoc(ref, { status: newStatus, updatedAt: serverTimestamp() });
+                                setFirestoreRetreats(prev => prev.map(r => r.id === retreat.id ? { ...r, status: newStatus === 'published' ? 'Published' : 'Paused' } : r));
+                                toast({ title: `Retreat ${newStatus}` });
+                              } catch (e) {
+                                toast({ title: 'Failed to update status', variant: 'destructive' });
+                              }
+                            } else {
+                              alert('Unpublish clicked');
+                            }
+                          }}>{retreat.status === 'Published' ? 'Unpublish' : 'Publish'}</DropdownMenuItem>
+                          <DropdownMenuItem className="text-destructive" onClick={async () => {
+                            if ((retreat as any).firestoreId && firestore) {
+                              if (!confirm(`Delete "${retreat.name}"? This cannot be undone.`)) return;
+                              try {
+                                await deleteDoc(doc(firestore, 'retreats', retreat.id));
+                                setFirestoreRetreats(prev => prev.filter(r => r.id !== retreat.id));
+                                toast({ title: 'Retreat deleted' });
+                              } catch (e) {
+                                toast({ title: 'Failed to delete', variant: 'destructive' });
+                              }
+                            } else {
+                              alert('Delete clicked');
+                            }
+                          }}>Delete</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

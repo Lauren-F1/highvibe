@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useUser, useFirestore } from '@/firebase';
-import { doc, collection, setDoc, serverTimestamp } from 'firebase/firestore';
-import { useRouter } from 'next/navigation';
+import { doc, getDoc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
+import { useRouter, useParams } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
@@ -16,22 +16,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, Loader2, Save, Send } from 'lucide-react';
-import { format } from 'date-fns';
+import { Badge } from '@/components/ui/badge';
+import { CalendarIcon, Loader2, Save, Send, Trash2, Pause, Play } from 'lucide-react';
+import { format, parseISO } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { ImageUpload } from '@/components/image-upload';
 
 const retreatTypes = [
-  'Yoga',
-  'Meditation',
-  'Wellness',
-  'Adventure',
-  'Creative Arts',
-  'Spiritual',
-  'Fitness',
-  'Nature Immersion',
-  'Culinary',
-  'Mindfulness',
+  'Yoga', 'Meditation', 'Wellness', 'Adventure', 'Creative Arts',
+  'Spiritual', 'Fitness', 'Nature Immersion', 'Culinary', 'Mindfulness',
 ];
 
 const currencies = ['USD', 'EUR', 'GBP', 'AUD', 'CAD'];
@@ -54,101 +47,194 @@ const retreatSchema = z.object({
 
 type RetreatFormValues = z.infer<typeof retreatSchema>;
 
-export default function NewRetreatPage() {
+interface RetreatDoc {
+  id: string;
+  hostId: string;
+  title: string;
+  description: string;
+  type: string;
+  startDate: string;
+  endDate: string;
+  costPerPerson: number;
+  currency: string;
+  capacity: number;
+  locationDescription: string;
+  included?: string;
+  retreatImageUrls?: string[];
+  status: string;
+}
+
+export default function EditRetreatPage() {
   const router = useRouter();
+  const params = useParams();
+  const retreatId = params.id as string;
   const { toast } = useToast();
   const user = useUser();
   const firestore = useFirestore();
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [retreat, setRetreat] = useState<RetreatDoc | null>(null);
   const [images, setImages] = useState<string[]>([]);
 
   const {
     register,
     handleSubmit,
     control,
+    reset,
     formState: { errors },
   } = useForm<RetreatFormValues>({
     resolver: zodResolver(retreatSchema),
-    defaultValues: {
-      currency: 'USD',
-      capacity: 10,
-      costPerPerson: 0,
-    },
   });
 
-  const saveRetreat = async (data: RetreatFormValues, status: 'draft' | 'published') => {
-    if (user.status !== 'authenticated' || !firestore) {
-      toast({ title: 'Please log in to create a retreat.', variant: 'destructive' });
-      router.push('/login');
+  useEffect(() => {
+    if (!firestore || !retreatId || user.status === 'loading') return;
+
+    if (user.status !== 'authenticated') {
+      router.replace('/login');
       return;
     }
 
+    const loadRetreat = async () => {
+      try {
+        const retreatRef = doc(firestore, 'retreats', retreatId);
+        const snap = await getDoc(retreatRef);
+
+        if (!snap.exists()) {
+          toast({ title: 'Retreat not found', variant: 'destructive' });
+          router.replace('/guide');
+          return;
+        }
+
+        const data = snap.data() as RetreatDoc;
+
+        if (data.hostId !== user.data!.uid) {
+          toast({ title: 'Unauthorized', description: 'You can only edit your own retreats.', variant: 'destructive' });
+          router.replace('/guide');
+          return;
+        }
+
+        setRetreat(data);
+        setImages(data.retreatImageUrls || []);
+        reset({
+          title: data.title,
+          description: data.description,
+          type: data.type,
+          locationDescription: data.locationDescription,
+          startDate: parseISO(data.startDate),
+          endDate: parseISO(data.endDate),
+          costPerPerson: data.costPerPerson,
+          currency: data.currency,
+          capacity: data.capacity,
+          included: data.included || '',
+        });
+      } catch (error) {
+        console.error('Error loading retreat:', error);
+        toast({ title: 'Failed to load retreat', variant: 'destructive' });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadRetreat();
+  }, [firestore, retreatId, user.status]);
+
+  const saveRetreat = async (data: RetreatFormValues, newStatus?: string) => {
+    if (!firestore || !retreat) return;
+
     setSaving(true);
     try {
-      const retreatRef = doc(collection(firestore, 'retreats'));
-      const payload = {
-        id: retreatRef.id,
-        hostId: user.data!.uid,
+      const retreatRef = doc(firestore, 'retreats', retreatId);
+      const updates: Record<string, unknown> = {
         title: data.title,
         description: data.description,
         type: data.type,
+        locationDescription: data.locationDescription,
         startDate: format(data.startDate, 'yyyy-MM-dd'),
         endDate: format(data.endDate, 'yyyy-MM-dd'),
         costPerPerson: data.costPerPerson,
         currency: data.currency,
         capacity: data.capacity,
-        currentAttendees: 0,
-        locationDescription: data.locationDescription,
         included: data.included || '',
-        status,
-        vendorIds: [],
         retreatImageUrls: images,
-        createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       };
 
-      await setDoc(retreatRef, payload);
+      if (newStatus) {
+        updates.status = newStatus;
+      }
+
+      await updateDoc(retreatRef, updates);
 
       toast({
-        title: status === 'draft' ? 'Draft Saved' : 'Retreat Published!',
-        description: status === 'draft'
-          ? 'Your retreat has been saved as a draft. You can edit and publish it later.'
-          : 'Your retreat is now live. Start finding partners!',
+        title: 'Retreat Updated',
+        description: newStatus ? `Status changed to ${newStatus}.` : 'Your changes have been saved.',
       });
 
+      // Navigate back to dashboard after saving
       router.push('/guide');
     } catch (error) {
-      console.error('Error saving retreat:', error);
-      toast({
-        title: 'Failed to save retreat',
-        description: 'Something went wrong. Please try again.',
-        variant: 'destructive',
-      });
+      console.error('Error updating retreat:', error);
+      toast({ title: 'Failed to update', description: 'Please try again.', variant: 'destructive' });
     } finally {
       setSaving(false);
     }
   };
 
+  const handleDelete = async () => {
+    if (!firestore || !retreat) return;
+    if (!confirm('Are you sure you want to delete this retreat? This cannot be undone.')) return;
+
+    setSaving(true);
+    try {
+      await deleteDoc(doc(firestore, 'retreats', retreatId));
+      toast({ title: 'Retreat Deleted' });
+      router.push('/guide');
+    } catch (error) {
+      console.error('Error deleting retreat:', error);
+      toast({ title: 'Failed to delete', variant: 'destructive' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const toggleStatus = () => {
+    if (!retreat) return;
+    const newStatus = retreat.status === 'published' ? 'paused' : 'published';
+    handleSubmit((data) => saveRetreat(data, newStatus))();
+  };
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
+        <p className="text-muted-foreground mt-4">Loading retreat...</p>
+      </div>
+    );
+  }
+
+  if (!retreat) return null;
+
+  const statusVariant = retreat.status === 'published' ? 'default' : retreat.status === 'paused' ? 'secondary' : 'outline';
+
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
       <div className="max-w-2xl mx-auto">
-        <form onSubmit={handleSubmit((data) => saveRetreat(data, 'published'))}>
+        <form onSubmit={handleSubmit((data) => saveRetreat(data))}>
           <Card>
             <CardHeader>
-              <CardTitle className="font-headline text-3xl">Create a New Retreat</CardTitle>
-              <CardDescription>
-                Fill in the details below to get started. You can save as a draft and come back later, or publish right away to start matching with hosts and vendors.
-              </CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="font-headline text-3xl">Edit Retreat</CardTitle>
+                  <CardDescription>Update your retreat details below.</CardDescription>
+                </div>
+                <Badge variant={statusVariant} className="text-sm capitalize">{retreat.status}</Badge>
+              </div>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Title */}
               <div className="space-y-2">
                 <Label htmlFor="title">Retreat Name *</Label>
-                <Input
-                  id="title"
-                  placeholder="e.g., Sunrise Yoga in Bali"
-                  {...register('title')}
-                />
+                <Input id="title" placeholder="e.g., Sunrise Yoga in Bali" {...register('title')} />
                 {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
               </div>
 
@@ -160,9 +246,7 @@ export default function NewRetreatPage() {
                   name="type"
                   render={({ field }) => (
                     <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
+                      <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
                       <SelectContent>
                         {retreatTypes.map((t) => (
                           <SelectItem key={t} value={t}>{t}</SelectItem>
@@ -177,11 +261,7 @@ export default function NewRetreatPage() {
               {/* Location */}
               <div className="space-y-2">
                 <Label htmlFor="locationDescription">Destination *</Label>
-                <Input
-                  id="locationDescription"
-                  placeholder="e.g., Bali, Indonesia"
-                  {...register('locationDescription')}
-                />
+                <Input id="locationDescription" placeholder="e.g., Bali, Indonesia" {...register('locationDescription')} />
                 {errors.locationDescription && <p className="text-sm text-destructive">{errors.locationDescription.message}</p>}
               </div>
 
@@ -190,7 +270,7 @@ export default function NewRetreatPage() {
                 <Label htmlFor="description">Description *</Label>
                 <Textarea
                   id="description"
-                  placeholder="Describe your retreat's vision, activities, and what makes it special..."
+                  placeholder="Describe your retreat..."
                   className="min-h-[120px]"
                   {...register('description')}
                 />
@@ -207,32 +287,19 @@ export default function NewRetreatPage() {
                     render={({ field }) => (
                       <Popover>
                         <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              'w-full justify-start text-left font-normal',
-                              !field.value && 'text-muted-foreground'
-                            )}
-                          >
+                          <Button variant="outline" className={cn('w-full justify-start text-left font-normal', !field.value && 'text-muted-foreground')}>
                             <CalendarIcon className="mr-2 h-4 w-4" />
                             {field.value ? format(field.value, 'PPP') : 'Pick a date'}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) => date < new Date()}
-                            initialFocus
-                          />
+                          <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
                         </PopoverContent>
                       </Popover>
                     )}
                   />
                   {errors.startDate && <p className="text-sm text-destructive">{errors.startDate.message}</p>}
                 </div>
-
                 <div className="space-y-2">
                   <Label>End Date *</Label>
                   <Controller
@@ -241,25 +308,13 @@ export default function NewRetreatPage() {
                     render={({ field }) => (
                       <Popover>
                         <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              'w-full justify-start text-left font-normal',
-                              !field.value && 'text-muted-foreground'
-                            )}
-                          >
+                          <Button variant="outline" className={cn('w-full justify-start text-left font-normal', !field.value && 'text-muted-foreground')}>
                             <CalendarIcon className="mr-2 h-4 w-4" />
                             {field.value ? format(field.value, 'PPP') : 'Pick a date'}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) => date < new Date()}
-                            initialFocus
-                          />
+                          <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
                         </PopoverContent>
                       </Popover>
                     )}
@@ -272,16 +327,9 @@ export default function NewRetreatPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="costPerPerson">Price per Person *</Label>
-                  <Input
-                    id="costPerPerson"
-                    type="number"
-                    min={0}
-                    placeholder="e.g., 1200"
-                    {...register('costPerPerson')}
-                  />
+                  <Input id="costPerPerson" type="number" min={0} {...register('costPerPerson')} />
                   {errors.costPerPerson && <p className="text-sm text-destructive">{errors.costPerPerson.message}</p>}
                 </div>
-
                 <div className="space-y-2">
                   <Label>Currency *</Label>
                   <Controller
@@ -289,9 +337,7 @@ export default function NewRetreatPage() {
                     name="currency"
                     render={({ field }) => (
                       <Select onValueChange={field.onChange} value={field.value}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select currency" />
-                        </SelectTrigger>
+                        <SelectTrigger><SelectValue placeholder="Select currency" /></SelectTrigger>
                         <SelectContent>
                           {currencies.map((c) => (
                             <SelectItem key={c} value={c}>{c}</SelectItem>
@@ -307,26 +353,14 @@ export default function NewRetreatPage() {
               {/* Capacity */}
               <div className="space-y-2">
                 <Label htmlFor="capacity">Max Capacity *</Label>
-                <Input
-                  id="capacity"
-                  type="number"
-                  min={1}
-                  max={500}
-                  placeholder="e.g., 15"
-                  {...register('capacity')}
-                />
-                <p className="text-xs text-muted-foreground">Maximum number of attendees</p>
+                <Input id="capacity" type="number" min={1} max={500} {...register('capacity')} />
                 {errors.capacity && <p className="text-sm text-destructive">{errors.capacity.message}</p>}
               </div>
 
               {/* What's Included */}
               <div className="space-y-2">
                 <Label htmlFor="included">What&apos;s Included</Label>
-                <Textarea
-                  id="included"
-                  placeholder="e.g., Lodging, all meals, daily yoga sessions, airport transfers"
-                  {...register('included')}
-                />
+                <Textarea id="included" placeholder="e.g., Lodging, all meals, daily yoga sessions" {...register('included')} />
               </div>
 
               {/* Retreat Images */}
@@ -338,26 +372,27 @@ export default function NewRetreatPage() {
                 <ImageUpload
                   value={images}
                   onChange={(val) => setImages(Array.isArray(val) ? val : [val])}
-                  storagePath={`retreats/new/gallery`}
+                  storagePath={`retreats/${retreatId}/gallery`}
                   multiple
                   maxFiles={6}
                 />
               </div>
             </CardContent>
-            <CardFooter className="flex justify-between gap-4">
-              <Button
-                type="button"
-                variant="outline"
-                size="lg"
-                disabled={saving}
-                onClick={handleSubmit((data) => saveRetreat(data, 'draft'))}
-              >
-                {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                Save as Draft
-              </Button>
-              <Button type="submit" size="lg" disabled={saving}>
-                {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
-                Publish Retreat
+            <CardFooter className="flex flex-wrap gap-3 justify-between">
+              <div className="flex gap-3">
+                <Button type="submit" size="lg" disabled={saving}>
+                  {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                  Save Changes
+                </Button>
+                <Button type="button" variant="outline" size="lg" disabled={saving} onClick={toggleStatus}>
+                  {retreat.status === 'published'
+                    ? <><Pause className="mr-2 h-4 w-4" /> Pause</>
+                    : <><Play className="mr-2 h-4 w-4" /> Publish</>
+                  }
+                </Button>
+              </div>
+              <Button type="button" variant="destructive" size="lg" disabled={saving} onClick={handleDelete}>
+                <Trash2 className="mr-2 h-4 w-4" /> Delete
               </Button>
             </CardFooter>
           </Card>
