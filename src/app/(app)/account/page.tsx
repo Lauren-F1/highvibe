@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { MapPin, Globe, Link as LinkIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 function ProfileLoadingSkeleton() {
   return (
@@ -46,6 +46,7 @@ function ProfileLoadingSkeleton() {
 export default function AccountPage() {
   const user = useUser();
   const router = useRouter();
+  const [profileTimedOut, setProfileTimedOut] = useState(false);
 
   useEffect(() => {
     if (user.status === 'unauthenticated') {
@@ -53,11 +54,26 @@ export default function AccountPage() {
     }
   }, [user, router]);
 
-  if (user.status === 'loading' || (user.status === 'authenticated' && user.profile === undefined)) {
+  useEffect(() => {
+    if (user.status === 'authenticated' && user.profile === undefined) {
+      const timer = setTimeout(() => setProfileTimedOut(true), 10000);
+      return () => clearTimeout(timer);
+    }
+  }, [user.status, user.profile]);
+
+  if (user.status === 'loading' || (user.status === 'authenticated' && user.profile === undefined && !profileTimedOut)) {
     return <ProfileLoadingSkeleton />;
   }
 
   if (user.status === 'unauthenticated' || !user.profile) {
+    if (profileTimedOut) {
+      return (
+        <div className="container mx-auto px-4 py-12 text-center space-y-4">
+          <p className="text-muted-foreground">Could not load your profile. Please try refreshing the page.</p>
+          <button onClick={() => window.location.reload()} className="text-primary underline">Refresh</button>
+        </div>
+      );
+    }
     return <ProfileLoadingSkeleton />;
   }
 

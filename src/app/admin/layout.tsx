@@ -43,10 +43,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       });
   }, [user, router]);
 
+  if (isAuthorized === false) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center">
+        <p className="text-muted-foreground">Access denied. Redirecting...</p>
+      </div>
+    );
+  }
+
   if (isAuthorized !== true) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center">
-        <p>Loading & checking authorization...</p>
+        <p>Checking authorization...</p>
       </div>
     );
   }

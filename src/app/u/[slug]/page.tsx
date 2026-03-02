@@ -40,12 +40,21 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
   useEffect(() => {
     async function fetchProfile() {
       setIsLoading(true);
-      const profileData = await getProfileBySlug(firestore, slug);
-      setProfile(profileData);
-      setIsLoading(false);
+      try {
+        const profileData = await getProfileBySlug(firestore, slug);
+        setProfile(profileData);
+      } catch (err) {
+        console.error('Failed to fetch profile:', err);
+        setProfile(null);
+      } finally {
+        setIsLoading(false);
+      }
     }
     if (firestore) {
       fetchProfile();
+    } else {
+      setIsLoading(false);
+      setProfile(null);
     }
   }, [firestore, slug]);
   
