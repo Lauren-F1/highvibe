@@ -25,7 +25,7 @@ This is a running checklist of everything needed to go from current state to a f
 - [x] `useUser` hook with profile + status
 - [ ] Email verification flow
 - [ ] Password reset flow (UI exists, needs testing)
-- [ ] Profile editing (account/edit page exists, needs Firestore save verification)
+- [x] Profile editing (account/edit page — saves to Firestore with security rule compliance)
 
 ### Launch Mode & Waitlist
 - [x] Launch mode middleware (restricts routes)
@@ -197,7 +197,7 @@ This is a running checklist of everything needed to go from current state to a f
   - [x] `hosts` for guide/vendor matching → query `/users` where role includes 'host'
   - [x] `vendors` for matching → query `/users` where role includes 'vendor'
 - [x] `src/lib/inbox-data.ts` — InboxContext loads real conversations from Firestore (mock fallback)
-- [ ] Remove mock connection requests / confirmed bookings from dashboards
+- [x] Remove mock connection requests / confirmed bookings from dashboards
 
 ### Keep for Development
 - [ ] Add `NEXT_PUBLIC_USE_MOCK_DATA` feature flag
@@ -245,9 +245,9 @@ This is a running checklist of everything needed to go from current state to a f
 
 - [x] Favicon (brand arches)
 - [x] SEO metadata
-- [ ] Error boundaries (global fallback for crashes)
-- [ ] 404 page styling
-- [ ] Loading states audit (ensure no infinite spinners)
+- [x] Error boundaries (root, app, and global-error fallbacks)
+- [x] 404 page styling (branded not-found page with header/footer)
+- [x] Loading states audit (timeouts on all auth-guarded layouts)
 - [ ] Mobile responsiveness audit
 - [ ] Accessibility audit (ARIA labels, keyboard navigation)
 - [ ] Performance audit (bundle size, image optimization)
