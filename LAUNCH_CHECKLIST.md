@@ -44,7 +44,7 @@ This is a running checklist of everything needed to go from current state to a f
 - [x] Retreat creation form (`/guide/retreats/new`) — full form with zod validation, date pickers, type selector
 - [x] Save retreat to Firestore (`/retreats/{retreatId}`) — save as draft or publish
 - [x] Retreat editing flow (`/guide/retreats/[id]/edit`) — load, edit, save, delete
-- [ ] Retreat image upload (Firebase Storage)
+- [x] Retreat image upload (Firebase Storage — real uploads with progress, validation)
 - [x] Retreat status management (draft/published/paused) — toggle from dashboard or edit page
 - [ ] AI retreat description generator (flow exists, not wired to form)
 - [x] AI itinerary planner (functional)
