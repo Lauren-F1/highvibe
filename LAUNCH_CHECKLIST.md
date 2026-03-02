@@ -85,13 +85,26 @@ This is a running checklist of everything needed to go from current state to a f
 - [ ] Conversation initiation from match results
 
 ### Partnership Matching (Provider ↔ Provider)
-- [x] Guide dashboard: Browse hosts/vendors with filters (mock data)
-- [x] Host dashboard: Browse guides/vendors with filters (mock data)
-- [x] Vendor dashboard: Browse guides/hosts with filters (mock data)
+- [x] Guide dashboard: Browse hosts/vendors with filters (real Firestore + mock fallback)
+- [x] Host dashboard: Browse guides/vendors with filters (real Firestore + mock fallback)
+- [x] Vendor dashboard: Browse guides/hosts with filters (real Firestore + mock fallback)
+- [x] Shared `firestore-partners.ts` utility — queries `/users` by role, maps to card interfaces
 - [~] Connection/invite system (host→guide creates real Firestore conversation; others are local state)
-- [ ] Replace mock provider data with real Firestore queries
+- [x] Replace mock provider data with real Firestore queries (all 3 dashboards)
 - [ ] Connection status tracking in Firestore (not just local state)
 - [ ] Filtering by availability dates (once host calendar is built)
+
+### Scout Local Vendors (AI-Powered Vendor Acquisition)
+- [x] Genkit AI flow — Google Places API search + Gemini relevance scoring
+- [x] Email extraction from vendor websites (no email = no contact)
+- [x] CAN-SPAM compliant outreach email system via Resend
+- [x] Scout UI component on guide dashboard
+- [x] Outreach logging to Firestore (`/scout_outreach` collection)
+- [x] Provider Agreement Section 10a: Contact Info & Partner Privacy
+- [x] Google Places API key configured (Firebase secret + apphosting.yaml)
+- [ ] Outreach pipeline dashboard (sent / opened / signed up tracking)
+- [ ] Custom signup landing page with referral tracking (`/join/vendor?ref=scout`)
+- [ ] Automated follow-up emails (5-day reminder)
 
 ### Search & Discovery
 - [x] Seeker retreat search with filters (mock data)
@@ -180,9 +193,9 @@ This is a running checklist of everything needed to go from current state to a f
   - [x] `yourRetreats` → guide dashboard queries retreats where `hostId == currentUser.uid`
   - [x] `hostSpaces` → host dashboard queries `/spaces` where `spaceOwnerId == currentUser.uid`
   - [x] `yourServices` → vendor dashboard queries `/services` where `vendorId == currentUser.uid`
-  - [ ] `matchingGuides*` → query `/users` where role includes 'guide'
-  - [ ] `hosts` for seeker/guide/vendor matching → query `/spaces` collection
-  - [ ] `vendors` for matching → query `/users` where role includes 'vendor'
+  - [x] `matchingGuides*` → query `/users` where role includes 'guide' (via firestore-partners.ts)
+  - [x] `hosts` for guide/vendor matching → query `/users` where role includes 'host'
+  - [x] `vendors` for matching → query `/users` where role includes 'vendor'
 - [x] `src/lib/inbox-data.ts` — InboxContext loads real conversations from Firestore (mock fallback)
 - [ ] Remove mock connection requests / confirmed bookings from dashboards
 

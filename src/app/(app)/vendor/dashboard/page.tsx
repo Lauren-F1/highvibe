@@ -46,13 +46,8 @@ function StatCard({ title, value, icon, description }: StatCardProps) {
   );
 }
 
-const initialConnectionRequests = [
-    { id: 'cr1', partnerId: 'g3', name: 'Isabella Rossi', role: 'Guide' as const, regarding: 'Holistic Catering', status: 'Awaiting Response' as const },
-    { id: 'cr2', partnerId: 'h1', name: 'The Glass House', role: 'Host' as const, regarding: 'Holistic Catering', status: 'New Request' as const }
-];
-const initialConfirmedBookings = [
-    { id: 'cb1', partnerId: 'g1', clientName: 'Asha Sharma', clientRole: 'Guide' as const, service: 'Holistic Catering', dates: 'Dec 1-5, 2024' }
-];
+const initialConnectionRequests: { id: string; partnerId: string; name: string; role: 'Guide' | 'Host'; regarding: string; status: 'New Request' | 'Awaiting Response' }[] = [];
+const initialConfirmedBookings: { id: string; partnerId: string; clientName: string; clientRole: 'Guide' | 'Host'; service: string; dates: string }[] = [];
 
 
 const initialGuideFilters: VendorGuideFiltersState = {

@@ -88,14 +88,9 @@ function firestoreSpaceToDisplay(data: Record<string, unknown>): HostSpace {
   };
 }
 
-const initialConnectionRequests = [
-    { id: 'cr1', partnerId: 'g1', name: 'Asha Sharma', role: 'Guide' as const, forSpace: 'The Glass House', status: 'New Request' as const },
-    { id: 'cr2', partnerId: 'v1', name: 'Elena Ray', role: 'Vendor' as const, forSpace: 'The Glass House', status: 'Awaiting Response' as const }
-];
+const initialConnectionRequests: { id: string; partnerId: string; name: string; role: 'Guide' | 'Vendor'; forSpace: string; status: 'New Request' | 'Awaiting Response' }[] = [];
 
-const initialConfirmedBookings = [
-    { id: 'cb1', partnerId: 'g2', guideName: 'Marcus Green', retreatName: 'Adventure & Leadership Summit', forSpace: 'The Glass House', dates: 'Nov 5-10, 2024', partnerRole: 'Guide' as const }
-];
+const initialConfirmedBookings: { id: string; partnerId: string; guideName: string; retreatName: string; forSpace: string; dates: string; partnerRole: 'Guide' | 'Vendor' }[] = [];
 
 interface StatCardProps {
   title: string;
