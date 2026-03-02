@@ -16,7 +16,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, Loader2, Save, Send } from 'lucide-react';
+import { CalendarIcon, Loader2, Save, Send, Sparkles } from 'lucide-react';
+import { generateRetreatDescription } from '@/ai/flows/retreat-description-generator';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { ImageUpload } from '@/components/image-upload';
@@ -60,12 +61,15 @@ export default function NewRetreatPage() {
   const user = useUser();
   const firestore = useFirestore();
   const [saving, setSaving] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const [images, setImages] = useState<string[]>([]);
 
   const {
     register,
     handleSubmit,
     control,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<RetreatFormValues>({
     resolver: zodResolver(retreatSchema),
@@ -75,6 +79,31 @@ export default function NewRetreatPage() {
       costPerPerson: 0,
     },
   });
+
+  const handleGenerateDescription = async () => {
+    const title = watch('title');
+    const retreatType = watch('type');
+
+    if (!title && !retreatType) {
+      toast({ title: 'Enter a retreat name or select a type first', variant: 'destructive' });
+      return;
+    }
+
+    setGenerating(true);
+    try {
+      const result = await generateRetreatDescription({
+        keywords: title || 'retreat',
+        retreatType: retreatType || 'Wellness',
+      });
+      setValue('description', result.description, { shouldValidate: true });
+      toast({ title: 'Description generated!' });
+    } catch (error) {
+      console.error('AI generation error:', error);
+      toast({ title: 'Failed to generate description', description: 'Please try again or write your own.', variant: 'destructive' });
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   const saveRetreat = async (data: RetreatFormValues, status: 'draft' | 'published') => {
     if (user.status !== 'authenticated' || !firestore) {
@@ -187,7 +216,19 @@ export default function NewRetreatPage() {
 
               {/* Description */}
               <div className="space-y-2">
-                <Label htmlFor="description">Description *</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="description">Description *</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleGenerateDescription}
+                    disabled={generating}
+                  >
+                    {generating ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : <Sparkles className="mr-2 h-3 w-3" />}
+                    {generating ? 'Generating...' : 'Generate with AI'}
+                  </Button>
+                </div>
                 <Textarea
                   id="description"
                   placeholder="Describe your retreat's vision, activities, and what makes it special..."

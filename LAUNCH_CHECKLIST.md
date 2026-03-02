@@ -46,7 +46,7 @@ This is a running checklist of everything needed to go from current state to a f
 - [x] Retreat editing flow (`/guide/retreats/[id]/edit`) — load, edit, save, delete
 - [x] Retreat image upload (Firebase Storage — real uploads with progress, validation)
 - [x] Retreat status management (draft/published/paused) — toggle from dashboard or edit page
-- [ ] AI retreat description generator (flow exists, not wired to form)
+- [x] AI retreat description generator (wired to create + edit forms with "Generate with AI" button)
 - [x] AI itinerary planner (functional)
 
 ### Host — Space Listing
