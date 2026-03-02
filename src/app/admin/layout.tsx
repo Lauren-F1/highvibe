@@ -15,6 +15,7 @@ const adminNavLinks = [
   { href: '/admin/contact', label: 'Contact' },
   { href: '/admin/founder-codes', label: 'Founder Codes' },
   { href: '/admin/chargebacks', label: 'Chargebacks' },
+  { href: '/admin/flagged-conversations', label: 'Flagged Messages' },
 ];
 
 function AdminNav() {

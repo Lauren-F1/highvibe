@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useUser, useFirestore } from '@/firebase';
-import { collection, query, where, getDocs, doc, writeBatch, serverTimestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { allRetreats } from '@/lib/mock-data';
 import { notFound } from 'next/navigation';
+import { isFirebaseEnabled } from '@/firebase/config';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -114,92 +115,45 @@ export default function CheckoutPage() {
             return;
         }
 
-        if (!firestore) {
-            toast({ title: 'Error', description: 'Cannot connect to database.', variant: 'destructive' });
-            return;
-        }
-        
         setIsProcessing(true);
 
         try {
-            const batch = writeBatch(firestore);
-
-            // Create Booking Doc
-            const bookingRef = doc(collection(firestore, 'bookings'));
-            const bookingData: { [key: string]: any } = {
-                seekerId: user.data.uid,
-                retreatId: retreat.id,
-                manifestationId: credit?.manifestation_id || null, // Assuming credit is tied to manifestation
-                createdAt: serverTimestamp(),
-                totalAmount: total,
-                currency: 'USD',
-                lineItems: [
-                    {
-                        providerId: 'guide-placeholder-id', // Mock data
-                        providerRole: 'guide',
-                        description: retreat.title,
-                        amount: retreatPackagePrice,
-                        platformFeePctApplied: 0,
-                        platformFeeAmount: 0,
-                    }
-                ],
-                liabilityWaiverAccepted: true,
-                liabilityWaiverAcceptedAt: serverTimestamp(),
-                liabilityWaiverVersion: "v1.0-02-01-2026",
-            };
-
-            if (requiresMedicalDisclosure) {
-              bookingData.medicalDisclosureAccepted = true;
-              bookingData.medicalDisclosureAcceptedAt = serverTimestamp();
+            // Get Firebase auth token for the API call
+            let idToken = '';
+            if (isFirebaseEnabled && user.data && typeof (user.data as any).getIdToken === 'function') {
+                idToken = await (user.data as any).getIdToken();
             }
-    
-            batch.set(bookingRef, bookingData);
-    
-            // Update Credit Doc (if applicable)
-            if (applyCredit && credit) {
-                const creditRef = doc(firestore, 'manifest_credits', credit.id);
-                batch.update(creditRef, {
-                    status: 'redeemed',
-                    redeemed_amount: discount,
-                    redemption_booking_id: bookingRef.id,
-                    redeemed_date: serverTimestamp(),
-                });
-            }
-    
-            await batch.commit();
 
-            // Fire-and-forget booking confirmation notification
-            fetch('/api/notifications', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                userId: user.data.uid,
-                type: 'booking_confirmation',
-                title: 'Booking Confirmed!',
-                body: `Your booking for ${retreat.title} has been confirmed.`,
-                linkUrl: '/seeker/manifestations',
-                metadata: {
-                  retreatTitle: retreat.title,
-                  amount: total,
-                  bookingId: bookingRef.id,
+            const res = await fetch('/api/stripe/create-checkout-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(idToken ? { Authorization: `Bearer ${idToken}` } : {}),
                 },
-              }),
-            }).catch(() => {});
-
-            toast({
-                title: 'Booking Confirmed!',
-                description: `You're all set for ${retreat.title}.`,
+                body: JSON.stringify({
+                    retreatId: retreat.id,
+                    applyCredit: applyCredit && !!credit,
+                    creditId: credit?.id || null,
+                    liabilityAccepted,
+                    medicalDisclosureAccepted: requiresMedicalDisclosure ? medicalDisclosureAccepted : false,
+                }),
             });
-            router.push('/seeker/manifestations');
 
-        } catch (err) {
-            console.error("Error confirming booking:", err);
+            const data = await res.json();
+
+            if (!res.ok || !data.url) {
+                throw new Error(data.error || 'Failed to create checkout session');
+            }
+
+            // Redirect to Stripe-hosted checkout
+            window.location.href = data.url;
+        } catch (err: any) {
+            console.error("Error creating checkout session:", err);
             toast({
-               title: 'Booking Failed',
-               description: 'Could not complete your booking. Please try again.',
+               title: 'Checkout Error',
+               description: err.message || 'Could not start checkout. Please try again.',
                variant: 'destructive'
             });
-        } finally {
             setIsProcessing(false);
         }
     };

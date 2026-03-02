@@ -1,99 +1,415 @@
-
 import { NextResponse } from 'next/server';
+import Stripe from 'stripe';
+import { getStripe } from '@/lib/stripe';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
 import { sendEmail } from '@/lib/email';
 import { buildChargebackNotificationEmail } from '@/lib/chargeback-email-templates';
-import { format, add } from 'date-fns';
+import { format } from 'date-fns';
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-
-// IMPORTANT: This is a placeholder webhook. In a real application, you must:
-// 1. Secure this endpoint to verify that requests are coming from Stripe.
-//    - See: https://stripe.com/docs/webhooks/signatures
-// 2. Deploy this endpoint and add it to your Stripe Dashboard's webhook settings.
-//    - It should listen for the 'charge.dispute.created' event.
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
-  try {
-    // In a real implementation, you would parse the Stripe event here.
-    // const stripeEvent = await request.json();
-    
-    // For this placeholder, we will use mock data.
-    const mockStripeDispute = {
-      id: 'dp_1Ptesttesttest',
-      amount: 250000, // in cents
-      currency: 'usd',
-      charge: 'ch_1Ptesttesttest',
-      // In a real scenario, you'd get the bookingId from the charge's metadata.
-      metadata: {
-        bookingId: 'bk_1a2b3c',
-      },
-      evidence_details: {
-        due_by: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60), // 7 days from now
-      }
-    };
-    
-    // console.log(`Received Stripe Webhook: ${stripeEvent.type}`);
+  const rawBody = await request.text();
+  const sig = request.headers.get('stripe-signature');
 
-    // if (stripeEvent.type === 'charge.dispute.created') {
-    //   const dispute = stripeEvent.data.object;
-    //   const bookingId = dispute.metadata.bookingId;
-    
-    const bookingId = mockStripeDispute.metadata.bookingId;
-    if (!bookingId) {
-        console.error('Webhook received without bookingId in metadata.');
-        return NextResponse.json({ ok: false, error: "Missing bookingId in metadata" }, { status: 400 });
-    }
-
-    const { db } = await getFirebaseAdmin();
-    const bookingRef = db.collection('bookings').doc(bookingId);
-    const bookingSnap = await bookingRef.get();
-
-    if (!bookingSnap.exists) {
-        console.error(`Booking with ID ${bookingId} not found for chargeback.`);
-        return NextResponse.json({ ok: false, error: "Booking not found" }, { status: 404 });
-    }
-
-    const bookingData = bookingSnap.data();
-    if (!bookingData) throw new Error("Booking data is undefined.");
-
-    // Update the booking in Firestore
-    await bookingRef.update({
-        chargebackStatus: 'open',
-        chargebackStripeDisputeId: mockStripeDispute.id
-    });
-    console.log(`Marked booking ${bookingId} with chargeback status: open`);
-
-    // Notify the provider
-    const providerId = bookingData.lineItems[0]?.providerId;
-    if (providerId) {
-        const providerSnap = await db.collection('users').doc(providerId).get();
-        if (providerSnap.exists()) {
-            const providerData = providerSnap.data();
-            if (providerData && providerData.email) {
-                
-                await sendEmail(buildChargebackNotificationEmail({
-                    providerName: providerData.displayName,
-                    bookingId: bookingId,
-                    amount: mockStripeDispute.amount / 100,
-                    currency: mockStripeDispute.currency.toUpperCase(),
-                    evidenceDeadline: format(new Date(mockStripeDispute.evidence_details.due_by * 1000), 'PPP'),
-                }));
-                console.log(`Sent chargeback notification to provider: ${providerData.email}`);
-            }
-        }
-    }
-    
-    // } // end of if (stripeEvent.type === ...)
-
-    return NextResponse.json({ ok: true, message: 'Webhook processed successfully (placeholder)' });
-
-  } catch (error: any) {
-    console.error("STRIPE_WEBHOOK_ERROR", error);
-    return NextResponse.json({ 
-        ok: false,
-        error: 'An unexpected error occurred processing the webhook.',
-    }, { status: 500 });
+  if (!sig) {
+    return NextResponse.json({ error: 'Missing stripe-signature header' }, { status: 400 });
   }
+
+  const stripe = getStripe();
+  let event: Stripe.Event;
+
+  try {
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    if (!webhookSecret) {
+      console.error('[WEBHOOK] STRIPE_WEBHOOK_SECRET not configured');
+      return NextResponse.json({ error: 'Webhook secret not configured' }, { status: 500 });
+    }
+    event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
+  } catch (err: any) {
+    console.error('[WEBHOOK] Signature verification failed:', err.message);
+    return NextResponse.json({ error: 'Webhook signature verification failed' }, { status: 400 });
+  }
+
+  const { db, FieldValue } = await getFirebaseAdmin();
+
+  try {
+    switch (event.type) {
+      // --- Checkout / Payments ---
+      case 'checkout.session.completed':
+        await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session, db, FieldValue, stripe);
+        break;
+      case 'payment_intent.payment_failed':
+        await handlePaymentFailed(event.data.object as Stripe.PaymentIntent, db);
+        break;
+
+      // --- Connect ---
+      case 'account.updated':
+        await handleConnectAccountUpdated(event.data.object as Stripe.Account, db);
+        break;
+
+      // --- Subscriptions ---
+      case 'customer.subscription.created':
+      case 'customer.subscription.updated':
+        await handleSubscriptionUpdated(event.data.object as Stripe.Subscription, db);
+        break;
+      case 'customer.subscription.deleted':
+        await handleSubscriptionDeleted(event.data.object as Stripe.Subscription, db);
+        break;
+      case 'invoice.payment_succeeded':
+        await handleInvoiceSucceeded(event.data.object as Stripe.Invoice, db, FieldValue);
+        break;
+      case 'invoice.payment_failed':
+        await handleInvoicePaymentFailed(event.data.object as Stripe.Invoice, db);
+        break;
+
+      // --- Disputes ---
+      case 'charge.dispute.created':
+        await handleDisputeCreated(event.data.object as Stripe.Dispute, db);
+        break;
+      case 'charge.dispute.updated':
+      case 'charge.dispute.closed':
+        await handleDisputeStatusChange(event.data.object as Stripe.Dispute, db);
+        break;
+
+      default:
+        console.log(`[WEBHOOK] Unhandled event type: ${event.type}`);
+    }
+  } catch (error) {
+    console.error(`[WEBHOOK] Error handling ${event.type}:`, error);
+    // Return 200 to prevent Stripe retries on application errors
+  }
+
+  return NextResponse.json({ received: true });
+}
+
+// --- Checkout Handlers ---
+
+async function handleCheckoutCompleted(
+  session: Stripe.Checkout.Session,
+  db: FirebaseFirestore.Firestore,
+  FieldValue: typeof import('firebase-admin').firestore.FieldValue,
+  stripe: Stripe,
+) {
+  const meta = session.metadata || {};
+  const { userId, retreatId, creditId, discount, retreatPrice, platformFeePercent, providerId, liabilityAccepted, medicalDisclosureAccepted, retreatTitle } = meta;
+
+  if (!userId || !retreatId) {
+    console.error('[WEBHOOK] checkout.session.completed missing userId or retreatId in metadata');
+    return;
+  }
+
+  // Idempotency: check if booking already exists for this session
+  const existingBooking = await db.collection('bookings')
+    .where('stripeSessionId', '==', session.id)
+    .limit(1)
+    .get();
+  if (!existingBooking.empty) {
+    console.log(`[WEBHOOK] Booking already exists for session ${session.id}, skipping`);
+    return;
+  }
+
+  const totalAmount = (session.amount_total || 0) / 100;
+  const feePercent = parseFloat(platformFeePercent || '12.5');
+  const platformFeeAmount = Math.round(totalAmount * (feePercent / 100) * 100) / 100;
+
+  const batch = db.batch();
+
+  // Create booking
+  const bookingRef = db.collection('bookings').doc();
+  batch.set(bookingRef, {
+    seekerId: userId,
+    retreatId,
+    status: 'confirmed',
+    totalAmount,
+    currency: 'usd',
+    platformFeeAmount,
+    stripePaymentIntentId: session.payment_intent as string || '',
+    stripeSessionId: session.id,
+    manifestationId: null,
+    lineItems: [{
+      providerId: providerId || '',
+      providerRole: 'guide',
+      description: retreatTitle || 'Retreat Booking',
+      amount: parseFloat(retreatPrice || String(totalAmount)),
+      platformFeePctApplied: feePercent,
+      platformFeeAmount,
+    }],
+    liabilityWaiverAccepted: liabilityAccepted === 'true',
+    liabilityWaiverAcceptedAt: FieldValue.serverTimestamp(),
+    liabilityWaiverVersion: 'v1.0-02-01-2026',
+    medicalDisclosureAccepted: medicalDisclosureAccepted === 'true',
+    createdAt: FieldValue.serverTimestamp(),
+  });
+
+  // Create transaction record
+  const txnRef = bookingRef.collection('transactions').doc();
+  batch.set(txnRef, {
+    bookingId: bookingRef.id,
+    paymentGatewayTransactionId: session.payment_intent as string || '',
+    amount: totalAmount,
+    currency: 'usd',
+    type: 'payment',
+    status: 'successful',
+    createdAt: FieldValue.serverTimestamp(),
+  });
+
+  // Redeem manifest credit if used
+  if (creditId) {
+    const creditRef = db.collection('manifest_credits').doc(creditId);
+    batch.update(creditRef, {
+      status: 'redeemed',
+      redeemed_amount: parseFloat(discount || '0'),
+      redemption_booking_id: bookingRef.id,
+      redeemed_date: FieldValue.serverTimestamp(),
+    });
+  }
+
+  await batch.commit();
+  console.log(`[WEBHOOK] Created booking ${bookingRef.id} for session ${session.id}`);
+
+  // Fire-and-forget: send booking confirmation notification
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://highviberetreats.com';
+  fetch(`${baseUrl}/api/notifications`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      userId,
+      type: 'booking_confirmation',
+      title: 'Booking Confirmed!',
+      body: `Your booking for ${retreatTitle || 'a retreat'} has been confirmed.`,
+      linkUrl: '/seeker/manifestations',
+      metadata: { retreatTitle, amount: totalAmount, bookingId: bookingRef.id },
+    }),
+  }).catch(e => console.error('[WEBHOOK] Notification send failed:', e));
+
+  // Transfer to provider if they have Stripe Connect
+  if (providerId && providerId !== 'guide-placeholder-id') {
+    try {
+      const providerDoc = await db.collection('users').doc(providerId).get();
+      if (providerDoc.exists) {
+        const providerData = providerDoc.data()!;
+        if (providerData.stripeConnectAccountId && providerData.stripeConnectOnboarded) {
+          const transferAmount = Math.round((totalAmount - platformFeeAmount) * 100);
+          if (transferAmount > 0) {
+            await stripe.transfers.create({
+              amount: transferAmount,
+              currency: 'usd',
+              destination: providerData.stripeConnectAccountId,
+              metadata: { bookingId: bookingRef.id, retreatId },
+            });
+            console.log(`[WEBHOOK] Transferred ${transferAmount / 100} to ${providerData.stripeConnectAccountId}`);
+          }
+        }
+      }
+    } catch (transferError) {
+      console.error('[WEBHOOK] Transfer to provider failed:', transferError);
+      // Non-blocking: booking is still confirmed even if transfer fails
+    }
+  }
+}
+
+async function handlePaymentFailed(paymentIntent: Stripe.PaymentIntent, db: FirebaseFirestore.Firestore) {
+  const meta = paymentIntent.metadata || {};
+  console.log(`[WEBHOOK] Payment failed for intent ${paymentIntent.id}`, meta);
+  // Payment failures before checkout completion don't create bookings,
+  // so there's nothing to update. Stripe will show the error to the user.
+}
+
+// --- Connect Handlers ---
+
+async function handleConnectAccountUpdated(account: Stripe.Account, db: FirebaseFirestore.Firestore) {
+  const userId = account.metadata?.userId;
+  if (!userId) return;
+
+  const chargesEnabled = account.charges_enabled;
+  const payoutsEnabled = account.payouts_enabled;
+
+  if (chargesEnabled && payoutsEnabled) {
+    await db.collection('users').doc(userId).update({
+      stripeConnectOnboarded: true,
+    });
+    console.log(`[WEBHOOK] Connect account verified for user ${userId}`);
+  }
+}
+
+// --- Subscription Handlers ---
+
+async function handleSubscriptionUpdated(subscription: Stripe.Subscription, db: FirebaseFirestore.Firestore) {
+  const customerId = subscription.customer as string;
+  const userSnap = await db.collection('users').where('stripeCustomerId', '==', customerId).limit(1).get();
+  if (userSnap.empty) {
+    console.error(`[WEBHOOK] No user found for Stripe customer ${customerId}`);
+    return;
+  }
+
+  const userDoc = userSnap.docs[0];
+  const priceId = subscription.items.data[0]?.price?.id;
+  const { role, planKey } = resolvePlanFromPriceId(priceId);
+
+  if (role && planKey) {
+    const updates: Record<string, any> = {
+      [`currentPlanKey_${role}`]: planKey,
+      stripeSubscriptionId: subscription.id,
+      subscriptionStatus: subscription.status,
+      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+    };
+
+    if (planKey === 'pro') {
+      updates[`proCommitmentStartedAt_${role}`] = new Date();
+    }
+
+    await userDoc.ref.update(updates);
+    console.log(`[WEBHOOK] Updated ${userDoc.id} plan: ${role} → ${planKey}`);
+  }
+}
+
+async function handleSubscriptionDeleted(subscription: Stripe.Subscription, db: FirebaseFirestore.Firestore) {
+  const customerId = subscription.customer as string;
+  const userSnap = await db.collection('users').where('stripeCustomerId', '==', customerId).limit(1).get();
+  if (userSnap.empty) return;
+
+  const userDoc = userSnap.docs[0];
+  const priceId = subscription.items.data[0]?.price?.id;
+  const { role } = resolvePlanFromPriceId(priceId);
+
+  if (role) {
+    await userDoc.ref.update({
+      [`currentPlanKey_${role}`]: 'pay-as-you-go',
+      [`proLastDowngradedAt_${role}`]: new Date(),
+      subscriptionStatus: 'canceled',
+    });
+    console.log(`[WEBHOOK] Subscription canceled for ${userDoc.id}, role ${role} → pay-as-you-go`);
+  }
+}
+
+async function handleInvoiceSucceeded(
+  invoice: Stripe.Invoice,
+  db: FirebaseFirestore.Firestore,
+  FieldValue: typeof import('firebase-admin').firestore.FieldValue,
+) {
+  // Log subscription invoice payments — these are for plan billing, not retreat bookings
+  const customerId = invoice.customer as string;
+  if (!customerId) return;
+
+  console.log(`[WEBHOOK] Invoice ${invoice.id} paid: $${(invoice.amount_paid || 0) / 100}`);
+}
+
+async function handleInvoicePaymentFailed(invoice: Stripe.Invoice, db: FirebaseFirestore.Firestore) {
+  const customerId = invoice.customer as string;
+  if (!customerId) return;
+
+  const userSnap = await db.collection('users').where('stripeCustomerId', '==', customerId).limit(1).get();
+  if (userSnap.empty) return;
+
+  const userData = userSnap.docs[0].data();
+  console.error(`[WEBHOOK] Invoice payment failed for user ${userData.email || userSnap.docs[0].id}`);
+
+  // Update subscription status
+  await userSnap.docs[0].ref.update({ subscriptionStatus: 'past_due' });
+
+  // Send payment failure email
+  if (userData.email) {
+    try {
+      await sendEmail({
+        to: userData.email,
+        subject: 'Payment Failed - Action Required',
+        html: `<p>Hi ${userData.displayName || 'there'},</p><p>Your subscription payment failed. Please update your payment method to continue your plan.</p><p>— The HighVibe Team</p>`,
+        text: `Hi ${userData.displayName || 'there'},\n\nYour subscription payment failed. Please update your payment method.\n\n— The HighVibe Team`,
+      });
+    } catch (e) {
+      console.error('[WEBHOOK] Failed to send payment failure email:', e);
+    }
+  }
+}
+
+// --- Dispute Handlers ---
+
+async function handleDisputeCreated(dispute: Stripe.Dispute, db: FirebaseFirestore.Firestore) {
+  const charge = dispute.charge as string;
+  // Get booking from charge metadata — we stored it on the payment intent
+  const bookingId = (dispute.metadata as any)?.bookingId || (dispute as any).metadata?.bookingId;
+
+  // If bookingId not in dispute metadata, try to find by charge
+  let targetBookingId = bookingId;
+  if (!targetBookingId) {
+    const bookingSnap = await db.collection('bookings')
+      .where('stripePaymentIntentId', '==', dispute.payment_intent as string)
+      .limit(1)
+      .get();
+    if (!bookingSnap.empty) {
+      targetBookingId = bookingSnap.docs[0].id;
+    }
+  }
+
+  if (!targetBookingId) {
+    console.error(`[WEBHOOK] Dispute ${dispute.id} — could not find associated booking`);
+    return;
+  }
+
+  const bookingRef = db.collection('bookings').doc(targetBookingId);
+  const bookingSnap = await bookingRef.get();
+  if (!bookingSnap.exists) return;
+
+  await bookingRef.update({
+    chargebackStatus: 'open',
+    chargebackStripeDisputeId: dispute.id,
+  });
+
+  // Notify provider
+  const bookingData = bookingSnap.data()!;
+  const providerId = bookingData.lineItems?.[0]?.providerId;
+  if (providerId) {
+    const providerSnap = await db.collection('users').doc(providerId).get();
+    if (providerSnap.exists) {
+      const providerData = providerSnap.data()!;
+      if (providerData.email) {
+        const dueBy = dispute.evidence_details?.due_by;
+        await sendEmail(buildChargebackNotificationEmail({
+          providerName: providerData.displayName || 'Provider',
+          bookingId: targetBookingId,
+          amount: dispute.amount / 100,
+          currency: (dispute.currency || 'usd').toUpperCase(),
+          evidenceDeadline: dueBy ? format(new Date(dueBy * 1000), 'PPP') : 'TBD',
+        }));
+      }
+    }
+  }
+}
+
+async function handleDisputeStatusChange(dispute: Stripe.Dispute, db: FirebaseFirestore.Firestore) {
+  const bookingSnap = await db.collection('bookings')
+    .where('chargebackStripeDisputeId', '==', dispute.id)
+    .limit(1)
+    .get();
+
+  if (bookingSnap.empty) return;
+
+  const status = dispute.status === 'won' ? 'won' : dispute.status === 'lost' ? 'lost' : 'open';
+  await bookingSnap.docs[0].ref.update({ chargebackStatus: status });
+  console.log(`[WEBHOOK] Dispute ${dispute.id} status updated to ${status}`);
+}
+
+// --- Helpers ---
+
+function resolvePlanFromPriceId(priceId: string | undefined): { role: string | null; planKey: string | null } {
+  if (!priceId) return { role: null, planKey: null };
+
+  const mapping: Record<string, { role: string; planKey: string }> = {};
+  const envPairs = [
+    ['STRIPE_PRICE_GUIDE_STARTER', 'guide', 'starter'],
+    ['STRIPE_PRICE_GUIDE_PRO', 'guide', 'pro'],
+    ['STRIPE_PRICE_HOST_STARTER', 'host', 'starter'],
+    ['STRIPE_PRICE_HOST_PRO', 'host', 'pro'],
+    ['STRIPE_PRICE_VENDOR_STARTER', 'vendor', 'starter'],
+    ['STRIPE_PRICE_VENDOR_PRO', 'vendor', 'pro'],
+  ] as const;
+
+  for (const [envKey, role, planKey] of envPairs) {
+    const envVal = process.env[envKey];
+    if (envVal) mapping[envVal] = { role, planKey };
+  }
+
+  return mapping[priceId] || { role: null, planKey: null };
 }

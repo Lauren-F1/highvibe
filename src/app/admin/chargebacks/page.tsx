@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
-import { collection, query, where, getDocs, doc, updateDoc, Timestamp } from 'firebase/firestore';
+import { useEffect, useState } from 'react';
+import { collection, query, where, getDocs, getDoc, doc, updateDoc, Timestamp } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { format, add } from 'date-fns';
 import { ImageUpload } from '@/components/image-upload';
+import { Loader2 } from 'lucide-react';
 
 // This is a placeholder for the actual Booking type
 // In a real app, this would be imported from a shared types file
@@ -27,68 +28,46 @@ type Booking = {
   providerName?: string;
 };
 
-// Mock data to simulate fetching from Firestore
-const mockBookings: Booking[] = [
-    { 
-        id: 'bk_1a2b3c', 
-        seekerId: 'user_seeker_01',
-        totalAmount: 2500,
-        currency: 'USD',
-        createdAt: Timestamp.fromDate(add(new Date(), {days: -10})),
-        chargebackStatus: 'open',
-        lineItems: [{ providerId: 'user_guide_01', description: 'Andes Retreat' }],
-        providerName: 'Asha Sharma'
-    },
-     { 
-        id: 'bk_4d5e6f', 
-        seekerId: 'user_seeker_02',
-        totalAmount: 4800,
-        currency: 'USD',
-        createdAt: Timestamp.fromDate(add(new Date(), {days: -5})),
-        chargebackStatus: 'open',
-        lineItems: [{ providerId: 'user_host_01', description: 'Bali Villa Stay' }],
-        providerName: 'Ubud Jungle Haven'
-    },
-];
-
-
 export default function ChargebackManagementPage() {
   const firestore = useFirestore();
   const { toast } = useToast();
 
-  const [chargebacks, setChargebacks] = useState<Booking[]>(mockBookings); // Using mock data
+  const [chargebacks, setChargebacks] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedChargeback, setSelectedChargeback] = useState<Booking | null>(null);
   const [evidenceFiles, setEvidenceFiles] = useState<string[]>([]);
 
-  // NOTE: The data fetching logic is commented out because we are using mock data.
-  // In a real implementation, you would enable this.
-  /*
   useEffect(() => {
     const fetchChargebacks = async () => {
-      if (!firestore) return;
-      setLoading(true);
-
-      const chargebacksQuery = query(
-        collection(firestore, 'bookings'),
-        where('chargebackStatus', '==', 'open')
-      );
+      if (!firestore) {
+        setLoading(false);
+        return;
+      }
 
       try {
+        const chargebacksQuery = query(
+          collection(firestore, 'bookings'),
+          where('chargebackStatus', 'in', ['open', 'submitted'])
+        );
+
         const snapshot = await getDocs(chargebacksQuery);
         const data = snapshot.docs.map(d => ({
             id: d.id,
             ...d.data(),
         } as Booking));
-        
-        // This is inefficient and for demonstration only.
-        // In a real app, provider details might be denormalized or fetched more efficiently.
+
         for (const booking of data) {
-            if (booking.lineItems.length > 0) {
+            if (booking.lineItems?.length > 0) {
                 const providerId = booking.lineItems[0].providerId;
-                const userSnap = await getDoc(doc(firestore, 'users', providerId));
-                if (userSnap.exists()) {
-                    booking.providerName = userSnap.data().displayName;
+                if (providerId) {
+                    try {
+                        const userSnap = await getDoc(doc(firestore, 'users', providerId));
+                        if (userSnap.exists()) {
+                            booking.providerName = userSnap.data().displayName;
+                        }
+                    } catch {
+                        // Provider lookup failed, continue with unknown
+                    }
                 }
             }
         }
@@ -104,12 +83,9 @@ export default function ChargebackManagementPage() {
         setLoading(false);
       }
     };
-    
-    // fetchChargebacks();
-    setLoading(false); // Using mock data, so set loading to false
+
+    fetchChargebacks();
   }, [firestore, toast]);
-  */
- useEffect(() => { setLoading(false) }, []);
 
   const handleUpdateStatus = async (chargebackId: string, status: 'won' | 'lost' | 'submitted') => {
     if (!firestore) return;
@@ -158,7 +134,7 @@ export default function ChargebackManagementPage() {
                 </TableHeader>
                 <TableBody>
                   {loading ? (
-                    <TableRow><TableCell colSpan={5} className="text-center">Loading disputes...</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={5} className="text-center py-8"><Loader2 className="h-5 w-5 animate-spin mx-auto text-muted-foreground" /></TableCell></TableRow>
                   ) : chargebacks.length === 0 ? (
                     <TableRow><TableCell colSpan={5} className="text-center">No open disputes found.</TableCell></TableRow>
                   ) : (

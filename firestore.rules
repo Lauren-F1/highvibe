@@ -176,12 +176,12 @@ service cloud.firestore {
      * @description Bookings shared between a Seeker and an Entity Owner.
      * @path /bookings/{bookingId}
      * @allow (get, list) if auth.uid is seekerId OR bookedEntityOwnerId.
-     * @allow (create) if auth.uid is seekerId.
+     * @allow (create) if false; // Server-only via Stripe webhook (Admin SDK bypasses rules).
      * @principle Shared Access: Grants visibility to both parties involved in a transaction.
      */
     match /bookings/{bookingId} {
       allow get, list: if isDataOwner(resource.data.seekerId) || isDataOwner(resource.data.bookedEntityOwnerId);
-      allow create: if isIncomingDataOwner(request.resource.data.seekerId);
+      allow create: if false; // Bookings are created server-side after Stripe payment confirmation
       allow update: if isDataOwner(resource.data.seekerId) && request.resource.data.seekerId == resource.data.seekerId;
       allow delete: if isDataOwner(resource.data.seekerId);
 

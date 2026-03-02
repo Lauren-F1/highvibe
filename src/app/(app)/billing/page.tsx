@@ -1,15 +1,16 @@
 'use client';
 
-import { useState, useMemo, useEffect, ReactNode, FC } from 'react';
+import { useState, useMemo, useEffect, ReactNode, FC, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, CreditCard, Download, Info, Landmark } from "lucide-react";
+import { CheckCircle, CreditCard, Download, Info, Landmark, Loader2 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useUser, useFirestore } from '@/firebase';
+import { isFirebaseEnabled } from '@/firebase/config';
 import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
 import { format, add } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -52,11 +53,13 @@ type RolePlans = {
 
 const plans: Record<UserRole, RolePlans> = appConfig.plans as any;
 
-const invoices = [
-    { id: 'SUB-001', date: 'July 30, 2024', description: 'Starter Guide Plan', amount: '$129.00' },
-    { id: 'FEE-001', date: 'July 1, 2024', description: 'Success Fee (Andes Hiking)', amount: '$960.00' },
-    { id: 'SUB-002', date: 'June 30, 2024', description: 'Starter Guide Plan', amount: '$129.00' },
-];
+interface StripeInvoice {
+    id: string;
+    date: string;
+    amount: number;
+    description: string;
+    invoicePdf: string | null;
+}
 
 type UserPlans = Record<UserRole, string>;
 
@@ -121,9 +124,12 @@ interface ProviderBillingTabProps {
     renewalDate: Date;
     proCommitmentEndDate: Date;
     onPlanChange: (role: UserRole, planKey: string) => void;
+    invoices: StripeInvoice[];
+    onOpenBillingPortal: () => void;
+    stripeConnectOnboarded: boolean;
 }
 
-const ProviderBillingTab: FC<ProviderBillingTabProps> = ({ role, userPlans, pendingDowngrade, renewalDate, proCommitmentEndDate, onPlanChange }) => {
+const ProviderBillingTab: FC<ProviderBillingTabProps> = ({ role, userPlans, pendingDowngrade, renewalDate, proCommitmentEndDate, onPlanChange, invoices, onOpenBillingPortal, stripeConnectOnboarded }) => {
     const currentPlan = plans[role][userPlans[role]];
     return (
       <div className="mt-12 space-y-12">
@@ -247,7 +253,7 @@ const ProviderBillingTab: FC<ProviderBillingTabProps> = ({ role, userPlans, pend
                         </div>
                     </CardContent>
                     <CardFooter>
-                        <Button variant="outline" className="w-full">Update payment method</Button>
+                        <Button variant="outline" className="w-full" onClick={onOpenBillingPortal}>Update payment method</Button>
                     </CardFooter>
                 </Card>
                     <Card className="flex flex-col">
@@ -258,11 +264,18 @@ const ProviderBillingTab: FC<ProviderBillingTabProps> = ({ role, userPlans, pend
                     <CardContent className="flex-grow">
                         <div className="flex items-center gap-4 rounded-lg border bg-secondary/30 p-4">
                             <Landmark className="h-8 w-8 text-muted-foreground" />
-                            <div><p className="font-medium">Stripe Payouts</p><p className="text-sm text-muted-foreground">Not set up</p></div>
+                            <div>
+                                <p className="font-medium">Stripe Payouts</p>
+                                <p className="text-sm text-muted-foreground">
+                                    {stripeConnectOnboarded ? 'Connected' : 'Not set up'}
+                                </p>
+                            </div>
                         </div>
                     </CardContent>
                     <CardFooter>
-                        <Button variant="outline" className="w-full">Connect Stripe for payouts</Button>
+                        <Button variant="outline" className="w-full" asChild>
+                            <Link href="/payouts">{stripeConnectOnboarded ? 'Manage payouts' : 'Connect Stripe for payouts'}</Link>
+                        </Button>
                     </CardFooter>
                 </Card>
             </div>
@@ -282,12 +295,24 @@ const ProviderBillingTab: FC<ProviderBillingTabProps> = ({ role, userPlans, pend
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {invoices.map((invoice) => (
+                                {invoices.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">No invoices yet.</TableCell>
+                                    </TableRow>
+                                ) : invoices.map((invoice) => (
                                     <TableRow key={invoice.id}>
-                                        <TableCell className="py-4 text-muted-foreground">{invoice.date}</TableCell>
+                                        <TableCell className="py-4 text-muted-foreground">{new Date(invoice.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</TableCell>
                                         <TableCell className="py-4"><p className="font-medium">{invoice.description}</p><p className="text-xs text-muted-foreground">{invoice.id}</p></TableCell>
-                                        <TableCell className="py-4 text-right font-mono">{invoice.amount}</TableCell>
-                                        <TableCell className="py-4"><Button variant="ghost" size="icon"><Download className="h-4 w-4" /><span className="sr-only">Download</span></Button></TableCell>
+                                        <TableCell className="py-4 text-right font-mono">${invoice.amount.toFixed(2)}</TableCell>
+                                        <TableCell className="py-4">
+                                            {invoice.invoicePdf ? (
+                                                <Button variant="ghost" size="icon" asChild>
+                                                    <a href={invoice.invoicePdf} target="_blank" rel="noopener noreferrer"><Download className="h-4 w-4" /><span className="sr-only">Download</span></a>
+                                                </Button>
+                                            ) : (
+                                                <Button variant="ghost" size="icon" disabled><Download className="h-4 w-4" /><span className="sr-only">Download</span></Button>
+                                            )}
+                                        </TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
@@ -308,10 +333,12 @@ export default function BillingPage() {
     const { toast } = useToast();
 
     const [role, setRole] = useState<AllRoles>('seeker');
-    const [userPlans, setUserPlans] = useState<UserPlans>({ guide: 'pro', host: 'starter', vendor: 'pay-as-you-go' });
-    
+    const [userPlans, setUserPlans] = useState<UserPlans>({ guide: 'pay-as-you-go', host: 'pay-as-you-go', vendor: 'pay-as-you-go' });
+
     const [credit, setCredit] = useState<ManifestCredit | null>(null);
     const [loadingCredit, setLoadingCredit] = useState(true);
+    const [invoices, setInvoices] = useState<StripeInvoice[]>([]);
+    const [planActionLoading, setPlanActionLoading] = useState(false);
 
     // --- Subscription Guardrail State ---
     const [pendingDowngrade, setPendingDowngrade] = useState<Partial<Record<UserRole, string>>>({});
@@ -319,14 +346,52 @@ export default function BillingPage() {
     const [showReactivationModal, setShowReactivationModal] = useState(false);
     const [upgradeToProModal, setUpgradeToProModal] = useState<{role: UserRole; planKey: string} | null>(null);
     const [downgradeModal, setDowngradeModal] = useState<{role: UserRole; planKey: string} | null>(null);
-    
-    // Simulate a user who upgraded to Pro recently and is in a commitment window.
+
     const proCommitmentEndDate = useMemo(() => add(new Date(), { days: 80 }), []);
-    
-    // Simulate a user who downgraded from Pro less than 60 days ago.
     const lastProDowngradeDate = useMemo(() => add(new Date(), { days: -30 }), []);
-    
     const renewalDate = useMemo(() => add(new Date(), { days: 25 }), []);
+
+    const getIdToken = useCallback(async () => {
+        if (isFirebaseEnabled && user.data && typeof (user.data as any).getIdToken === 'function') {
+            return await (user.data as any).getIdToken();
+        }
+        return '';
+    }, [user.data]);
+
+    // Fetch subscription status and invoices
+    useEffect(() => {
+        if (user.status !== 'authenticated') return;
+
+        const fetchStripeData = async () => {
+            try {
+                const token = await getIdToken();
+                if (!token) return;
+
+                const [statusRes, invoicesRes] = await Promise.all([
+                    fetch('/api/stripe/subscription-status', { headers: { Authorization: `Bearer ${token}` } }),
+                    fetch('/api/stripe/invoices', { headers: { Authorization: `Bearer ${token}` } }),
+                ]);
+
+                if (statusRes.ok) {
+                    const status = await statusRes.json();
+                    setUserPlans({
+                        guide: status.currentPlanKey_guide || 'pay-as-you-go',
+                        host: status.currentPlanKey_host || 'pay-as-you-go',
+                        vendor: status.currentPlanKey_vendor || 'pay-as-you-go',
+                    });
+                }
+
+                if (invoicesRes.ok) {
+                    const data = await invoicesRes.json();
+                    setInvoices(data.invoices || []);
+                }
+            } catch (e) {
+                console.error('Error fetching Stripe data:', e);
+            }
+        };
+
+        fetchStripeData();
+    }, [user.status, getIdToken]);
 
     const upgradeToProCopy: Record<UserRole, {title: string; body: string}> = {
       guide: {
@@ -369,7 +434,7 @@ export default function BillingPage() {
         }
     }, [role, user.status, firestore, user.data?.uid]);
     
-    const handlePlanChange = (role: UserRole, planKey: string) => {
+    const handlePlanChange = async (role: UserRole, planKey: string) => {
         const currentPlanKey = userPlans[role];
         const currentPlan = plans[role][currentPlanKey];
         const targetPlan = plans[role][planKey];
@@ -396,36 +461,113 @@ export default function BillingPage() {
                 setUpgradeToProModal({ role, planKey });
                 return;
             } else {
-                // Non-pro upgrade
-                setUserPlans(prev => ({...prev, [role]: planKey}));
-                toast({ title: "Upgrade Successful!", description: `You're now on the ${targetPlan.name} plan.` });
+                // Non-pro upgrade (e.g. pay-as-you-go → starter)
+                setPlanActionLoading(true);
+                try {
+                    const token = await getIdToken();
+                    const res = await fetch('/api/stripe/create-subscription', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                        body: JSON.stringify({ role, planKey }),
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error || 'Failed to upgrade');
+                    setUserPlans(prev => ({...prev, [role]: planKey}));
+                    toast({ title: "Upgrade Successful!", description: `You're now on the ${targetPlan.name} plan.` });
+                } catch (e: any) {
+                    toast({ title: 'Upgrade Failed', description: e.message, variant: 'destructive' });
+                } finally {
+                    setPlanActionLoading(false);
+                }
             }
         }
     }
 
-    const handleUpgradeToProConfirm = () => {
+    const handleUpgradeToProConfirm = async () => {
         if (!upgradeToProModal) return;
-        const { role, planKey } = upgradeToProModal;
-        setUserPlans(prev => ({ ...prev, [role]: planKey }));
-        setPendingDowngrade(prev => {
-            const newPending = {...prev};
-            delete newPending[role];
-            return newPending;
-        })
-        toast({ title: "You’re on Pro.", description: "Priority visibility and AI Assistant are now active." });
-        setUpgradeToProModal(null);
-    }
-    
-    const handleDowngradeConfirm = () => {
+        const { role: targetRole, planKey } = upgradeToProModal;
+        setPlanActionLoading(true);
+
+        try {
+            const token = await getIdToken();
+            const res = await fetch('/api/stripe/create-subscription', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ role: targetRole, planKey }),
+            });
+            const data = await res.json();
+
+            if (!res.ok) throw new Error(data.error || 'Failed to upgrade');
+
+            setUserPlans(prev => ({ ...prev, [targetRole]: planKey }));
+            setPendingDowngrade(prev => {
+                const newPending = {...prev};
+                delete newPending[targetRole as UserRole];
+                return newPending;
+            });
+            toast({ title: "You're on Pro.", description: "Priority visibility and AI Assistant are now active." });
+        } catch (e: any) {
+            toast({ title: 'Upgrade Failed', description: e.message, variant: 'destructive' });
+        } finally {
+            setPlanActionLoading(false);
+            setUpgradeToProModal(null);
+        }
+    };
+
+    const handleDowngradeConfirm = async () => {
         if (!downgradeModal) return;
-        const { role, planKey } = downgradeModal;
-        setPendingDowngrade(prev => ({ ...prev, [role]: planKey }));
-        toast({
-            title: "Downgrade Scheduled",
-            description: `Downgrade scheduled for ${format(renewalDate, 'PPP')}. Your current plan remains active until then.`
-        });
-        setDowngradeModal(null);
-    }
+        const { role: targetRole, planKey } = downgradeModal;
+        setPlanActionLoading(true);
+
+        try {
+            if (planKey === 'pay-as-you-go') {
+                // Cancel subscription entirely
+                const token = await getIdToken();
+                const res = await fetch('/api/stripe/cancel-subscription', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Failed to cancel');
+            } else {
+                // Downgrade to a lower tier
+                const token = await getIdToken();
+                const res = await fetch('/api/stripe/create-subscription', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({ role: targetRole, planKey }),
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Failed to downgrade');
+            }
+
+            setPendingDowngrade(prev => ({ ...prev, [targetRole]: planKey }));
+            toast({
+                title: "Downgrade Scheduled",
+                description: `Downgrade scheduled for ${format(renewalDate, 'PPP')}. Your current plan remains active until then.`
+            });
+        } catch (e: any) {
+            toast({ title: 'Downgrade Failed', description: e.message, variant: 'destructive' });
+        } finally {
+            setPlanActionLoading(false);
+            setDowngradeModal(null);
+        }
+    };
+
+    const handleOpenBillingPortal = async () => {
+        try {
+            const token = await getIdToken();
+            const res = await fetch('/api/stripe/billing-portal', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json();
+            if (data.url) window.location.href = data.url;
+            else toast({ title: 'Error', description: 'Could not open billing portal.', variant: 'destructive' });
+        } catch (e) {
+            toast({ title: 'Error', description: 'Could not open billing portal.', variant: 'destructive' });
+        }
+    };
 
     if (user.status === 'loading') {
         return <div className="container mx-auto px-4 py-12 text-center">Loading...</div>;
@@ -493,6 +635,9 @@ export default function BillingPage() {
                             renewalDate={renewalDate}
                             proCommitmentEndDate={proCommitmentEndDate}
                             onPlanChange={handlePlanChange}
+                            invoices={invoices}
+                            onOpenBillingPortal={handleOpenBillingPortal}
+                            stripeConnectOnboarded={user.profile?.stripeConnectOnboarded === true}
                         />
                     </TabsContent>
                 ))}
@@ -531,10 +676,26 @@ export default function BillingPage() {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => {
+                    <AlertDialogAction onClick={async () => {
                         setShowReactivationModal(false);
-                        if(role !== 'seeker') setUserPlans(prev => ({...prev, [role]: 'pro'}));
-                        toast({ title: "Reactivation fee applied.", description: "Welcome back to Pro." });
+                        if (role === 'seeker') return;
+                        setPlanActionLoading(true);
+                        try {
+                            const token = await getIdToken();
+                            const res = await fetch('/api/stripe/create-subscription', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                                body: JSON.stringify({ role, planKey: 'pro' }),
+                            });
+                            const data = await res.json();
+                            if (!res.ok) throw new Error(data.error || 'Failed to reactivate');
+                            setUserPlans(prev => ({...prev, [role]: 'pro'}));
+                            toast({ title: "Reactivation fee applied.", description: "Welcome back to Pro." });
+                        } catch (e: any) {
+                            toast({ title: 'Reactivation Failed', description: e.message, variant: 'destructive' });
+                        } finally {
+                            setPlanActionLoading(false);
+                        }
                     }}>
                         Continue
                     </AlertDialogAction>
