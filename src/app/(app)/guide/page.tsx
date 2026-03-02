@@ -597,7 +597,7 @@ export default function GuidePage() {
                               setShowFeatureGate(true);
                             }
                           }}>Edit</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => alert('Duplicate clicked')}>Duplicate</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => toast({ title: 'Coming Soon', description: 'Retreat duplication will be available shortly.' })}>Duplicate</DropdownMenuItem>
                           <DropdownMenuItem onClick={async () => {
                             if ((retreat as any).firestoreId && firestore) {
                               try {
@@ -610,7 +610,7 @@ export default function GuidePage() {
                                 toast({ title: 'Failed to update status', variant: 'destructive' });
                               }
                             } else {
-                              alert('Unpublish clicked');
+                              toast({ title: 'Cannot update', description: 'This retreat is sample data.' });
                             }
                           }}>{retreat.status === 'Published' ? 'Unpublish' : 'Publish'}</DropdownMenuItem>
                           <DropdownMenuItem className="text-destructive" onClick={async () => {
@@ -624,7 +624,7 @@ export default function GuidePage() {
                                 toast({ title: 'Failed to delete', variant: 'destructive' });
                               }
                             } else {
-                              alert('Delete clicked');
+                              toast({ title: 'Cannot delete', description: 'This retreat is sample data.' });
                             }
                           }}>Delete</DropdownMenuItem>
                         </DropdownMenuContent>
@@ -734,7 +734,7 @@ export default function GuidePage() {
                                                         </CardDescription>
                                                     </CardHeader>
                                                     <CardContent>
-                                                        <form onSubmit={(e) => { e.preventDefault(); alert('You will be notified!'); }}>
+                                                        <form onSubmit={(e) => { e.preventDefault(); toast({ title: 'Notification Set', description: "We'll let you know when new spaces match your criteria." }); }}>
                                                             <Card className="mt-8 text-left bg-secondary/50 max-w-sm mx-auto">
                                                                 <CardHeader>
                                                                     <CardTitle className="text-xl">Get notified when matches appear</CardTitle>

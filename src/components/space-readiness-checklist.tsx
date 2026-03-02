@@ -14,23 +14,15 @@ interface ChecklistItemProps {
 }
 
 const ChecklistItem = ({ isComplete, label, actionText, actionHref }: ChecklistItemProps) => {
-    const handleActionClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-        if (actionHref.startsWith('#')) {
-            e.preventDefault();
-            // In a real app, this might scroll or open a modal/page to edit the listing
-            alert(`Action: ${actionText}. This would navigate to the edit page for your space.`);
-        }
-    };
-    
     return (
         <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
             {isComplete ? <CheckCircle2 className="h-4 w-4 text-beige" /> : <Circle className="h-4 w-4 text-muted-foreground" />}
             <span className={isComplete ? 'text-muted-foreground line-through' : 'text-foreground'}>{label}</span>
             </div>
-            {!isComplete && (
+            {!isComplete && actionHref !== '#' && (
             <Button variant="link" size="sm" asChild className="text-beige-dark p-0 h-auto">
-                <Link href={actionHref} onClick={handleActionClick}>{actionText}</Link>
+                <Link href={actionHref}>{actionText}</Link>
             </Button>
             )}
         </div>
