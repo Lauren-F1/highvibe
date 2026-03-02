@@ -197,6 +197,19 @@ service cloud.firestore {
     }
 
     /**
+     * @description Vendor service listings.
+     * @path /services/{serviceId}
+     * @allow (read) for all signed-in users. (write) if auth.uid matches vendorId.
+     * @principle Public Read with Owner-Only Writes.
+     */
+    match /services/{serviceId} {
+      allow get, list: if isSignedIn();
+      allow create: if isIncomingDataOwner(request.resource.data.vendorId);
+      allow update: if isDataOwner(resource.data.vendorId) && request.resource.data.vendorId == resource.data.vendorId;
+      allow delete: if isDataOwner(resource.data.vendorId);
+    }
+
+    /**
      * @description User reviews for services and spaces.
      * @path /reviews/{reviewId}
      * @allow (read) for all signed-in users. (write) if auth.uid is reviewerId.
@@ -207,6 +220,74 @@ service cloud.firestore {
       allow create: if isIncomingDataOwner(request.resource.data.reviewerId);
       allow update: if isDataOwner(resource.data.reviewerId) && request.resource.data.reviewerId == resource.data.reviewerId;
       allow delete: if isDataOwner(resource.data.reviewerId);
+    }
+
+    /**
+     * @description Conversations between users. Participants can read and write.
+     * @path /conversations/{conversationId}
+     * @allow (read, write) if auth.uid is in the participants array.
+     * @principle Shared Access: Both participants can access the conversation.
+     */
+    match /conversations/{conversationId} {
+      allow get: if isSignedIn() && request.auth.uid in resource.data.participants;
+      allow list: if isSignedIn();
+      allow create: if isSignedIn() && request.auth.uid in request.resource.data.participants;
+      allow update: if isSignedIn() && request.auth.uid in resource.data.participants;
+      allow delete: if false;
+
+      match /messages/{messageId} {
+        allow get, list: if isSignedIn();
+        allow create: if isSignedIn() && request.auth.uid == request.resource.data.senderId;
+        allow update, delete: if false;
+      }
+    }
+
+    /**
+     * @description Seeker waitlist from seeker discovery page.
+     * @path /waitlist_seekers/{docId}
+     */
+    match /waitlist_seekers/{docId} {
+      allow create: if isSignedIn();
+      allow read: if false;
+    }
+
+    /**
+     * @description Waitlist submissions.
+     * @path /waitlist/{email}
+     */
+    match /waitlist/{email} {
+      allow create: if true;
+      allow read: if false;
+    }
+
+    /**
+     * @description Founder access codes.
+     * @path /founder_codes/{codeId}
+     */
+    match /founder_codes/{codeId} {
+      allow get: if true;
+      allow update: if true;
+      allow list, create, delete: if false;
+    }
+
+    /**
+     * @description Manifestations (seeker dream retreat requests).
+     * @path /manifestations/{manifestationId}
+     */
+    match /manifestations/{manifestationId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn() && request.auth.uid == request.resource.data.seekerId;
+      allow update: if isSignedIn() && request.auth.uid == resource.data.seekerId;
+      allow delete: if isSignedIn() && request.auth.uid == resource.data.seekerId;
+    }
+
+    /**
+     * @description Scout outreach log. Backend-only writes; guides can read their own outreach.
+     * @path /scout_outreach/{outreachId}
+     */
+    match /scout_outreach/{outreachId} {
+      allow get, list: if isSignedIn() && resource.data.guideUserId == request.auth.uid;
+      allow create, update, delete: if false; // Server-side only via Admin SDK
     }
   }
 }

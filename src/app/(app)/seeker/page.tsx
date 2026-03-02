@@ -14,7 +14,7 @@ import { RetreatCard } from '@/components/retreat-card';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { HowItWorksModal } from '@/components/how-it-works-modal';
-import { allRetreats as retreats, continents, destinations, experienceTypes, investmentRanges, timingOptions } from '@/lib/mock-data';
+import { allRetreats as mockRetreats, continents, destinations, experienceTypes, investmentRanges, timingOptions } from '@/lib/mock-data';
 import { useFirestore } from '@/firebase';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
@@ -52,11 +52,19 @@ export default function SeekerPage() {
   const [timing, setTiming] = useState('exploring');
   const [searchInitiated, setSearchInitiated] = useState(false);
 
-  const [filteredRetreats, setFilteredRetreats] = useState(retreats);
+  // Firestore retreats loading
+  const [firestoreRetreats, setFirestoreRetreats] = useState<typeof mockRetreats>([]);
+  const [retreatsLoaded, setRetreatsLoaded] = useState(false);
+
+  const retreats = retreatsLoaded && firestoreRetreats.length > 0
+    ? [...firestoreRetreats, ...mockRetreats]
+    : mockRetreats;
+
+  const [filteredRetreats, setFilteredRetreats] = useState(mockRetreats);
   const [isHowItWorksOpen, setIsHowItWorksOpen] = useState(false);
-  
+
   const mostExpensiveRetreatId = retreats.length > 0 ? retreats.reduce((prev, current) => (prev.price > current.price) ? prev : current).id : '';
-  
+
   // Waitlist form state
   const [waitlistStatus, setWaitlistStatus] = useState<'idle' | 'submitting' | 'submitted' | 'error'>('idle');
   const [waitlistEmail, setWaitlistEmail] = useState('');
@@ -65,6 +73,42 @@ export default function SeekerPage() {
 
   const firestore = useFirestore();
   const { toast } = useToast();
+
+  // Load published retreats from Firestore
+  useEffect(() => {
+    if (!firestore) return;
+
+    const loadRetreats = async () => {
+      try {
+        const { getDocs, query, where } = await import('firebase/firestore');
+        const retreatsRef = collection(firestore, 'retreats');
+        const q = query(retreatsRef, where('status', '==', 'published'));
+        const snapshot = await getDocs(q);
+        const loaded = snapshot.docs.map(d => {
+          const data = d.data();
+          return {
+            id: d.id,
+            title: data.title || '',
+            description: data.description || '',
+            location: data.locationDescription || '',
+            price: data.costPerPerson || 0,
+            rating: 0,
+            image: data.retreatImageUrls?.[0] || '/generic-placeholder.jpg',
+            type: data.type ? [data.type.toLowerCase().replace(/\s+/g, '-')] : [],
+            duration: data.startDate && data.endDate ? `${data.startDate} to ${data.endDate}` : undefined,
+            included: data.included || undefined,
+          };
+        });
+        setFirestoreRetreats(loaded);
+      } catch (error) {
+        console.error('Error loading retreats:', error);
+      } finally {
+        setRetreatsLoaded(true);
+      }
+    };
+
+    loadRetreats();
+  }, [firestore]);
 
   useEffect(() => {
     // This effect is only for filtering, not for deciding which state to show
@@ -106,7 +150,7 @@ export default function SeekerPage() {
     // Timing filter is cosmetic for now as data is not available on retreats
     
     setFilteredRetreats(newFilteredRetreats);
-  }, [experienceType, selectedContinent, selectedRegion, investmentRange, timing, searchInitiated]);
+  }, [experienceType, selectedContinent, selectedRegion, investmentRange, timing, searchInitiated, retreats]);
 
   const handleWaitlistSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

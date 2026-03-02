@@ -54,6 +54,11 @@ env:
       - BUILD
       - RUNTIME
 
+  - variable: GOOGLE_PLACES_API_KEY
+    secret: GOOGLE_PLACES_API_KEY
+    availability:
+      - RUNTIME
+
   - variable: TEST_EMAIL_TO
     value: "info@highviberetreats.com"
     availability:

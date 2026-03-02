@@ -13,7 +13,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
 
-import { vendors as allVendors, type Vendor, matchingGuidesForVendor as allGuides } from '@/lib/mock-data';
+import { vendors as mockVendors, type Vendor, matchingGuidesForVendor as mockGuides } from '@/lib/mock-data';
+import { loadGuides, loadVendors } from '@/lib/firestore-partners';
 import { VendorCard } from '@/components/vendor-card';
 import { VendorFilters, type VendorFiltersState } from '@/components/vendor-filters';
 import { GuideCard, type Guide } from '@/components/guide-card';
@@ -21,33 +22,71 @@ import { GuideFilters, type GuideFiltersState } from '@/components/guide-filters
 import { getDistanceInMiles } from '@/lib/geo';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore } from '@/firebase';
-import { collection, addDoc, query, where, getDocs, limit, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, query, where, getDocs, limit, serverTimestamp, updateDoc, doc } from 'firebase/firestore';
 import { SpaceReadinessChecklist, type SpaceReadinessProps } from '@/components/space-readiness-checklist';
 import { cn } from '@/lib/utils';
 
 
 const genericImage = '/generic-placeholder.jpg';
 
-const hostSpaces = [
-  { id: 'space1', name: 'The Glass House', location: 'Topanga, California', capacity: 25, rate: 2200, status: 'Published', bookings: 3, image: '/modern-event-space.jpg', hostLat: 34.09, hostLng: -118.6,
+import { getPlaceholderById } from '@/lib/placeholder-images';
+
+interface HostSpace {
+  id: string;
+  name: string;
+  location: string;
+  capacity: number;
+  rate: number;
+  status: string;
+  bookings: number;
+  image: string;
+  hostLat?: number;
+  hostLng?: number;
+  description: string;
+  amenities: string[];
+  propertyShowcaseUrls: string[];
+  availabilitySet: boolean;
+  isFirestore?: boolean;
+}
+
+const mockHostSpaces: HostSpace[] = [
+  { id: 'space1', name: 'The Glass House', location: 'Topanga, California', capacity: 25, rate: 2200, status: 'Published', bookings: 3, image: getPlaceholderById('modern-event-space'), hostLat: 34.09, hostLng: -118.6,
     description: 'A stunning modern home with panoramic views, perfect for intimate workshops and corporate offsites.',
     amenities: ['Pool', 'Wi-Fi', 'A/C', 'Full kitchen onsite'],
-    propertyShowcaseUrls: Array(6).fill('/modern-event-space.jpg'),
+    propertyShowcaseUrls: Array(6).fill(getPlaceholderById('modern-event-space')),
     availabilitySet: true,
   },
-  { id: 'space2', name: 'Sacred Valley Hacienda', location: 'Cusco, Peru', capacity: 18, rate: 1500, status: 'Published', bookings: 5, image: '/host-cabin.png', hostLat: -13.53, hostLng: -71.96,
+  { id: 'space2', name: 'Sacred Valley Hacienda', location: 'Cusco, Peru', capacity: 18, rate: 1500, status: 'Published', bookings: 5, image: getPlaceholderById('cozy-cabin'), hostLat: -13.53, hostLng: -71.96,
     description: 'A historic hacienda in the heart of the Andes, offering a unique blend of culture and comfort.',
-    amenities: [], 
-    propertyShowcaseUrls: Array(4).fill('/host-cabin.png'), 
+    amenities: [],
+    propertyShowcaseUrls: Array(4).fill(getPlaceholderById('cozy-cabin')),
     availabilitySet: true,
   },
-  { id: 'space3', name: 'Mountain View Lodge', location: 'Asheville, North Carolina', capacity: 40, rate: 0, status: 'Draft', bookings: 0, image: '/mountain-hike.jpg', hostLat: 35.59, hostLng: -82.55,
-    description: '', 
-    amenities: [], 
-    propertyShowcaseUrls: [], 
-    availabilitySet: false, 
+  { id: 'space3', name: 'Mountain View Lodge', location: 'Asheville, North Carolina', capacity: 40, rate: 0, status: 'Draft', bookings: 0, image: getPlaceholderById('mountain-hike'), hostLat: 35.59, hostLng: -82.55,
+    description: '',
+    amenities: [],
+    propertyShowcaseUrls: [],
+    availabilitySet: false,
   },
 ];
+
+function firestoreSpaceToDisplay(data: Record<string, unknown>): HostSpace {
+  return {
+    id: data.id as string,
+    name: data.name as string || '',
+    location: data.locationDescription as string || [data.city, data.stateProvince, data.country].filter(Boolean).join(', '),
+    capacity: data.capacity as number || 0,
+    rate: data.dailyRate as number || 0,
+    status: ((data.status as string) || 'draft').charAt(0).toUpperCase() + ((data.status as string) || 'draft').slice(1),
+    bookings: 0,
+    image: (data.spaceImageUrls as string[])?.[0] || genericImage,
+    description: data.description as string || '',
+    amenities: data.amenities as string[] || [],
+    propertyShowcaseUrls: data.spaceImageUrls as string[] || [],
+    availabilitySet: false,
+    isFirestore: true,
+  };
+}
 
 const initialConnectionRequests = [
     { id: 'cr1', partnerId: 'g1', name: 'Asha Sharma', role: 'Guide' as const, forSpace: 'The Glass House', status: 'New Request' as const },
@@ -103,7 +142,6 @@ function StatCard({ title, value, icon, description }: StatCardProps) {
 
 export default function HostDashboardPage() {
   const router = useRouter();
-  const [activeSpaceId, setActiveSpaceId] = useState<string | null>(hostSpaces[0]?.id || null);
   const [activeTab, setActiveTab] = useState<'guides' | 'vendors'>('guides');
   const [connectionRequests, setConnectionRequests] = useState(initialConnectionRequests);
   const [confirmedBookings, setConfirmedBookings] = useState(initialConfirmedBookings);
@@ -113,18 +151,81 @@ export default function HostDashboardPage() {
   const [guideSortOption, setGuideSortOption] = useState('recommended');
   const [guideFiltersDirty, setGuideFiltersDirty] = useState(false);
   const [guideFiltersVisible, setGuideFiltersVisible] = useState(false);
-  
+
   const [vendorFilters, setVendorFilters] = useState<VendorFiltersState>(initialVendorFilters);
   const [appliedVendorFilters, setAppliedVendorFilters] = useState<VendorFiltersState>(initialVendorFilters);
   const [vendorSortOption, setVendorSortOption] = useState('recommended');
   const [vendorFiltersDirty, setVendorFiltersDirty] = useState(false);
   const [vendorFiltersVisible, setVendorFiltersVisible] = useState(false);
-  
+
   const { toast } = useToast();
   const currentUser = useUser();
   const firestore = useFirestore();
   const [isConnecting, setIsConnecting] = useState(false);
   const hostHeroImage = '/host-dashboard-hero.jpg';
+
+  // Load spaces from Firestore
+  const [firestoreSpaces, setFirestoreSpaces] = useState<HostSpace[]>([]);
+  const [spacesLoaded, setSpacesLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!firestore || currentUser.status !== 'authenticated') return;
+
+    const loadSpaces = async () => {
+      try {
+        const spacesRef = collection(firestore, 'spaces');
+        const q = query(spacesRef, where('spaceOwnerId', '==', currentUser.data.uid));
+        const snapshot = await getDocs(q);
+        const spaces = snapshot.docs.map(d => firestoreSpaceToDisplay({ id: d.id, ...d.data() }));
+        setFirestoreSpaces(spaces);
+      } catch (error) {
+        console.error('Error loading spaces:', error);
+      } finally {
+        setSpacesLoaded(true);
+      }
+    };
+
+    loadSpaces();
+  }, [firestore, currentUser.status]);
+
+  const hostSpaces = spacesLoaded && firestoreSpaces.length > 0 ? firestoreSpaces : mockHostSpaces;
+  const [activeSpaceId, setActiveSpaceId] = useState<string | null>(null);
+
+  // Load real guides and vendors from Firestore
+  const [firestoreGuides, setFirestoreGuides] = useState<Guide[]>([]);
+  const [firestoreVendors, setFirestoreVendors] = useState<Vendor[]>([]);
+  const [partnersLoaded, setPartnersLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!firestore || currentUser.status !== 'authenticated') return;
+
+    const loadPartners = async () => {
+      try {
+        const [guidesResult, vendorsResult] = await Promise.all([
+          loadGuides(firestore, currentUser.data.uid),
+          loadVendors(firestore, currentUser.data.uid),
+        ]);
+        setFirestoreGuides(guidesResult);
+        setFirestoreVendors(vendorsResult);
+      } catch (error) {
+        console.error('Error loading partners:', error);
+      } finally {
+        setPartnersLoaded(true);
+      }
+    };
+
+    loadPartners();
+  }, [firestore, currentUser.status]);
+
+  const allGuides = partnersLoaded && firestoreGuides.length > 0 ? firestoreGuides : mockGuides;
+  const allVendors = partnersLoaded && firestoreVendors.length > 0 ? firestoreVendors : mockVendors;
+
+  // Set initial active space once loaded
+  useEffect(() => {
+    if (hostSpaces.length > 0 && !activeSpaceId) {
+      setActiveSpaceId(hostSpaces[0].id);
+    }
+  }, [hostSpaces, activeSpaceId]);
 
   const isAgreementAccepted = currentUser.status === 'authenticated' && currentUser.profile?.providerAgreementAccepted === true;
 
@@ -160,8 +261,33 @@ export default function HostDashboardPage() {
         });
         return;
       }
-      alert("Navigate to 'Add New Space' page.");
+      router.push('/host/spaces/new');
   }
+
+  const handleEditSpace = (spaceId: string, isReal: boolean) => {
+    if (isReal) {
+      router.push(`/host/spaces/${spaceId}/edit`);
+    } else {
+      toast({ title: 'Demo Space', description: 'Create a real space to edit it.' });
+    }
+  };
+
+  const handlePauseSpace = async (spaceId: string, currentStatus: string, isReal: boolean) => {
+    if (!isReal) {
+      toast({ title: 'Demo Space', description: 'Create a real space to manage it.' });
+      return;
+    }
+    if (!firestore) return;
+    const newStatus = currentStatus.toLowerCase() === 'published' ? 'paused' : 'published';
+    try {
+      await updateDoc(doc(firestore, 'spaces', spaceId), { status: newStatus, updatedAt: serverTimestamp() });
+      setFirestoreSpaces(prev => prev.map(s => s.id === spaceId ? { ...s, status: newStatus.charAt(0).toUpperCase() + newStatus.slice(1) } : s));
+      toast({ title: newStatus === 'published' ? 'Space Published' : 'Space Paused' });
+    } catch (error) {
+      console.error('Error updating space status:', error);
+      toast({ title: 'Failed to update status', variant: 'destructive' });
+    }
+  };
   
   const activeSpace = hostSpaces.find(s => s.id === activeSpaceId);
   
@@ -430,7 +556,7 @@ export default function HostDashboardPage() {
       <div className="mb-12">
         <h2 className="text-2xl font-bold tracking-tight mb-4 font-headline">Your Performance</h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <StatCard title="Active Spaces" value="2" icon={<Briefcase className="h-4 w-4 text-muted-foreground" />} description="Published and available" />
+            <StatCard title="Active Spaces" value={String(hostSpaces.filter(s => s.status.toLowerCase() === 'published').length)} icon={<Briefcase className="h-4 w-4 text-muted-foreground" />} description="Published and available" />
             <StatCard title="Guide Inquiries" value="+12" icon={<Users className="h-4 w-4 text-muted-foreground" />} description="in the last 30 days" />
             <StatCard title="Bookings" value="3" icon={<BarChart className="h-4 w-4 text-muted-foreground" />} description="in the last 90 days" />
             <StatCard title="Total Earnings" value="$45,231" icon={<DollarSign className="h-4 w-4 text-muted-foreground" />} description="All-time earnings" />
@@ -475,9 +601,10 @@ export default function HostDashboardPage() {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}><MoreHorizontal className="h-4 w-4"/></Button></DropdownMenuTrigger>
                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => alert('Edit clicked')}>Edit</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => alert('Manage availability clicked')}>Manage Availability</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => alert('Pause listing clicked')}>Pause Listing</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleEditSpace(space.id, !!space.isFirestore)}>Edit</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handlePauseSpace(space.id, space.status, !!space.isFirestore)}>
+                            {space.status.toLowerCase() === 'published' ? 'Pause Listing' : 'Publish Listing'}
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

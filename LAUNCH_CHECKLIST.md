@@ -50,23 +50,26 @@ This is a running checklist of everything needed to go from current state to a f
 - [x] AI itinerary planner (functional)
 
 ### Host — Space Listing
-- [ ] Space creation form (doesn't exist yet)
-- [ ] Save space to Firestore (`/spaces/{spaceId}`)
-- [ ] Space image upload
-- [ ] Space editing flow
+- [x] Space creation form (`/host/spaces/new`) — full form with zod validation, property type, location, amenities
+- [x] Save space to Firestore (`/spaces/{spaceId}`) — save as draft or publish
+- [x] Space image upload (placeholder component)
+- [x] Space editing flow (`/host/spaces/[id]/edit`) — load, edit, save, delete
 - [ ] **Availability calendar** (Airbnb-style date picker for hosts to set available dates)
 - [ ] **Date-based search** (guides filter spaces by available dates)
-- [ ] Amenities, capacity, rate per night fields
-- [ ] Space status management (active/paused)
+- [x] Amenities, capacity, rate per night fields
+- [x] Space status management (draft/published/paused) — toggle from dashboard or edit page
+- [x] Host dashboard reads spaces from Firestore (with mock data fallback)
 
 ### Vendor — Service Listing
-- [ ] Service creation form (doesn't exist yet)
-- [ ] Save service to Firestore (collection TBD — `/vendors/{vendorId}/services/{serviceId}` or top-level)
-- [ ] Service image upload
-- [ ] Service editing flow
-- [ ] Service area / radius configuration
-- [ ] Pricing tiers (starting price, packages)
-- [ ] Service status management (active/paused)
+- [x] Service creation form (`/vendor/services/new`) — full form with zod validation, category, pricing, service area
+- [x] Save service to Firestore (`/services/{serviceId}`) — top-level collection, save as draft or publish
+- [x] Service image upload (placeholder component)
+- [x] Service editing flow (`/vendor/services/[id]/edit`) — load, edit, save, delete
+- [x] Service area / radius configuration
+- [x] Pricing tiers (starting price + pricing details text field)
+- [x] Service status management (draft/active/paused) — toggle from dashboard or edit page
+- [x] Vendor dashboard reads services from Firestore (with mock data fallback)
+- [x] Firestore security rules for `/services/{serviceId}` collection
 
 ---
 
@@ -92,7 +95,7 @@ This is a running checklist of everything needed to go from current state to a f
 
 ### Search & Discovery
 - [x] Seeker retreat search with filters (mock data)
-- [ ] Replace mock retreat data with Firestore queries
+- [x] Seeker discovery shows real Firestore retreats (merged with mock data fallback)
 - [ ] Location-based search (by region/destination)
 - [ ] Date-based search
 - [ ] Budget filtering against real pricing
@@ -103,10 +106,11 @@ This is a running checklist of everything needed to go from current state to a f
 ## 4. MESSAGING & COMMUNICATION
 
 - [x] Inbox UI with conversation list, search, filters
-- [~] Real Firestore conversations (host→guide connection creates real conversation; inbox reads mock data)
-- [ ] Replace inbox mock data with real Firestore conversation queries
-- [ ] Real-time message sending/receiving via Firestore listeners
-- [ ] Unread count from real data (currently mock)
+- [x] Real Firestore conversations — InboxContext loads from Firestore, falls back to mock
+- [x] Sending messages persists to Firestore (conversations/{id}/messages subcollection)
+- [x] Firestore rules for conversations and messages collections
+- [ ] Real-time message updates (currently loads on page open, not live)
+- [ ] Unread count from real data (currently all marked unread)
 - [ ] Push/email notifications for new messages
 - [ ] AI message suggestions (flow exists, not wired to UI)
 
@@ -171,13 +175,15 @@ This is a running checklist of everything needed to go from current state to a f
 ## 7. MOCK DATA TRANSITION PLAN
 
 ### Remove at Launch
-- [ ] `src/lib/mock-data.ts` — replace all references with Firestore queries
-  - [ ] `allRetreats` → query `/retreats` collection
-  - [ ] `yourRetreats` → query retreats where `hostId == currentUser.uid`
-  - [ ] `hosts` / `hostSpaces` → query `/spaces` collection
-  - [ ] `vendors` / `yourServices` → query vendor services
+- [~] `src/lib/mock-data.ts` — replace all references with Firestore queries
+  - [x] `allRetreats` → seeker page queries `/retreats` where status=='published', merged with mock fallback
+  - [x] `yourRetreats` → guide dashboard queries retreats where `hostId == currentUser.uid`
+  - [x] `hostSpaces` → host dashboard queries `/spaces` where `spaceOwnerId == currentUser.uid`
+  - [x] `yourServices` → vendor dashboard queries `/services` where `vendorId == currentUser.uid`
   - [ ] `matchingGuides*` → query `/users` where role includes 'guide'
-- [ ] `src/lib/inbox-data.ts` — replace with real conversation queries
+  - [ ] `hosts` for seeker/guide/vendor matching → query `/spaces` collection
+  - [ ] `vendors` for matching → query `/users` where role includes 'vendor'
+- [x] `src/lib/inbox-data.ts` — InboxContext loads real conversations from Firestore (mock fallback)
 - [ ] Remove mock connection requests / confirmed bookings from dashboards
 
 ### Keep for Development
@@ -238,6 +244,7 @@ This is a running checklist of everything needed to go from current state to a f
 - [ ] Contact/support form testing
 
 ---
+
 
 ## Suggested Implementation Order
 

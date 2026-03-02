@@ -1,13 +1,14 @@
 
 
 "use client";
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { PlusCircle, Eye, Users, MessageSquare, CheckCircle, DollarSign, MoreHorizontal, Filter } from 'lucide-react';
-import { yourServices, matchingGuidesForVendor as allGuides, matchingHostsForVendor as allHosts, type Guide, type Host } from '@/lib/mock-data';
+import { yourServices as mockServices, matchingGuidesForVendor as mockGuides, matchingHostsForVendor as mockHosts, type Guide, type Host } from '@/lib/mock-data';
+import { loadGuides, loadHosts } from '@/lib/firestore-partners';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
@@ -20,7 +21,8 @@ import { VendorHostFilters, type VendorHostFiltersState } from '@/components/ven
 import { useToast } from '@/hooks/use-toast';
 import { type ConnectionStatus } from '@/components/guide-card';
 import { cn } from '@/lib/utils';
-import { useUser } from '@/firebase';
+import { useUser, useFirestore } from '@/firebase';
+import { collection, query, where, getDocs, updateDoc, doc, serverTimestamp } from 'firebase/firestore';
 
 interface StatCardProps {
   title: string;
@@ -70,10 +72,88 @@ const initialHostFilters: VendorHostFiltersState = {
 };
 
 
+interface DisplayService {
+  id: string;
+  name: string;
+  category: string;
+  serviceArea: string;
+  startingPrice: number;
+  status: string;
+  isFirestore?: boolean;
+}
+
+function firestoreServiceToDisplay(data: Record<string, unknown>): DisplayService {
+  return {
+    id: data.id as string,
+    name: data.name as string || '',
+    category: data.category as string || '',
+    serviceArea: data.serviceArea as string || '',
+    startingPrice: data.startingPrice as number || 0,
+    status: ((data.status as string) || 'draft').charAt(0).toUpperCase() + ((data.status as string) || 'draft').slice(1),
+    isFirestore: true,
+  };
+}
+
 export default function VendorDashboardPage() {
   const router = useRouter();
   const { toast } = useToast();
   const user = useUser();
+  const firestore = useFirestore();
+
+  // Load services from Firestore
+  const [firestoreServices, setFirestoreServices] = useState<DisplayService[]>([]);
+  const [servicesLoaded, setServicesLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!firestore || user.status !== 'authenticated') return;
+
+    const loadServices = async () => {
+      try {
+        const servicesRef = collection(firestore, 'services');
+        const q = query(servicesRef, where('vendorId', '==', user.data.uid));
+        const snapshot = await getDocs(q);
+        const services = snapshot.docs.map(d => firestoreServiceToDisplay({ id: d.id, ...d.data() }));
+        setFirestoreServices(services);
+      } catch (error) {
+        console.error('Error loading services:', error);
+      } finally {
+        setServicesLoaded(true);
+      }
+    };
+
+    loadServices();
+  }, [firestore, user.status]);
+
+  const yourServices = servicesLoaded && firestoreServices.length > 0 ? firestoreServices : mockServices.map(s => ({ ...s, isFirestore: false }));
+
+  // Load real guides and hosts from Firestore
+  const [firestoreGuides, setFirestoreGuides] = useState<Guide[]>([]);
+  const [firestoreHosts, setFirestoreHosts] = useState<Host[]>([]);
+  const [partnersLoaded, setPartnersLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!firestore || user.status !== 'authenticated') return;
+
+    const loadPartners = async () => {
+      try {
+        const [guidesResult, hostsResult] = await Promise.all([
+          loadGuides(firestore, user.data.uid),
+          loadHosts(firestore, user.data.uid),
+        ]);
+        setFirestoreGuides(guidesResult);
+        setFirestoreHosts(hostsResult);
+      } catch (error) {
+        console.error('Error loading partners:', error);
+      } finally {
+        setPartnersLoaded(true);
+      }
+    };
+
+    loadPartners();
+  }, [firestore, user.status]);
+
+  const allGuides = partnersLoaded && firestoreGuides.length > 0 ? firestoreGuides : mockGuides;
+  const allHosts = partnersLoaded && firestoreHosts.length > 0 ? firestoreHosts : mockHosts;
 
   const [connectionRequests, setConnectionRequests] = useState(initialConnectionRequests);
   const [confirmedBookings, setConfirmedBookings] = useState(initialConfirmedBookings);
@@ -187,8 +267,33 @@ export default function VendorDashboardPage() {
         });
         return;
     }
-    alert("Navigate to 'Add New Service' page.");
+    router.push('/vendor/services/new');
   }
+
+  const handleEditService = (serviceId: string, isReal: boolean) => {
+    if (isReal) {
+      router.push(`/vendor/services/${serviceId}/edit`);
+    } else {
+      toast({ title: 'Demo Service', description: 'Create a real service to edit it.' });
+    }
+  };
+
+  const handlePauseService = async (serviceId: string, currentStatus: string, isReal: boolean) => {
+    if (!isReal) {
+      toast({ title: 'Demo Service', description: 'Create a real service to manage it.' });
+      return;
+    }
+    if (!firestore) return;
+    const newStatus = currentStatus.toLowerCase() === 'active' ? 'paused' : 'active';
+    try {
+      await updateDoc(doc(firestore, 'services', serviceId), { status: newStatus, updatedAt: serverTimestamp() });
+      setFirestoreServices(prev => prev.map(s => s.id === serviceId ? { ...s, status: newStatus.charAt(0).toUpperCase() + newStatus.slice(1) } : s));
+      toast({ title: newStatus === 'active' ? 'Service Published' : 'Service Paused' });
+    } catch (error) {
+      console.error('Error updating service status:', error);
+      toast({ title: 'Failed to update status', variant: 'destructive' });
+    }
+  };
 
   const handleViewMessage = (threadId?: string) => {
     if (threadId) {
@@ -334,9 +439,10 @@ export default function VendorDashboardPage() {
                         <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4"/></Button>
                       </DropdownMenuTrigger>
                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => alert('Edit clicked')}>Edit Service</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => alert('Update availability clicked')}>Update Availability</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => alert('Pause listing clicked')}>Pause Listing</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleEditService(service.id, !!service.isFirestore)}>Edit Service</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handlePauseService(service.id, service.status, !!service.isFirestore)}>
+                            {service.status.toLowerCase() === 'active' ? 'Pause Listing' : 'Publish Listing'}
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

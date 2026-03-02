@@ -13,7 +13,8 @@ import { PlusCircle, MoreHorizontal, CheckCircle, XCircle, Filter, Sparkles } fr
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { yourRetreats as mockRetreats, hosts, vendors, UserSubscriptionStatus, destinations, connectionRequests, confirmedBookings, type Host, type Vendor } from '@/lib/mock-data';
+import { yourRetreats as mockRetreats, hosts as mockHosts, vendors as mockVendors, UserSubscriptionStatus, destinations, connectionRequests, confirmedBookings, type Host, type Vendor } from '@/lib/mock-data';
+import { loadHosts, loadVendors } from '@/lib/firestore-partners';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
@@ -31,6 +32,7 @@ import { WaitlistModal } from '@/components/waitlist-modal';
 import { VibeMatchModal } from '@/components/vibe-match-modal';
 import { useUser, useFirestore } from '@/firebase';
 import { collection, query, where, getDocs, doc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
+import { ScoutVendors } from '@/components/scout-vendors';
 
 interface FirestoreRetreat {
   id: string;
@@ -131,6 +133,35 @@ export default function GuidePage() {
 
   // Use Firestore retreats if available, fall back to mock
   const yourRetreats = retreatsLoaded && firestoreRetreats.length > 0 ? firestoreRetreats : mockRetreats;
+
+  // Load real hosts and vendors from Firestore
+  const [firestoreHosts, setFirestoreHosts] = useState<Host[]>([]);
+  const [firestoreVendors, setFirestoreVendors] = useState<Vendor[]>([]);
+  const [partnersLoaded, setPartnersLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!firestore || user.status !== 'authenticated' || !user.data?.uid) return;
+
+    const loadPartners = async () => {
+      try {
+        const [hostsResult, vendorsResult] = await Promise.all([
+          loadHosts(firestore, user.data!.uid),
+          loadVendors(firestore, user.data!.uid),
+        ]);
+        setFirestoreHosts(hostsResult);
+        setFirestoreVendors(vendorsResult);
+      } catch (error) {
+        console.error('Error loading partners:', error);
+      } finally {
+        setPartnersLoaded(true);
+      }
+    };
+
+    loadPartners();
+  }, [firestore, user.status, user.data?.uid]);
+
+  const hosts = partnersLoaded && firestoreHosts.length > 0 ? firestoreHosts : mockHosts;
+  const vendors = partnersLoaded && firestoreVendors.length > 0 ? firestoreVendors : mockVendors;
 
   const [activeRetreatId, setActiveRetreatId] = useState<string | null>(null);
   const [subscriptionStatus] = useState<UserSubscriptionStatus>('active'); // mock status
@@ -845,6 +876,16 @@ export default function GuidePage() {
                 )}
             </CardContent>
         </Card>
+
+        {/* Scout Local Vendors */}
+        {user.status === 'authenticated' && user.data?.uid && (
+          <ScoutVendors
+            retreatLocation={activeRetreat?.location}
+            retreatDescription={activeRetreat?.name}
+            guideUserId={user.data.uid}
+            retreatId={activeRetreatId || undefined}
+          />
+        )}
       </div>
     </div>
   );

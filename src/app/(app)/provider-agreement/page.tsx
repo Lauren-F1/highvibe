@@ -134,6 +134,19 @@ export default function ProviderAgreementPage() {
                     <li>Withhold payouts</li>
                     <li>Pursue recovery of lost fees</li>
                 </ul>
+                <p>HighVibe uses automated monitoring tools to detect patterns consistent with commission circumvention, including but not limited to repeated connections without bookings or communications directing users off-platform.</p>
+            </div>
+
+            <div className="space-y-2">
+                <h2 className="font-headline text-xl pt-4 font-bold">10a. Contact Information and Partner Privacy</h2>
+                <p>Personal contact information (email addresses, phone numbers, social media accounts) of other users discovered through the HighVibe platform may not be used for any purpose outside of the platform.</p>
+                <p>You agree that:</p>
+                <ul className="list-disc list-inside space-y-1 pl-4">
+                    <li>All communications with partners introduced through HighVibe must be conducted through the platform's messaging system until a booking is confirmed.</li>
+                    <li>You will not share, sell, or distribute the personal contact information of any user obtained through the platform.</li>
+                    <li>Direct contact information will only be shared between parties after a confirmed booking, and solely for the purpose of fulfilling that booking.</li>
+                </ul>
+                <p>Violation of this policy may result in immediate account suspension.</p>
             </div>
 
             <div className="space-y-2">
