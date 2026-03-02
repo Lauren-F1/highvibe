@@ -66,8 +66,9 @@ export async function POST(request: Request) {
     const userDoc = await db.collection('users').doc(uid).get();
     const userEmail = userDoc.exists ? userDoc.data()?.email : undefined;
 
-    // Determine platform fee percentage based on provider's plan
+    // Determine platform fee percentage based on provider's plan and role
     let platformFeePercent = 12.5; // default PAYG guide rate
+    let providerConnectAccountId = '';
     if (retreatProviderId && retreatProviderId !== 'guide-placeholder-id') {
       const providerDoc = await db.collection('users').doc(retreatProviderId).get();
       if (providerDoc.exists) {
@@ -75,12 +76,21 @@ export async function POST(request: Request) {
         const plan = providerData.currentPlanKey_guide || 'pay-as-you-go';
         if (plan === 'pro') platformFeePercent = 8;
         else if (plan === 'starter') platformFeePercent = 10;
+        // Get Connect account for destination charges
+        if (providerData.stripeConnectAccountId && providerData.stripeConnectOnboarded) {
+          providerConnectAccountId = providerData.stripeConnectAccountId;
+        }
       }
     }
 
     const stripe = getStripe();
 
-    const session = await stripe.checkout.sessions.create({
+    // Calculate platform fee (application_fee_amount) — this is what HighVibe keeps.
+    // Stripe's processing fee is deducted from the provider's portion automatically
+    // when using destination charges.
+    const applicationFeeInCents = Math.round(totalInCents * (platformFeePercent / 100));
+
+    const sessionParams: any = {
       mode: 'payment',
       line_items: [
         {
@@ -114,8 +124,20 @@ export async function POST(request: Request) {
           providerId: retreatProviderId,
           bookingSource: 'highvibe',
         },
+        // If provider has a connected Stripe account, use destination charges.
+        // This routes payment to the provider automatically. HighVibe keeps
+        // the application_fee_amount as pure revenue. Stripe's processing fee
+        // (2.9% + $0.30) is deducted from the provider's portion, not HighVibe's.
+        ...(providerConnectAccountId ? {
+          application_fee_amount: applicationFeeInCents,
+          transfer_data: {
+            destination: providerConnectAccountId,
+          },
+        } : {}),
       },
-    });
+    };
+
+    const session = await stripe.checkout.sessions.create(sessionParams);
 
     return NextResponse.json({ url: session.url });
   } catch (error: any) {

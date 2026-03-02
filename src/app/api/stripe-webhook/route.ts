@@ -114,6 +114,35 @@ async function handleCheckoutCompleted(
   const feePercent = parseFloat(platformFeePercent || '12.5');
   const platformFeeAmount = Math.round(totalAmount * (feePercent / 100) * 100) / 100;
 
+  // Check if destination charges were used (provider gets paid automatically by Stripe)
+  const paymentIntentId = session.payment_intent as string || '';
+  let usedDestinationCharges = false;
+  let stripeProcessingFee = 0;
+  let providerNetPayout = 0;
+
+  if (paymentIntentId) {
+    try {
+      const pi = await stripe.paymentIntents.retrieve(paymentIntentId);
+      usedDestinationCharges = !!pi.transfer_data?.destination;
+      // Retrieve the actual Stripe processing fee from the balance transaction
+      if (pi.latest_charge) {
+        const charge = await stripe.charges.retrieve(pi.latest_charge as string, {
+          expand: ['balance_transaction'],
+        });
+        const bt = charge.balance_transaction as Stripe.BalanceTransaction;
+        if (bt?.fee) {
+          stripeProcessingFee = bt.fee / 100; // convert from cents
+        }
+      }
+      if (usedDestinationCharges) {
+        // With destination charges: provider receives (total - application_fee - Stripe processing fee)
+        providerNetPayout = totalAmount - platformFeeAmount - stripeProcessingFee;
+      }
+    } catch (e) {
+      console.error('[WEBHOOK] Error retrieving payment intent details:', e);
+    }
+  }
+
   const batch = db.batch();
 
   // Create booking
@@ -125,7 +154,10 @@ async function handleCheckoutCompleted(
     totalAmount,
     currency: 'usd',
     platformFeeAmount,
-    stripePaymentIntentId: session.payment_intent as string || '',
+    stripeProcessingFee,
+    providerNetPayout: usedDestinationCharges ? providerNetPayout : 0,
+    paymentModel: usedDestinationCharges ? 'destination_charges' : 'separate_transfers',
+    stripePaymentIntentId: paymentIntentId,
     stripeSessionId: session.id,
     manifestationId: null,
     lineItems: [{
@@ -184,8 +216,11 @@ async function handleCheckoutCompleted(
     }),
   }).catch(e => console.error('[WEBHOOK] Notification send failed:', e));
 
-  // Transfer to provider if they have Stripe Connect
-  if (providerId && providerId !== 'guide-placeholder-id') {
+  // Transfer to provider if they have Stripe Connect.
+  // With destination charges, Stripe handles the transfer automatically — skip manual transfer.
+  // Only use manual transfer as fallback when destination charges were NOT used
+  // (e.g., provider connected Stripe after the checkout was created).
+  if (!usedDestinationCharges && providerId && providerId !== 'guide-placeholder-id') {
     try {
       const providerDoc = await db.collection('users').doc(providerId).get();
       if (providerDoc.exists) {
@@ -199,7 +234,7 @@ async function handleCheckoutCompleted(
               destination: providerData.stripeConnectAccountId,
               metadata: { bookingId: bookingRef.id, retreatId },
             });
-            console.log(`[WEBHOOK] Transferred ${transferAmount / 100} to ${providerData.stripeConnectAccountId}`);
+            console.log(`[WEBHOOK] Fallback transfer: ${transferAmount / 100} to ${providerData.stripeConnectAccountId}`);
           }
         }
       }
@@ -207,6 +242,8 @@ async function handleCheckoutCompleted(
       console.error('[WEBHOOK] Transfer to provider failed:', transferError);
       // Non-blocking: booking is still confirmed even if transfer fails
     }
+  } else if (usedDestinationCharges) {
+    console.log(`[WEBHOOK] Destination charges used — Stripe auto-transferred to provider. HighVibe kept $${platformFeeAmount}, provider net payout ~$${providerNetPayout.toFixed(2)} (after Stripe fee $${stripeProcessingFee.toFixed(2)})`);
   }
 }
 
