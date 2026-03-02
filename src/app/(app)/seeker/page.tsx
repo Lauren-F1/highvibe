@@ -19,6 +19,9 @@ import { useFirestore } from '@/firebase';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
+import { Search, Map, LayoutGrid } from 'lucide-react';
+import { RetreatMap } from '@/components/retreat-map-wrapper';
+import { getCoordinatesForLocation } from '@/lib/geocode';
 
 const parsePriceRange = (rangeValue: string) => {
     if (rangeValue === 'any') return { min: 0, max: Infinity };
@@ -51,6 +54,8 @@ export default function SeekerPage() {
   const [investmentRange, setInvestmentRange] = useState('any');
   const [timing, setTiming] = useState('exploring');
   const [searchInitiated, setSearchInitiated] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
 
   // Firestore retreats loading
   const [firestoreRetreats, setFirestoreRetreats] = useState<typeof mockRetreats>([]);
@@ -86,6 +91,9 @@ export default function SeekerPage() {
         const snapshot = await getDocs(q);
         const loaded = snapshot.docs.map(d => {
           const data = d.data();
+          const coords = (data.lat && data.lng)
+            ? { lat: data.lat as number, lng: data.lng as number }
+            : getCoordinatesForLocation(data.locationDescription || '');
           return {
             id: d.id,
             title: data.title || '',
@@ -97,6 +105,8 @@ export default function SeekerPage() {
             type: data.type ? [data.type.toLowerCase().replace(/\s+/g, '-')] : [],
             duration: data.startDate && data.endDate ? `${data.startDate} to ${data.endDate}` : undefined,
             included: data.included || undefined,
+            lat: coords?.lat,
+            lng: coords?.lng,
           };
         });
         setFirestoreRetreats(loaded);
@@ -119,16 +129,26 @@ export default function SeekerPage() {
 
     let newFilteredRetreats = [...retreats];
 
+    // Text search filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      newFilteredRetreats = newFilteredRetreats.filter(retreat =>
+        retreat.title.toLowerCase().includes(q) ||
+        retreat.location.toLowerCase().includes(q) ||
+        retreat.description.toLowerCase().includes(q)
+      );
+    }
+
     // Experience Type Filter
     if (experienceType !== 'all-experiences') {
-      newFilteredRetreats = newFilteredRetreats.filter(retreat => 
-        retreat.type && retreat.type.includes(experienceType.replace('all-experiences', '')) // Quick fix for 'all'
+      newFilteredRetreats = newFilteredRetreats.filter(retreat =>
+        retreat.type && retreat.type.includes(experienceType)
       );
     }
     
     // Destination filter
     if (selectedContinent !== 'anywhere' && !selectedRegion) {
-        const regionsInContinent = destinations[selectedContinent as keyof typeof destinations] || [];
+        const regionsInContinent = destinations[selectedContinent ] || [];
         newFilteredRetreats = newFilteredRetreats.filter(retreat =>
             regionsInContinent.includes(retreat.location)
         );
@@ -150,7 +170,7 @@ export default function SeekerPage() {
     // Timing filter is cosmetic for now as data is not available on retreats
     
     setFilteredRetreats(newFilteredRetreats);
-  }, [experienceType, selectedContinent, selectedRegion, investmentRange, timing, searchInitiated, retreats]);
+  }, [experienceType, selectedContinent, selectedRegion, investmentRange, timing, searchInitiated, searchQuery, retreats]);
 
   const handleWaitlistSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -182,14 +202,15 @@ export default function SeekerPage() {
     }
   };
 
-  const showRegionFilter = selectedContinent && selectedContinent !== 'anywhere' && destinations[selectedContinent as keyof typeof destinations];
+  const showRegionFilter = selectedContinent && selectedContinent !== 'anywhere' && destinations[selectedContinent ];
   
   const isFilterActive =
     experienceType !== 'all-experiences' ||
     selectedContinent !== 'anywhere' ||
     selectedRegion !== '' ||
     investmentRange !== 'any' ||
-    timing !== 'exploring';
+    timing !== 'exploring' ||
+    searchQuery.trim() !== '';
 
   const handleClearFilters = () => {
     setExperienceType('all-experiences');
@@ -197,6 +218,7 @@ export default function SeekerPage() {
     setSelectedRegion('');
     setInvestmentRange('any');
     setTiming('exploring');
+    setSearchQuery('');
     setSearchInitiated(false);
   };
   
@@ -214,6 +236,32 @@ export default function SeekerPage() {
   };
 
 
+  const RetreatMapView = ({ retreats: mapRetreats }: { retreats: typeof filteredRetreats }) => {
+    const mappable = mapRetreats
+      .filter((r): r is typeof r & { lat: number; lng: number } => r.lat != null && r.lng != null)
+      .map(r => ({ id: r.id, title: r.title, price: r.price, lat: r.lat, lng: r.lng }));
+    const hiddenCount = mapRetreats.length - mappable.length;
+
+    if (mappable.length === 0) {
+      return (
+        <div className="h-[500px] w-full rounded-lg bg-secondary flex items-center justify-center">
+          <p className="text-muted-foreground font-body">No retreats with map coordinates available. Try the grid view.</p>
+        </div>
+      );
+    }
+
+    return (
+      <>
+        <RetreatMap retreats={mappable} />
+        {hiddenCount > 0 && (
+          <p className="text-sm text-muted-foreground mt-2 font-ui">
+            {hiddenCount} retreat{hiddenCount !== 1 ? 's' : ''} not shown on map (missing location data).
+          </p>
+        )}
+      </>
+    );
+  };
+
   const ManifestSection = (
     <div className="my-24">
       <div className="bg-secondary rounded-lg">
@@ -227,14 +275,14 @@ export default function SeekerPage() {
                 </div>
                 <div className="space-y-6 mt-8">
                   <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-body">
-                    Have a retreat in mind? Manifest it here—and we’ll connect you with hosts, guides, and vendors who match what you’re looking for.
+                    Have a retreat in mind? Manifest it here—and we'll connect you with hosts, guides, and vendors who match what you're looking for.
                   </p>
                   <Button size="lg" asChild className="w-full py-7 text-lg font-ui">
                     <Link href="/seeker/manifest/new">Manifest a Retreat</Link>
                   </Button>
                   <p className="text-xl md:text-2xl font-bold leading-relaxed font-body">Manifest your retreat. Earn up to $500 toward the next one.</p>
                   <p className="text-sm md:text-base text-muted-foreground leading-relaxed font-body">
-                    HighVibe likes to end on a high note. Once your manifested retreat is complete, you’ll receive HighVibe credit equal to 3% of your retreat booking subtotal, up to $500. Use it toward your next retreat within 12 months. Happy manifesting!
+                    HighVibe likes to end on a high note. Once your manifested retreat is complete, you'll receive HighVibe credit equal to 3% of your retreat booking subtotal, up to $500. Use it toward your next retreat within 12 months. Happy manifesting!
                   </p>
                   <div className="pt-2">
                     <Button
@@ -295,6 +343,22 @@ export default function SeekerPage() {
         </div>
       )}
 
+      <div className="mb-4">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search retreats by name, location, or keyword..."
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              if (e.target.value.trim()) setSearchInitiated(true);
+            }}
+            className="pl-10 py-6 text-lg font-body"
+          />
+        </div>
+      </div>
+
       <Card className="mb-8 p-4 md:p-6 bg-secondary">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
           <div className="space-y-2">
@@ -334,7 +398,7 @@ export default function SeekerPage() {
                     <SelectValue placeholder="Select a country or region" />
                   </SelectTrigger>
                   <SelectContent>
-                    {(destinations[selectedContinent as keyof typeof destinations] || []).map(region => (
+                    {(destinations[selectedContinent ] || []).map(region => (
                       <SelectItem key={region} value={region}>{region}</SelectItem>
                     ))}
                   </SelectContent>
@@ -372,6 +436,14 @@ export default function SeekerPage() {
             <Button size="lg" variant="outline" asChild className="font-ui"><Link href="/seeker/manifestations">My Manifestations</Link></Button>
             <Button size="lg" variant="outline" asChild className="font-ui"><Link href="/seeker/saved">View Saved</Link></Button>
             {isFilterActive && <Button size="lg" variant="outline" onClick={handleClearFilters} className="font-ui">Clear Filters</Button>}
+            <div className="flex gap-1 border rounded-md p-1 ml-auto">
+              <Button size="sm" variant={viewMode === 'grid' ? 'default' : 'ghost'} onClick={() => setViewMode('grid')} aria-label="Grid view">
+                <LayoutGrid className="h-4 w-4" />
+              </Button>
+              <Button size="sm" variant={viewMode === 'map' ? 'default' : 'ghost'} onClick={() => setViewMode('map')} aria-label="Map view">
+                <Map className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </Card>
@@ -381,14 +453,18 @@ export default function SeekerPage() {
           // STATE A: Default view
           <>
             <div className="mb-8">
-              <h2 className="text-3xl font-bold tracking-tight mb-2 font-headline">Retreats We’re Loving</h2>
+              <h2 className="text-3xl font-bold tracking-tight mb-2 font-headline">Retreats We're Loving</h2>
               <p className="text-muted-foreground font-body">A few favorites to get you inspired.</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredRetreats.map((retreat) => (
-                <RetreatCard key={retreat.id} retreat={retreat} isLux={retreat.id === mostExpensiveRetreatId} />
-              ))}
-            </div>
+            {viewMode === 'map' ? (
+              <RetreatMapView retreats={filteredRetreats} />
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {filteredRetreats.map((retreat) => (
+                  <RetreatCard key={retreat.id} retreat={retreat} isLux={retreat.id === mostExpensiveRetreatId} />
+                ))}
+              </div>
+            )}
             <div className="my-24">
                 {ManifestSection}
             </div>
@@ -400,11 +476,15 @@ export default function SeekerPage() {
               // STATE B: Results found
               <>
                 <h2 className="text-3xl font-bold tracking-tight mb-6 font-headline">{filteredRetreats.length} Matching {filteredRetreats.length === 1 ? 'Retreat' : 'Retreats'}</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {filteredRetreats.map((retreat) => (
-                    <RetreatCard key={retreat.id} retreat={retreat} isLux={retreat.id === mostExpensiveRetreatId} />
-                  ))}
-                </div>
+                {viewMode === 'map' ? (
+                  <RetreatMapView retreats={filteredRetreats} />
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {filteredRetreats.map((retreat) => (
+                      <RetreatCard key={retreat.id} retreat={retreat} isLux={retreat.id === mostExpensiveRetreatId} />
+                    ))}
+                  </div>
+                )}
                  <div className="my-24">
                     <p className="text-center text-2xl italic text-beige font-body my-12">Not seeing the one? Manifest exactly what you want.</p>
                     {ManifestSection}

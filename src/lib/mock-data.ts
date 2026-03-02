@@ -37,9 +37,9 @@ export const yourRetreats = [
 ];
 
 export const allRetreats = [
-  { id: '1', title: 'Serene Yoga Escape', description: 'A grounding escape designed for deep rest, clarity, and reconnection.', location: 'Bali, Indonesia', price: 400, rating: 4.8, image: getPlaceholderById('yoga-beach'), type: ['yoga-meditation'], duration: '6 days / 5 nights', included: 'Lodging, daily yoga' },
-  { id: '2', title: 'Forest Bathing', description: 'Slow down and awaken your senses in the heart of nature.', location: 'Kyoto, Japan', price: 550, rating: 4.9, image: getPlaceholderById('meditation-forest'), type: ['nature-immersion'], duration: '4 days / 3 nights', included: 'Lodging & guided sessions' },
-  { id: '3', title: 'Andean Peaks', description: 'For those who crave altitude and challenge.', location: 'Cusco, Peru', price: 1200, rating: 5.0, image: getPlaceholderById('mountain-hike'), type: ['adventure-aliveness'], duration: '8 days / 7 nights', included: 'All-inclusive' },
+  { id: '1', title: 'Serene Yoga Escape', description: 'A grounding escape designed for deep rest, clarity, and reconnection.', location: 'Bali, Indonesia', price: 400, rating: 4.8, image: getPlaceholderById('yoga-beach'), type: ['yoga', 'meditation'], duration: '6 days / 5 nights', included: 'Lodging, daily yoga', lat: -8.5069, lng: 115.2624 },
+  { id: '2', title: 'Forest Bathing', description: 'Slow down and awaken your senses in the heart of nature.', location: 'Kyoto, Japan', price: 550, rating: 4.9, image: getPlaceholderById('meditation-forest'), type: ['nature-immersion', 'mindfulness'], duration: '4 days / 3 nights', included: 'Lodging & guided sessions', lat: 35.0116, lng: 135.7681 },
+  { id: '3', title: 'Andean Peaks', description: 'For those who crave altitude and challenge.', location: 'Cusco, Peru', price: 1200, rating: 5.0, image: getPlaceholderById('mountain-hike'), type: ['adventure', 'fitness'], duration: '8 days / 7 nights', included: 'All-inclusive', lat: -13.5320, lng: -71.9675 },
 ];
 
 export const hosts: Host[] = [
@@ -95,18 +95,33 @@ export const vendorCategories = [
 
 export const experienceTypes = [
   { value: 'all-experiences', label: 'All Experiences' },
-  { value: 'rest-reset', label: 'Rest & Reset' },
-  { value: 'yoga-meditation', label: 'Yoga & Meditation' },
+  { value: 'yoga', label: 'Yoga' },
+  { value: 'meditation', label: 'Meditation' },
+  { value: 'wellness', label: 'Wellness' },
+  { value: 'adventure', label: 'Adventure' },
+  { value: 'creative-arts', label: 'Creative Arts' },
+  { value: 'spiritual', label: 'Spiritual' },
+  { value: 'fitness', label: 'Fitness' },
+  { value: 'nature-immersion', label: 'Nature Immersion' },
+  { value: 'culinary', label: 'Culinary' },
+  { value: 'mindfulness', label: 'Mindfulness' },
 ];
 
 export const investmentRanges = [
-    { value: 'any', label: 'Any Range' },
-    { value: 'under-500', label: 'Under $500' },
+  { value: 'any', label: 'Any Range' },
+  { value: 'under-200', label: 'Under $200' },
+  { value: '200-500', label: '$200 - $500' },
+  { value: '500-1000', label: '$500 - $1,000' },
+  { value: '1000-2000', label: '$1,000 - $2,000' },
+  { value: 'over-2000', label: '$2,000+' },
 ];
 
 export const timingOptions = [
-    { value: 'exploring', label: 'Just exploring' },
-    { value: 'next-3-months', label: 'Next 3 months' },
+  { value: 'exploring', label: 'Just exploring' },
+  { value: 'next-month', label: 'Within 1 month' },
+  { value: 'next-3-months', label: 'Within 3 months' },
+  { value: 'next-6-months', label: 'Within 6 months' },
+  { value: 'next-year', label: 'Within a year' },
 ];
 
 export const manifestRetreatTypes = ['Yoga', 'Meditation', 'Wellness'];
@@ -120,7 +135,14 @@ export const dietaryPreferences = ['Vegetarian', 'Vegan', 'No preference'];
  * Back-compat exports used by various pages/components.
  * Keep these in sync with the mock datasets above.
  */
-export const destinations = allRetreats;
+export const destinations: Record<string, string[]> = {
+  'asia': ['Bali, Indonesia', 'Kyoto, Japan', 'Chiang Mai, Thailand', 'Goa, India', 'Ubud, Indonesia', 'Sri Lanka'],
+  'europe': ['Tuscany, Italy', 'Ibiza, Spain', 'Algarve, Portugal', 'Santorini, Greece', 'Swiss Alps, Switzerland'],
+  'north-america': ['Sedona, Arizona', 'Big Sur, California', 'Tulum, Mexico', 'Costa Rica', 'Hawaii, USA'],
+  'south-america': ['Cusco, Peru', 'Sacred Valley, Peru', 'Medellin, Colombia', 'Florianopolis, Brazil'],
+  'africa': ['Marrakech, Morocco', 'Cape Town, South Africa', 'Zanzibar, Tanzania'],
+  'oceania': ['Byron Bay, Australia', 'Queenstown, New Zealand', 'Fiji'],
+};
 export const continents = [
   { value: 'asia', label: 'Asia' },
   { value: 'europe', label: 'Europe' },
