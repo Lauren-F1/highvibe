@@ -22,7 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 import { type ConnectionStatus } from '@/components/guide-card';
 import { cn } from '@/lib/utils';
 import { useUser, useFirestore } from '@/firebase';
-import { collection, query, where, getDocs, updateDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, updateDoc, doc, serverTimestamp, addDoc, limit as firestoreLimit } from 'firebase/firestore';
 
 interface StatCardProps {
   title: string;
@@ -150,8 +150,30 @@ export default function VendorDashboardPage() {
   const allGuides = partnersLoaded && firestoreGuides.length > 0 ? firestoreGuides : mockGuides;
   const allHosts = partnersLoaded && firestoreHosts.length > 0 ? firestoreHosts : mockHosts;
 
-  const [connectionRequests, setConnectionRequests] = useState(initialConnectionRequests);
-  const [confirmedBookings, setConfirmedBookings] = useState(initialConfirmedBookings);
+  // Track connections via Firestore conversations
+  const [connectedPartnerIds, setConnectedPartnerIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!firestore || user.status !== 'authenticated') return;
+
+    const loadConnections = async () => {
+      try {
+        const conversationsRef = collection(firestore, 'conversations');
+        const q = query(conversationsRef, where('participants', 'array-contains', user.data.uid));
+        const snap = await getDocs(q);
+        const partnerIds = new Set<string>();
+        snap.docs.forEach(d => {
+          const participants = d.data().participants as string[];
+          participants.forEach(p => { if (p !== user.data.uid) partnerIds.add(p); });
+        });
+        setConnectedPartnerIds(partnerIds);
+      } catch (error) {
+        console.warn('Failed to load connections:', error);
+      }
+    };
+
+    loadConnections();
+  }, [firestore, user.status]);
 
   const [guideFilters, setGuideFilters] = useState<VendorGuideFiltersState>(initialGuideFilters);
   const [appliedGuideFilters, setAppliedGuideFilters] = useState<VendorGuideFiltersState>(initialGuideFilters);
@@ -303,16 +325,11 @@ export default function VendorDashboardPage() {
   };
 
   const getPartnerStatus = (partnerId: string): ConnectionStatus => {
-    if (confirmedBookings.some(b => b.partnerId === partnerId)) return 'Booked';
-    const request = connectionRequests.find(r => r.partnerId === partnerId);
-    if (request) {
-        if (request.status === 'New Request') return 'New Request';
-        if (request.status === 'Awaiting Response') return 'Connection Requested';
-    }
+    if (connectedPartnerIds.has(partnerId)) return 'In Conversation';
     return 'Not Connected';
   };
-  
-  const handleConnect = (partner: Guide | Host) => {
+
+  const handleConnect = async (partner: Guide | Host) => {
       if (!isAgreementAccepted) {
         toast({
             title: "Provider Agreement Required",
@@ -321,42 +338,76 @@ export default function VendorDashboardPage() {
         });
         return;
       }
-      const existingStatus = getPartnerStatus(partner.id);
-      if (existingStatus !== 'Not Connected' && existingStatus !== 'Declined') {
-          toast({
-              title: 'Already Connected',
-              description: `You're already in contact with ${partner.name}.`,
-          });
+      if (user.status !== 'authenticated' || !firestore) return;
+
+      if (connectedPartnerIds.has(partner.id)) {
+          toast({ title: 'Already Connected', description: `You're already in contact with ${partner.name}.` });
           return;
       }
-      
-      const newRequest = {
-          id: `cr-${Date.now()}`,
-          partnerId: partner.id,
-          name: partner.name,
-          // @ts-ignore
-          role: 'specialty' in partner ? 'Guide' : 'Host',
-          regarding: 'Your Services', // Placeholder
-          status: 'Connection Requested' as const,
-      };
 
-      setConnectionRequests(prev => [...prev, newRequest]);
-      
-      toast({
-          title: 'Connection Requested!',
-          description: `You've sent a connection request to ${partner.name}.`,
-      });
+      try {
+        // Check for existing conversation
+        const conversationsRef = collection(firestore, 'conversations');
+        const q = query(conversationsRef, where('participants', 'array-contains', user.data.uid), firestoreLimit(50));
+        const snap = await getDocs(q);
+        let existingConvId: string | null = null;
+        snap.forEach(d => {
+          if ((d.data().participants as string[]).includes(partner.id)) existingConvId = d.id;
+        });
+
+        if (existingConvId) {
+          router.push(`/inbox?c=${existingConvId}`);
+          return;
+        }
+
+        // Create new conversation
+        const partnerRole = 'specialty' in partner ? 'Guide' : 'Host';
+        const messageText = `Hi ${partner.name}, I'd love to connect about potential collaboration on upcoming retreats.`;
+        const newConvRef = await addDoc(collection(firestore, 'conversations'), {
+          participants: [user.data.uid, partner.id],
+          participantInfo: {
+            [user.data.uid]: { displayName: user.profile?.displayName, avatarUrl: user.profile?.avatarUrl, role: 'Vendor' },
+            [partner.id]: { displayName: partner.name, avatarUrl: partner.avatar, role: partnerRole },
+          },
+          createdAt: serverTimestamp(),
+          lastMessageAt: serverTimestamp(),
+          lastMessageSnippet: messageText,
+          lastSenderId: user.data.uid,
+          lastReadAt: { [user.data.uid]: serverTimestamp() },
+        });
+
+        await addDoc(collection(newConvRef, 'messages'), {
+          senderId: user.data.uid,
+          text: messageText,
+          createdAt: serverTimestamp(),
+        });
+
+        setConnectedPartnerIds(prev => new Set(prev).add(partner.id));
+        toast({ title: 'Connection Requested!', description: `You've sent a connection request to ${partner.name}.` });
+        router.push(`/inbox?c=${newConvRef.id}`);
+      } catch (error) {
+        console.error('Error creating connection:', error);
+        toast({ title: 'Connection Failed', description: 'Please try again.', variant: 'destructive' });
+      }
   };
-  
-  const handleViewPartnerMessage = (partner: Guide | Host) => {
-      const req = connectionRequests.find(c => c.partnerId === partner.id);
-      if (req?.id) {
-          handleViewMessage(req.id);
-      } else {
-          toast({
-              title: 'No Message Thread',
-              description: "Start a conversation by connecting with them first.",
-          });
+
+  const handleViewPartnerMessage = async (partner: Guide | Host) => {
+      if (!firestore || user.status !== 'authenticated') return;
+      try {
+        const conversationsRef = collection(firestore, 'conversations');
+        const q = query(conversationsRef, where('participants', 'array-contains', user.data.uid), firestoreLimit(50));
+        const snap = await getDocs(q);
+        let convId: string | null = null;
+        snap.forEach(d => {
+          if ((d.data().participants as string[]).includes(partner.id)) convId = d.id;
+        });
+        if (convId) {
+          router.push(`/inbox?c=${convId}`);
+        } else {
+          toast({ title: 'No Message Thread', description: "Start a conversation by connecting with them first." });
+        }
+      } catch {
+        toast({ title: 'No Message Thread', description: "Start a conversation by connecting with them first." });
       }
   };
 
@@ -574,34 +625,14 @@ export default function VendorDashboardPage() {
                 <CardDescription className="font-body text-base">These are people you’ve reached out to or who have requested to connect with you.</CardDescription>
             </CardHeader>
             <CardContent>
-                {connectionRequests.length > 0 ? (
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Role</TableHead>
-                                <TableHead>Regarding</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {connectionRequests.map(req => (
-                                <TableRow key={req.id}>
-                                    <TableCell className="font-medium">{req.name}</TableCell>
-                                    <TableCell>{req.role}</TableCell>
-                                    <TableCell>{req.regarding}</TableCell>
-                                    <TableCell><Badge variant={req.status === 'New Request' ? 'default' : 'secondary'}>{req.status}</Badge></TableCell>
-                                    <TableCell className="text-right">
-                                        <Button variant="outline" size="sm" onClick={() => handleViewMessage(req.id)}>View Message</Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                {connectedPartnerIds.size > 0 ? (
+                    <div className="text-center py-8 rounded-lg bg-secondary/50 space-y-3">
+                        <p className="text-muted-foreground">You have {connectedPartnerIds.size} active connection{connectedPartnerIds.size !== 1 ? 's' : ''}.</p>
+                        <Button variant="outline" onClick={() => router.push('/inbox')}>View in Inbox</Button>
+                    </div>
                 ) : (
                     <div className="text-center py-12 rounded-lg bg-secondary/50">
-                        <p className="text-muted-foreground">No connection requests yet.</p>
+                        <p className="text-muted-foreground">No connection requests yet. Browse guides and hosts above to get started.</p>
                     </div>
                 )}
             </CardContent>
@@ -613,36 +644,9 @@ export default function VendorDashboardPage() {
                 <CardDescription className="font-body text-base">These are your confirmed retreat relationships and bookings.</CardDescription>
             </CardHeader>
             <CardContent>
-                 {confirmedBookings.length > 0 ? (
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Client</TableHead>
-                                <TableHead>Role</TableHead>
-                                <TableHead>Service</TableHead>
-                                <TableHead>Dates</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {confirmedBookings.map(booking => (
-                                <TableRow key={booking.id}>
-                                    <TableCell className="font-medium">{booking.clientName}</TableCell>
-                                    <TableCell>{booking.clientRole}</TableCell>
-                                    <TableCell>{booking.service}</TableCell>
-                                    <TableCell>{booking.dates}</TableCell>
-                                    <TableCell className="text-right">
-                                        <Button variant="outline" size="sm">View Details</Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                ) : (
-                     <div className="text-center py-12 rounded-lg bg-secondary/50">
-                        <p className="text-muted-foreground">No confirmed bookings yet — you’re building momentum.</p>
-                    </div>
-                )}
+                <div className="text-center py-12 rounded-lg bg-secondary/50">
+                    <p className="text-muted-foreground">No confirmed bookings yet — you’re building momentum.</p>
+                </div>
             </CardContent>
         </Card>
       

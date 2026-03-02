@@ -13,7 +13,7 @@ import { PlusCircle, MoreHorizontal, CheckCircle, XCircle, Filter, Sparkles } fr
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { yourRetreats as mockRetreats, hosts as mockHosts, vendors as mockVendors, UserSubscriptionStatus, destinations, connectionRequests, confirmedBookings, type Host, type Vendor } from '@/lib/mock-data';
+import { yourRetreats as mockRetreats, hosts as mockHosts, vendors as mockVendors, UserSubscriptionStatus, destinations, type Host, type Vendor } from '@/lib/mock-data';
 import { loadHosts, loadVendors } from '@/lib/firestore-partners';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
@@ -31,7 +31,7 @@ import { RetreatReadinessChecklist, type RetreatReadinessProps } from '@/compone
 import { WaitlistModal } from '@/components/waitlist-modal';
 import { VibeMatchModal } from '@/components/vibe-match-modal';
 import { useUser, useFirestore } from '@/firebase';
-import { collection, query, where, getDocs, doc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, updateDoc, deleteDoc, serverTimestamp, addDoc, limit as firestoreLimit } from 'firebase/firestore';
 import { ScoutVendors } from '@/components/scout-vendors';
 
 interface FirestoreRetreat {
@@ -184,7 +184,31 @@ export default function GuidePage() {
   const [appliedVendorFilters, setAppliedVendorFilters] = useState<VendorFiltersStateType>(initialVendorFilters);
   const [vendorFiltersDirty, setVendorFiltersDirty] = useState(false);
 
-  const [currentConnectionRequests, setCurrentConnectionRequests] = useState(connectionRequests);
+  // Track connections via Firestore conversations
+  const [connectedPartnerIds, setConnectedPartnerIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!firestore || user.status !== 'authenticated' || !user.data?.uid) return;
+
+    const loadConnections = async () => {
+      try {
+        const conversationsRef = collection(firestore, 'conversations');
+        const q = query(conversationsRef, where('participants', 'array-contains', user.data!.uid));
+        const snap = await getDocs(q);
+        const partnerIds = new Set<string>();
+        snap.docs.forEach(d => {
+          const participants = d.data().participants as string[];
+          participants.forEach(p => { if (p !== user.data!.uid) partnerIds.add(p); });
+        });
+        setConnectedPartnerIds(partnerIds);
+      } catch (error) {
+        console.warn('Failed to load connections:', error);
+      }
+    };
+
+    loadConnections();
+  }, [firestore, user.status, user.data?.uid]);
+
   const [showFeatureGate, setShowFeatureGate] = useState(false);
   const guideHeroImage = '/guide-dashboard-hero.jpg';
   
@@ -280,24 +304,13 @@ export default function GuidePage() {
   };
 
   const activeRetreat = yourRetreats.find(r => r.id === activeRetreatId);
-  const retreatConnectionRequests = activeRetreat ? currentConnectionRequests.filter(c => c.forRetreat === activeRetreat.name) : [];
-  const retreatConfirmedBookings = activeRetreat ? confirmedBookings.filter(c => c.forRetreat === activeRetreat.name) : [];
 
   const getPartnerStatus = (partnerId: string): ConnectionStatus => {
-    if (!activeRetreat) return 'Not Invited';
-    if (retreatConfirmedBookings.some(b => b.partnerId === partnerId)) return 'Booked';
-    
-    const request = retreatConnectionRequests.find(r => r.partnerId === partnerId);
-    if (request) {
-        if(request.status === "Declined") return 'Declined';
-        if(request.status === "Confirmed") return 'Confirmed';
-        if(request.status === "Conversation Started") return 'In Conversation';
-        if(request.status === "Invite Sent") return 'Invite Sent';
-    }
+    if (connectedPartnerIds.has(partnerId)) return 'In Conversation';
     return 'Not Invited';
   };
 
-  const handleInvitePartner = (partner: Host | Vendor) => {
+  const handleInvitePartner = async (partner: Host | Vendor) => {
     if (!activeRetreat) {
         toast({
             title: 'Select a Retreat',
@@ -314,70 +327,97 @@ export default function GuidePage() {
         });
         return;
     }
+    if (user.status !== 'authenticated' || !firestore) return;
 
-    const existingStatus = getPartnerStatus(partner.id);
-    if (existingStatus !== 'Not Invited' && existingStatus !== 'Declined') {
-        toast({
-            title: 'Already Connected',
-            description: `You're already in contact with ${partner.name}.`,
-        });
+    if (connectedPartnerIds.has(partner.id)) {
+        toast({ title: 'Already Connected', description: `You're already in contact with ${partner.name}.` });
         return;
     }
 
-    const existingRequest = currentConnectionRequests.find(r => r.partnerId === partner.id && r.forRetreat === activeRetreat.name);
-    if(existingRequest) {
-        setCurrentConnectionRequests(prev => prev.map(r => r.id === existingRequest.id ? {...r, status: 'Invite Sent'} : r));
-    } else {
-        const newRequest = {
-            id: `cr-${Date.now()}`,
-            partnerId: partner.id,
-            name: partner.name,
-            // @ts-ignore
-            role: 'capacity' in partner ? 'Host' : 'Vendor',
-            forRetreat: activeRetreat.name,
-            status: 'Invite Sent' as const,
-        };
-        // @ts-ignore
-        setCurrentConnectionRequests(prev => [...prev, newRequest]);
+    try {
+      // Check for existing conversation
+      const conversationsRef = collection(firestore, 'conversations');
+      const q = query(conversationsRef, where('participants', 'array-contains', user.data.uid), firestoreLimit(50));
+      const snap = await getDocs(q);
+      let existingConvId: string | null = null;
+      snap.forEach(d => {
+        if ((d.data().participants as string[]).includes(partner.id)) {
+          existingConvId = d.id;
+        }
+      });
+
+      if (existingConvId) {
+        router.push(`/inbox?c=${existingConvId}`);
+        return;
+      }
+
+      // Create new conversation
+      const partnerRole = 'capacity' in partner ? 'Host' : 'Vendor';
+      const messageText = `Hi ${partner.name}, I'm organizing "${activeRetreat.name}" and I'd love to collaborate with you.`;
+      const newConvRef = await addDoc(collection(firestore, 'conversations'), {
+        participants: [user.data.uid, partner.id],
+        participantInfo: {
+          [user.data.uid]: { displayName: user.profile?.displayName, avatarUrl: user.profile?.avatarUrl, role: 'Guide' },
+          [partner.id]: { displayName: partner.name, avatarUrl: partner.avatar, role: partnerRole },
+        },
+        createdAt: serverTimestamp(),
+        lastMessageAt: serverTimestamp(),
+        lastMessageSnippet: messageText,
+        lastSenderId: user.data.uid,
+        lastReadAt: { [user.data.uid]: serverTimestamp() },
+      });
+
+      await addDoc(collection(newConvRef, 'messages'), {
+        senderId: user.data.uid,
+        text: messageText,
+        createdAt: serverTimestamp(),
+      });
+
+      setConnectedPartnerIds(prev => new Set(prev).add(partner.id));
+      toast({ title: 'Invite Sent!', description: `${partner.name} has been invited to collaborate on "${activeRetreat.name}".` });
+      router.push(`/inbox?c=${newConvRef.id}`);
+    } catch (error) {
+      console.error('Error creating connection:', error);
+      toast({ title: 'Connection Failed', description: 'Please try again.', variant: 'destructive' });
     }
-    
-    toast({
-        title: 'Invite Sent!',
-        description: `${partner.name} has been invited to collaborate on "${activeRetreat.name}".`,
-    });
   };
 
-  const handleViewPartnerMessage = (partner: Host | Vendor) => {
-    const req = currentConnectionRequests.find(c => c.partnerId === partner.id && c.forRetreat === activeRetreat?.name);
-    if (req?.id) {
-        handleViewMessage(req.id);
-    } else {
-        toast({
-            title: 'No Message Thread',
-            description: "Start a conversation by inviting them first.",
-        });
+  const handleViewPartnerMessage = async (partner: Host | Vendor) => {
+    if (!firestore || user.status !== 'authenticated') return;
+    try {
+      const conversationsRef = collection(firestore, 'conversations');
+      const q = query(conversationsRef, where('participants', 'array-contains', user.data.uid), firestoreLimit(50));
+      const snap = await getDocs(q);
+      let convId: string | null = null;
+      snap.forEach(d => {
+        if ((d.data().participants as string[]).includes(partner.id)) convId = d.id;
+      });
+      if (convId) {
+        router.push(`/inbox?c=${convId}`);
+      } else {
+        toast({ title: 'No Message Thread', description: "Start a conversation by inviting them first." });
+      }
+    } catch {
+      toast({ title: 'No Message Thread', description: "Start a conversation by inviting them first." });
     }
   };
   
-  const getPartnershipStage = (retreat: (typeof yourRetreats)[0] | undefined, requests: typeof retreatConnectionRequests, bookings: typeof retreatConfirmedBookings): PartnershipStage => {
+  const getPartnershipStage = (retreat: (typeof yourRetreats)[0] | undefined): PartnershipStage => {
       if (!retreat) return 'Shortlist';
       if (retreat.status === 'Draft') return 'Draft';
-      if (bookings.length > 0) return 'Booked';
-      if (requests.some(r => r.status === 'Confirmed')) return 'Confirmed';
-      if (requests.some(r => r.status === 'Conversation Started')) return 'In Conversation';
-      if (requests.length > 0) return 'Invites Sent';
+      if (connectedPartnerIds.size > 0) return 'In Conversation';
       return 'Shortlist';
   };
 
-  const partnershipStage = getPartnershipStage(activeRetreat, retreatConnectionRequests, retreatConfirmedBookings);
+  const partnershipStage = getPartnershipStage(activeRetreat);
 
   const readinessProps: RetreatReadinessProps = useMemo(() => ({
     datesSet: activeRetreat?.datesSet || false,
     capacitySet: (activeRetreat?.capacity || 0) > 0,
-    hostsShortlisted: hosts.filter(h => getPartnerStatus(h.id) !== 'Not Invited').length >= 3,
-    vendorsInvited: vendors.filter(v => ['Invite Sent', 'In Conversation', 'Confirmed', 'Booked'].includes(getPartnerStatus(v.id))).length >= 2,
-    activeConversations: retreatConnectionRequests.some(c => c.status === 'Conversation Started'),
-  }), [activeRetreat, retreatConnectionRequests, retreatConfirmedBookings]);
+    hostsShortlisted: hosts.filter(h => connectedPartnerIds.has(h.id)).length >= 3,
+    vendorsInvited: vendors.filter(v => connectedPartnerIds.has(v.id)).length >= 2,
+    activeConversations: connectedPartnerIds.size > 0,
+  }), [activeRetreat, connectedPartnerIds, hosts, vendors]);
 
 
   const subscriptionBadge = {
@@ -633,7 +673,7 @@ export default function GuidePage() {
                                             Match My Vibe
                                         </CardTitle>
                                         <CardDescription className="mt-1">
-                                            Upload inspiration from Pinterest or anywhere you gather ideas. We’ll connect you with hosts and vendors who align with your vibe.
+                                            Upload inspiration from Pinterest or anywhere you gather ideas. We'll connect you with hosts and vendors who align with your vibe.
                                         </CardDescription>
                                     </div>
                                     <Button onClick={() => setIsVibeModalOpen(true)}>
@@ -699,7 +739,7 @@ export default function GuidePage() {
                                                                 <CardHeader>
                                                                     <CardTitle className="text-xl">Get notified when matches appear</CardTitle>
                                                                     <CardDescription>
-                                                                    We’ll only reach out when something matches what you’re looking for.
+                                                                    We'll only reach out when something matches what you're looking for.
                                                                     </CardDescription>
                                                                 </CardHeader>
                                                                 <CardContent className="space-y-4">
@@ -772,7 +812,7 @@ export default function GuidePage() {
                                             
                                             {noVendorsFound ? (
                                                  <div className="text-center py-12 rounded-lg bg-secondary/50">
-                                                    <p className="text-muted-foreground max-w-md mx-auto">We’re expanding this network. If you don’t see the perfect match yet, we’ll surface new vendors as they join.</p>
+                                                    <p className="text-muted-foreground max-w-md mx-auto">We're expanding this network. If you don't see the perfect match yet, we'll surface new vendors as they join.</p>
                                                 </div>
                                             ) : (
                                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -795,78 +835,31 @@ export default function GuidePage() {
                         
                         <Separator />
 
-                        {/* Connections Requested */}
+                        {/* Active Connections */}
                         <div>
-                            <h3 className="font-headline text-2xl mb-2">Connections Requested</h3>
-                            <p className="text-muted-foreground mb-4">Connections you’ve initiated or received.</p>
-                             {retreatConnectionRequests.length > 0 ? (
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Name</TableHead>
-                                            <TableHead>Role</TableHead>
-                                            <TableHead>Status</TableHead>
-                                            <TableHead className="text-right">Actions</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {retreatConnectionRequests.map(req => (
-                                            <TableRow key={req.id}>
-                                                <TableCell className="font-medium">{req.name}</TableCell>
-                                                <TableCell>{req.role}</TableCell>
-                                                <TableCell><Badge variant={
-                                                    req.status === 'Conversation Started' ? 'default' : 
-                                                    req.status === 'Confirmed' ? 'default' :
-                                                    req.status === 'Declined' ? 'destructive' : 'secondary'
-                                                }>{req.status}</Badge></TableCell>
-                                                <TableCell className="text-right">
-                                                    <Button variant="outline" size="sm" className="mr-2" onClick={() => handleViewMessage(req.id)}>View Message</Button>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
+                            <h3 className="font-headline text-2xl mb-2">Active Connections</h3>
+                            <p className="text-muted-foreground mb-4">Partners you&apos;re currently in conversation with.</p>
+                            {connectedPartnerIds.size > 0 ? (
+                                <div className="flex items-center justify-between p-4 rounded-lg bg-secondary/50">
+                                    <p className="text-sm">{connectedPartnerIds.size} active connections</p>
+                                    <Button variant="outline" size="sm" onClick={() => router.push('/inbox')}>View in Inbox</Button>
+                                </div>
                             ) : (
                                 <div className="text-center py-12 rounded-lg bg-secondary/50">
-                                    <p className="text-muted-foreground">No connection requests yet for this retreat.</p>
+                                    <p className="text-muted-foreground">No connections yet. Browse hosts and vendors above and invite them to start a conversation.</p>
                                 </div>
                             )}
                         </div>
-                        
+
                         <Separator />
 
                         {/* Confirmed Bookings */}
                         <div>
                             <h3 className="font-headline text-2xl mb-2">Confirmed Bookings</h3>
                             <p className="text-muted-foreground mb-4">These are your confirmed retreat relationships and bookings.</p>
-                            {retreatConfirmedBookings.length > 0 ? (
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Partner</TableHead>
-                                            <TableHead>Role</TableHead>
-                                            <TableHead>Dates</TableHead>
-                                            <TableHead className="text-right">Actions</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {retreatConfirmedBookings.map(booking => (
-                                            <TableRow key={booking.id}>
-                                                <TableCell className="font-medium">{booking.partnerName}</TableCell>
-                                                <TableCell>{booking.role}</TableCell>
-                                                <TableCell>{booking.dates}</TableCell>
-                                                <TableCell className="text-right">
-                                                    <Button variant="outline" size="sm" className="mr-2">Manage</Button>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            ) : (
-                                <div className="text-center py-12 rounded-lg bg-secondary/50">
-                                    <p className="text-muted-foreground">Nothing confirmed just yet. This is the space where aligned partnerships become official. Once details are finalized, confirmed bookings will appear here.</p>
-                                </div>
-                            )}
+                            <div className="text-center py-12 rounded-lg bg-secondary/50">
+                                <p className="text-muted-foreground">Nothing confirmed just yet. This is the space where aligned partnerships become official. Once details are finalized, confirmed bookings will appear here.</p>
+                            </div>
                         </div>
                     </>
                 ) : (
