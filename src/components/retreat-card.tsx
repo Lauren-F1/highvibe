@@ -146,7 +146,7 @@ export function RetreatCard({ retreat, isLux = false }: RetreatCardProps) {
       </CardContent>
       <CardFooter className="flex justify-between items-center p-4 pt-0">
         <Button asChild>
-            <Link href={`/checkout/${retreat.id}`}>Book Retreat</Link>
+            <Link href={`/retreats/${retreat.id}`}>View Details</Link>
         </Button>
         <div className="text-right font-ui">
           <div className="text-lg font-bold text-foreground">
