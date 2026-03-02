@@ -88,9 +88,6 @@ function firestoreSpaceToDisplay(data: Record<string, unknown>): HostSpace {
   };
 }
 
-const initialConnectionRequests: { id: string; partnerId: string; name: string; role: 'Guide' | 'Vendor'; forSpace: string; status: 'New Request' | 'Awaiting Response' }[] = [];
-
-const initialConfirmedBookings: { id: string; partnerId: string; guideName: string; retreatName: string; forSpace: string; dates: string; partnerRole: 'Guide' | 'Vendor' }[] = [];
 
 interface StatCardProps {
   title: string;
@@ -138,8 +135,7 @@ function StatCard({ title, value, icon, description }: StatCardProps) {
 export default function HostDashboardPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'guides' | 'vendors'>('guides');
-  const [connectionRequests, setConnectionRequests] = useState(initialConnectionRequests);
-  const [confirmedBookings, setConfirmedBookings] = useState(initialConfirmedBookings);
+  const [connectedPartnerIds, setConnectedPartnerIds] = useState<Set<string>>(new Set());
 
   const [guideFilters, setGuideFilters] = useState<GuideFiltersState>(initialGuideFilters);
   const [appliedGuideFilters, setAppliedGuideFilters] = useState<GuideFiltersState>(initialGuideFilters);
@@ -210,6 +206,31 @@ export default function HostDashboardPage() {
     };
 
     loadPartners();
+  }, [firestore, currentUser.status]);
+
+  // Load connected partner IDs from Firestore conversations
+  useEffect(() => {
+    if (!firestore || currentUser.status !== 'authenticated') return;
+
+    const loadConnections = async () => {
+      try {
+        const conversationsRef = collection(firestore, 'conversations');
+        const q = query(conversationsRef, where('participants', 'array-contains', currentUser.data.uid));
+        const snap = await getDocs(q);
+        const ids = new Set<string>();
+        snap.docs.forEach(d => {
+          const participants = d.data().participants as string[];
+          participants.forEach(pid => {
+            if (pid !== currentUser.data.uid) ids.add(pid);
+          });
+        });
+        setConnectedPartnerIds(ids);
+      } catch (error) {
+        console.error('Error loading connections:', error);
+      }
+    };
+
+    loadConnections();
   }, [firestore, currentUser.status]);
 
   const allGuides = partnersLoaded && firestoreGuides.length > 0 ? firestoreGuides : mockGuides;
@@ -305,30 +326,14 @@ export default function HostDashboardPage() {
     };
   }, [activeSpace]);
 
-  const spaceConnectionRequests = connectionRequests.filter(c => c.forSpace === activeSpace?.name);
-  const spaceConfirmedBookings = confirmedBookings.filter(b => b.forSpace === activeSpace?.name);
-
   const getPartnerStatus = (partnerId: string): ConnectionStatus => {
-    if (confirmedBookings.some(b => b.partnerId === partnerId)) return 'Booked';
-    const request = connectionRequests.find(r => r.partnerId === partnerId);
-    if (request) {
-        if (request.status === 'New Request') return 'New Request';
-        if (request.status === 'Awaiting Response') return 'Connection Requested';
-        return request.status as ConnectionStatus;
-    }
+    // Check by uid (Firestore partners) or by id (mock partners)
+    const allPartners = [...allGuides, ...allVendors];
+    const partner = allPartners.find(p => p.id === partnerId);
+    const uid = partner?.uid || partnerId;
+    if (connectedPartnerIds.has(uid)) return 'In Conversation';
     return 'Not Connected';
   };
-
-
-  const displayedConnectionRequests = useMemo(() => {
-    const roleToMatch = activeTab === 'guides' ? 'Guide' : 'Vendor';
-    return spaceConnectionRequests.filter(req => req.role === roleToMatch);
-  }, [spaceConnectionRequests, activeTab]);
-
-  const displayedConfirmedBookings = useMemo(() => {
-    const roleToMatch = activeTab === 'guides' ? 'Guide' : 'Vendor';
-    return spaceConfirmedBookings.filter(booking => booking.partnerRole === roleToMatch);
-  }, [spaceConnectionRequests, activeTab]);
 
   const handleGuideFilterChange = (newFilters: Partial<GuideFiltersState>) => {
     setGuideFilters(prev => ({...prev, ...newFilters}));
@@ -512,15 +517,7 @@ export default function HostDashboardPage() {
           text: `Hi ${targetProfile.name}, I found your profile on HighVibe Retreats and I’d like to connect about my space, "${activeSpace?.name}".`,
           createdAt: serverTimestamp(),
       });
-      const newRequest = {
-        id: newConversationRef.id,
-        partnerId: targetProfile.id,
-        name: targetProfile.name,
-        role: 'specialty' in targetProfile ? 'Guide' : 'Vendor',
-        forSpace: activeSpace?.name || '',
-        status: 'In Conversation' as const,
-      };
-      setConnectionRequests(prev => [...prev.filter(r => r.partnerId !== targetProfile.id), newRequest]);
+      setConnectedPartnerIds(prev => new Set([...prev, targetProfile.uid]));
       toast({ title: 'Connection Started!', description: `You can now message ${targetProfile.name}.` });
     } catch (error) {
       console.error("Error requesting connection:", error);
@@ -682,21 +679,18 @@ export default function HostDashboardPage() {
                         </div>
                         <Separator className="my-6" />
                         <div>
-                            <h3 className="font-headline text-2xl mb-2">Connections Requested</h3>
-                             {displayedConnectionRequests.length > 0 ? (
-                                <Table><TableHeader><TableRow><TableHead>Name</TableHead><TableHead>Role</TableHead><TableHead>Status</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
-                                    <TableBody>{displayedConnectionRequests.map(req => (<TableRow key={req.id}><TableCell className="font-medium">{req.name}</TableCell><TableCell>{req.role}</TableCell><TableCell><Badge variant={req.status === 'New Request' ? 'default' : 'secondary'}>{req.status}</Badge></TableCell><TableCell className="text-right"><Button variant="outline" size="sm" onClick={() => handleViewMessage(allGuides.find(g=>g.id === req.partnerId) || allVendors.find(v=>v.id===req.partnerId)! )}>View Message</Button></TableCell></TableRow>))}</TableBody>
-                                </Table>
-                            ) : (<div className="text-center py-12 rounded-lg bg-secondary/50"><p className="text-muted-foreground">No connection requests yet.</p></div>)}
+                            <h3 className="font-headline text-2xl mb-2">Active Connections</h3>
+                            {connectedPartnerIds.size > 0 ? (
+                              <div className="flex items-center justify-between p-4 rounded-lg bg-secondary/50">
+                                <p className="text-muted-foreground">You have <span className="font-semibold text-foreground">{connectedPartnerIds.size}</span> active conversation{connectedPartnerIds.size !== 1 ? 's' : ''} with partners.</p>
+                                <Button variant="outline" size="sm" onClick={() => router.push('/inbox')}>View in Inbox</Button>
+                              </div>
+                            ) : (<div className="text-center py-12 rounded-lg bg-secondary/50"><p className="text-muted-foreground">Connect with guides and vendors above to start conversations.</p></div>)}
                         </div>
                         <Separator className="my-6" />
                         <div>
                             <h3 className="font-headline text-2xl mb-2">Confirmed Bookings</h3>
-                            {displayedConfirmedBookings.length > 0 ? (
-                                <Table><TableHeader><TableRow><TableHead>{activeTab === 'guides' ? 'Guide' : 'Partner'}</TableHead><TableHead>Retreat</TableHead><TableHead>Dates</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
-                                    <TableBody>{displayedConfirmedBookings.map(booking => (<TableRow key={booking.id}><TableCell className="font-medium">{booking.guideName}</TableCell><TableCell>{booking.retreatName}</TableCell><TableCell>{booking.dates}</TableCell><TableCell className="text-right"><Button variant="outline" size="sm" className="mr-2">View Details</Button></TableCell></TableRow>))}</TableBody>
-                                </Table>
-                            ) : (<div className="text-center py-12 rounded-lg bg-secondary/50"><p className="text-muted-foreground">Your confirmed retreat collaborations will appear here.</p></div>)}
+                            <div className="text-center py-12 rounded-lg bg-secondary/50"><p className="text-muted-foreground">Your confirmed retreat collaborations will appear here.</p></div>
                         </div>
                     </>
                 ) : (<div className="text-center py-12"><p className="text-muted-foreground">Please select a space to see its partnership dashboard.</p></div>)}
