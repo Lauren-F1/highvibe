@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useMemo, useEffect, useCallback, useRef, ReactNode } from 'react';
 import { mockConversations, type Conversation, type Message } from '@/lib/inbox-data';
 import { useUser, useFirestore } from '@/firebase';
-import { collection, query, where, onSnapshot, addDoc, updateDoc, doc, orderBy, serverTimestamp } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, addDoc, updateDoc, doc, orderBy, serverTimestamp, Timestamp } from 'firebase/firestore';
 
 interface InboxContextType {
   conversations: Conversation[];
@@ -31,10 +31,11 @@ export function InboxProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    const uid = user.data.uid;
     const conversationsRef = collection(firestore, 'conversations');
     const q = query(
       conversationsRef,
-      where('participants', 'array-contains', user.data.uid)
+      where('participants', 'array-contains', uid)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -54,13 +55,31 @@ export function InboxProvider({ children }: { children: ReactNode }) {
         const updated: Conversation[] = sortedDocs.map(convDoc => {
           const convData = convDoc.data();
           const otherUid = (convData.participants as string[]).find(
-            (p: string) => p !== user.data.uid
+            (p: string) => p !== uid
           );
           const otherInfo = otherUid
             ? convData.participantInfo?.[otherUid]
             : null;
 
-          // Preserve existing messages and read state from local state
+          // Determine unread from Firestore timestamps
+          const lastMessageAt = convData.lastMessageAt as Timestamp | undefined;
+          const lastReadAt = convData.lastReadAt?.[uid] as Timestamp | undefined;
+          const lastSenderId = convData.lastSenderId as string | undefined;
+
+          let isUnread: boolean;
+          if (lastSenderId === uid) {
+            // I sent the last message, so it's not unread for me
+            isUnread = false;
+          } else if (!lastReadAt && lastMessageAt) {
+            // Never read and there are messages = unread
+            isUnread = true;
+          } else if (lastReadAt && lastMessageAt) {
+            isUnread = lastMessageAt.toMillis() > lastReadAt.toMillis();
+          } else {
+            isUnread = false;
+          }
+
+          // Preserve existing messages from local state
           const existing = prev.find(c => c.id === convDoc.id);
 
           return {
@@ -70,7 +89,7 @@ export function InboxProvider({ children }: { children: ReactNode }) {
             retreat: convData.lastMessageSnippet || '',
             lastMessage: convData.lastMessageSnippet || existing?.lastMessage || '',
             avatar: otherInfo?.avatarUrl || '',
-            unread: existing?.unread ?? true,
+            unread: isUnread,
             messages: existing?.messages || [],
           };
         });
@@ -149,15 +168,33 @@ export function InboxProvider({ children }: { children: ReactNode }) {
   }, [conversations]);
 
   const markAsRead = (conversationId: string) => {
+    // Optimistic local update
     setConversations(prev =>
       prev.map(c => (c.id === conversationId ? { ...c, unread: false } : c))
     );
+
+    // Persist to Firestore
+    if (firestore && user.status === 'authenticated') {
+      const convRef = doc(firestore, 'conversations', conversationId);
+      updateDoc(convRef, {
+        [`lastReadAt.${user.data.uid}`]: serverTimestamp(),
+      }).catch((e) => console.warn('Failed to update lastReadAt:', e));
+    }
   };
 
   const markAsUnread = (conversationId: string) => {
+    // Optimistic local update
     setConversations(prev =>
       prev.map(c => (c.id === conversationId ? { ...c, unread: true } : c))
     );
+
+    // Persist to Firestore — set lastReadAt to epoch so it's before any message
+    if (firestore && user.status === 'authenticated') {
+      const convRef = doc(firestore, 'conversations', conversationId);
+      updateDoc(convRef, {
+        [`lastReadAt.${user.data.uid}`]: Timestamp.fromMillis(0),
+      }).catch((e) => console.warn('Failed to update lastReadAt:', e));
+    }
   };
 
   const sendMessage = async (conversationId: string, text: string) => {
@@ -196,6 +233,8 @@ export function InboxProvider({ children }: { children: ReactNode }) {
         await updateDoc(doc(firestore, 'conversations', conversationId), {
           lastMessageSnippet: text,
           lastMessageAt: serverTimestamp(),
+          lastSenderId: user.data.uid,
+          [`lastReadAt.${user.data.uid}`]: serverTimestamp(),
         });
       } catch (error) {
         console.error('Error sending message to Firestore:', error);

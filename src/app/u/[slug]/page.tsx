@@ -106,6 +106,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
         createdAt: serverTimestamp(),
         lastMessageAt: serverTimestamp(),
         lastMessageSnippet: 'Connection requested...',
+        lastSenderId: currentUser.data.uid,
+        lastReadAt: {
+          [currentUser.data.uid]: serverTimestamp(),
+        },
       });
       
       // Add initial message

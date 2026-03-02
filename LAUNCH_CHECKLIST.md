@@ -122,8 +122,8 @@ This is a running checklist of everything needed to go from current state to a f
 - [x] Real Firestore conversations — InboxContext loads from Firestore, falls back to mock
 - [x] Sending messages persists to Firestore (conversations/{id}/messages subcollection)
 - [x] Firestore rules for conversations and messages collections
-- [ ] Real-time message updates (currently loads on page open, not live)
-- [ ] Unread count from real data (currently all marked unread)
+- [x] Real-time message updates (onSnapshot for conversations and messages)
+- [x] Unread count from real data (lastReadAt per user in Firestore, persists across sessions)
 - [ ] Push/email notifications for new messages
 - [ ] AI message suggestions (flow exists, not wired to UI)
 
