@@ -149,6 +149,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
         try {
             await updateDoc(userDocRef, {
                 ...data,
+                id: userId, // Required by Firestore security rules
                 offerings: offeringsArray,
                 countries_served: countriesArray,
                 profileComplete: true,
