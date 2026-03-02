@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useMemo, useEffect, useCall
 import { mockConversations, type Conversation, type Message } from '@/lib/inbox-data';
 import { useUser, useFirestore } from '@/firebase';
 import { collection, query, where, onSnapshot, addDoc, updateDoc, doc, orderBy, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { scanMessage, type MessageScanResult } from '@/lib/message-monitor';
 
 interface InboxContextType {
   conversations: Conversation[];
@@ -11,6 +12,7 @@ interface InboxContextType {
   markAsRead: (conversationId: string) => void;
   markAsUnread: (conversationId: string) => void;
   sendMessage: (conversationId: string, text: string) => void;
+  preScanMessage: (text: string) => MessageScanResult;
   listenToMessages: (conversationId: string) => () => void;
   isLoading: boolean;
 }
@@ -197,6 +199,10 @@ export function InboxProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const preScanMessage = useCallback((text: string): MessageScanResult => {
+    return scanMessage(text);
+  }, []);
+
   const sendMessage = async (conversationId: string, text: string) => {
     const newMessage: Message = {
       id: `msg-${Date.now()}`,
@@ -204,6 +210,9 @@ export function InboxProvider({ children }: { children: ReactNode }) {
       text,
       timestamp: new Date().toISOString(),
     };
+
+    // Scan message for circumvention patterns
+    const scanResult = scanMessage(text);
 
     // Optimistic update (will be replaced by onSnapshot)
     setConversations(prevConvos => {
@@ -236,6 +245,44 @@ export function InboxProvider({ children }: { children: ReactNode }) {
           lastSenderId: user.data.uid,
           [`lastReadAt.${user.data.uid}`]: serverTimestamp(),
         });
+
+        // If flagged, report to server for email alerts and Firestore logging
+        if (scanResult.isFlagged) {
+          fetch('/api/flag-message', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              conversationId,
+              senderId: user.data.uid,
+              messageText: text,
+              riskScore: scanResult.riskScore,
+              matchedCategories: scanResult.matchedCategories,
+              reasons: scanResult.reasons,
+            }),
+          }).catch((e) => console.error('Failed to report flagged message:', e));
+        }
+
+        // Fire-and-forget notification to recipient
+        const convo = conversations.find(c => c.id === conversationId);
+        if (convo) {
+          const senderName = user.profile?.displayName || user.data.email || 'Someone';
+          fetch('/api/notifications', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              conversationId,
+              type: 'new_message',
+              title: `New message from ${senderName}`,
+              body: text.length > 100 ? text.slice(0, 100) + '...' : text,
+              linkUrl: '/inbox',
+              metadata: {
+                senderName,
+                senderAvatarUrl: user.profile?.avatarUrl || '',
+                conversationId,
+              },
+            }),
+          }).catch(() => {});
+        }
       } catch (error) {
         console.error('Error sending message to Firestore:', error);
       }
@@ -248,6 +295,7 @@ export function InboxProvider({ children }: { children: ReactNode }) {
     markAsRead,
     markAsUnread,
     sendMessage,
+    preScanMessage,
     listenToMessages,
     isLoading,
   };

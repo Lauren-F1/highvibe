@@ -289,5 +289,19 @@ service cloud.firestore {
       allow get, list: if isSignedIn() && resource.data.guideUserId == request.auth.uid;
       allow create, update, delete: if false; // Server-side only via Admin SDK
     }
+
+    /**
+     * @description User notifications. Owner-only read. Server creates via Admin SDK.
+     * Client can only update the `read` field on their own notifications.
+     * @path /notifications/{notificationId}
+     */
+    match /notifications/{notificationId} {
+      allow get, list: if isSignedIn() && request.auth.uid == resource.data.userId;
+      allow create: if false; // Server-side only via Admin SDK
+      allow update: if isSignedIn()
+        && request.auth.uid == resource.data.userId
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      allow delete: if false;
+    }
   }
 }

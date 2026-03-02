@@ -1,15 +1,16 @@
 'use client';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import type { Conversation, Message } from '@/lib/inbox-data';
-import { Send, Sparkles } from 'lucide-react';
+import type { Conversation } from '@/lib/inbox-data';
+import { Send, Sparkles, AlertTriangle, ShieldAlert } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { generateMessageSuggestions, type MessageSuggestionsInput } from '@/ai/flows/generate-message-suggestions';
 import { useUser } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
+import { scanMessage, CIRCUMVENTION_WARNING, CONTACT_SHARING_NOTICE } from '@/lib/message-monitor';
 
 interface ConversationViewProps {
     conversation: Conversation;
@@ -23,11 +24,22 @@ export function ConversationView({ conversation, onSendMessage }: ConversationVi
     const user = useUser();
     const { toast } = useToast();
 
+    // Real-time scan of message as user types
+    const scanResult = useMemo(() => scanMessage(newMessage), [newMessage]);
+
     const handleSend = () => {
         if (newMessage.trim()) {
+            // If flagged, show a toast warning but still allow sending
+            if (scanResult.isFlagged) {
+                toast({
+                    variant: 'destructive',
+                    title: 'Payment Policy Reminder',
+                    description: CIRCUMVENTION_WARNING,
+                });
+            }
             onSendMessage(conversation.id, newMessage);
             setNewMessage('');
-            setSuggestions([]); // Clear suggestions after sending
+            setSuggestions([]);
         }
     };
     
@@ -101,6 +113,25 @@ export function ConversationView({ conversation, onSendMessage }: ConversationVi
                 ))}
             </CardContent>
             <CardFooter className="p-4 border-t flex flex-col items-start gap-2">
+                {/* Circumvention warning banner */}
+                {scanResult.isFlagged && (
+                    <div className="w-full flex items-start gap-2 rounded-md border border-destructive/50 bg-destructive/5 p-3 text-sm">
+                        <ShieldAlert className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+                        <div>
+                            <p className="font-semibold text-destructive">Payment Policy Violation</p>
+                            <p className="text-muted-foreground">{CIRCUMVENTION_WARNING}</p>
+                        </div>
+                    </div>
+                )}
+                {scanResult.showWarning && !scanResult.isFlagged && (
+                    <div className="w-full flex items-start gap-2 rounded-md border border-yellow-500/50 bg-yellow-50 p-3 text-sm">
+                        <AlertTriangle className="h-5 w-5 text-yellow-600 shrink-0 mt-0.5" />
+                        <div>
+                            <p className="font-semibold text-yellow-700">Friendly Reminder</p>
+                            <p className="text-muted-foreground">{CONTACT_SHARING_NOTICE}</p>
+                        </div>
+                    </div>
+                )}
                 {isLoadingSuggestions && <p className="text-sm text-muted-foreground px-2">Generating ideas...</p>}
                 {suggestions.length > 0 && (
                     <div className="flex flex-wrap gap-2">

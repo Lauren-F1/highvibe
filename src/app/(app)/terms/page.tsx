@@ -88,11 +88,44 @@ export default function TermsPage() {
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">7. Refunds and Disputes</h2>
-                <p>Refund policies are determined by the Guide or Host unless otherwise specified.</p>
-                <p>HighVibe does not guarantee refunds.</p>
-                <p>We may facilitate communication between parties but are not obligated to resolve disputes in favor of either party.</p>
-                <p>Chargebacks may result in account suspension.</p>
+                <h2 className="font-headline text-xl pt-4 font-bold">7. Cancellation, Refund, and Dispute Policy</h2>
+                <p className="font-semibold">7.1 Standard Cancellation Policy</p>
+                <p>Unless the Guide or Host specifies a more generous policy, the following default cancellation schedule applies to all bookings made through HighVibe:</p>
+                <ul className="list-disc list-inside space-y-1 pl-4">
+                    <li><strong>30 or more days before the retreat start date:</strong> Full refund minus a non-refundable booking deposit equal to 15% of the total booking amount.</li>
+                    <li><strong>15–29 days before the retreat start date:</strong> 50% refund of the total booking amount.</li>
+                    <li><strong>0–14 days before the retreat start date:</strong> No refund.</li>
+                    <li><strong>No-show:</strong> No refund.</li>
+                </ul>
+                <p className="font-semibold pt-2">7.2 Provider-Initiated Cancellations</p>
+                <p>If a Guide or Host cancels a retreat for any reason, the Seeker is entitled to a full refund of the amount paid.</p>
+                <p className="font-semibold pt-2">7.3 Force Majeure</p>
+                <p>If a retreat is cancelled due to events beyond reasonable control (natural disasters, pandemics, government travel restrictions, severe weather), HighVibe will offer affected Seekers a platform credit or the option to reschedule. Cash refunds are not guaranteed in force majeure situations.</p>
+                <p className="font-semibold pt-2">7.4 Acknowledgment at Checkout</p>
+                <p>By completing a booking, you acknowledge that you have read, understood, and agreed to this cancellation and refund policy. This acknowledgment is recorded and may be used as evidence in the event of a payment dispute.</p>
+                <p className="font-semibold pt-2">7.5 Disputes and Chargebacks</p>
+                <p>HighVibe encourages Seekers to contact us before initiating a chargeback with their payment provider. We will make reasonable efforts to resolve disputes directly.</p>
+                <p>Filing a chargeback without first attempting to resolve the issue through HighVibe may result in:</p>
+                <ul className="list-disc list-inside space-y-1 pl-4">
+                    <li>Account suspension or termination</li>
+                    <li>Ineligibility for future bookings</li>
+                    <li>Forfeiture of any Manifest Credits</li>
+                </ul>
+                <p>Providers are responsible for chargebacks related to their retreats or services. HighVibe may offset chargeback losses against future provider payouts.</p>
+                <p className="font-semibold pt-2">7.6 Refund Processing</p>
+                <p>Approved refunds will be processed within 5–10 business days to the original payment method. Platform fees and payment processing fees are non-refundable.</p>
+            </div>
+
+            <div className="space-y-2">
+                <h2 className="font-headline text-xl pt-4 font-bold">7a. Inquiry-Only Listings</h2>
+                <p>Certain retreats on HighVibe may be designated as "Inquiry Only." These listings are displayed for discovery and informational purposes only. Payment for Inquiry-Only retreats is not processed through HighVibe and is arranged directly between the Seeker and the Provider.</p>
+                <p>HighVibe makes no representations regarding the legality, safety, or suitability of any retreat experience, including Inquiry-Only listings. Seekers are solely responsible for:</p>
+                <ul className="list-disc list-inside space-y-1 pl-4">
+                    <li>Researching the legality of retreat activities in both their home jurisdiction and the retreat location</li>
+                    <li>Evaluating the qualifications and reputation of the Provider</li>
+                    <li>Understanding any health, legal, or travel risks associated with participation</li>
+                </ul>
+                <p>HighVibe's standard cancellation and refund policy (Section 7) does not apply to Inquiry-Only listings. Any refund or cancellation terms are between the Seeker and the Provider.</p>
             </div>
 
             <div className="space-y-2">

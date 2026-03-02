@@ -54,6 +54,12 @@ const profileSchema = z.object({
     propertyShowcaseUrls: z.array(z.string().url()).max(10).optional(),
     typicalCapacity: z.coerce.number().min(0).optional(),
 
+    // Email Notification Preferences
+    email_notifications_enabled: z.boolean().default(true),
+    notify_new_messages: z.boolean().default(true),
+    notify_booking_confirmations: z.boolean().default(true),
+    notify_manifestation_matches: z.boolean().default(true),
+
     // Manifestation Settings
     accepts_manifestations: z.boolean().default(true),
     manifestation_notification_frequency: z.string().optional(),
@@ -102,6 +108,10 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
             hostVibe: userProfile.hostVibe || '',
             propertyShowcaseUrls: userProfile.propertyShowcaseUrls || [],
             typicalCapacity: userProfile.typicalCapacity ?? undefined,
+            email_notifications_enabled: userProfile.email_notifications_enabled ?? true,
+            notify_new_messages: userProfile.notify_new_messages ?? true,
+            notify_booking_confirmations: userProfile.notify_booking_confirmations ?? true,
+            notify_manifestation_matches: userProfile.notify_manifestation_matches ?? true,
             accepts_manifestations: userProfile.accepts_manifestations ?? true,
             manifestation_notification_frequency: userProfile.manifestation_notification_frequency || 'immediate',
             max_manifestations_per_week: userProfile.max_manifestations_per_week ?? undefined,
@@ -677,9 +687,75 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                         </AccordionItem>
                     )}
 
+                    <AccordionItem value="email-notifications">
+                        <AccordionTrigger className="text-xl font-headline">Email Notifications</AccordionTrigger>
+                        <AccordionContent className="pt-6 space-y-4">
+                            <FormField
+                                control={form.control}
+                                name="email_notifications_enabled"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border border-input p-4">
+                                        <div className="space-y-0.5">
+                                            <FormLabel>Email Notifications</FormLabel>
+                                            <FormDescription className="leading-relaxed">Receive email alerts for important activity.</FormDescription>
+                                        </div>
+                                        <FormControl>
+                                            <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="notify_new_messages"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border border-input p-4">
+                                        <div className="space-y-0.5">
+                                            <FormLabel>New Messages</FormLabel>
+                                            <FormDescription className="leading-relaxed">Get notified when someone sends you a message.</FormDescription>
+                                        </div>
+                                        <FormControl>
+                                            <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="notify_booking_confirmations"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border border-input p-4">
+                                        <div className="space-y-0.5">
+                                            <FormLabel>Booking Confirmations</FormLabel>
+                                            <FormDescription className="leading-relaxed">Get notified when a booking is confirmed.</FormDescription>
+                                        </div>
+                                        <FormControl>
+                                            <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="notify_manifestation_matches"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border border-input p-4">
+                                        <div className="space-y-0.5">
+                                            <FormLabel>Manifestation Matches</FormLabel>
+                                            <FormDescription className="leading-relaxed">Get notified when new matches are found for your manifestations.</FormDescription>
+                                        </div>
+                                        <FormControl>
+                                            <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+                        </AccordionContent>
+                    </AccordionItem>
+
                     {hasProviderRole && (
                          <AccordionItem value="manifestation-settings">
-                            <AccordionTrigger className="text-xl font-headline">Notification Settings</AccordionTrigger>
+                            <AccordionTrigger className="text-xl font-headline">Provider Match Settings</AccordionTrigger>
                             <AccordionContent className="pt-6 space-y-8">
                                 <FormField
                                     control={form.control}

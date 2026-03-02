@@ -18,6 +18,7 @@ import { useUser } from '@/firebase';
 import { getAuth, User as FirebaseUser } from 'firebase/auth';
 import { isFirebaseEnabled } from '@/firebase/config';
 import { useInbox } from '@/context/InboxContext';
+import { NotificationBell } from '@/components/notification-bell';
 import { useEffect, useState } from 'react';
 import { Logo } from './icons/logo';
 
@@ -116,6 +117,7 @@ export function Header() {
         <div className="flex items-center space-x-2">
             {user.status === 'authenticated' ? (
                 <>
+                    <NotificationBell />
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="relative h-10 w-10 rounded-full">

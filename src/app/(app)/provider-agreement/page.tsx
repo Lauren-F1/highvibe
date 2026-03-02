@@ -122,6 +122,31 @@ export default function ProviderAgreementPage() {
                 <h2 className="font-headline text-xl pt-4 font-bold">9. Refund Responsibility</h2>
                 <p>You are responsible for clearly stating and honoring your cancellation and refund policies.</p>
                 <p>If you cancel a retreat or fail to deliver services, you are solely responsible for refunds and related damages.</p>
+                <p>Unless you specify a more generous cancellation policy, HighVibe's default cancellation schedule (as outlined in the Terms of Service, Section 7) will apply to all bookings for your retreats or services.</p>
+                <p>You acknowledge that HighVibe may process refunds on your behalf in accordance with the platform's cancellation policy, and that refunded amounts (including any associated platform fees and chargeback fees) may be deducted from your future payouts.</p>
+            </div>
+
+            <div className="space-y-2">
+                <h2 className="font-headline text-xl pt-4 font-bold">9a. Prohibited Listings</h2>
+                <p>You may not list retreats, services, or experiences on HighVibe that involve:</p>
+                <ul className="list-disc list-inside space-y-1 pl-4">
+                    <li>The sale, distribution, facilitation, or promotion of controlled substances as defined under U.S. federal law, including but not limited to psilocybin, ayahuasca (DMT), MDMA, LSD, or ketamine (except where administered by a licensed medical provider)</li>
+                    <li>Substances designed to mimic controlled substances</li>
+                    <li>Activities that are illegal in the jurisdiction where the retreat takes place</li>
+                    <li>Services that make unverified medical claims or promise specific health outcomes</li>
+                    <li>Any activity that would violate the terms of HighVibe's payment processing partners</li>
+                </ul>
+                <p>Retreats involving legal wellness modalities (yoga, meditation, breathwork, sound healing, etc.) are permitted.</p>
+                <p className="font-semibold pt-2">Inquiry-Only Listings</p>
+                <p>Certain retreat categories may be designated as "Inquiry Only" at HighVibe's sole discretion. Inquiry-Only listings are displayed on the platform for discovery purposes but do not include on-platform checkout. Payment for Inquiry-Only retreats is arranged directly between the Seeker and the Provider.</p>
+                <p>Providers with Inquiry-Only listings agree to:</p>
+                <ul className="list-disc list-inside space-y-1 pl-4">
+                    <li>Report all bookings that originate from HighVibe introductions</li>
+                    <li>Pay the applicable referral commission (equal to the pay-as-you-go platform fee rate) within 30 days of the retreat start date</li>
+                    <li>Maintain accurate records of bookings for audit purposes</li>
+                </ul>
+                <p>Failure to report or pay referral commissions for HighVibe-originated bookings constitutes a violation of this Agreement and may result in account termination and fee recovery.</p>
+                <p>Providers are solely responsible for ensuring that their retreats comply with all applicable laws in the jurisdiction where the retreat takes place. HighVibe does not endorse, verify, or guarantee the legality of any retreat experience.</p>
             </div>
 
              <div className="space-y-2">

@@ -140,6 +140,24 @@ export default function NewManifestationPage() {
 
     try {
       const docRef = await addDoc(collection(firestore, 'manifestations'), payload);
+
+      // Fire-and-forget notification
+      if (user.status === 'authenticated') {
+        fetch('/api/notifications', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: user.data.uid,
+            type: 'manifestation_match',
+            title: 'Manifestation Submitted!',
+            body: `Your dream retreat manifestation is being matched with providers.`,
+            linkUrl: `/seeker/manifestations/${docRef.id}`,
+            metadata: { manifestationId: docRef.id },
+            sendEmailNotif: false,
+          }),
+        }).catch(() => {});
+      }
+
       toast({ title: "Manifestation Submitted!", description: "We're matching you with providers." });
       router.push(`/seeker/manifestations/${docRef.id}`);
     } catch (error) {

@@ -59,6 +59,12 @@ export interface UserProfile extends DocumentData {
   weekly_digest_enabled?: boolean;
   countries_served?: string[];
 
+  // Email Notification Preferences
+  email_notifications_enabled?: boolean;
+  notify_new_messages?: boolean;
+  notify_booking_confirmations?: boolean;
+  notify_manifestation_matches?: boolean;
+
   createdAt?: any;
   lastLoginAt?: any;
 

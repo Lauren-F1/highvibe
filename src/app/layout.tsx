@@ -3,6 +3,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { InboxProvider } from '@/context/InboxContext';
+import { NotificationProvider } from '@/context/NotificationContext';
 import { GoogleAnalytics } from '@/components/GoogleAnalytics';
 import { Suspense } from 'react';
 
@@ -21,7 +22,9 @@ export default function RootLayout({
       <body className="font-body">
         <FirebaseClientProvider>
           <InboxProvider>
-            {children}
+            <NotificationProvider>
+              {children}
+            </NotificationProvider>
           </InboxProvider>
         </FirebaseClientProvider>
         <Toaster />

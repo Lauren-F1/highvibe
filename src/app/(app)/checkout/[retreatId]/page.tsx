@@ -168,6 +168,24 @@ export default function CheckoutPage() {
     
             await batch.commit();
 
+            // Fire-and-forget booking confirmation notification
+            fetch('/api/notifications', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                userId: user.data.uid,
+                type: 'booking_confirmation',
+                title: 'Booking Confirmed!',
+                body: `Your booking for ${retreat.title} has been confirmed.`,
+                linkUrl: '/seeker/manifestations',
+                metadata: {
+                  retreatTitle: retreat.title,
+                  amount: total,
+                  bookingId: bookingRef.id,
+                },
+              }),
+            }).catch(() => {});
+
             toast({
                 title: 'Booking Confirmed!',
                 description: `You're all set for ${retreat.title}.`,
