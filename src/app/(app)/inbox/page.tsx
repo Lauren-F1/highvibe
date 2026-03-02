@@ -75,7 +75,7 @@ function InboxContent() {
   const user = useUser();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { conversations, markAsRead, sendMessage, markAsUnread } = useInbox();
+  const { conversations, markAsRead, sendMessage, markAsUnread, listenToMessages } = useInbox();
   
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
 
@@ -139,6 +139,13 @@ function InboxContent() {
         }
     }
   }, [user.status, searchParams, router, markAsRead, displayedConversations, selectedThreadId]);
+
+  // Subscribe to real-time messages for the selected conversation
+  useEffect(() => {
+    if (!selectedThreadId) return;
+    const unsubscribe = listenToMessages(selectedThreadId);
+    return unsubscribe;
+  }, [selectedThreadId, listenToMessages]);
 
   const handleSelectConversation = (id: string) => {
     if (selectedThreadId !== id) {

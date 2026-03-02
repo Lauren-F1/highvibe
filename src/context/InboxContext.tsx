@@ -1,9 +1,9 @@
 'use client';
 
-import React, { createContext, useContext, useState, useMemo, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useMemo, useEffect, useCallback, useRef, ReactNode } from 'react';
 import { mockConversations, type Conversation, type Message } from '@/lib/inbox-data';
 import { useUser, useFirestore } from '@/firebase';
-import { collection, query, where, getDocs, addDoc, updateDoc, doc, orderBy, serverTimestamp } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, addDoc, updateDoc, doc, orderBy, serverTimestamp } from 'firebase/firestore';
 
 interface InboxContextType {
   conversations: Conversation[];
@@ -11,6 +11,7 @@ interface InboxContextType {
   markAsRead: (conversationId: string) => void;
   markAsUnread: (conversationId: string) => void;
   sendMessage: (conversationId: string, text: string) => void;
+  listenToMessages: (conversationId: string) => () => void;
   isLoading: boolean;
 }
 
@@ -21,38 +22,36 @@ export function InboxProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const user = useUser();
   const firestore = useFirestore();
+  const messageUnsubscribes = useRef<Map<string, () => void>>(new Map());
 
+  // Real-time listener for conversation list
   useEffect(() => {
     if (!firestore || user.status !== 'authenticated') {
       setIsLoading(false);
       return;
     }
 
-    const loadConversations = async () => {
-      try {
-        const conversationsRef = collection(firestore, 'conversations');
-        const q = query(
-          conversationsRef,
-          where('participants', 'array-contains', user.data.uid)
-        );
+    const conversationsRef = collection(firestore, 'conversations');
+    const q = query(
+      conversationsRef,
+      where('participants', 'array-contains', user.data.uid)
+    );
 
-        const snapshot = await getDocs(q);
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      if (snapshot.empty) {
+        setConversations([]);
+        setIsLoading(false);
+        return;
+      }
 
-        if (snapshot.empty) {
-          setIsLoading(false);
-          return;
-        }
+      const sortedDocs = snapshot.docs.sort((a, b) => {
+        const aTime = a.data().lastMessageAt?.toMillis?.() || 0;
+        const bTime = b.data().lastMessageAt?.toMillis?.() || 0;
+        return bTime - aTime;
+      });
 
-        // Sort by lastMessageAt client-side (avoids requiring composite index)
-        const sortedDocs = snapshot.docs.sort((a, b) => {
-          const aTime = a.data().lastMessageAt?.toMillis?.() || 0;
-          const bTime = b.data().lastMessageAt?.toMillis?.() || 0;
-          return bTime - aTime;
-        });
-
-        const loaded: Conversation[] = [];
-
-        for (const convDoc of sortedDocs) {
+      setConversations(prev => {
+        const updated: Conversation[] = sortedDocs.map(convDoc => {
           const convData = convDoc.data();
           const otherUid = (convData.participants as string[]).find(
             (p: string) => p !== user.data.uid
@@ -61,51 +60,89 @@ export function InboxProvider({ children }: { children: ReactNode }) {
             ? convData.participantInfo?.[otherUid]
             : null;
 
-          // Load messages for this conversation
-          const messagesRef = collection(firestore, 'conversations', convDoc.id, 'messages');
-          let messagesSnapshot;
-          try {
-            const messagesQuery = query(messagesRef, orderBy('createdAt', 'asc'));
-            messagesSnapshot = await getDocs(messagesQuery);
-          } catch {
-            // If orderBy fails (no index), fall back to unordered
-            messagesSnapshot = await getDocs(messagesRef);
-          }
+          // Preserve existing messages and read state from local state
+          const existing = prev.find(c => c.id === convDoc.id);
 
-          const messages: Message[] = messagesSnapshot.docs.map(msgDoc => {
-            const msgData = msgDoc.data();
-            return {
-              id: msgDoc.id,
-              sender: msgData.senderId === user.data.uid ? 'me' as const : 'them' as const,
-              text: msgData.text || '',
-              timestamp: msgData.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
-            };
-          });
-
-          loaded.push({
+          return {
             id: convDoc.id,
             name: otherInfo?.displayName || 'Unknown',
             role: otherInfo?.role || 'User',
             retreat: convData.lastMessageSnippet || '',
-            lastMessage: convData.lastMessageSnippet || messages[messages.length - 1]?.text || '',
+            lastMessage: convData.lastMessageSnippet || existing?.lastMessage || '',
             avatar: otherInfo?.avatarUrl || '',
-            unread: true,
-            messages,
-          });
-        }
+            unread: existing?.unread ?? true,
+            messages: existing?.messages || [],
+          };
+        });
 
-        if (loaded.length > 0) {
-          setConversations(loaded);
-        }
-      } catch (error) {
-        console.error('Error loading conversations:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+        return updated;
+      });
 
-    loadConversations();
+      setIsLoading(false);
+    }, (error) => {
+      console.error('Error listening to conversations:', error);
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
   }, [firestore, user.status]);
+
+  // Subscribe to real-time messages for a specific conversation
+  const listenToMessages = useCallback((conversationId: string) => {
+    // Already listening
+    if (messageUnsubscribes.current.has(conversationId)) {
+      return messageUnsubscribes.current.get(conversationId)!;
+    }
+
+    if (!firestore || user.status !== 'authenticated') {
+      return () => {};
+    }
+
+    const messagesRef = collection(firestore, 'conversations', conversationId, 'messages');
+    let messagesQuery;
+    try {
+      messagesQuery = query(messagesRef, orderBy('createdAt', 'asc'));
+    } catch {
+      messagesQuery = query(messagesRef);
+    }
+
+    const unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
+      const messages: Message[] = snapshot.docs.map(msgDoc => {
+        const msgData = msgDoc.data();
+        return {
+          id: msgDoc.id,
+          sender: msgData.senderId === user.data.uid ? 'me' as const : 'them' as const,
+          text: msgData.text || '',
+          timestamp: msgData.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+        };
+      });
+
+      setConversations(prev =>
+        prev.map(c =>
+          c.id === conversationId
+            ? { ...c, messages, lastMessage: messages[messages.length - 1]?.text || c.lastMessage }
+            : c
+        )
+      );
+    }, (error) => {
+      console.error(`Error listening to messages for ${conversationId}:`, error);
+    });
+
+    messageUnsubscribes.current.set(conversationId, unsubscribe);
+
+    return () => {
+      unsubscribe();
+      messageUnsubscribes.current.delete(conversationId);
+    };
+  }, [firestore, user.status]);
+
+  // Cleanup all message listeners on unmount
+  useEffect(() => {
+    return () => {
+      messageUnsubscribes.current.forEach(unsub => unsub());
+      messageUnsubscribes.current.clear();
+    };
+  }, []);
 
   const unreadCount = useMemo(() => {
     return conversations.filter(c => c.unread).length;
@@ -131,7 +168,7 @@ export function InboxProvider({ children }: { children: ReactNode }) {
       timestamp: new Date().toISOString(),
     };
 
-    // Optimistic update
+    // Optimistic update (will be replaced by onSnapshot)
     setConversations(prevConvos => {
       const targetConvo = prevConvos.find(c => c.id === conversationId);
       if (!targetConvo) return prevConvos;
@@ -146,7 +183,7 @@ export function InboxProvider({ children }: { children: ReactNode }) {
       return [updatedConvo, ...prevConvos.filter(c => c.id !== conversationId)];
     });
 
-    // Persist to Firestore if available
+    // Persist to Firestore
     if (firestore && user.status === 'authenticated') {
       try {
         const messagesRef = collection(firestore, 'conversations', conversationId, 'messages');
@@ -172,6 +209,7 @@ export function InboxProvider({ children }: { children: ReactNode }) {
     markAsRead,
     markAsUnread,
     sendMessage,
+    listenToMessages,
     isLoading,
   };
 
