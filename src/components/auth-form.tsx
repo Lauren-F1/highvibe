@@ -10,6 +10,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
+  sendEmailVerification,
 } from 'firebase/auth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
@@ -257,7 +258,11 @@ export function AuthForm({ mode, role }: AuthFormProps) {
         try {
           const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
           await createUserProfileDocument(userCredential.user, values);
-          toast({ title: 'Account created!', description: "Let's get started." });
+          // Send verification email (non-blocking)
+          sendEmailVerification(userCredential.user).catch((e) =>
+            console.warn('Failed to send verification email:', e)
+          );
+          toast({ title: 'Account created!', description: "Check your email to verify your account." });
         } catch (signupErr: any) {
           if (signupErr.code === 'auth/email-already-in-use') {
             // Account exists (possibly from a previous failed signup). Try signing in instead.

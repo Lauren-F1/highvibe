@@ -23,8 +23,8 @@ This is a running checklist of everything needed to go from current state to a f
 - [x] Login flow with error handling
 - [x] Admin bypass for launch mode
 - [x] `useUser` hook with profile + status
-- [ ] Email verification flow
-- [ ] Password reset flow (UI exists, needs testing)
+- [x] Email verification flow (sends on signup, banner with resend on dashboards)
+- [x] Password reset flow (Firebase default action URL, forgot password on login page)
 - [x] Profile editing (account/edit page — saves to Firestore with security rule compliance)
 
 ### Launch Mode & Waitlist
