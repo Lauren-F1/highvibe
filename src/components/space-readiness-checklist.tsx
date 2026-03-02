@@ -43,27 +43,29 @@ export interface SpaceReadinessProps {
     hasMinPhotos: boolean;
     hasAmenities: boolean;
     hasDescription: boolean;
+    spaceId?: string;
 }
 
-export const SpaceReadinessChecklist = ({ availabilitySet, rateSet, hasMinPhotos, hasAmenities, hasDescription }: SpaceReadinessProps) => {
+export const SpaceReadinessChecklist = ({ availabilitySet, rateSet, hasMinPhotos, hasAmenities, hasDescription, spaceId }: SpaceReadinessProps) => {
   const allComplete = availabilitySet && rateSet && hasMinPhotos && hasAmenities && hasDescription;
+  const editHref = spaceId ? `/host/spaces/${spaceId}/edit` : '#';
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="font-headline text-2xl">Space Readiness</CardTitle>
         <CardDescription>
-            {allComplete 
-                ? "This space is ready for prime time!" 
+            {allComplete
+                ? "This space is ready for prime time!"
                 : "Complete these steps to attract more guides."}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
-        <ChecklistItem isComplete={availabilitySet} label="Availability calendar is set" actionText="Set Dates" actionHref="#" />
-        <ChecklistItem isComplete={rateSet} label="Nightly rate is set" actionText="Set Rate" actionHref="#" />
-        <ChecklistItem isComplete={hasMinPhotos} label="At least 6 photos uploaded" actionText="Add Photos" actionHref="#" />
-        <ChecklistItem isComplete={hasAmenities} label="Amenities are filled out" actionText="Add Amenities" actionHref="#" />
-        <ChecklistItem isComplete={hasDescription} label="Listing has a description" actionText="Add Description" actionHref="#" />
+        <ChecklistItem isComplete={availabilitySet} label="Availability calendar is set" actionText="Set Dates" actionHref={editHref} />
+        <ChecklistItem isComplete={rateSet} label="Nightly rate is set" actionText="Set Rate" actionHref={editHref} />
+        <ChecklistItem isComplete={hasMinPhotos} label="At least 6 photos uploaded" actionText="Add Photos" actionHref={editHref} />
+        <ChecklistItem isComplete={hasAmenities} label="Amenities are filled out" actionText="Add Amenities" actionHref={editHref} />
+        <ChecklistItem isComplete={hasDescription} label="Listing has a description" actionText="Add Description" actionHref={editHref} />
       </CardContent>
     </Card>
   );

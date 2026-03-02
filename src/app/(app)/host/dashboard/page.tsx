@@ -83,7 +83,7 @@ function firestoreSpaceToDisplay(data: Record<string, unknown>): HostSpace {
     description: data.description as string || '',
     amenities: data.amenities as string[] || [],
     propertyShowcaseUrls: data.spaceImageUrls as string[] || [],
-    availabilitySet: false,
+    availabilitySet: Array.isArray(data.blockedDates) && (data.blockedDates as string[]).length > 0,
     isFirestore: true,
   };
 }
@@ -624,7 +624,7 @@ export default function HostDashboardPage() {
             <CardContent className="space-y-6">
                 {activeSpaceId ? (
                     <>
-                        <div className="space-y-6"><SpaceReadinessChecklist {...readinessProps} /></div>
+                        <div className="space-y-6"><SpaceReadinessChecklist {...readinessProps} spaceId={activeSpaceId} /></div>
                         <Separator />
                         <div className="pt-4">
                              <h3 className="font-headline text-2xl mb-2">Matches Available</h3>

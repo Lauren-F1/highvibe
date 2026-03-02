@@ -15,9 +15,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Save, Trash2, Pause, Play } from 'lucide-react';
+import { Loader2, Save, Trash2, Pause, Play, CalendarIcon } from 'lucide-react';
 import { ImageUpload } from '@/components/image-upload';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Calendar } from '@/components/ui/calendar';
+import { format, isSameDay, parseISO } from 'date-fns';
 
 const propertyTypes = [
   'Villa', 'Retreat Center', 'Boutique Hotel', 'Eco-Lodge',
@@ -67,6 +69,7 @@ interface SpaceDoc {
   amenities?: string[];
   hostVibe?: string;
   spaceImageUrls?: string[];
+  blockedDates?: string[];
   status: string;
 }
 
@@ -82,6 +85,7 @@ export default function EditSpacePage() {
   const [space, setSpace] = useState<SpaceDoc | null>(null);
   const [images, setImages] = useState<string[]>([]);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
+  const [blockedDates, setBlockedDates] = useState<Date[]>([]);
 
   const {
     register,
@@ -123,6 +127,7 @@ export default function EditSpacePage() {
         setSpace(data);
         setImages(data.spaceImageUrls || []);
         setSelectedAmenities(data.amenities || []);
+        setBlockedDates((data.blockedDates || []).map((d: string) => parseISO(d)));
         reset({
           name: data.name,
           description: data.description,
@@ -180,6 +185,7 @@ export default function EditSpacePage() {
         amenities: selectedAmenities,
         hostVibe: data.hostVibe || '',
         spaceImageUrls: images,
+        blockedDates: blockedDates.map(d => format(d, 'yyyy-MM-dd')),
         updatedAt: serverTimestamp(),
       };
 
@@ -390,6 +396,41 @@ export default function EditSpacePage() {
                       <span className="text-sm">{amenity}</span>
                     </label>
                   ))}
+                </div>
+              </div>
+
+              {/* Availability Calendar */}
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <CalendarIcon className="h-4 w-4" />
+                  Availability Calendar
+                </Label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Click dates to mark them as blocked. Blocked dates appear highlighted. Click again to unblock.
+                </p>
+                <div className="border rounded-lg p-4 bg-secondary/20">
+                  <Calendar
+                    mode="multiple"
+                    selected={blockedDates}
+                    onSelect={(dates) => setBlockedDates(dates || [])}
+                    disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                    numberOfMonths={2}
+                    className="mx-auto"
+                  />
+                  <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
+                    <span>{blockedDates.filter(d => d >= new Date(new Date().setHours(0, 0, 0, 0))).length} dates blocked</span>
+                    {blockedDates.length > 0 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 text-xs"
+                        onClick={() => setBlockedDates([])}
+                      >
+                        Clear all
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
 
