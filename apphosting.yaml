@@ -4,7 +4,7 @@
 # FORCE_ROLLOUT_ID: 2025-02-27T23:35:00Z - Forcing fresh build to apply database and startup fixes.
 env:
   - variable: LAUNCH_MODE
-    value: "true"
+    value: "false"
     availability:
       - BUILD
       - RUNTIME
@@ -31,7 +31,7 @@ env:
       - RUNTIME
 
   - variable: NEXT_PUBLIC_LAUNCH_MODE
-    value: "true"
+    value: "false"
     availability:
       - BUILD
       - RUNTIME
