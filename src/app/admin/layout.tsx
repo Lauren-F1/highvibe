@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 const adminNavLinks = [
   { href: '/admin/analytics', label: 'Analytics' },
   { href: '/admin/users', label: 'Users' },
+  { href: '/admin/bookings', label: 'Bookings' },
   { href: '/admin/waitlist', label: 'Waitlist' },
   { href: '/admin/contact', label: 'Contact' },
   { href: '/admin/founder-codes', label: 'Founder Codes' },

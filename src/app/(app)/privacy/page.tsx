@@ -34,6 +34,7 @@ export default function PrivacyPage() {
               <h3 className="font-semibold pt-2">B. Payment Information</h3>
               <p>Payments are processed through Stripe. HighVibe does not store full credit card numbers.</p>
               <p>Stripe collects and processes payment information according to its own privacy policy.</p>
+              <p>If you are a Provider using Stripe Connect for payouts, Stripe may collect additional identity verification information (government ID, bank account details) as required by financial regulations. This data is collected and stored by Stripe, not HighVibe.</p>
               
               <h3 className="font-semibold pt-2">C. Automatically Collected Information</h3>
               <ul className="list-disc list-inside space-y-1 pl-4">
@@ -79,9 +80,10 @@ export default function PrivacyPage() {
                 
                 <h3 className="font-semibold pt-2">A. Service Providers</h3>
                 <ul className="list-disc list-inside space-y-1 pl-4">
-                    <li>Stripe (payment processing)</li>
-                    <li>Cloud hosting providers (e.g., Firebase)</li>
-                    <li>Email service providers</li>
+                    <li>Stripe (payment processing and provider payouts via Stripe Connect)</li>
+                    <li>Google Cloud / Firebase (hosting, database, authentication)</li>
+                    <li>Google AI (Gemini) for AI-powered features such as retreat matching and description generation</li>
+                    <li>Resend (transactional email delivery)</li>
                     <li>Analytics providers</li>
                 </ul>
                 
@@ -98,7 +100,19 @@ export default function PrivacyPage() {
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">4. Data Retention</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">4. AI-Powered Features</h2>
+                <p>HighVibe uses AI (Google Gemini) to provide features such as:</p>
+                <ul className="list-disc list-inside space-y-1 pl-4">
+                    <li>Retreat description generation</li>
+                    <li>Matching seekers with relevant retreats and providers</li>
+                    <li>Commission enforcement monitoring</li>
+                </ul>
+                <p>When you use AI-powered features, relevant information (such as retreat details or manifestation preferences) may be sent to Google AI for processing. This data is used solely to generate responses and is not used to train AI models.</p>
+                <p>You can choose not to use AI-powered features without affecting your ability to use the core platform.</p>
+            </div>
+
+            <div className="space-y-2">
+                <h2 className="font-headline text-xl pt-4 font-bold">5. Data Retention</h2>
                 <p>We retain information as long as necessary to:</p>
                 <ul className="list-disc list-inside space-y-1 pl-4">
                     <li>Provide services</li>
@@ -110,7 +124,7 @@ export default function PrivacyPage() {
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">5. Your Privacy Rights</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">6. Your Privacy Rights</h2>
                 <p>Depending on your jurisdiction, you may have the right to:</p>
                 <ul className="list-disc list-inside space-y-1 pl-4">
                     <li>Access your personal information</li>
@@ -125,31 +139,31 @@ export default function PrivacyPage() {
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">6. Data Security</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">7. Data Security</h2>
                 <p>We implement reasonable administrative, technical, and physical safeguards to protect personal information.</p>
                 <p>However, no system is completely secure, and we cannot guarantee absolute security.</p>
             </div>
             
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">7. International Users</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">8. International Users</h2>
                 <p>If you access HighVibe from outside the United States, you understand that your information may be transferred to and processed in the United States.</p>
             </div>
 
              <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">8. Children’s Privacy</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">9. Children’s Privacy</h2>
                 <p>HighVibe is not intended for individuals under 18.</p>
                 <p>We do not knowingly collect personal information from minors.</p>
                 <p>If we learn that we have collected such information, we will delete it.</p>
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">9. Third-Party Links</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">10. Third-Party Links</h2>
                 <p>The platform may contain links to third-party websites.</p>
                 <p>We are not responsible for the privacy practices of third parties.</p>
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">10. Email Communications</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">11. Email Communications</h2>
                 <p>We may send:</p>
                 <ul className="list-disc list-inside space-y-1 pl-4">
                     <li>Transactional emails</li>
@@ -161,13 +175,13 @@ export default function PrivacyPage() {
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">11. Changes to This Policy</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">12. Changes to This Policy</h2>
                 <p>We may update this Privacy Policy at any time.</p>
                 <p>Continued use of the platform constitutes acceptance of updates.</p>
             </div>
             
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">12. Contact Information</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">13. Contact Information</h2>
                 <p>For privacy inquiries, contact:</p>
                 <p>
                     HighVibe Retreats<br />

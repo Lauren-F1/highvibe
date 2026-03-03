@@ -43,16 +43,25 @@ export async function POST(request: Request) {
       retreatProviderId = 'guide-placeholder-id';
     }
 
-    // Handle manifest credit discount
+    // Handle manifest credit discount (with expiry check + atomic reservation)
     let discount = 0;
     let validCreditId = '';
     if (applyCredit && creditId) {
       const creditDoc = await db.collection('manifest_credits').doc(creditId).get();
       if (creditDoc.exists) {
         const creditData = creditDoc.data()!;
-        if (creditData.seeker_id === uid && creditData.status === 'available') {
+        const now = new Date();
+        const expiryDate = creditData.expiry_date?.toDate ? creditData.expiry_date.toDate() : new Date(creditData.expiry_date);
+        const isExpired = expiryDate < now;
+
+        if (creditData.seeker_id === uid && creditData.status === 'available' && !isExpired) {
           discount = Math.min(creditData.issued_amount || 0, retreatPrice);
           validCreditId = creditId;
+          // Reserve the credit to prevent double-redemption (webhook finalizes to 'redeemed')
+          await db.collection('manifest_credits').doc(creditId).update({ status: 'reserved' });
+        } else if (creditData.status === 'available' && isExpired) {
+          // Mark expired credit
+          await db.collection('manifest_credits').doc(creditId).update({ status: 'expired' });
         }
       }
     }

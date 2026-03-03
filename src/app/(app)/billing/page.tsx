@@ -335,7 +335,7 @@ export default function BillingPage() {
     const [role, setRole] = useState<AllRoles>('seeker');
     const [userPlans, setUserPlans] = useState<UserPlans>({ guide: 'pay-as-you-go', host: 'pay-as-you-go', vendor: 'pay-as-you-go' });
 
-    const [credit, setCredit] = useState<ManifestCredit | null>(null);
+    const [credits, setCredits] = useState<ManifestCredit[]>([]);
     const [loadingCredit, setLoadingCredit] = useState(true);
     const [invoices, setInvoices] = useState<StripeInvoice[]>([]);
     const [planActionLoading, setPlanActionLoading] = useState(false);
@@ -421,11 +421,14 @@ export default function BillingPage() {
             const creditsRef = collection(firestore, 'manifest_credits');
             const q = query(creditsRef, where('seeker_id', '==', user.data.uid), where('status', '==', 'available'));
             getDocs(q).then(snapshot => {
-                if (!snapshot.empty) {
-                    setCredit({ id: snapshot.docs[0].id, ...snapshot.docs[0].data() } as ManifestCredit);
-                } else {
-                    setCredit(null);
-                }
+                const now = new Date();
+                const validCredits = snapshot.docs
+                    .map(doc => ({ id: doc.id, ...doc.data() } as ManifestCredit))
+                    .filter(c => {
+                        const expiry = c.expiry_date?.toDate ? c.expiry_date.toDate() : new Date(c.expiry_date as any);
+                        return expiry > now;
+                    });
+                setCredits(validCredits);
                 setLoadingCredit(false);
             }).catch(err => {
                 console.error("Error fetching credit:", err);
@@ -611,12 +614,24 @@ export default function BillingPage() {
                                 <CardTitle className="text-xl">Manifest Credit</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                {loadingCredit ? <p>Loading credit...</p> : credit ? (
-                                    <>
-                                        <p className="text-2xl font-bold">${credit.issued_amount.toFixed(2)}</p>
-                                        <p className="text-sm text-muted-foreground leading-relaxed">Expires on {format(credit.expiry_date.toDate(), 'PPP')}</p>
-                                    </>
-                                ) : (
+                                {loadingCredit ? <p>Loading credit...</p> : credits.length > 0 ? (() => {
+                                    const totalBalance = credits.reduce((sum, c) => sum + c.issued_amount, 0);
+                                    const earliestExpiry = credits.reduce((earliest, c) => {
+                                        const exp = c.expiry_date?.toDate ? c.expiry_date.toDate() : new Date(c.expiry_date as any);
+                                        return exp < earliest ? exp : earliest;
+                                    }, new Date(9999, 0));
+                                    return (
+                                        <>
+                                            <p className="text-2xl font-bold">${totalBalance.toFixed(2)}</p>
+                                            <p className="text-sm text-muted-foreground leading-relaxed">
+                                                {credits.length === 1 ? 'Expires' : 'Earliest expiry'} on {format(earliestExpiry, 'PPP')}
+                                            </p>
+                                            {credits.length > 1 && (
+                                                <p className="text-xs text-muted-foreground mt-1">{credits.length} credits available</p>
+                                            )}
+                                        </>
+                                    );
+                                })() : (
                                     <>
                                         <p className="text-2xl font-bold">$0.00</p>
                                         <p className="text-sm text-muted-foreground leading-relaxed">Manifest a retreat to earn credit for your next one.</p>

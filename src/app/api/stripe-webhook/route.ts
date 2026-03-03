@@ -149,6 +149,7 @@ async function handleCheckoutCompleted(
   const bookingRef = db.collection('bookings').doc();
   batch.set(bookingRef, {
     seekerId: userId,
+    bookedEntityOwnerId: providerId || '',
     retreatId,
     status: 'confirmed',
     totalAmount,
@@ -198,8 +199,28 @@ async function handleCheckoutCompleted(
     });
   }
 
+  // Issue manifest credit to seeker (3% of total, capped at $500)
+  const creditPercent = 0.03;
+  const creditCap = 500;
+  const creditAmount = Math.min(Math.round(totalAmount * creditPercent * 100) / 100, creditCap);
+  if (creditAmount > 0) {
+    const creditRef = db.collection('manifest_credits').doc();
+    const now = new Date();
+    const expiryDate = new Date(now);
+    expiryDate.setDate(expiryDate.getDate() + 365);
+    batch.set(creditRef, {
+      seeker_id: userId,
+      booking_id: bookingRef.id,
+      issued_amount: creditAmount,
+      currency: 'usd',
+      issue_date: now,
+      expiry_date: expiryDate,
+      status: 'available',
+    });
+  }
+
   await batch.commit();
-  console.log(`[WEBHOOK] Created booking ${bookingRef.id} for session ${session.id}`);
+  console.log(`[WEBHOOK] Created booking ${bookingRef.id} for session ${session.id} (credit: $${creditAmount})`);
 
   // Fire-and-forget: send booking confirmation notification
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://highviberetreats.com';

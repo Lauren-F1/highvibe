@@ -243,6 +243,16 @@ service cloud.firestore {
     }
 
     /**
+     * @description Contact form submissions. Any signed-in user can submit.
+     * Admin reads are handled via Admin SDK (bypasses rules).
+     * @path /contact_submissions/{docId}
+     */
+    match /contact_submissions/{docId} {
+      allow create: if isSignedIn();
+      allow read, update, delete: if false; // Admin reads via Admin SDK
+    }
+
+    /**
      * @description Seeker waitlist from seeker discovery page.
      * @path /waitlist_seekers/{docId}
      */

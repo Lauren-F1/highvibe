@@ -111,7 +111,7 @@ This is a running checklist of everything needed to go from current state to a f
 - [x] Seeker discovery shows real Firestore retreats (merged with mock data fallback)
 - [ ] Location-based search (by region/destination)
 - [ ] Date-based search
-- [ ] Budget filtering against real pricing
+- [x] Budget filtering against real pricing (parsePriceRange filters Firestore + mock data)
 - [ ] Sort by AI recommendation score
 
 ---
@@ -132,53 +132,56 @@ This is a running checklist of everything needed to go from current state to a f
 ## 5. PAYMENTS & BILLING (Stripe Integration)
 
 ### Stripe Setup
-- [ ] Create Stripe account for HighVibe
-- [ ] Install Stripe SDK (`stripe` + `@stripe/stripe-js`)
-- [ ] Configure Stripe API keys (env vars + Firebase secrets)
-- [ ] Set up Stripe webhook endpoint (real, not mock)
-- [ ] Webhook signature verification
+- [ ] Create Stripe account for HighVibe (manual — Stripe Dashboard)
+- [x] Install Stripe SDK (`stripe`)
+- [x] Configure Stripe API keys (env vars + Firebase secrets)
+- [x] Set up Stripe webhook endpoint (real, with full event routing)
+- [x] Webhook signature verification (`stripe.webhooks.constructEvent`)
+- [x] Stripe server singleton + auth helper (`src/lib/stripe.ts`, `src/lib/stripe-auth.ts`)
 
 ### Seeker Payments (Stripe Checkout)
-- [~] Checkout page UI (exists, creates Firestore booking, but no Stripe payment)
-- [ ] Integrate Stripe Checkout session creation
-- [ ] Handle payment success → confirm booking
-- [ ] Handle payment failure → show error
-- [ ] Calculate real platform fees per line item (currently hardcoded to $0)
+- [x] Checkout page UI (redirects to Stripe Checkout)
+- [x] Integrate Stripe Checkout session creation (`/api/stripe/create-checkout-session`)
+- [x] Handle payment success → booking created via webhook + success page
+- [x] Handle payment failure → webhook handler for `payment_intent.payment_failed`
+- [x] Calculate real platform fees per line item (from `app.json` plan rates)
 - [ ] Multi-provider line items (guide + host + vendor in one booking)
 
 ### Provider Payouts (Stripe Connect)
-- [ ] Stripe Connect onboarding flow for providers
-- [ ] "Connect Stripe" button on billing page (currently placeholder)
-- [ ] Payout calculation: booking amount - platform fee - Stripe processing fee
-- [ ] Automatic payout scheduling
-- [ ] Payout history page (currently placeholder at `/payouts`)
+- [x] Stripe Connect onboarding flow for providers (`/api/stripe/connect-onboard`)
+- [x] "Connect Stripe" button on payouts page (functional)
+- [x] Payout calculation: destination charges with `application_fee_amount`
+- [x] Stripe processing fees passed to providers (deducted from their portion)
+- [x] Payout history page (`/payouts` — real Stripe transfer data)
+- [x] Provider agreement + terms updated with fee transparency (Sections 8 & 6)
 - [ ] Handle payout failures
 
 ### Subscription Billing (Stripe Billing)
-- [~] Billing page UI with plan selection + guardrails (exists, local state only)
-- [ ] Create Stripe Products/Prices for each plan tier
-- [ ] Subscription creation on plan selection
-- [ ] Plan upgrade/downgrade logic via Stripe
-- [ ] 90-day Pro commitment enforcement
-- [ ] $99 reactivation fee logic
-- [ ] Webhook handling for subscription events (renewal, cancellation, failure)
-- [ ] Invoice history from Stripe (currently mock)
+- [x] Billing page UI wired to Stripe APIs (plan selection, invoices, payment method)
+- [ ] Create Stripe Products/Prices for each plan tier (manual — Stripe Dashboard)
+- [x] Subscription creation on plan selection (`/api/stripe/create-subscription`)
+- [x] Plan upgrade/downgrade logic via Stripe (`/api/stripe/cancel-subscription`)
+- [x] 90-day Pro commitment enforcement (with downgrade window tracking)
+- [x] $99 reactivation fee logic (within 60-day window)
+- [x] Webhook handling for subscription events (created/updated/deleted + invoice events)
+- [x] Invoice history from Stripe (`/api/stripe/invoices`)
+- [x] Billing portal for payment method management (`/api/stripe/billing-portal`)
 
 ### Manifest Credits
-- [~] Credit application at checkout (reads from Firestore, applies discount)
-- [ ] **Credit issuance**: After booking completes, create credit doc (3% of amount, capped $500)
-- [ ] Credit expiry job (mark expired after 365 days)
-- [ ] Credit balance display on billing page (currently shows mock data)
-- [ ] Prevent double-redemption
+- [x] Credit application at checkout (reads from Firestore, applies as Stripe discount)
+- [x] **Credit issuance**: After booking completes, create credit doc (3% of amount, capped $500)
+- [x] Credit expiry filtering (expired credits rejected at checkout + filtered on billing page)
+- [x] Credit balance display on billing page (real Firestore data, total balance + expiry)
+- [x] Prevent double-redemption (reserved → redeemed flow, expiry check)
 
 ---
 
 ## 6. CHARGEBACKS & DISPUTES
 
-- [~] Stripe webhook handler for `charge.dispute.created` (mock data)
-- [~] Chargeback email notification template (exists)
-- [~] Admin chargeback page (mock data)
-- [ ] Real Stripe webhook integration
+- [x] Stripe webhook handler for `charge.dispute.created/updated/closed`
+- [x] Chargeback email notification template (exists)
+- [x] Admin chargeback page (real Firestore queries, not mock data)
+- [x] Real Stripe webhook integration (dispute events create/update booking records)
 - [ ] Provider evidence submission flow
 - [ ] Chargeback offset against future payouts
 - [ ] Dispute resolution tracking
@@ -233,9 +236,9 @@ This is a running checklist of everything needed to go from current state to a f
 - [x] Admin waitlist management (`/admin/waitlist`)
 - [x] Admin contact submissions (`/admin/contact`)
 - [x] Admin founder codes (`/admin/founder-codes`)
-- [~] Admin chargebacks (`/admin/chargebacks`) — mock data
+- [x] Admin chargebacks (`/admin/chargebacks`) — real Firestore data
 - [ ] Admin user management (view/edit/suspend users)
-- [ ] Admin booking/transaction overview
+- [x] Admin booking/transaction overview (`/admin/bookings` — real Firestore data with pagination)
 - [ ] Admin revenue dashboard
 - [ ] Admin content moderation (review listings before publishing)
 
@@ -251,10 +254,10 @@ This is a running checklist of everything needed to go from current state to a f
 - [ ] Mobile responsiveness audit
 - [ ] Accessibility audit (ARIA labels, keyboard navigation)
 - [ ] Performance audit (bundle size, image optimization)
-- [ ] Security audit (Firestore rules, API routes, input sanitization)
-- [ ] Terms of Service page content review
-- [ ] Privacy Policy page content review
-- [ ] Contact/support form testing
+- [x] Security audit (Firestore rules — bookings server-only, manifest_credits locked, contact_submissions added, input sanitization via zod)
+- [x] Terms of Service page content review (updated with fee transparency, Section 6)
+- [x] Privacy Policy page content review (added Stripe Connect, AI/Genkit, service provider details)
+- [x] Contact/support form (Firestore rule added for contact_submissions, form writes + admin reads)
 
 ---
 
