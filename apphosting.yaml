@@ -59,6 +59,11 @@ env:
     availability:
       - RUNTIME
 
+  - variable: GOOGLE_GENAI_API_KEY
+    secret: GOOGLE_GENAI_API_KEY
+    availability:
+      - RUNTIME
+
   - variable: TEST_EMAIL_TO
     value: "info@highviberetreats.com"
     availability:
