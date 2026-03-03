@@ -8,3 +8,10 @@ export const firebaseConfig = {
 };
 
 export const isFirebaseEnabled = !!firebaseConfig.apiKey;
+
+/**
+ * When true, the app uses mock data instead of Firestore queries.
+ * Useful for local development without Firebase credentials.
+ * Set via NEXT_PUBLIC_USE_MOCK_DATA=true in .env.local.
+ */
+export const useMockData = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true' || !isFirebaseEnabled;

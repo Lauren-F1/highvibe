@@ -109,7 +109,7 @@ This is a running checklist of everything needed to go from current state to a f
 ### Search & Discovery
 - [x] Seeker retreat search with filters (mock data)
 - [x] Seeker discovery shows real Firestore retreats (merged with mock data fallback)
-- [ ] Location-based search (by region/destination)
+- [x] Location-based search (continent/region dropdown filters against real Firestore data)
 - [ ] Date-based search
 - [x] Budget filtering against real pricing (parsePriceRange filters Firestore + mock data)
 - [ ] Sort by AI recommendation score
@@ -203,9 +203,9 @@ This is a running checklist of everything needed to go from current state to a f
 - [x] Remove mock connection requests / confirmed bookings from dashboards
 
 ### Keep for Development
-- [ ] Add `NEXT_PUBLIC_USE_MOCK_DATA` feature flag
-- [ ] When flag is on, use mock data (for local dev without Firebase)
-- [ ] When flag is off (production), use real Firestore data
+- [x] Add `NEXT_PUBLIC_USE_MOCK_DATA` feature flag (in `firebase/config.ts`, exports `useMockData`)
+- [x] When flag is on, use mock data (for local dev without Firebase)
+- [x] When flag is off (production), use real Firestore data
 
 ---
 
@@ -237,7 +237,7 @@ This is a running checklist of everything needed to go from current state to a f
 - [x] Admin contact submissions (`/admin/contact`)
 - [x] Admin founder codes (`/admin/founder-codes`)
 - [x] Admin chargebacks (`/admin/chargebacks`) — real Firestore data
-- [ ] Admin user management (view/edit/suspend users)
+- [x] Admin user management (`/admin/users` — list + detail + search/filter/export + `/admin/users/[uid]` detail page)
 - [x] Admin booking/transaction overview (`/admin/bookings` — real Firestore data with pagination)
 - [ ] Admin revenue dashboard
 - [ ] Admin content moderation (review listings before publishing)
