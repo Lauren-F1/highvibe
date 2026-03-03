@@ -133,9 +133,9 @@ export default function SeekerPage() {
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
       newFilteredRetreats = newFilteredRetreats.filter(retreat =>
-        retreat.title.toLowerCase().includes(q) ||
-        retreat.location.toLowerCase().includes(q) ||
-        retreat.description.toLowerCase().includes(q)
+        (retreat.title || '').toLowerCase().includes(q) ||
+        (retreat.location || '').toLowerCase().includes(q) ||
+        (retreat.description || '').toLowerCase().includes(q)
       );
     }
 
@@ -148,14 +148,14 @@ export default function SeekerPage() {
     
     // Destination filter
     if (selectedContinent !== 'anywhere' && !selectedRegion) {
-        const regionsInContinent = destinations[selectedContinent ] || [];
+        const regionsInContinent = destinations[selectedContinent] || [];
         newFilteredRetreats = newFilteredRetreats.filter(retreat =>
-            regionsInContinent.includes(retreat.location)
+            retreat.location && regionsInContinent.includes(retreat.location)
         );
     }
     if (selectedRegion && selectedRegion !== '') {
         newFilteredRetreats = newFilteredRetreats.filter(retreat =>
-            retreat.location === selectedRegion
+            retreat.location && retreat.location === selectedRegion
         );
     }
 

@@ -60,6 +60,46 @@ export default function HowItWorksPage() {
           </div>
         </section>
 
+        {/* AI-Powered Vendor Scouting */}
+        <section className="space-y-6">
+          <h2 className="font-headline text-3xl text-center">
+            AI-Powered Local Connections
+          </h2>
+          <p className="text-base text-beige-dark font-body text-center max-w-2xl mx-auto">
+            HighVibe uses AI technology to strengthen the ecosystem around every retreat &mdash;
+            for leaders and local communities alike.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="rounded-xl border border-beige bg-beige/10 p-6">
+              <h3 className="font-headline text-xl mb-3">
+                Supporting Retreat Leaders
+              </h3>
+              <p className="text-sm font-body text-muted-foreground">
+                Planning a retreat in a new destination can mean hours of research
+                to find the right local support. Our AI scouts the areas where
+                retreats are happening &mdash; identifying nearby yoga instructors,
+                chefs, photographers, transport providers, and more &mdash; so
+                retreat leaders can curate the best possible experiences for
+                their guests without starting from scratch.
+              </p>
+            </div>
+            <div className="rounded-xl border border-beige bg-beige/10 p-6">
+              <h3 className="font-headline text-xl mb-3">
+                Strengthening Local Economies
+              </h3>
+              <p className="text-sm font-body text-muted-foreground">
+                Retreats bring travelers to communities around the world.
+                HighVibe&apos;s AI ensures that the local vendors and service
+                providers in those areas are discovered, connected, and booked
+                &mdash; directing retreat spending back into the communities
+                where it matters most and creating lasting economic
+                opportunities for local businesses.
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* Your Dashboard */}
         <section className="space-y-6">
           <h2 className="font-headline text-3xl text-center">

@@ -78,19 +78,84 @@ export const yourServices = [
 ];
 
 export const hostSpaceTypes = ["Villa", "Retreat Center", "Boutique Hotel", "Eco-Lodge"];
-export const popularAmenities = ["Private rooms", "Pool", "Yoga shala", "Chef's Kitchen"];
-export const otherAmenities = ["Ocean access", "Mountain setting", "Sauna"];
+export const popularAmenities = [
+    "Private rooms",
+    "Shared rooms",
+    "Dormitory / Hostel",
+    "Pool",
+    "Hot tub / Jacuzzi",
+    "Yoga shala / studio",
+    "Meditation room / space",
+    "Chef's kitchen",
+    "Communal kitchen",
+    "Ocean / beach access",
+    "Mountain views",
+    "Garden / grounds",
+    "Sauna",
+    "Steam room",
+    "Cold plunge",
+];
+export const otherAmenities = [
+    "Gym / fitness area",
+    "Outdoor ceremony space",
+    "Fire pit",
+    "BBQ / outdoor grill",
+    "Rooftop terrace",
+    "Library / reading room",
+    "Wi-Fi",
+    "A/C",
+    "Parking",
+    "Laundry",
+    "EV charging",
+    "Wheelchair accessible",
+    "Pet friendly",
+    "On-site spa",
+    "Outdoor shower",
+    "Hiking trails on property",
+    "Farm / permaculture garden",
+];
 export const hostAmenities = [...popularAmenities, ...otherAmenities];
 
 export const hostVibes = [
     { name: "Quiet + Restorative", description: "Low-key, peaceful." },
     { name: "Luxury + Elevated", description: "High-end comfort." },
+    { name: "Adventure + Outdoors", description: "Active, nature-forward." },
+    { name: "Community + Social", description: "Group-oriented, connective." },
+    { name: "Spiritual + Sacred", description: "Ceremony, ritual, intention." },
+    { name: "Rustic + Off-Grid", description: "Simple, unplugged, earthy." },
+    { name: "Beachfront + Coastal", description: "Ocean vibes, salt air." },
+    { name: "Jungle + Tropical", description: "Lush, warm, immersive." },
+    { name: "Modern + Minimalist", description: "Clean lines, curated calm." },
+    { name: "Cultural + Immersive", description: "Local traditions, authentic." },
 ];
 
 export const vendorCategories = [
-    { name: "Yoga / Meditation" },
-    { name: "Catering" },
+    { name: "Yoga / Meditation Instruction" },
+    { name: "Breathwork / Pranayama" },
+    { name: "Sound Healing / Sound Baths" },
+    { name: "Reiki / Energy Work" },
+    { name: "Massage / Bodywork" },
+    { name: "Catering / Private Chef" },
+    { name: "Nutrition / Meal Planning" },
     { name: "Photography" },
+    { name: "Videography" },
+    { name: "Florist / Event Design" },
+    { name: "Transportation / Shuttle" },
+    { name: "Adventure / Outdoor Guides" },
+    { name: "Surf / Water Sports Instruction" },
+    { name: "Horseback Riding / Equine Therapy" },
+    { name: "Art / Creative Workshop Facilitation" },
+    { name: "Music / DJ / Live Performance" },
+    { name: "Ceremony / Ritual Facilitation" },
+    { name: "Astrology / Tarot / Intuitive Readings" },
+    { name: "Life Coaching / Transformational Coaching" },
+    { name: "Acupuncture / TCM" },
+    { name: "Ayurveda" },
+    { name: "Fitness / Personal Training" },
+    { name: "Dance / Movement Instruction" },
+    { name: "Spa / Esthetician Services" },
+    { name: "Event Planning / Retreat Coordination" },
+    { name: "Other" },
 ];
 
 export const experienceTypes = [

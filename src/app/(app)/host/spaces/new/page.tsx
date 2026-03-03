@@ -29,24 +29,7 @@ const propertyTypes = [
   'Farmhouse',
 ];
 
-const amenityOptions = [
-  'Private rooms',
-  'Pool',
-  'Yoga shala',
-  "Chef's Kitchen",
-  'Ocean access',
-  'Mountain setting',
-  'Sauna',
-  'Wi-Fi',
-  'A/C',
-  'Outdoor space',
-  'Meditation room',
-  'Gym / Fitness area',
-  'Hot tub / Jacuzzi',
-  'Garden',
-  'Parking',
-  'Laundry',
-];
+import { hostAmenities as amenityOptions, hostVibes } from '@/lib/mock-data';
 
 const currencies = ['USD', 'EUR', 'GBP', 'AUD', 'CAD'];
 
@@ -291,11 +274,9 @@ export default function NewSpacePage() {
                         <SelectValue placeholder="How would you describe the vibe?" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Quiet + Restorative">Quiet + Restorative</SelectItem>
-                        <SelectItem value="Luxury + Elevated">Luxury + Elevated</SelectItem>
-                        <SelectItem value="Adventure + Outdoors">Adventure + Outdoors</SelectItem>
-                        <SelectItem value="Community + Social">Community + Social</SelectItem>
-                        <SelectItem value="Spiritual + Sacred">Spiritual + Sacred</SelectItem>
+                        {hostVibes.map(vibe => (
+                          <SelectItem key={vibe.name} value={vibe.name}>{vibe.name}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   )}

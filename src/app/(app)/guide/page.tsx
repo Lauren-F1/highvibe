@@ -210,7 +210,7 @@ export default function GuidePage() {
   }, [firestore, user.status, user.data?.uid]);
 
   const [showFeatureGate, setShowFeatureGate] = useState(false);
-  const guideHeroImage = '/guide-dashboard-hero.jpg';
+  const guideHeroImage = '/guide-yoga-sunset.png';
   
   const [vibeImages, setVibeImages] = useState<string[]>([]);
   const [isVibeModalOpen, setIsVibeModalOpen] = useState(false);
