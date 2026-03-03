@@ -74,17 +74,27 @@ export default function TermsPage() {
             <div className="space-y-2">
                 <h2 className="font-headline text-xl pt-4 font-bold">6. Payments and Fees</h2>
                 <p>All bookings and payments must be processed through HighVibe using Stripe.</p>
-                <p>By using the platform, you authorize HighVibe and Stripe to process payments on your behalf and deduct applicable platform and processing fees.</p>
-                <p>Platform fees and subscription fees are disclosed at the point of purchase.</p>
-                <p>Stripe processing fees are paid by the applicable provider.</p>
+                <p>By using the platform, you authorize HighVibe and Stripe to process payments on your behalf and deduct applicable fees.</p>
+
+                <p className="font-semibold pt-2">6.1 Seeker Payments</p>
+                <p>Seekers pay the listed retreat or service price at checkout. No additional fees are charged to Seekers by HighVibe.</p>
+
+                <p className="font-semibold pt-2">6.2 Provider Fees</p>
+                <p>Two fees are deducted from each booking payout to Providers:</p>
+                <ul className="list-disc list-inside space-y-1 pl-4">
+                    <li><strong>Platform Fee:</strong> A percentage of the booking total based on the Provider's subscription plan. Current rates are disclosed on the Billing page and in the Provider Agreement.</li>
+                    <li><strong>Payment Processing Fee:</strong> Stripe's standard processing fee (currently 2.9% + $0.30 per transaction) is deducted from the Provider's payout. This fee is charged by Stripe, not by HighVibe.</li>
+                </ul>
+                <p>Platform fees and subscription fees are disclosed at the point of purchase. Platform fee rates are locked at the time payment is successfully processed.</p>
+
+                <p className="font-semibold pt-2">6.3 Payouts and Withholding</p>
                 <p>HighVibe may:</p>
                 <ul className="list-disc list-inside space-y-1 pl-4">
-                    <li>Deduct fees from payouts</li>
+                    <li>Deduct platform and processing fees from payouts</li>
                     <li>Withhold payouts in cases of suspected fraud or disputes</li>
-                    <li>Offset chargebacks against future payouts</li>
+                    <li>Offset chargebacks and associated fees against future payouts</li>
                 </ul>
                 <p>Providers are responsible for chargebacks related to their retreats or services.</p>
-                <p>Platform fee rates are locked at the time payment is successfully processed.</p>
             </div>
 
             <div className="space-y-2">

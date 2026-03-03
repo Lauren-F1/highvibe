@@ -100,20 +100,41 @@ export default function ProviderAgreementPage() {
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">8. Payments and Stripe Authorization</h2>
+                <h2 className="font-headline text-xl pt-4 font-bold">8. Payments, Fees, and Stripe Authorization</h2>
                 <p>All bookings must be processed through HighVibe using Stripe.</p>
-                <p>You authorize HighVibe to:</p>
+
+                <p className="font-semibold pt-2">8.1 Fee Structure</p>
+                <p>When a Seeker books your retreat or service, two fees apply:</p>
                 <ul className="list-disc list-inside space-y-1 pl-4">
-                    <li>Collect platform fees</li>
-                    <li>Deduct Stripe processing fees</li>
-                    <li>Withhold payouts during disputes</li>
-                    <li>Offset chargebacks from future payouts</li>
+                    <li><strong>HighVibe Platform Fee:</strong> A percentage of the booking total based on your current subscription plan (see Billing page for current rates). This is retained by HighVibe as revenue for operating the marketplace.</li>
+                    <li><strong>Payment Processing Fee:</strong> Stripe charges a processing fee (currently 2.9% + $0.30 per transaction) for handling the payment. This fee is deducted from your payout, not from HighVibe's platform fee.</li>
                 </ul>
+                <p>Both fees are deducted automatically before funds are transferred to your connected Stripe account. Platform fee rates are locked at the time payment is successfully processed.</p>
+
+                <p className="font-semibold pt-2">8.2 Example Payout Calculation</p>
+                <p>On a $3,000 booking with an 8% platform fee:</p>
+                <ul className="list-disc list-inside space-y-1 pl-4">
+                    <li>HighVibe platform fee (8%): $240.00</li>
+                    <li>Stripe processing fee (2.9% + $0.30): ~$87.30</li>
+                    <li>Your payout: ~$2,672.70</li>
+                </ul>
+
+                <p className="font-semibold pt-2">8.3 Authorization</p>
+                <p>You authorize HighVibe and Stripe to:</p>
+                <ul className="list-disc list-inside space-y-1 pl-4">
+                    <li>Collect platform fees from booking proceeds</li>
+                    <li>Deduct Stripe payment processing fees from your payout</li>
+                    <li>Withhold payouts during active disputes or investigations</li>
+                    <li>Offset chargebacks and chargeback fees from future payouts</li>
+                </ul>
+
+                <p className="font-semibold pt-2">8.4 Provider Responsibilities</p>
                 <p>You are solely responsible for:</p>
                 <ul className="list-disc list-inside space-y-1 pl-4">
                     <li>Refund obligations</li>
-                    <li>Chargebacks</li>
+                    <li>Chargebacks and associated fees</li>
                     <li>Failed service delivery</li>
+                    <li>Tax reporting on income received through the platform</li>
                 </ul>
                 <p>HighVibe is not liable for payment disputes between you and participants.</p>
             </div>
