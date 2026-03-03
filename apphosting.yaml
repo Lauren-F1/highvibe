@@ -73,3 +73,50 @@ env:
     value: "false"
     availability:
       - RUNTIME
+
+  # --- Stripe ---
+
+  - variable: STRIPE_SECRET_KEY
+    secret: STRIPE_SECRET_KEY
+    availability:
+      - RUNTIME
+
+  - variable: STRIPE_WEBHOOK_SECRET
+    secret: STRIPE_WEBHOOK_SECRET
+    availability:
+      - RUNTIME
+
+  - variable: STRIPE_PRICE_GUIDE_STARTER
+    value: "price_1T6gbJL2cdS3EwJ8p7eKGM3i"
+    availability:
+      - RUNTIME
+
+  - variable: STRIPE_PRICE_GUIDE_PRO
+    value: "price_1T6gd1L2cdS3EwJ8jR0xl0Pb"
+    availability:
+      - RUNTIME
+
+  - variable: STRIPE_PRICE_HOST_STARTER
+    value: "price_1T6gyFL2cdS3EwJ8GtC7kOk4"
+    availability:
+      - RUNTIME
+
+  - variable: STRIPE_PRICE_HOST_PRO
+    value: "price_1T6h0hL2cdS3EwJ8xpg7FX8x"
+    availability:
+      - RUNTIME
+
+  - variable: STRIPE_PRICE_VENDOR_STARTER
+    value: "price_1T6grwL2cdS3EwJ8waBz0Eod"
+    availability:
+      - RUNTIME
+
+  - variable: STRIPE_PRICE_VENDOR_PRO
+    value: "price_1T6gtVL2cdS3EwJ89Y5AivpH"
+    availability:
+      - RUNTIME
+
+  - variable: STRIPE_PRICE_PRO_REACTIVATION_FEE
+    value: "price_1T6hGBL2cdS3EwJ8PC56Jh4E"
+    availability:
+      - RUNTIME

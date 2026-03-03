@@ -291,6 +291,27 @@ service cloud.firestore {
     }
 
     /**
+     * @description Manifest credits earned by seekers from completed bookings.
+     * Seekers can read their own credits. All writes are server-side only (webhook).
+     * @path /manifest_credits/{creditId}
+     */
+    match /manifest_credits/{creditId} {
+      allow get, list: if isSignedIn() && request.auth.uid == resource.data.seeker_id;
+      allow create, update, delete: if false; // Server-side only via Stripe webhook
+    }
+
+    /**
+     * @description Flagged conversation records for commission circumvention detection.
+     * Admin-only read/update. Created server-side via flag-message API.
+     * @path /flagged_conversations/{flagId}
+     */
+    match /flagged_conversations/{flagId} {
+      allow get, list: if isSignedIn() && request.auth.token.admin == true;
+      allow update: if isSignedIn() && request.auth.token.admin == true;
+      allow create, delete: if false; // Server-side only
+    }
+
+    /**
      * @description User notifications. Owner-only read. Server creates via Admin SDK.
      * Client can only update the `read` field on their own notifications.
      * @path /notifications/{notificationId}

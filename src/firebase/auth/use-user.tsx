@@ -77,6 +77,19 @@ export interface UserProfile extends DocumentData {
   seekerAgreementAccepted?: boolean;
   seekerAgreementAcceptedAt?: any;
   seekerAgreementVersion?: string;
+
+  // Stripe Billing
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  subscriptionStatus?: string;
+  currentPeriodEnd?: any;
+  currentPlanKey_guide?: string;
+  currentPlanKey_host?: string;
+  currentPlanKey_vendor?: string;
+
+  // Stripe Connect (Payouts)
+  stripeConnectAccountId?: string;
+  stripeConnectOnboarded?: boolean;
 }
 
 export type AuthState =
