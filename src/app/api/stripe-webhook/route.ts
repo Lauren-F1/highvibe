@@ -65,7 +65,7 @@ export async function POST(request: Request) {
         break;
 
       // --- Payout / Transfer Failures ---
-      case 'transfer.failed':
+      case 'transfer.reversed':
         await handleTransferFailed(event.data.object as Stripe.Transfer, db);
         break;
       case 'payout.failed':
