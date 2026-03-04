@@ -44,7 +44,7 @@ export default function RetreatMap({ retreats }: RetreatMapProps) {
       center={[20, 0]}
       zoom={2}
       scrollWheelZoom={true}
-      className="h-[500px] w-full rounded-lg z-0"
+      className="h-[300px] sm:h-[400px] md:h-[500px] w-full rounded-lg z-0"
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'

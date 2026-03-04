@@ -169,7 +169,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
         <Card>
           <CardHeader>
             <div className="flex flex-col md:flex-row items-start gap-6">
-                <Avatar className="h-24 w-24 shrink-0 border-2">
+                <Avatar className="h-20 w-20 sm:h-24 sm:w-24 shrink-0 border-2">
                     <AvatarImage src={avatarUrl} alt={displayName} />
                     <AvatarFallback className="text-3xl">{userInitial}</AvatarFallback>
                 </Avatar>
@@ -244,7 +244,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
                 {portfolioUrls && portfolioUrls.length > 0 && (
                   <div>
                       <h4 className="font-medium mb-2">Portfolio</h4>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                           {portfolioUrls.map((url, index) => (
                               <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-muted">
                                   <Image src={url} alt={`Portfolio image ${index + 1}`} fill className="object-cover" />

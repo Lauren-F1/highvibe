@@ -554,7 +554,7 @@ export default function VendorDashboardPage() {
                                         <h3 className="font-headline text-2xl hidden sm:block">{displayedGuides.length} Matching {displayedGuides.length === 1 ? 'Guide' : 'Guides'}</h3>
                                     </div>
                                     <Select value={guideSortOption} onValueChange={setGuideSortOption}>
-                                        <SelectTrigger className="w-[180px]">
+                                        <SelectTrigger className="w-full sm:w-[180px]">
                                             <SelectValue placeholder="Sort by" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -605,7 +605,7 @@ export default function VendorDashboardPage() {
                                      <h3 className="font-headline text-2xl hidden sm:block">{displayedHosts.length} Matching {displayedHosts.length === 1 ? 'Host' : 'Hosts'}</h3>
                                     </div>
                                     <Select value={hostSortOption} onValueChange={setHostSortOption}>
-                                        <SelectTrigger className="w-[180px]">
+                                        <SelectTrigger className="w-full sm:w-[180px]">
                                             <SelectValue placeholder="Sort by" />
                                         </SelectTrigger>
                                         <SelectContent>

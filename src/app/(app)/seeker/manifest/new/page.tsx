@@ -296,7 +296,7 @@ const Step2Destination = ({ control, watchedDateType }: { control: any, watchedD
     )} />
 
     {watchedDateType === 'flexible' ? (
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Controller name="date_month" control={control} render={({ field }) => (
             <div className="space-y-2">
                 <Label>Month (optional)</Label>
@@ -336,7 +336,7 @@ const Step3Vision = ({ control }: { control: any }) => {
         <Controller name={name} control={control} render={({ field }) => (
             <div className="space-y-2">
                 <Label>{label}</Label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {options.map(item => (
                         <div key={item} className="flex items-center space-x-2">
                             <Checkbox id={`${name}-${item}`} checked={field.value?.includes(item)} onCheckedChange={(checked) => {
@@ -383,7 +383,7 @@ const Step4Budget = ({ control }: { control: any }) => (
      <Controller name="dietary_preference" control={control} render={({ field }) => (
         <div className="space-y-2">
             <Label>Dietary Preference (optional)</Label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {dietaryPreferences.map(item => (
                     <div key={item} className="flex items-center space-x-2">
                         <Checkbox id={`diet-${item}`} checked={field.value?.includes(item)} onCheckedChange={(checked) => {

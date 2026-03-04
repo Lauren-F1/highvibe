@@ -580,7 +580,7 @@ export default function BillingPage() {
     <div className="container mx-auto px-4 py-8 md:py-12">
       <div className="max-w-7xl mx-auto space-y-12">
         <div className="text-center">
-            <h1 className="font-headline text-4xl font-bold tracking-tight">HighVibe Retreats Partnership</h1>
+            <h1 className="font-headline text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">HighVibe Retreats Partnership</h1>
             <p className="text-muted-foreground mt-2 text-lg leading-relaxed">Everything you need to build, connect, and get booked.</p>
              <Tabs value={role} onValueChange={(value) => setRole(value as AllRoles)} className="mt-6 w-full">
                 <TabsList className={cn(

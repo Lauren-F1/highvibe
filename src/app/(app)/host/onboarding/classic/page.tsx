@@ -144,7 +144,7 @@ export default function HostClassicOnboardingPage() {
                 <div className="space-y-2">
                   <Label>Amenities</Label>
                   <p className="text-xs text-muted-foreground mb-2">Select all that your property offers.</p>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                     {amenityOptions.map(amenity => (
                       <label key={amenity} className="flex items-center space-x-2 cursor-pointer">
                         <Checkbox checked={selectedAmenities.includes(amenity)} onCheckedChange={() => toggleAmenity(amenity)} />

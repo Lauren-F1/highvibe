@@ -194,6 +194,7 @@ function PayoutsContent() {
                 No payouts yet. Payouts appear here after seekers book your offerings.
               </div>
             ) : (
+              <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -212,6 +213,7 @@ function PayoutsContent() {
                   ))}
                 </TableBody>
               </Table>
+              </div>
             )}
           </CardContent>
         </Card>

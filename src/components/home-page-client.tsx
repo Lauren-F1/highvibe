@@ -131,7 +131,7 @@ export default function HomePageClient() {
 
       <div className="w-full max-w-7xl mb-8">
         <div className="p-3 md:p-5" style={{ borderRadius: 0, background: 'linear-gradient(180deg, rgba(198,184,164,0.14) 0%, rgba(198,184,164,0.30) 100%)' }}>
-          <div className="relative aspect-[21/9] w-full">
+          <div className="relative aspect-video sm:aspect-[21/9] w-full">
             <Image
               src={heroImageSrc}
               alt="Beautiful resort view"
@@ -190,11 +190,11 @@ export default function HomePageClient() {
                   "group-hover:shadow-xl group-hover:shadow-primary/40"
               )}>
                 <CardHeader className="items-center text-center p-0">
-                  <CardTitle className="font-headline text-5xl text-beige tracking-wider mb-3">{role.primaryLabel}</CardTitle>
+                  <CardTitle className="font-headline text-3xl sm:text-4xl md:text-5xl text-beige tracking-wider mb-3">{role.primaryLabel}</CardTitle>
                   <div className="flex items-center justify-center mb-3 h-24 w-24">
                      <Image src={role.icon} alt={`${role.primaryLabel} icon`} width={96} height={96} />
                   </div>
-                  <h3 className="font-body text-2xl text-foreground font-semibold">{role.title}</h3>
+                  <h3 className="font-body text-lg sm:text-xl md:text-2xl text-foreground font-semibold">{role.title}</h3>
                 </CardHeader>
                 <CardContent className="text-center px-2 pb-2 pt-4">
                   <CardDescription className="font-body text-sm leading-snug text-beige-dark">{role.description}</CardDescription>

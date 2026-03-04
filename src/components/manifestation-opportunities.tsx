@@ -101,9 +101,9 @@ export function ManifestationOpportunities() {
                         return (
                             <Card key={match.id} className="border-l-4 border-l-primary">
                                 <CardContent className="p-4">
-                                    <div className="flex items-start justify-between">
-                                        <div className="space-y-1">
-                                            <div className="flex items-center gap-2">
+                                    <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
+                                        <div className="space-y-1 min-w-0">
+                                            <div className="flex flex-wrap items-center gap-2">
                                                 <MapPin className="h-4 w-4 text-muted-foreground" />
                                                 <span className="font-semibold">{destination}</span>
                                                 <Badge variant="secondary">{match.score}% match</Badge>

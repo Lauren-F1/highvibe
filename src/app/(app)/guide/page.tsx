@@ -771,7 +771,7 @@ export default function GuidePage() {
                                                      <h3 className="font-headline text-2xl hidden sm:block">{displayHosts.length} potential {displayHosts.length === 1 ? 'space' : 'spaces'} found</h3>
                                                 </div>
                                                 <Select value={sortOption} onValueChange={setSortOption}>
-                                                    <SelectTrigger className="w-[180px]">
+                                                    <SelectTrigger className="w-full sm:w-[180px]">
                                                         <SelectValue placeholder="Sort by" />
                                                     </SelectTrigger>
                                                     <SelectContent>
@@ -856,7 +856,7 @@ export default function GuidePage() {
                                                     <h3 className="font-headline text-2xl hidden sm:block">{displayVendors.length} potential {displayVendors.length === 1 ? 'vendor' : 'vendors'} found</h3>
                                                 </div>
                                                 <Select value={vendorSortOption} onValueChange={setVendorSortOption}>
-                                                    <SelectTrigger className="w-[180px]">
+                                                    <SelectTrigger className="w-full sm:w-[180px]">
                                                         <SelectValue placeholder="Sort by" />
                                                     </SelectTrigger>
                                                     <SelectContent>

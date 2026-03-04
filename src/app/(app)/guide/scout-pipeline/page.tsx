@@ -122,12 +122,13 @@ export default function ScoutPipelinePage() {
                         <CardDescription>{records.length} vendor{records.length !== 1 ? 's' : ''} contacted</CardDescription>
                     </CardHeader>
                     <CardContent>
+                        <div className="overflow-x-auto">
                         <Table>
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Vendor</TableHead>
-                                    <TableHead>Category</TableHead>
-                                    <TableHead>Location</TableHead>
+                                    <TableHead className="hidden sm:table-cell">Category</TableHead>
+                                    <TableHead className="hidden sm:table-cell">Location</TableHead>
                                     <TableHead>Status</TableHead>
                                     <TableHead>Sent</TableHead>
                                 </TableRow>
@@ -143,8 +144,8 @@ export default function ScoutPipelinePage() {
                                                     <p className="text-xs text-muted-foreground">{record.vendorEmail}</p>
                                                 </div>
                                             </TableCell>
-                                            <TableCell>{record.vendorCategory}</TableCell>
-                                            <TableCell>{record.location}</TableCell>
+                                            <TableCell className="hidden sm:table-cell">{record.vendorCategory}</TableCell>
+                                            <TableCell className="hidden sm:table-cell">{record.location}</TableCell>
                                             <TableCell>
                                                 <Badge variant={config.variant}>{config.label}</Badge>
                                             </TableCell>
@@ -156,6 +157,7 @@ export default function ScoutPipelinePage() {
                                 })}
                             </TableBody>
                         </Table>
+                        </div>
                     </CardContent>
                 </Card>
             )}

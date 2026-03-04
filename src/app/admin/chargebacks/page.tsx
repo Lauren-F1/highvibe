@@ -141,7 +141,7 @@ export default function ChargebackManagementPage() {
   }
 
   const renderTable = (items: Booking[], showActions: boolean) => (
-    <div className="border rounded-lg">
+    <div className="border rounded-lg overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
@@ -216,7 +216,7 @@ export default function ChargebackManagementPage() {
       
       {selectedChargeback && (
         <Dialog open={!!selectedChargeback} onOpenChange={() => setSelectedChargeback(null)}>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-[95vw] sm:max-w-2xl">
                 <DialogHeader>
                     <DialogTitle>Dispute Details: #{selectedChargeback.id}</DialogTitle>
                     <DialogDescription>

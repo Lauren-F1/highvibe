@@ -124,7 +124,7 @@ export default function GuideClassicOnboardingPage() {
             )}
 
             {step === 2 && (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                 {retreatTypeOptions.map(type => (
                   <label key={type} className="flex items-center space-x-2 cursor-pointer">
                     <Checkbox checked={selectedTypes.includes(type)} onCheckedChange={() => toggleType(type)} />

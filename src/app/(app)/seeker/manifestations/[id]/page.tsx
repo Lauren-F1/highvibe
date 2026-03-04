@@ -73,7 +73,7 @@ function ScoreBar({ score, max = 25, label }: { score: number; max?: number; lab
     const pct = Math.round((score / max) * 100);
     return (
         <div className="flex items-center gap-2 text-sm">
-            <span className="w-32 text-muted-foreground">{label}</span>
+            <span className="w-24 sm:w-32 text-muted-foreground">{label}</span>
             <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
                 <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${pct}%` }} />
             </div>
@@ -102,8 +102,8 @@ function MatchCard({
     return (
         <Card>
             <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                    <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center text-lg font-bold">
+                <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
+                    <div className="h-12 w-12 shrink-0 rounded-full bg-muted flex items-center justify-center text-lg font-bold">
                         {provider?.displayName?.charAt(0) || '?'}
                     </div>
                     <div className="flex-1 min-w-0">

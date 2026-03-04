@@ -13,7 +13,7 @@ export default function HowItWorksPage() {
       <div className="w-full max-w-3xl space-y-16 py-8">
         {/* Intro */}
         <section className="text-center space-y-4">
-          <h1 className="font-headline text-4xl md:text-5xl">
+          <h1 className="font-headline text-2xl sm:text-3xl md:text-5xl">
             How HighVibe Works
           </h1>
         </section>

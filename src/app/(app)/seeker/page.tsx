@@ -298,7 +298,7 @@ export default function SeekerPage() {
 
     if (mappable.length === 0) {
       return (
-        <div className="h-[500px] w-full rounded-lg bg-secondary flex items-center justify-center">
+        <div className="h-[300px] sm:h-[400px] md:h-[500px] w-full rounded-lg bg-secondary flex items-center justify-center">
           <p className="text-muted-foreground font-body">No retreats with map coordinates available. Try the grid view.</p>
         </div>
       );
@@ -319,13 +319,13 @@ export default function SeekerPage() {
   const ManifestSection = (
     <div className="my-24">
       <div className="bg-secondary rounded-lg">
-        <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 lg:py-16">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             {/* Left Column */}
             <div className="flex flex-col items-center">
               <div className="w-full max-w-md text-center lg:text-left">
                 <div className="lg:w-full lg:text-center">
-                  <h2 className="font-headline text-6xl md:text-7xl tracking-[0.3em] text-center lg:w-full lg:mx-auto">MANIFEST</h2>
+                  <h2 className="font-headline text-4xl sm:text-5xl md:text-7xl tracking-[0.15em] sm:tracking-[0.3em] text-center lg:w-full lg:mx-auto">MANIFEST</h2>
                 </div>
                 <div className="space-y-6 mt-8">
                   <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-body">
@@ -386,7 +386,7 @@ export default function SeekerPage() {
             style={{background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.22) 100%)'}}
           ></div>
           <div className="relative z-10 p-4">
-            <h1 className="font-headline text-[4.5rem] leading-none md:text-8xl font-bold text-white" style={headlineStyle}>Find Your Next Experience</h1>
+            <h1 className="font-headline text-3xl sm:text-5xl md:text-[4.5rem] lg:text-8xl leading-none font-bold text-white" style={headlineStyle}>Find Your Next Experience</h1>
             <p 
               className="mt-6 text-xl md:text-2xl mx-auto font-body text-white lg:whitespace-nowrap"
               style={subheadlineStyle}

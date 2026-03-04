@@ -180,7 +180,7 @@ export default function RetreatDetailPage() {
 
       {/* Image gallery (if more than 1 image) */}
       {images.length > 1 && (
-        <div className="grid grid-cols-4 gap-2 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-8">
           {images.slice(1, 5).map((img, i) => (
             <div key={i} className="relative h-24 md:h-32 rounded-lg overflow-hidden">
               <Image src={img} alt={`${retreat.title} photo ${i + 2}`} fill className="object-cover" />
@@ -189,11 +189,11 @@ export default function RetreatDetailPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
         {/* Main content */}
         <div className="lg:col-span-2 space-y-6">
           <div>
-            <h1 className="font-headline text-3xl md:text-4xl font-bold mb-2">{retreat.title}</h1>
+            <h1 className="font-headline text-2xl md:text-3xl lg:text-4xl font-bold mb-2">{retreat.title}</h1>
             <div className="flex flex-wrap items-center gap-4 text-muted-foreground">
               <span className="flex items-center gap-1">
                 <MapPin className="h-4 w-4" />

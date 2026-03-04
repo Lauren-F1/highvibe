@@ -571,22 +571,23 @@ export default function HostDashboardPage() {
           <CardDescription>Manage your property listings and availability.</CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[100px]"></TableHead>
+                <TableHead className="w-[100px] hidden sm:table-cell"></TableHead>
                 <TableHead>Space</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Capacity</TableHead>
-                <TableHead className="text-right">Rate</TableHead>
-                <TableHead className="text-center">Upcoming Bookings</TableHead>
+                <TableHead className="hidden md:table-cell">Capacity</TableHead>
+                <TableHead className="text-right hidden md:table-cell">Rate</TableHead>
+                <TableHead className="text-center hidden lg:table-cell">Upcoming Bookings</TableHead>
                 <TableHead className="w-[200px] text-center">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {hostSpaces.map((space) => (
                 <TableRow key={space.id} className={activeSpaceId === space.id ? 'bg-accent' : ''} onClick={() => setActiveSpaceId(space.id)} style={{cursor: 'pointer'}}>
-                  <TableCell>
+                  <TableCell className="hidden sm:table-cell">
                     <div className="relative h-12 w-16 rounded-md overflow-hidden bg-secondary">
                       <Image src={space.image || genericImage} alt={space.name} fill className="object-cover" />
                     </div>
@@ -596,10 +597,10 @@ export default function HostDashboardPage() {
                     <p className="text-xs text-muted-foreground">{space.location}</p>
                   </TableCell>
                   <TableCell><Badge variant={space.status === 'Published' ? 'default' : 'secondary'}>{space.status}</Badge></TableCell>
-                  <TableCell>{space.capacity} guests</TableCell>
-                  <TableCell className="text-right">${space.rate}/night</TableCell>
-                  <TableCell className="text-center">{space.bookings}</TableCell>
-                  <TableCell className="text-center space-x-2">
+                  <TableCell className="hidden md:table-cell">{space.capacity} guests</TableCell>
+                  <TableCell className="text-right hidden md:table-cell">${space.rate}/night</TableCell>
+                  <TableCell className="text-center hidden lg:table-cell">{space.bookings}</TableCell>
+                  <TableCell className="text-center space-x-1 sm:space-x-2">
                     <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); document.getElementById('partnership-dashboard')?.scrollIntoView({ behavior: 'smooth' }); }}>Partners Dashboard</Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}><MoreHorizontal className="h-4 w-4"/></Button></DropdownMenuTrigger>
@@ -615,6 +616,7 @@ export default function HostDashboardPage() {
               ))}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
        <div id="partnership-dashboard" className="space-y-6">
@@ -653,7 +655,7 @@ export default function HostDashboardPage() {
                                                         <h4 className="font-headline text-xl hidden sm:block">{displayedGuides.length} Matching Guides</h4>
                                                     </div>
                                                     <Select value={guideSortOption} onValueChange={setGuideSortOption}>
-                                                        <SelectTrigger className="w-[180px]"><SelectValue placeholder="Sort by" /></SelectTrigger>
+                                                        <SelectTrigger className="w-full sm:w-[180px]"><SelectValue placeholder="Sort by" /></SelectTrigger>
                                                         <SelectContent><SelectItem value="recommended">Recommended</SelectItem><SelectItem value="rating">Highest rated</SelectItem><SelectItem value="newest">Newest</SelectItem></SelectContent>
                                                     </Select>
                                                 </div>
@@ -675,7 +677,7 @@ export default function HostDashboardPage() {
                                                         <h4 className="font-headline text-xl hidden sm:block">{displayedVendors.length} Matching Vendors</h4>
                                                     </div>
                                                     <Select value={vendorSortOption} onValueChange={setVendorSortOption}>
-                                                        <SelectTrigger className="w-[180px]"><SelectValue placeholder="Sort by" /></SelectTrigger>
+                                                        <SelectTrigger className="w-full sm:w-[180px]"><SelectValue placeholder="Sort by" /></SelectTrigger>
                                                         <SelectContent><SelectItem value="recommended">Recommended</SelectItem><SelectItem value="price-asc">Price (low to high)</SelectItem><SelectItem value="price-desc">Price (high to low)</SelectItem><SelectItem value="rating">Highest rated</SelectItem></SelectContent>
                                                     </Select>
                                                 </div>

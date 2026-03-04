@@ -192,7 +192,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                  {isDirty && (
-                    <div className="fixed top-28 right-8 z-20">
+                    <div className="fixed bottom-4 right-4 sm:bottom-auto sm:top-28 sm:right-8 z-20">
                         <Button type="submit" disabled={isSubmitting} size="lg" className="rounded-lg">
                             {isSubmitting ? 'Saving...' : 'Save Changes'}
                         </Button>
@@ -213,7 +213,7 @@ export function ProfileForm({ userProfile, userId }: ProfileFormProps) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Enabled Roles</FormLabel>
-                                    <div className="flex flex-wrap gap-x-6 gap-y-3 pt-2">
+                                    <div className="flex flex-wrap gap-x-4 sm:gap-x-6 gap-y-3 pt-2">
                                         {(['seeker', 'guide', 'host', 'vendor'] as const).map((role) => (
                                             <div key={role} className="flex items-center space-x-2">
                                                 <Checkbox
