@@ -26,6 +26,7 @@ export async function GET(request: NextRequest) {
       recentRetreatsSnap,
       recentBookingsSnap,
       signupsSnap,
+      allBookingsSnap,
     ] = await Promise.all([
       db.collection('users').count().get(),
       db.collection('users').where('roles', 'array-contains', 'seeker').count().get(),
@@ -38,6 +39,7 @@ export async function GET(request: NextRequest) {
       db.collection('retreats').orderBy('createdAt', 'desc').limit(10).get(),
       db.collection('bookings').orderBy('createdAt', 'desc').limit(10).get(),
       db.collection('users').where('createdAt', '>=', thirtyDaysAgo).orderBy('createdAt', 'asc').get(),
+      db.collection('bookings').where('status', '==', 'confirmed').get(),
     ]);
 
     // Bucket signups by day
@@ -84,6 +86,32 @@ export async function GET(request: NextRequest) {
     // Sort by timestamp descending
     recentActivity.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
+    // Revenue calculations
+    let grossRevenue = 0;
+    let platformFeesEarned = 0;
+    let last30DaysRevenue = 0;
+    const revenueByMonth: Record<string, { gross: number; fees: number }> = {};
+
+    allBookingsSnap.docs.forEach(doc => {
+      const data = doc.data();
+      const amount = data.totalAmount || 0;
+      const fee = data.platformFeeAmount || 0;
+      grossRevenue += amount;
+      platformFeesEarned += fee;
+
+      const createdAt = data.createdAt?.toDate?.();
+      if (createdAt) {
+        const monthKey = createdAt.toISOString().slice(0, 7); // YYYY-MM
+        if (!revenueByMonth[monthKey]) revenueByMonth[monthKey] = { gross: 0, fees: 0 };
+        revenueByMonth[monthKey].gross += amount;
+        revenueByMonth[monthKey].fees += fee;
+
+        if (createdAt >= thirtyDaysAgo) {
+          last30DaysRevenue += amount;
+        }
+      }
+    });
+
     return NextResponse.json({
       summary: {
         totalUsers: totalUsers.data().count,
@@ -93,6 +121,9 @@ export async function GET(request: NextRequest) {
         totalVendors: vendorCount.data().count,
         totalRetreats: retreatsCount.data().count,
         totalBookings: bookingsCount.data().count,
+        grossRevenue: Math.round(grossRevenue * 100) / 100,
+        platformFeesEarned: Math.round(platformFeesEarned * 100) / 100,
+        last30DaysRevenue: Math.round(last30DaysRevenue * 100) / 100,
       },
       signupsByDay: Object.entries(signupsByDay).map(([date, count]) => ({ date, count })),
       roleBreakdown: [
@@ -102,6 +133,9 @@ export async function GET(request: NextRequest) {
         { role: 'Vendor', count: vendorCount.data().count },
       ],
       recentActivity: recentActivity.slice(0, 20),
+      revenueByMonth: Object.entries(revenueByMonth)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([month, data]) => ({ month, gross: Math.round(data.gross * 100) / 100, fees: Math.round(data.fees * 100) / 100 })),
     });
   } catch (error) {
     console.error('[ADMIN_ANALYTICS] Error:', error);

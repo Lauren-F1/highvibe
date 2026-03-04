@@ -239,7 +239,7 @@ This is a running checklist of everything needed to go from current state to a f
 - [x] Admin chargebacks (`/admin/chargebacks`) — real Firestore data
 - [x] Admin user management (`/admin/users` — list + detail + search/filter/export + `/admin/users/[uid]` detail page)
 - [x] Admin booking/transaction overview (`/admin/bookings` — real Firestore data with pagination)
-- [ ] Admin revenue dashboard
+- [x] Admin revenue dashboard (revenue cards + monthly chart on `/admin/analytics`)
 - [ ] Admin content moderation (review listings before publishing)
 
 ---

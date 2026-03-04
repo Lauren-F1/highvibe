@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useUser } from '@/firebase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Users, Compass, Home, Package, Mountain, CalendarCheck, BarChart3, Loader2 } from 'lucide-react';
+import { Users, Compass, Home, Package, Mountain, CalendarCheck, BarChart3, Loader2, DollarSign, TrendingUp } from 'lucide-react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Badge } from '@/components/ui/badge';
 
@@ -16,10 +16,14 @@ interface AnalyticsData {
     totalVendors: number;
     totalRetreats: number;
     totalBookings: number;
+    grossRevenue: number;
+    platformFeesEarned: number;
+    last30DaysRevenue: number;
   };
   signupsByDay: Array<{ date: string; count: number }>;
   roleBreakdown: Array<{ role: string; count: number }>;
   recentActivity: Array<{ type: string; description: string; timestamp: string; userId?: string }>;
+  revenueByMonth: Array<{ month: string; gross: number; fees: number }>;
 }
 
 const activityIcon = (type: string) => {
@@ -84,7 +88,7 @@ export default function AdminAnalyticsPage() {
     );
   }
 
-  const { summary, signupsByDay, roleBreakdown, recentActivity } = data;
+  const { summary, signupsByDay, roleBreakdown, recentActivity, revenueByMonth } = data;
 
   const statCards = [
     { title: 'Total Users', value: summary.totalUsers, icon: <Users className="h-4 w-4" /> },
@@ -94,6 +98,12 @@ export default function AdminAnalyticsPage() {
     { title: 'Vendors', value: summary.totalVendors, icon: <Package className="h-4 w-4" /> },
     { title: 'Retreats', value: summary.totalRetreats, icon: <Mountain className="h-4 w-4" /> },
     { title: 'Bookings', value: summary.totalBookings, icon: <CalendarCheck className="h-4 w-4" /> },
+  ];
+
+  const revenueCards = [
+    { title: 'Gross Revenue', value: `$${summary.grossRevenue.toLocaleString()}`, icon: <DollarSign className="h-4 w-4" /> },
+    { title: 'Platform Fees Earned', value: `$${summary.platformFeesEarned.toLocaleString()}`, icon: <TrendingUp className="h-4 w-4" /> },
+    { title: 'Last 30 Days', value: `$${summary.last30DaysRevenue.toLocaleString()}`, icon: <CalendarCheck className="h-4 w-4" /> },
   ];
 
   return (
@@ -114,6 +124,42 @@ export default function AdminAnalyticsPage() {
           </Card>
         ))}
       </div>
+
+      {/* Revenue section */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        {revenueCards.map(card => (
+          <Card key={card.title}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-xs font-medium text-muted-foreground">{card.title}</CardTitle>
+              {card.icon}
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">{card.value}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {revenueByMonth.length > 0 && (
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Revenue by Month</CardTitle>
+            <CardDescription>Gross revenue and platform fees over time</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={revenueByMonth}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                <YAxis tickFormatter={(v) => `$${v}`} />
+                <Tooltip formatter={(value: number) => `$${value.toFixed(2)}`} />
+                <Bar dataKey="gross" name="Gross Revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="fees" name="Platform Fees" fill="hsl(var(--muted-foreground))" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         {/* Signups over time */}
