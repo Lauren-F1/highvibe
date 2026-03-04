@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useUser, useFirestore } from '@/firebase';
-import { doc, collection, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, collection, setDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -16,11 +16,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, Loader2, Save, Send, Sparkles } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import { CalendarIcon, Loader2, Save, Send, Sparkles, Plus, X } from 'lucide-react';
 import { generateRetreatDescription } from '@/ai/flows/retreat-description-generator';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { ImageUpload } from '@/components/image-upload';
+
+interface SpaceOption { id: string; name: string; ownerId: string; ownerName: string; }
+interface VendorOption { id: string; displayName: string; vendorCategories: string[]; }
+interface VendorLineItem { vendorId: string; vendorName: string; description: string; amount: number; }
 
 const retreatTypes = [
   'Yoga',
@@ -63,6 +68,64 @@ export default function NewRetreatPage() {
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [images, setImages] = useState<string[]>([]);
+
+  // Partners & Pricing
+  const [spaces, setSpaces] = useState<SpaceOption[]>([]);
+  const [vendors, setVendors] = useState<VendorOption[]>([]);
+  const [selectedSpaceId, setSelectedSpaceId] = useState('');
+  const [spaceRate, setSpaceRate] = useState<number>(0);
+  const [vendorLineItems, setVendorLineItems] = useState<VendorLineItem[]>([]);
+
+  const effectiveSpaceId = selectedSpaceId === 'none' ? '' : selectedSpaceId;
+  const selectedSpace = spaces.find(s => s.id === effectiveSpaceId);
+
+  // Fetch published spaces and vendor profiles
+  useEffect(() => {
+    if (!firestore) return;
+    async function loadPartners() {
+      try {
+        const spacesSnap = await getDocs(query(collection(firestore!, 'spaces'), where('status', '==', 'published')));
+        const spaceOptions: SpaceOption[] = [];
+        for (const d of spacesSnap.docs) {
+          const data = d.data();
+          spaceOptions.push({ id: d.id, name: data.name || 'Unnamed Space', ownerId: data.userId || '', ownerName: data.ownerName || '' });
+        }
+        setSpaces(spaceOptions);
+
+        const vendorsSnap = await getDocs(query(collection(firestore!, 'users'), where('roles', 'array-contains', 'vendor'), where('profileComplete', '==', true)));
+        const vendorOptions: VendorOption[] = [];
+        for (const d of vendorsSnap.docs) {
+          const data = d.data();
+          vendorOptions.push({ id: d.id, displayName: data.displayName || 'Vendor', vendorCategories: data.vendorCategories || [] });
+        }
+        setVendors(vendorOptions);
+      } catch (e) {
+        console.error('Error loading partners:', e);
+      }
+    }
+    loadPartners();
+  }, [firestore]);
+
+  const addVendorLineItem = () => {
+    setVendorLineItems(prev => [...prev, { vendorId: '', vendorName: '', description: '', amount: 0 }]);
+  };
+
+  const updateVendorLineItem = (index: number, field: keyof VendorLineItem, value: string | number) => {
+    setVendorLineItems(prev => {
+      const updated = [...prev];
+      if (field === 'vendorId') {
+        const vendor = vendors.find(v => v.id === value);
+        updated[index] = { ...updated[index], vendorId: value as string, vendorName: vendor?.displayName || '' };
+      } else {
+        updated[index] = { ...updated[index], [field]: value };
+      }
+      return updated;
+    });
+  };
+
+  const removeVendorLineItem = (index: number) => {
+    setVendorLineItems(prev => prev.filter((_, i) => i !== index));
+  };
 
   const {
     register,
@@ -115,9 +178,11 @@ export default function NewRetreatPage() {
     setSaving(true);
     try {
       const retreatRef = doc(collection(firestore, 'retreats'));
-      const payload = {
+      const activeVendors = vendorLineItems.filter(v => v.vendorId && v.amount > 0);
+      const payload: Record<string, unknown> = {
         id: retreatRef.id,
         hostId: user.data!.uid,
+        guideId: user.data!.uid,
         title: data.title,
         description: data.description,
         type: data.type,
@@ -130,11 +195,17 @@ export default function NewRetreatPage() {
         locationDescription: data.locationDescription,
         included: data.included || '',
         status,
-        vendorIds: [],
+        vendorIds: activeVendors.map(v => v.vendorId),
+        vendorLineItems: activeVendors.map(v => ({ vendorId: v.vendorId, vendorName: v.vendorName, description: v.description, amount: v.amount })),
         retreatImageUrls: images,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       };
+      if (effectiveSpaceId && selectedSpace) {
+        payload.spaceId = effectiveSpaceId;
+        payload.spaceOwnerId = selectedSpace.ownerId;
+        payload.spaceRate = spaceRate;
+      }
 
       await setDoc(retreatRef, payload);
 
@@ -369,6 +440,88 @@ export default function NewRetreatPage() {
                   {...register('included')}
                 />
               </div>
+
+              {/* Partners & Pricing */}
+              <Separator />
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-semibold text-lg">Partners & Pricing</h3>
+                  <p className="text-xs text-muted-foreground">Optionally add a host venue and vendors. The total price per person is split among all partners.</p>
+                </div>
+
+                {/* Host Space */}
+                <div className="space-y-2">
+                  <Label>Host Venue (optional)</Label>
+                  <Select value={selectedSpaceId} onValueChange={setSelectedSpaceId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="No venue selected" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">No venue</SelectItem>
+                      {spaces.map(s => (
+                        <SelectItem key={s.id} value={s.id}>{s.name}{s.ownerName ? ` — ${s.ownerName}` : ''}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {effectiveSpaceId && (
+                    <div className="space-y-1">
+                      <Label htmlFor="spaceRate">Venue Rate ($)</Label>
+                      <Input id="spaceRate" type="number" min={0} placeholder="e.g., 3000" value={spaceRate || ''} onChange={e => setSpaceRate(parseFloat(e.target.value) || 0)} />
+                      <p className="text-xs text-muted-foreground">How much the host charges per person for this retreat</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Vendor Line Items */}
+                <div className="space-y-3">
+                  <Label>Vendor Services (optional)</Label>
+                  {vendorLineItems.map((item, i) => (
+                    <div key={i} className="border rounded-md p-3 space-y-2 relative">
+                      <Button type="button" variant="ghost" size="sm" className="absolute top-1 right-1 h-6 w-6 p-0" onClick={() => removeVendorLineItem(i)}>
+                        <X className="h-3 w-3" />
+                      </Button>
+                      <Select value={item.vendorId} onValueChange={v => updateVendorLineItem(i, 'vendorId', v)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a vendor" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {vendors.map(v => (
+                            <SelectItem key={v.id} value={v.id}>{v.displayName} — {v.vendorCategories.join(', ')}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Input placeholder="Service description (e.g., Sound Bath Session)" value={item.description} onChange={e => updateVendorLineItem(i, 'description', e.target.value)} />
+                      <Input type="number" min={0} placeholder="Rate per person ($)" value={item.amount || ''} onChange={e => updateVendorLineItem(i, 'amount', parseFloat(e.target.value) || 0)} />
+                    </div>
+                  ))}
+                  <Button type="button" variant="outline" size="sm" onClick={addVendorLineItem}>
+                    <Plus className="mr-2 h-3 w-3" /> Add Vendor Service
+                  </Button>
+                </div>
+
+                {/* Pricing Breakdown */}
+                {(effectiveSpaceId || vendorLineItems.some(v => v.amount > 0)) && (
+                  <div className="bg-muted rounded-md p-4 space-y-2 text-sm">
+                    <p className="font-semibold">Pricing Breakdown (per person)</p>
+                    {effectiveSpaceId && spaceRate > 0 && (
+                      <div className="flex justify-between"><span>Venue ({selectedSpace?.name})</span><span>${spaceRate.toFixed(2)}</span></div>
+                    )}
+                    {vendorLineItems.filter(v => v.amount > 0).map((v, i) => (
+                      <div key={i} className="flex justify-between"><span>{v.description || v.vendorName || 'Vendor'}</span><span>${v.amount.toFixed(2)}</span></div>
+                    ))}
+                    <Separator />
+                    <div className="flex justify-between font-semibold">
+                      <span>Your Take (Guide)</span>
+                      <span>${Math.max(0, (watch('costPerPerson') || 0) - (effectiveSpaceId ? spaceRate : 0) - vendorLineItems.reduce((sum, v) => sum + v.amount, 0)).toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>Total per Person</span>
+                      <span>${(watch('costPerPerson') || 0).toFixed(2)}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <Separator />
 
               {/* Retreat Images */}
               <div className="space-y-2">

@@ -64,6 +64,14 @@ export async function POST(request: Request) {
         await handleInvoicePaymentFailed(event.data.object as Stripe.Invoice, db);
         break;
 
+      // --- Payout / Transfer Failures ---
+      case 'transfer.failed':
+        await handleTransferFailed(event.data.object as Stripe.Transfer, db);
+        break;
+      case 'payout.failed':
+        await handlePayoutFailed(event.data.object as Stripe.Payout, db);
+        break;
+
       // --- Disputes ---
       case 'charge.dispute.created':
         await handleDisputeCreated(event.data.object as Stripe.Dispute, db);
@@ -111,41 +119,85 @@ async function handleCheckoutCompleted(
   }
 
   const totalAmount = (session.amount_total || 0) / 100;
-  const feePercent = parseFloat(platformFeePercent || '12.5');
-  const platformFeeAmount = Math.round(totalAmount * (feePercent / 100) * 100) / 100;
 
-  // Check if destination charges were used (provider gets paid automatically by Stripe)
+  // Parse multi-provider info
+  let providers: { id: string; role: string; amount: number; feePercent: number; label: string }[] = [];
+  try {
+    providers = JSON.parse(meta.providers || '[]');
+  } catch { providers = []; }
+
+  const isMultiProvider = meta.isMultiProvider === 'true' && providers.length > 1;
+
+  // Calculate fees
+  let totalPlatformFee = 0;
+  const bookingLineItems: Record<string, unknown>[] = [];
+
+  if (isMultiProvider) {
+    for (const p of providers) {
+      const fee = Math.round(p.amount * (p.feePercent / 100) * 100) / 100;
+      totalPlatformFee += fee;
+      bookingLineItems.push({
+        providerId: p.id,
+        providerRole: p.role,
+        description: p.label,
+        amount: p.amount,
+        platformFeePctApplied: p.feePercent,
+        platformFeeAmount: fee,
+      });
+    }
+  } else {
+    const feePercent = parseFloat(platformFeePercent || '12.5');
+    totalPlatformFee = Math.round(totalAmount * (feePercent / 100) * 100) / 100;
+    bookingLineItems.push({
+      providerId: providerId || '',
+      providerRole: 'guide',
+      description: retreatTitle || 'Retreat Booking',
+      amount: parseFloat(retreatPrice || String(totalAmount)),
+      platformFeePctApplied: feePercent,
+      platformFeeAmount: totalPlatformFee,
+    });
+  }
+
   const paymentIntentId = session.payment_intent as string || '';
-  let usedDestinationCharges = false;
   let stripeProcessingFee = 0;
-  let providerNetPayout = 0;
 
   if (paymentIntentId) {
     try {
       const pi = await stripe.paymentIntents.retrieve(paymentIntentId);
-      usedDestinationCharges = !!pi.transfer_data?.destination;
-      // Retrieve the actual Stripe processing fee from the balance transaction
       if (pi.latest_charge) {
         const charge = await stripe.charges.retrieve(pi.latest_charge as string, {
           expand: ['balance_transaction'],
         });
         const bt = charge.balance_transaction as Stripe.BalanceTransaction;
         if (bt?.fee) {
-          stripeProcessingFee = bt.fee / 100; // convert from cents
+          stripeProcessingFee = bt.fee / 100;
         }
-      }
-      if (usedDestinationCharges) {
-        // With destination charges: provider receives (total - application_fee - Stripe processing fee)
-        providerNetPayout = totalAmount - platformFeeAmount - stripeProcessingFee;
       }
     } catch (e) {
       console.error('[WEBHOOK] Error retrieving payment intent details:', e);
     }
   }
 
+  // Look up retreat start date for payout scheduling
+  let retreatStartDate: string | null = null;
+  let payoutEligibleAt: Date | null = null;
+  try {
+    const retreatDoc = await db.collection('retreats').doc(retreatId).get();
+    if (retreatDoc.exists) {
+      retreatStartDate = retreatDoc.data()?.startDate || null;
+      if (retreatStartDate) {
+        // Payout eligible 24 hours after retreat start date
+        const startDate = new Date(retreatStartDate + 'T00:00:00Z');
+        payoutEligibleAt = new Date(startDate.getTime() + 24 * 60 * 60 * 1000);
+      }
+    }
+  } catch (e) {
+    console.error('[WEBHOOK] Error fetching retreat start date:', e);
+  }
+
   const batch = db.batch();
 
-  // Create booking
+  // Create booking — funds are HELD until retreat starts + 24 hours
   const bookingRef = db.collection('bookings').doc();
   batch.set(bookingRef, {
     seekerId: userId,
@@ -154,21 +206,18 @@ async function handleCheckoutCompleted(
     status: 'confirmed',
     totalAmount,
     currency: 'usd',
-    platformFeeAmount,
+    platformFeeAmount: totalPlatformFee,
     stripeProcessingFee,
-    providerNetPayout: usedDestinationCharges ? providerNetPayout : 0,
-    paymentModel: usedDestinationCharges ? 'destination_charges' : 'separate_transfers',
+    paymentModel: 'held_then_transfer',
+    payoutStatus: 'held',
+    payoutEligibleAt: payoutEligibleAt || null,
+    retreatStartDate: retreatStartDate || null,
+    refundableUntil: retreatStartDate ? new Date(retreatStartDate + 'T00:00:00Z') : null,
     stripePaymentIntentId: paymentIntentId,
     stripeSessionId: session.id,
     manifestationId: null,
-    lineItems: [{
-      providerId: providerId || '',
-      providerRole: 'guide',
-      description: retreatTitle || 'Retreat Booking',
-      amount: parseFloat(retreatPrice || String(totalAmount)),
-      platformFeePctApplied: feePercent,
-      platformFeeAmount,
-    }],
+    lineItems: bookingLineItems,
+    providers: providers,
     liabilityWaiverAccepted: liabilityAccepted === 'true',
     liabilityWaiverAcceptedAt: FieldValue.serverTimestamp(),
     liabilityWaiverVersion: 'v1.0-02-01-2026',
@@ -220,7 +269,7 @@ async function handleCheckoutCompleted(
   }
 
   await batch.commit();
-  console.log(`[WEBHOOK] Created booking ${bookingRef.id} for session ${session.id} (credit: $${creditAmount})`);
+  console.log(`[WEBHOOK] Created booking ${bookingRef.id} for session ${session.id} (credit: $${creditAmount}, providers: ${providers.length})`);
 
   // Fire-and-forget: send booking confirmation notification
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://highviberetreats.com';
@@ -237,34 +286,14 @@ async function handleCheckoutCompleted(
     }),
   }).catch(e => console.error('[WEBHOOK] Notification send failed:', e));
 
-  // Transfer to provider if they have Stripe Connect.
-  // With destination charges, Stripe handles the transfer automatically — skip manual transfer.
-  // Only use manual transfer as fallback when destination charges were NOT used
-  // (e.g., provider connected Stripe after the checkout was created).
-  if (!usedDestinationCharges && providerId && providerId !== 'guide-placeholder-id') {
-    try {
-      const providerDoc = await db.collection('users').doc(providerId).get();
-      if (providerDoc.exists) {
-        const providerData = providerDoc.data()!;
-        if (providerData.stripeConnectAccountId && providerData.stripeConnectOnboarded) {
-          const transferAmount = Math.round((totalAmount - platformFeeAmount) * 100);
-          if (transferAmount > 0) {
-            await stripe.transfers.create({
-              amount: transferAmount,
-              currency: 'usd',
-              destination: providerData.stripeConnectAccountId,
-              metadata: { bookingId: bookingRef.id, retreatId },
-            });
-            console.log(`[WEBHOOK] Fallback transfer: ${transferAmount / 100} to ${providerData.stripeConnectAccountId}`);
-          }
-        }
-      }
-    } catch (transferError) {
-      console.error('[WEBHOOK] Transfer to provider failed:', transferError);
-      // Non-blocking: booking is still confirmed even if transfer fails
-    }
-  } else if (usedDestinationCharges) {
-    console.log(`[WEBHOOK] Destination charges used — Stripe auto-transferred to provider. HighVibe kept $${platformFeeAmount}, provider net payout ~$${providerNetPayout.toFixed(2)} (after Stripe fee $${stripeProcessingFee.toFixed(2)})`);
+  // Funds are HELD — no transfers at booking time.
+  // Payouts are released 24 hours after the retreat start date via /api/stripe/release-payouts.
+  // Before the retreat starts, seekers can request a refund (cancellation policy applies).
+  // Once the retreat starts, the booking becomes non-refundable and binding.
+  if (payoutEligibleAt) {
+    console.log(`[WEBHOOK] Funds held. Payout eligible at ${payoutEligibleAt.toISOString()} (24h after retreat start)`);
+  } else {
+    console.log(`[WEBHOOK] Funds held. No retreat start date found — payouts must be released manually`);
   }
 }
 
@@ -447,6 +476,63 @@ async function handleDisputeStatusChange(dispute: Stripe.Dispute, db: FirebaseFi
   const status = dispute.status === 'won' ? 'won' : dispute.status === 'lost' ? 'lost' : 'open';
   await bookingSnap.docs[0].ref.update({ chargebackStatus: status });
   console.log(`[WEBHOOK] Dispute ${dispute.id} status updated to ${status}`);
+}
+
+// --- Payout / Transfer Failure Handlers ---
+
+async function handleTransferFailed(transfer: Stripe.Transfer, db: FirebaseFirestore.Firestore) {
+  const bookingId = transfer.metadata?.bookingId;
+  const retreatId = transfer.metadata?.retreatId;
+  const destinationAccount = transfer.destination as string;
+
+  console.error(`[WEBHOOK] Transfer ${transfer.id} failed to ${destinationAccount} ($${(transfer.amount || 0) / 100})`);
+
+  // Update booking with payout failure status
+  if (bookingId) {
+    const bookingRef = db.collection('bookings').doc(bookingId);
+    const bookingSnap = await bookingRef.get();
+    if (bookingSnap.exists) {
+      await bookingRef.update({
+        payoutStatus: 'failed',
+        payoutFailedAt: new Date(),
+        payoutFailureTransferId: transfer.id,
+      });
+    }
+  }
+
+  // Find and notify the provider
+  if (destinationAccount) {
+    const userSnap = await db.collection('users')
+      .where('stripeConnectAccountId', '==', destinationAccount)
+      .limit(1)
+      .get();
+
+    if (!userSnap.empty) {
+      const userData = userSnap.docs[0].data();
+      if (userData.email) {
+        try {
+          await sendEmail({
+            to: userData.email,
+            subject: 'Payout Failed - Action Required',
+            html: `<p>Hi ${userData.displayName || 'there'},</p><p>A payout of $${(transfer.amount || 0) / 100} to your connected Stripe account could not be completed. This is typically caused by an issue with your bank account or Stripe account setup.</p><p>Please log in to your <a href="https://highviberetreats.com/payouts">Payouts page</a> and check your Stripe account settings. If the issue persists, contact us at support@highviberetreats.com.</p><p>— The HighVibe Team</p>`,
+            text: `Hi ${userData.displayName || 'there'},\n\nA payout of $${(transfer.amount || 0) / 100} to your Stripe account failed. Please check your Stripe settings at https://highviberetreats.com/payouts\n\n— The HighVibe Team`,
+          });
+        } catch (e) {
+          console.error('[WEBHOOK] Failed to send payout failure email:', e);
+        }
+      }
+    }
+  }
+}
+
+async function handlePayoutFailed(payout: Stripe.Payout, db: FirebaseFirestore.Firestore) {
+  // This fires when Stripe can't send funds to a Connect account's bank
+  const failureMessage = payout.failure_message || 'Unknown failure';
+  console.error(`[WEBHOOK] Payout ${payout.id} failed: ${failureMessage} ($${(payout.amount || 0) / 100})`);
+
+  // Log it — the destination is on the Connect account level, not directly available here.
+  // The provider will see the failure in their Stripe Express dashboard.
+  // We could also store this in a platform-level audit log if needed.
 }
 
 // --- Helpers ---

@@ -104,3 +104,49 @@ export function buildManifestationMatchEmail(params: {
   const text = `Match found for your manifestation: ${params.matchDescription}. View at ${BASE_URL}/seeker/manifestations`;
   return { html, text };
 }
+
+export function buildProviderOpportunityEmail(params: {
+  recipientName: string;
+  destination: string;
+  retreatTypes: string;
+  groupSize: number;
+  matchScore: number;
+  manifestationId: string;
+}) {
+  const html = wrapEmail(`
+    <h2 style="margin:0 0 16px;color:#1a1a1a;font-size:22px;">New Retreat Opportunity!</h2>
+    <p style="color:#333;font-size:16px;line-height:1.6;">Hi ${params.recipientName},</p>
+    <p style="color:#333;font-size:16px;line-height:1.6;">A seeker is looking for a <strong>${params.retreatTypes}</strong> experience in <strong>${params.destination}</strong> and you're a <strong>${params.matchScore}% match</strong>.</p>
+    <div style="background:#f5f0eb;padding:16px;border-radius:6px;margin:16px 0;">
+      <p style="color:#333;font-size:14px;margin:0 0 8px;"><strong>Destination:</strong> ${params.destination}</p>
+      <p style="color:#333;font-size:14px;margin:0 0 8px;"><strong>Retreat Type:</strong> ${params.retreatTypes}</p>
+      ${params.groupSize > 0 ? `<p style="color:#333;font-size:14px;margin:0;"><strong>Group Size:</strong> ${params.groupSize}</p>` : ''}
+    </div>
+    <p style="color:#333;font-size:16px;line-height:1.6;">Submit a proposal to connect with this seeker and bring their dream retreat to life.</p>
+    ${ctaButton('View & Respond', `${BASE_URL}/seeker/manifestations/${params.manifestationId}`)}
+    <p style="color:#999;font-size:14px;">You can manage your notification preferences in your account settings.</p>
+  `);
+  const text = `New retreat opportunity! A seeker is looking for ${params.retreatTypes} in ${params.destination}. You're a ${params.matchScore}% match. View at ${BASE_URL}/seeker/manifestations/${params.manifestationId}`;
+  return { html, text };
+}
+
+export function buildNewProposalEmail(params: {
+  recipientName: string;
+  providerName: string;
+  providerRole: string;
+  destination: string;
+  proposedPrice: number;
+  manifestationId: string;
+}) {
+  const html = wrapEmail(`
+    <h2 style="margin:0 0 16px;color:#1a1a1a;font-size:22px;">New Proposal Received!</h2>
+    <p style="color:#333;font-size:16px;line-height:1.6;">Hi ${params.recipientName},</p>
+    <p style="color:#333;font-size:16px;line-height:1.6;"><strong>${params.providerName}</strong> (${params.providerRole}) submitted a proposal for your ${params.destination} retreat.</p>
+    <div style="background:#f5f0eb;padding:16px;border-radius:6px;margin:16px 0;">
+      <p style="color:#333;font-size:14px;margin:0;"><strong>Proposed Price:</strong> $${params.proposedPrice.toLocaleString()}</p>
+    </div>
+    ${ctaButton('Review Proposal', `${BASE_URL}/seeker/manifestations/${params.manifestationId}`)}
+  `);
+  const text = `${params.providerName} submitted a proposal for your ${params.destination} retreat. Price: $${params.proposedPrice}. View at ${BASE_URL}/seeker/manifestations/${params.manifestationId}`;
+  return { html, text };
+}

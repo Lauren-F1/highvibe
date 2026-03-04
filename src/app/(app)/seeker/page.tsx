@@ -19,7 +19,10 @@ import { useFirestore } from '@/firebase';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
-import { Search, Map, LayoutGrid } from 'lucide-react';
+import { Search, Map, LayoutGrid, Calendar as CalendarIcon } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format, parseISO, isAfter, isBefore } from 'date-fns';
 import { RetreatMap } from '@/components/retreat-map-wrapper';
 import { getCoordinatesForLocation } from '@/lib/geocode';
 
@@ -56,6 +59,9 @@ export default function SeekerPage() {
   const [searchInitiated, setSearchInitiated] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
+  const [filterStartDate, setFilterStartDate] = useState<Date | undefined>();
+  const [filterEndDate, setFilterEndDate] = useState<Date | undefined>();
+  const [sortBy, setSortBy] = useState<'default' | 'price-low' | 'price-high' | 'best-match'>('default');
 
   // Firestore retreats loading
   const [firestoreRetreats, setFirestoreRetreats] = useState<typeof mockRetreats>([]);
@@ -104,6 +110,8 @@ export default function SeekerPage() {
             image: data.retreatImageUrls?.[0] || '/generic-placeholder.jpg',
             type: data.type ? [data.type.toLowerCase().replace(/\s+/g, '-')] : [],
             duration: data.startDate && data.endDate ? `${data.startDate} to ${data.endDate}` : undefined,
+            startDate: (data.startDate as string) || undefined,
+            endDate: (data.endDate as string) || undefined,
             included: data.included || undefined,
             lat: coords?.lat,
             lng: coords?.lng,
@@ -167,10 +175,52 @@ export default function SeekerPage() {
         );
     }
     
-    // Timing filter is cosmetic for now as data is not available on retreats
-    
+    // Date range filter — only applies to Firestore retreats with startDate/endDate
+    if (filterStartDate) {
+      newFilteredRetreats = newFilteredRetreats.filter(retreat => {
+        const r = retreat as typeof retreat & { startDate?: string; endDate?: string };
+        if (!r.startDate) return true; // Mock retreats without dates pass through
+        const retreatStart = parseISO(r.startDate);
+        // Retreat must start on or after the filter start date
+        return !isBefore(retreatStart, filterStartDate);
+      });
+    }
+    if (filterEndDate) {
+      newFilteredRetreats = newFilteredRetreats.filter(retreat => {
+        const r = retreat as typeof retreat & { startDate?: string; endDate?: string };
+        if (!r.endDate) return true; // Mock retreats without dates pass through
+        const retreatEnd = parseISO(r.endDate);
+        // Retreat must end on or before the filter end date
+        return !isAfter(retreatEnd, filterEndDate);
+      });
+    }
+
+    // Apply sorting
+    if (sortBy === 'price-low') {
+      newFilteredRetreats.sort((a, b) => a.price - b.price);
+    } else if (sortBy === 'price-high') {
+      newFilteredRetreats.sort((a, b) => b.price - a.price);
+    } else if (sortBy === 'best-match') {
+      // Simple relevance: retreats matching more selected filters score higher
+      newFilteredRetreats.sort((a, b) => {
+        let scoreA = 0, scoreB = 0;
+        if (experienceType !== 'all-experiences') {
+          if (a.type?.includes(experienceType)) scoreA += 30;
+          if (b.type?.includes(experienceType)) scoreB += 30;
+        }
+        // Prefer retreats with more type overlap
+        if (a.type) scoreA += a.type.length * 5;
+        if (b.type) scoreB += b.type.length * 5;
+        // Prefer mid-range pricing (closer to median)
+        const median = retreats.reduce((s, r) => s + r.price, 0) / Math.max(retreats.length, 1);
+        scoreA += Math.max(0, 20 - Math.abs(a.price - median) / median * 10);
+        scoreB += Math.max(0, 20 - Math.abs(b.price - median) / median * 10);
+        return scoreB - scoreA;
+      });
+    }
+
     setFilteredRetreats(newFilteredRetreats);
-  }, [experienceType, selectedContinent, selectedRegion, investmentRange, timing, searchInitiated, searchQuery, retreats]);
+  }, [experienceType, selectedContinent, selectedRegion, investmentRange, timing, searchInitiated, searchQuery, retreats, filterStartDate, filterEndDate, sortBy]);
 
   const handleWaitlistSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -210,7 +260,9 @@ export default function SeekerPage() {
     selectedRegion !== '' ||
     investmentRange !== 'any' ||
     timing !== 'exploring' ||
-    searchQuery.trim() !== '';
+    searchQuery.trim() !== '' ||
+    !!filterStartDate ||
+    !!filterEndDate;
 
   const handleClearFilters = () => {
     setExperienceType('all-experiences');
@@ -219,6 +271,8 @@ export default function SeekerPage() {
     setInvestmentRange('any');
     setTiming('exploring');
     setSearchQuery('');
+    setFilterStartDate(undefined);
+    setFilterEndDate(undefined);
     setSearchInitiated(false);
   };
   
@@ -431,6 +485,73 @@ export default function SeekerPage() {
                 </SelectContent>
               </Select>
             </div>
+            <div className="space-y-2">
+              <Label className="font-ui">Date Range (optional)</Label>
+              <div className="flex gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "flex-1 justify-start text-left font-normal",
+                        !filterStartDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {filterStartDate ? format(filterStartDate, "MMM d, yyyy") : "Start date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={filterStartDate}
+                      onSelect={setFilterStartDate}
+                      disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "flex-1 justify-start text-left font-normal",
+                        !filterEndDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {filterEndDate ? format(filterEndDate, "MMM d, yyyy") : "End date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={filterEndDate}
+                      onSelect={setFilterEndDate}
+                      disabled={(date) =>
+                        filterStartDate ? date < filterStartDate : date < new Date(new Date().setHours(0, 0, 0, 0))
+                      }
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+          <div className="space-y-2">
+            <Label className="font-ui">Sort By</Label>
+            <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Default" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="default">Default</SelectItem>
+                <SelectItem value="price-low">Price: Low to High</SelectItem>
+                <SelectItem value="price-high">Price: High to Low</SelectItem>
+                <SelectItem value="best-match">Best Match</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <div className="lg:col-span-full flex flex-wrap gap-2">
             <Button size="lg" className="flex-grow font-ui" onClick={handleExploreClick}>Explore Experiences</Button>
             <Button size="lg" variant="outline" asChild className="font-ui"><Link href="/seeker/manifestations">My Manifestations</Link></Button>

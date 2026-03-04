@@ -4,10 +4,17 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useUser, useFirestore } from '@/firebase';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { allRetreats } from '@/lib/mock-data';
 import { notFound } from 'next/navigation';
 import { isFirebaseEnabled } from '@/firebase/config';
+
+interface ProviderLineItem {
+    providerId: string;
+    providerRole: 'guide' | 'host' | 'vendor';
+    label: string;
+    amount: number;
+}
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -43,6 +50,8 @@ export default function CheckoutPage() {
     const firestore = useFirestore();
 
     const [retreat, setRetreat] = useState<(typeof allRetreats)[0] | null>(null);
+    const [firestoreRetreat, setFirestoreRetreat] = useState<Record<string, any> | null>(null);
+    const [providerLineItems, setProviderLineItems] = useState<ProviderLineItem[]>([]);
     const [credit, setCredit] = useState<ManifestCredit | null>(null);
     const [applyCredit, setApplyCredit] = useState(true);
     const [isLoading, setIsLoading] = useState(true);
@@ -59,33 +68,72 @@ export default function CheckoutPage() {
     }, [user.status, user.profile, router, retreatId]);
 
     useEffect(() => {
-        const retreatData = allRetreats.find(r => r.id === retreatId);
-        if (retreatData) {
-            setRetreat(retreatData);
-        }
+        async function loadData() {
+            // Try Firestore first, fall back to mock
+            let foundRetreat = false;
+            if (firestore) {
+                try {
+                    const retreatDoc = await getDoc(doc(firestore, 'retreats', retreatId));
+                    if (retreatDoc.exists()) {
+                        const data = retreatDoc.data();
+                        setFirestoreRetreat(data);
+                        // Build provider line items
+                        const items: ProviderLineItem[] = [];
+                        const totalPrice = data.costPerPerson || 0;
+                        const spaceRate = data.spaceRate || 0;
+                        const vendorItems: { vendorId: string; vendorName: string; description: string; amount: number }[] = data.vendorLineItems || [];
+                        const vendorTotal = vendorItems.reduce((s: number, v: { amount: number }) => s + v.amount, 0);
+                        const guideAmount = Math.max(0, totalPrice - (data.spaceId ? spaceRate : 0) - vendorTotal);
 
-        if (user.status === 'authenticated' && firestore) {
-            const creditsRef = collection(firestore, 'manifest_credits');
-            const q = query(
-                creditsRef,
-                where('seeker_id', '==', user.data.uid),
-                where('status', '==', 'available')
-            );
-            
-            getDocs(q).then(snapshot => {
-                if (!snapshot.empty) {
-                    const firstCreditDoc = snapshot.docs[0];
-                    setCredit({ id: firstCreditDoc.id, ...firstCreditDoc.data() } as ManifestCredit);
+                        items.push({ providerId: data.guideId || data.hostId, providerRole: 'guide', label: 'Retreat Experience (Guide)', amount: guideAmount });
+                        if (data.spaceId && spaceRate > 0) {
+                            items.push({ providerId: data.spaceOwnerId, providerRole: 'host', label: 'Venue (Host)', amount: spaceRate });
+                        }
+                        for (const v of vendorItems) {
+                            items.push({ providerId: v.vendorId, providerRole: 'vendor', label: v.description || `Vendor Service (${v.vendorName})`, amount: v.amount });
+                        }
+                        setProviderLineItems(items);
+                        foundRetreat = true;
+                        // Create a mock-compatible object for the rest of the page
+                        setRetreat({
+                            id: retreatId,
+                            title: data.title,
+                            price: totalPrice,
+                            type: data.type ? [data.type] : [],
+                        } as any);
+                    }
+                } catch (e) {
+                    console.error('Error loading retreat:', e);
                 }
-                setIsLoading(false);
-            }).catch(err => {
-                console.error("Error fetching credit:", err);
-                setIsLoading(false);
-            });
-        } else if (user.status === 'unauthenticated') {
+            }
+
+            if (!foundRetreat) {
+                const retreatData = allRetreats.find(r => r.id === retreatId);
+                if (retreatData) {
+                    setRetreat(retreatData);
+                }
+            }
+
+            // Fetch manifest credits
+            if (user.status === 'authenticated' && firestore) {
+                try {
+                    const creditsRef = collection(firestore, 'manifest_credits');
+                    const q = query(creditsRef, where('seeker_id', '==', user.data.uid), where('status', '==', 'available'));
+                    const snapshot = await getDocs(q);
+                    if (!snapshot.empty) {
+                        const firstCreditDoc = snapshot.docs[0];
+                        setCredit({ id: firstCreditDoc.id, ...firstCreditDoc.data() } as ManifestCredit);
+                    }
+                } catch (err) {
+                    console.error("Error fetching credit:", err);
+                }
+            }
             setIsLoading(false);
         }
 
+        if (user.status !== 'loading') {
+            loadData();
+        }
     }, [retreatId, user.status, firestore, user.data?.uid]);
     
     if (isLoading) {
@@ -105,9 +153,10 @@ export default function CheckoutPage() {
     );
     
     const creditAmount = credit?.issued_amount || 0;
-    const retreatPackagePrice = retreat.price * 5; // e.g. 5 nights, mock package price
+    const retreatPackagePrice = firestoreRetreat ? (firestoreRetreat.costPerPerson || 0) : retreat.price * 5;
     const discount = applyCredit && credit ? Math.min(creditAmount, retreatPackagePrice) : 0;
     const total = retreatPackagePrice - discount;
+    const hasMultipleProviders = providerLineItems.length > 1;
 
     const handleConfirmBooking = async () => {
         if (user.status !== 'authenticated') {
@@ -136,6 +185,7 @@ export default function CheckoutPage() {
                     creditId: credit?.id || null,
                     liabilityAccepted,
                     medicalDisclosureAccepted: requiresMedicalDisclosure ? medicalDisclosureAccepted : false,
+                    providerLineItems: hasMultipleProviders ? providerLineItems : undefined,
                 }),
             });
 
@@ -168,10 +218,19 @@ export default function CheckoutPage() {
                 <CardContent className="space-y-6">
                     <div className="space-y-4">
                         <h3 className="font-semibold">Order Summary</h3>
-                        <div className="flex justify-between">
-                            <span>Retreat Package</span>
-                            <span>${retreatPackagePrice.toFixed(2)}</span>
-                        </div>
+                        {hasMultipleProviders ? (
+                            providerLineItems.map((item, i) => (
+                                <div key={i} className="flex justify-between">
+                                    <span>{item.label}</span>
+                                    <span>${item.amount.toFixed(2)}</span>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="flex justify-between">
+                                <span>Retreat Package</span>
+                                <span>${retreatPackagePrice.toFixed(2)}</span>
+                            </div>
+                        )}
                         {credit && (
                             <>
                                 <Separator />

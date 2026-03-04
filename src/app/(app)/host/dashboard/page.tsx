@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { ManifestationOpportunities } from '@/components/manifestation-opportunities';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -25,6 +26,7 @@ import { useUser, useFirestore } from '@/firebase';
 import { collection, addDoc, query, where, getDocs, limit, serverTimestamp, updateDoc, doc } from 'firebase/firestore';
 import { SpaceReadinessChecklist, type SpaceReadinessProps } from '@/components/space-readiness-checklist';
 import { cn } from '@/lib/utils';
+import { loadUserConnections, createConnection, getDisplayStatus, type Connection } from '@/lib/firestore-connections';
 
 
 const genericImage = '/generic-placeholder.jpg';
@@ -135,7 +137,7 @@ function StatCard({ title, value, icon, description }: StatCardProps) {
 export default function HostDashboardPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'guides' | 'vendors'>('guides');
-  const [connectedPartnerIds, setConnectedPartnerIds] = useState<Set<string>>(new Set());
+  const [connections, setConnections] = useState<Connection[]>([]);
 
   const [guideFilters, setGuideFilters] = useState<GuideFiltersState>(initialGuideFilters);
   const [appliedGuideFilters, setAppliedGuideFilters] = useState<GuideFiltersState>(initialGuideFilters);
@@ -208,29 +210,20 @@ export default function HostDashboardPage() {
     loadPartners();
   }, [firestore, currentUser.status]);
 
-  // Load connected partner IDs from Firestore conversations
+  // Load connections from Firestore connections collection
   useEffect(() => {
     if (!firestore || currentUser.status !== 'authenticated') return;
 
-    const loadConnections = async () => {
+    const load = async () => {
       try {
-        const conversationsRef = collection(firestore, 'conversations');
-        const q = query(conversationsRef, where('participants', 'array-contains', currentUser.data.uid));
-        const snap = await getDocs(q);
-        const ids = new Set<string>();
-        snap.docs.forEach(d => {
-          const participants = d.data().participants as string[];
-          participants.forEach(pid => {
-            if (pid !== currentUser.data.uid) ids.add(pid);
-          });
-        });
-        setConnectedPartnerIds(ids);
+        const conns = await loadUserConnections(firestore, currentUser.data.uid);
+        setConnections(conns);
       } catch (error) {
         console.error('Error loading connections:', error);
       }
     };
 
-    loadConnections();
+    load();
   }, [firestore, currentUser.status]);
 
   const allGuides = partnersLoaded && firestoreGuides.length > 0 ? firestoreGuides : mockGuides;
@@ -327,12 +320,11 @@ export default function HostDashboardPage() {
   }, [activeSpace]);
 
   const getPartnerStatus = (partnerId: string): ConnectionStatus => {
-    // Check by uid (Firestore partners) or by id (mock partners)
+    if (!currentUser.data?.uid) return 'Not Connected';
     const allPartners = [...allGuides, ...allVendors];
     const partner = allPartners.find(p => p.id === partnerId);
     const uid = partner?.uid || partnerId;
-    if (connectedPartnerIds.has(uid)) return 'In Conversation';
-    return 'Not Connected';
+    return getDisplayStatus(connections, currentUser.data.uid, uid);
   };
 
   const handleGuideFilterChange = (newFilters: Partial<GuideFiltersState>) => {
@@ -514,10 +506,29 @@ export default function HostDashboardPage() {
       });
       await addDoc(collection(newConversationRef, 'messages'), {
           senderId: currentUser.data.uid,
-          text: `Hi ${targetProfile.name}, I found your profile on HighVibe Retreats and I’d like to connect about my space, "${activeSpace?.name}".`,
+          text: `Hi ${targetProfile.name}, I found your profile on HighVibe Retreats and I'd like to connect about my space, "${activeSpace?.name}".`,
           createdAt: serverTimestamp(),
       });
-      setConnectedPartnerIds(prev => new Set([...prev, targetProfile.uid]));
+
+      const partnerRole = 'specialty' in targetProfile ? 'guide' : 'vendor';
+      await createConnection(firestore, {
+        initiatorId: currentUser.data.uid,
+        initiatorRole: 'host',
+        partnerId: targetProfile.uid,
+        partnerRole,
+        conversationId: newConversationRef.id,
+      });
+
+      setConnections(prev => [...prev, {
+        id: '',
+        initiatorId: currentUser.data!.uid,
+        initiatorRole: 'host',
+        partnerId: targetProfile.uid,
+        partnerRole,
+        status: 'requested',
+        conversationId: newConversationRef.id,
+        createdAt: new Date().toISOString(),
+      }]);
       toast({ title: 'Connection Started!', description: `You can now message ${targetProfile.name}.` });
     } catch (error) {
       console.error("Error requesting connection:", error);
@@ -680,9 +691,9 @@ export default function HostDashboardPage() {
                         <Separator className="my-6" />
                         <div>
                             <h3 className="font-headline text-2xl mb-2">Active Connections</h3>
-                            {connectedPartnerIds.size > 0 ? (
+                            {connections.length > 0 ? (
                               <div className="flex items-center justify-between p-4 rounded-lg bg-secondary/50">
-                                <p className="text-muted-foreground">You have <span className="font-semibold text-foreground">{connectedPartnerIds.size}</span> active conversation{connectedPartnerIds.size !== 1 ? 's' : ''} with partners.</p>
+                                <p className="text-muted-foreground">You have <span className="font-semibold text-foreground">{connections.length}</span> active conversation{connections.length !== 1 ? 's' : ''} with partners.</p>
                                 <Button variant="outline" size="sm" onClick={() => router.push('/inbox')}>View in Inbox</Button>
                               </div>
                             ) : (<div className="text-center py-12 rounded-lg bg-secondary/50"><p className="text-muted-foreground">Connect with guides and vendors above to start conversations.</p></div>)}
@@ -696,6 +707,8 @@ export default function HostDashboardPage() {
                 ) : (<div className="text-center py-12"><p className="text-muted-foreground">Please select a space to see its partnership dashboard.</p></div>)}
             </CardContent>
         </Card>
+        {/* Seeker Opportunities */}
+        <ManifestationOpportunities />
       </div>
     </div>
   );

@@ -243,6 +243,20 @@ service cloud.firestore {
     }
 
     /**
+     * @description Provider-to-provider connection requests.
+     * Either party can read. Initiator creates. Partner can update status (accept/decline).
+     * @path /connections/{connectionId}
+     */
+    match /connections/{connectionId} {
+      allow get, list: if isSignedIn()
+        && (request.auth.uid == resource.data.initiatorId || request.auth.uid == resource.data.partnerId);
+      allow create: if isSignedIn() && request.auth.uid == request.resource.data.initiatorId;
+      allow update: if isSignedIn()
+        && (request.auth.uid == resource.data.initiatorId || request.auth.uid == resource.data.partnerId);
+      allow delete: if false;
+    }
+
+    /**
      * @description Contact form submissions. Any signed-in user can submit.
      * Admin reads are handled via Admin SDK (bypasses rules).
      * @path /contact_submissions/{docId}
@@ -332,6 +346,35 @@ service cloud.firestore {
       allow update: if isSignedIn()
         && request.auth.uid == resource.data.userId
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      allow delete: if false;
+    }
+
+    /**
+     * @description AI-generated matches between manifestations and providers.
+     * Seeker and matched provider can read. All writes are server-side only.
+     * @path /matches/{matchId}
+     */
+    match /matches/{matchId} {
+      allow get, list: if isSignedIn()
+        && (request.auth.uid == resource.data.seeker_id
+            || request.auth.uid == resource.data.provider_id);
+      allow create, update, delete: if false; // Server-side only via Admin SDK
+    }
+
+    /**
+     * @description Provider proposals in response to manifestation matches.
+     * Seeker and provider can read. Provider creates. Both can update status.
+     * @path /proposals/{proposalId}
+     */
+    match /proposals/{proposalId} {
+      allow get, list: if isSignedIn()
+        && (request.auth.uid == resource.data.seeker_id
+            || request.auth.uid == resource.data.provider_id);
+      allow create: if isSignedIn()
+        && request.auth.uid == request.resource.data.provider_id;
+      allow update: if isSignedIn()
+        && (request.auth.uid == resource.data.seeker_id
+            || request.auth.uid == resource.data.provider_id);
       allow delete: if false;
     }
   }

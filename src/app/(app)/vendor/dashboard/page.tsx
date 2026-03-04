@@ -3,6 +3,7 @@
 "use client";
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { ManifestationOpportunities } from '@/components/manifestation-opportunities';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
@@ -23,6 +24,7 @@ import { type ConnectionStatus } from '@/components/guide-card';
 import { cn } from '@/lib/utils';
 import { useUser, useFirestore } from '@/firebase';
 import { collection, query, where, getDocs, updateDoc, doc, serverTimestamp, addDoc, limit as firestoreLimit } from 'firebase/firestore';
+import { loadUserConnections, createConnection, getDisplayStatus, type Connection } from '@/lib/firestore-connections';
 
 interface StatCardProps {
   title: string;
@@ -151,28 +153,21 @@ export default function VendorDashboardPage() {
   const allHosts = partnersLoaded && firestoreHosts.length > 0 ? firestoreHosts : mockHosts;
 
   // Track connections via Firestore conversations
-  const [connectedPartnerIds, setConnectedPartnerIds] = useState<Set<string>>(new Set());
+  const [connections, setConnections] = useState<Connection[]>([]);
 
   useEffect(() => {
     if (!firestore || user.status !== 'authenticated') return;
 
-    const loadConnections = async () => {
+    const load = async () => {
       try {
-        const conversationsRef = collection(firestore, 'conversations');
-        const q = query(conversationsRef, where('participants', 'array-contains', user.data.uid));
-        const snap = await getDocs(q);
-        const partnerIds = new Set<string>();
-        snap.docs.forEach(d => {
-          const participants = d.data().participants as string[];
-          participants.forEach(p => { if (p !== user.data.uid) partnerIds.add(p); });
-        });
-        setConnectedPartnerIds(partnerIds);
+        const conns = await loadUserConnections(firestore, user.data.uid);
+        setConnections(conns);
       } catch (error) {
         console.warn('Failed to load connections:', error);
       }
     };
 
-    loadConnections();
+    load();
   }, [firestore, user.status]);
 
   const [guideFilters, setGuideFilters] = useState<VendorGuideFiltersState>(initialGuideFilters);
@@ -325,8 +320,8 @@ export default function VendorDashboardPage() {
   };
 
   const getPartnerStatus = (partnerId: string): ConnectionStatus => {
-    if (connectedPartnerIds.has(partnerId)) return 'In Conversation';
-    return 'Not Connected';
+    if (!user.data?.uid) return 'Not Connected';
+    return getDisplayStatus(connections, user.data.uid, partnerId);
   };
 
   const handleConnect = async (partner: Guide | Host) => {
@@ -340,7 +335,11 @@ export default function VendorDashboardPage() {
       }
       if (user.status !== 'authenticated' || !firestore) return;
 
-      if (connectedPartnerIds.has(partner.id)) {
+      const existingConn = connections.find(
+        c => (c.initiatorId === user.data.uid && c.partnerId === partner.id) ||
+             (c.partnerId === user.data.uid && c.initiatorId === partner.id)
+      );
+      if (existingConn && existingConn.status !== 'declined') {
           toast({ title: 'Already Connected', description: `You're already in contact with ${partner.name}.` });
           return;
       }
@@ -382,7 +381,25 @@ export default function VendorDashboardPage() {
           createdAt: serverTimestamp(),
         });
 
-        setConnectedPartnerIds(prev => new Set(prev).add(partner.id));
+        const connPartnerRole = partnerRole.toLowerCase();
+        await createConnection(firestore, {
+          initiatorId: user.data.uid,
+          initiatorRole: 'vendor',
+          partnerId: partner.id,
+          partnerRole: connPartnerRole,
+          conversationId: newConvRef.id,
+        });
+
+        setConnections(prev => [...prev, {
+          id: '',
+          initiatorId: user.data!.uid,
+          initiatorRole: 'vendor',
+          partnerId: partner.id,
+          partnerRole: connPartnerRole,
+          status: 'requested',
+          conversationId: newConvRef.id,
+          createdAt: new Date().toISOString(),
+        }]);
         toast({ title: 'Connection Requested!', description: `You've sent a connection request to ${partner.name}.` });
         router.push(`/inbox?c=${newConvRef.id}`);
       } catch (error) {
@@ -503,7 +520,7 @@ export default function VendorDashboardPage() {
         <Card id="matches-section">
             <CardHeader>
                 <CardTitle className="font-headline text-3xl">Matches Available</CardTitle>
-                <CardDescription className="font-body text-base">These are guides and hosts that fit what you’re looking for.</CardDescription>
+                <CardDescription className="font-body text-base">These are guides and hosts that fit what you're looking for.</CardDescription>
             </CardHeader>
             <CardContent>
                  <Tabs defaultValue="guides">
@@ -622,12 +639,12 @@ export default function VendorDashboardPage() {
         <Card>
             <CardHeader>
                 <CardTitle className="font-headline text-3xl">Connections Requested</CardTitle>
-                <CardDescription className="font-body text-base">These are people you’ve reached out to or who have requested to connect with you.</CardDescription>
+                <CardDescription className="font-body text-base">These are people you've reached out to or who have requested to connect with you.</CardDescription>
             </CardHeader>
             <CardContent>
-                {connectedPartnerIds.size > 0 ? (
+                {connections.length > 0 ? (
                     <div className="text-center py-8 rounded-lg bg-secondary/50 space-y-3">
-                        <p className="text-muted-foreground">You have {connectedPartnerIds.size} active connection{connectedPartnerIds.size !== 1 ? 's' : ''}.</p>
+                        <p className="text-muted-foreground">You have {connections.length} active connection{connections.length !== 1 ? 's' : ''}.</p>
                         <Button variant="outline" onClick={() => router.push('/inbox')}>View in Inbox</Button>
                     </div>
                 ) : (
@@ -645,7 +662,7 @@ export default function VendorDashboardPage() {
             </CardHeader>
             <CardContent>
                 <div className="text-center py-12 rounded-lg bg-secondary/50">
-                    <p className="text-muted-foreground">No confirmed bookings yet — you’re building momentum.</p>
+                    <p className="text-muted-foreground">No confirmed bookings yet — you're building momentum.</p>
                 </div>
             </CardContent>
         </Card>
@@ -660,6 +677,8 @@ export default function VendorDashboardPage() {
                 <Button className="mt-4" variant="secondary">Manage Packaged Services</Button>
             </CardContent>
         </Card>
+        {/* Seeker Opportunities */}
+        <ManifestationOpportunities />
       </div>
 
     </div>

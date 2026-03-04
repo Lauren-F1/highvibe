@@ -16,10 +16,46 @@ export default function HowItWorksPage() {
           <h1 className="font-headline text-4xl md:text-5xl">
             How HighVibe Works
           </h1>
-          <p className="text-lg text-beige-dark font-body max-w-2xl mx-auto">
-            HighVibe Retreats is a marketplace that connects retreat seekers with the guides,
-            spaces, and services that bring transformative experiences to life.
-          </p>
+        </section>
+
+        {/* Main explanation */}
+        <section>
+          <div className="rounded-xl border border-beige bg-beige/10 p-8 space-y-6">
+            <p className="text-base font-body text-[#3d3b3a] leading-relaxed">
+              HighVibe Retreats is a marketplace designed for everyone it takes to create a
+              transformative retreat &mdash; Seekers, Guides, Hosts, and Vendors &mdash; connected
+              in one shared ecosystem.
+            </p>
+            <p className="text-base font-body text-[#3d3b3a] leading-relaxed">
+              Whether you&apos;re looking for your next retreat, leading one, offering your space,
+              or providing a service, you create a profile and HighVibe makes the right
+              introductions. Guides planning a retreat tell us what they need and where they want
+              to go. We don&apos;t limit possibilities to who is already on the platform. HighVibe
+              identifies aligned local businesses and providers in that region, invites them into
+              the ecosystem, and makes the introduction for you so each retreat has the right
+              support.
+            </p>
+            <p className="text-base font-body text-[#3d3b3a] leading-relaxed">
+              Seekers do the same. Share what you&apos;re looking for, and we connect you with
+              retreats and partners that fit, including experiences you may not have discovered
+              on your own.
+            </p>
+            <p className="text-base font-body text-[#3d3b3a] leading-relaxed">
+              Unlike platforms that simply list retreats and leave discovery to chance, HighVibe
+              actively builds the connections behind every experience, introducing the right
+              guides to the right spaces, the right vendors to the right retreats, and the right
+              seekers to the right journeys.
+            </p>
+            <p className="text-base font-body text-[#3d3b3a] leading-relaxed">
+              Each introduction strengthens the network, directs opportunity back to local
+              communities, and elevates the quality of future retreats.
+            </p>
+            <p className="text-base font-body text-[#3d3b3a] leading-relaxed">
+              HighVibe is built by retreat leaders who understand both sides of the experience.
+              Pricing is transparent. Standards are clear. As an early member, you&apos;re not
+              just joining a marketplace &mdash; you&apos;re helping shape an ecosystem.
+            </p>
+          </div>
         </section>
 
         {/* How You Get Matched */}
@@ -31,73 +67,6 @@ export default function HowItWorksPage() {
             HighVibe doesn&apos;t just list retreats. It connects the right people with
             the right experiences using intelligent matching.
           </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="rounded-xl border border-beige bg-beige/10 p-6">
-              <h3 className="font-headline text-xl mb-3">Smart Filters</h3>
-              <p className="text-sm font-body text-muted-foreground">
-                Seekers filter by location, retreat type, dates, price range, and
-                more. Guides, hosts, and vendors show up in the results that
-                matter most to them.
-              </p>
-            </div>
-            <div className="rounded-xl border border-beige bg-beige/10 p-6">
-              <h3 className="font-headline text-xl mb-3">AI Recommendations</h3>
-              <p className="text-sm font-body text-muted-foreground">
-                Our AI learns what seekers are looking for and surfaces retreats,
-                spaces, and services they&apos;re most likely to love &mdash; even
-                before they search.
-              </p>
-            </div>
-            <div className="rounded-xl border border-beige bg-beige/10 p-6">
-              <h3 className="font-headline text-xl mb-3">Proactive Matching</h3>
-              <p className="text-sm font-body text-muted-foreground">
-                The platform doesn&apos;t wait for searches. It connects seekers
-                to guides, spaces to retreat leaders, and vendors to the events
-                that need their services.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* AI-Powered Vendor Scouting */}
-        <section className="space-y-6">
-          <h2 className="font-headline text-3xl text-center">
-            AI-Powered Local Connections
-          </h2>
-          <p className="text-base text-beige-dark font-body text-center max-w-2xl mx-auto">
-            HighVibe uses AI technology to strengthen the ecosystem around every retreat &mdash;
-            for leaders and local communities alike.
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="rounded-xl border border-beige bg-beige/10 p-6">
-              <h3 className="font-headline text-xl mb-3">
-                Supporting Retreat Leaders
-              </h3>
-              <p className="text-sm font-body text-muted-foreground">
-                Planning a retreat in a new destination can mean hours of research
-                to find the right local support. Our AI scouts the areas where
-                retreats are happening &mdash; identifying nearby yoga instructors,
-                chefs, photographers, transport providers, and more &mdash; so
-                retreat leaders can curate the best possible experiences for
-                their guests without starting from scratch.
-              </p>
-            </div>
-            <div className="rounded-xl border border-beige bg-beige/10 p-6">
-              <h3 className="font-headline text-xl mb-3">
-                Strengthening Local Economies
-              </h3>
-              <p className="text-sm font-body text-muted-foreground">
-                Retreats bring travelers to communities around the world.
-                HighVibe&apos;s AI ensures that the local vendors and service
-                providers in those areas are discovered, connected, and booked
-                &mdash; directing retreat spending back into the communities
-                where it matters most and creating lasting economic
-                opportunities for local businesses.
-              </p>
-            </div>
-          </div>
         </section>
 
         {/* Your Dashboard */}

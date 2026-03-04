@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useUser, useFirestore } from '@/firebase';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { isFirebaseEnabled } from '@/firebase/config';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -156,6 +157,20 @@ export default function NewManifestationPage() {
             sendEmailNotif: false,
           }),
         }).catch(() => {});
+
+        // Fire-and-forget AI matching
+        if (isFirebaseEnabled && user.data && typeof (user.data as any).getIdToken === 'function') {
+          (user.data as any).getIdToken().then((idToken: string) => {
+            fetch('/api/match-manifestation', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${idToken}`,
+              },
+              body: JSON.stringify({ manifestationId: docRef.id }),
+            }).catch(() => {});
+          }).catch(() => {});
+        }
       }
 
       toast({ title: "Manifestation Submitted!", description: "We're matching you with providers." });

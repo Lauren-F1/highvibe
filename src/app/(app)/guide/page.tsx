@@ -33,6 +33,9 @@ import { VibeMatchModal } from '@/components/vibe-match-modal';
 import { useUser, useFirestore } from '@/firebase';
 import { collection, query, where, getDocs, doc, updateDoc, deleteDoc, serverTimestamp, addDoc, limit as firestoreLimit } from 'firebase/firestore';
 import { ScoutVendors } from '@/components/scout-vendors';
+import { ManifestationOpportunities } from '@/components/manifestation-opportunities';
+import { loadUserConnections, createConnection, getDisplayStatus, type Connection } from '@/lib/firestore-connections';
+import { isAvailableForRange } from '@/lib/date-utils';
 
 interface FirestoreRetreat {
   id: string;
@@ -163,6 +166,32 @@ export default function GuidePage() {
   const hosts = partnersLoaded && firestoreHosts.length > 0 ? firestoreHosts : mockHosts;
   const vendors = partnersLoaded && firestoreVendors.length > 0 ? firestoreVendors : mockVendors;
 
+  // Load published spaces for date-based availability filtering
+  const [spacesForFiltering, setSpacesForFiltering] = useState<{ spaceOwnerId: string; blockedDates: string[] }[]>([]);
+  const [spacesLoaded, setSpacesLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!firestore || user.status !== 'authenticated') return;
+
+    const loadSpaces = async () => {
+      try {
+        const spacesRef = collection(firestore, 'spaces');
+        const q = query(spacesRef, where('status', '==', 'published'));
+        const snap = await getDocs(q);
+        setSpacesForFiltering(snap.docs.map(d => ({
+          spaceOwnerId: d.data().spaceOwnerId as string,
+          blockedDates: (d.data().blockedDates || []) as string[],
+        })));
+      } catch (error) {
+        console.error('Error loading spaces for filtering:', error);
+      } finally {
+        setSpacesLoaded(true);
+      }
+    };
+
+    loadSpaces();
+  }, [firestore, user.status]);
+
   const [activeRetreatId, setActiveRetreatId] = useState<string | null>(null);
   const [subscriptionStatus] = useState<UserSubscriptionStatus>('active'); // mock status
   const { toast } = useToast();
@@ -184,29 +213,22 @@ export default function GuidePage() {
   const [appliedVendorFilters, setAppliedVendorFilters] = useState<VendorFiltersStateType>(initialVendorFilters);
   const [vendorFiltersDirty, setVendorFiltersDirty] = useState(false);
 
-  // Track connections via Firestore conversations
-  const [connectedPartnerIds, setConnectedPartnerIds] = useState<Set<string>>(new Set());
+  // Track connections via Firestore connections collection
+  const [connections, setConnections] = useState<Connection[]>([]);
 
   useEffect(() => {
     if (!firestore || user.status !== 'authenticated' || !user.data?.uid) return;
 
-    const loadConnections = async () => {
+    const load = async () => {
       try {
-        const conversationsRef = collection(firestore, 'conversations');
-        const q = query(conversationsRef, where('participants', 'array-contains', user.data!.uid));
-        const snap = await getDocs(q);
-        const partnerIds = new Set<string>();
-        snap.docs.forEach(d => {
-          const participants = d.data().participants as string[];
-          participants.forEach(p => { if (p !== user.data!.uid) partnerIds.add(p); });
-        });
-        setConnectedPartnerIds(partnerIds);
+        const conns = await loadUserConnections(firestore, user.data!.uid);
+        setConnections(conns);
       } catch (error) {
         console.warn('Failed to load connections:', error);
       }
     };
 
-    loadConnections();
+    load();
   }, [firestore, user.status, user.data?.uid]);
 
   const [showFeatureGate, setShowFeatureGate] = useState(false);
@@ -306,8 +328,10 @@ export default function GuidePage() {
   const activeRetreat = yourRetreats.find(r => r.id === activeRetreatId);
 
   const getPartnerStatus = (partnerId: string): ConnectionStatus => {
-    if (connectedPartnerIds.has(partnerId)) return 'In Conversation';
-    return 'Not Invited';
+    if (!user.data?.uid) return 'Not Invited';
+    const status = getDisplayStatus(connections, user.data.uid, partnerId);
+    if (status === 'Not Connected') return 'Not Invited';
+    return status;
   };
 
   const handleInvitePartner = async (partner: Host | Vendor) => {
@@ -329,7 +353,11 @@ export default function GuidePage() {
     }
     if (user.status !== 'authenticated' || !firestore) return;
 
-    if (connectedPartnerIds.has(partner.id)) {
+    const existingConn = connections.find(
+      c => (c.initiatorId === user.data.uid && c.partnerId === partner.id) ||
+           (c.partnerId === user.data.uid && c.initiatorId === partner.id)
+    );
+    if (existingConn && existingConn.status !== 'declined') {
         toast({ title: 'Already Connected', description: `You're already in contact with ${partner.name}.` });
         return;
     }
@@ -373,7 +401,27 @@ export default function GuidePage() {
         createdAt: serverTimestamp(),
       });
 
-      setConnectedPartnerIds(prev => new Set(prev).add(partner.id));
+      // Create connection record in Firestore
+      await createConnection(firestore, {
+        initiatorId: user.data.uid,
+        initiatorRole: 'guide',
+        partnerId: partner.id,
+        partnerRole: 'capacity' in partner ? 'host' : 'vendor',
+        conversationId: newConvRef.id,
+        retreatId: activeRetreat.id,
+      });
+
+      setConnections(prev => [...prev, {
+        id: '',
+        initiatorId: user.data!.uid,
+        initiatorRole: 'guide',
+        partnerId: partner.id,
+        partnerRole: 'capacity' in partner ? 'host' : 'vendor',
+        status: 'requested',
+        conversationId: newConvRef.id,
+        retreatId: activeRetreat.id,
+        createdAt: new Date().toISOString(),
+      }]);
       toast({ title: 'Invite Sent!', description: `${partner.name} has been invited to collaborate on "${activeRetreat.name}".` });
       router.push(`/inbox?c=${newConvRef.id}`);
     } catch (error) {
@@ -405,19 +453,21 @@ export default function GuidePage() {
   const getPartnershipStage = (retreat: (typeof yourRetreats)[0] | undefined): PartnershipStage => {
       if (!retreat) return 'Shortlist';
       if (retreat.status === 'Draft') return 'Draft';
-      if (connectedPartnerIds.size > 0) return 'In Conversation';
+      if (connections.length > 0) return 'In Conversation';
       return 'Shortlist';
   };
 
   const partnershipStage = getPartnershipStage(activeRetreat);
 
+  const connectedIds = new Set(connections.map(c => c.initiatorId === user.data?.uid ? c.partnerId : c.initiatorId));
+
   const readinessProps: RetreatReadinessProps = useMemo(() => ({
     datesSet: activeRetreat?.datesSet || false,
     capacitySet: (activeRetreat?.capacity || 0) > 0,
-    hostsShortlisted: hosts.filter(h => connectedPartnerIds.has(h.id)).length >= 3,
-    vendorsInvited: vendors.filter(v => connectedPartnerIds.has(v.id)).length >= 2,
-    activeConversations: connectedPartnerIds.size > 0,
-  }), [activeRetreat, connectedPartnerIds, hosts, vendors]);
+    hostsShortlisted: hosts.filter(h => connectedIds.has(h.id)).length >= 3,
+    vendorsInvited: vendors.filter(v => connectedIds.has(v.id)).length >= 2,
+    activeConversations: connections.length > 0,
+  }), [activeRetreat, connections, hosts, vendors]);
 
 
   const subscriptionBadge = {
@@ -445,6 +495,15 @@ export default function GuidePage() {
       filtered = filtered.filter(host => host.pricePerNight <= hostFilters.budget);
     }
 
+    // Date-based availability filtering
+    if (hostFilters.showExactDates && hostFilters.startDate && hostFilters.endDate && spacesLoaded) {
+      filtered = filtered.filter(host => {
+        const hostSpaces = spacesForFiltering.filter(s => s.spaceOwnerId === host.id);
+        if (hostSpaces.length === 0) return true; // No spaces listed yet — don't exclude
+        return hostSpaces.some(space => isAvailableForRange(space.blockedDates, hostFilters.startDate!, hostFilters.endDate!));
+      });
+    }
+
     // Sorting
     switch (sortOption) {
       case 'price-asc':
@@ -465,7 +524,7 @@ export default function GuidePage() {
     }
 
     return filtered;
-  }, [hostFilters, sortOption]);
+  }, [hostFilters, sortOption, spacesForFiltering, spacesLoaded]);
 
   const displayVendors = useMemo(() => {
     let filtered = [...vendors];
@@ -839,9 +898,9 @@ export default function GuidePage() {
                         <div>
                             <h3 className="font-headline text-2xl mb-2">Active Connections</h3>
                             <p className="text-muted-foreground mb-4">Partners you&apos;re currently in conversation with.</p>
-                            {connectedPartnerIds.size > 0 ? (
+                            {connections.length > 0 ? (
                                 <div className="flex items-center justify-between p-4 rounded-lg bg-secondary/50">
-                                    <p className="text-sm">{connectedPartnerIds.size} active connections</p>
+                                    <p className="text-sm">{connections.length} active connections</p>
                                     <Button variant="outline" size="sm" onClick={() => router.push('/inbox')}>View in Inbox</Button>
                                 </div>
                             ) : (
@@ -869,6 +928,9 @@ export default function GuidePage() {
                 )}
             </CardContent>
         </Card>
+
+        {/* Seeker Opportunities */}
+        <ManifestationOpportunities />
 
         {/* Scout Local Vendors */}
         {user.status === 'authenticated' && user.data?.uid && (

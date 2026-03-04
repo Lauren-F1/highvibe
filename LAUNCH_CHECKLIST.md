@@ -54,8 +54,8 @@ This is a running checklist of everything needed to go from current state to a f
 - [x] Save space to Firestore (`/spaces/{spaceId}`) — save as draft or publish
 - [x] Space image upload (placeholder component)
 - [x] Space editing flow (`/host/spaces/[id]/edit`) — load, edit, save, delete
-- [ ] **Availability calendar** (Airbnb-style date picker for hosts to set available dates)
-- [ ] **Date-based search** (guides filter spaces by available dates)
+- [x] **Availability calendar** (blocked-dates calendar on create + edit forms, saves to Firestore)
+- [x] **Date-based search** (guides filter spaces by available dates, seekers filter retreats by date range)
 - [x] Amenities, capacity, rate per night fields
 - [x] Space status management (draft/published/paused) — toggle from dashboard or edit page
 - [x] Host dashboard reads spaces from Firestore (with mock data fallback)
@@ -78,21 +78,21 @@ This is a running checklist of everything needed to go from current state to a f
 ### Manifestation → AI Matching Pipeline
 - [x] Seeker manifestation form (5-step wizard, saves to Firestore)
 - [x] Manifestation list view with status tabs
-- [ ] **AI matching flow**: Analyze manifestation → score against provider profiles → rank matches
-- [ ] **Notification system**: Alert matched providers about new manifestation
-- [ ] **Proposal system**: Providers respond to manifestations with retreat proposals
-- [ ] Match results page for seeker (show top-matched guides, hosts, vendors)
-- [ ] Conversation initiation from match results
+- [x] **AI matching flow**: Analyze manifestation → score against provider profiles → rank matches
+- [x] **Notification system**: Alert matched providers about new manifestation
+- [x] **Proposal system**: Providers respond to manifestations with retreat proposals
+- [x] Match results page for seeker (show top-matched guides, hosts, vendors)
+- [x] Conversation initiation from match results
 
 ### Partnership Matching (Provider ↔ Provider)
 - [x] Guide dashboard: Browse hosts/vendors with filters (real Firestore + mock fallback)
 - [x] Host dashboard: Browse guides/vendors with filters (real Firestore + mock fallback)
 - [x] Vendor dashboard: Browse guides/hosts with filters (real Firestore + mock fallback)
 - [x] Shared `firestore-partners.ts` utility — queries `/users` by role, maps to card interfaces
-- [~] Connection/invite system (host→guide creates real Firestore conversation; others are local state)
+- [x] Connection/invite system (all dashboards create Firestore connections + conversations)
 - [x] Replace mock provider data with real Firestore queries (all 3 dashboards)
-- [ ] Connection status tracking in Firestore (not just local state)
-- [ ] Filtering by availability dates (once host calendar is built)
+- [x] Connection status tracking in Firestore (not just local state)
+- [x] Filtering by availability dates (guide dashboard checks space blockedDates)
 
 ### Scout Local Vendors (AI-Powered Vendor Acquisition)
 - [x] Genkit AI flow — Google Places API search + Gemini relevance scoring
@@ -102,17 +102,17 @@ This is a running checklist of everything needed to go from current state to a f
 - [x] Outreach logging to Firestore (`/scout_outreach` collection)
 - [x] Provider Agreement Section 10a: Contact Info & Partner Privacy
 - [x] Google Places API key configured (Firebase secret + apphosting.yaml)
-- [ ] Outreach pipeline dashboard (sent / opened / signed up tracking)
-- [ ] Custom signup landing page with referral tracking (`/join/vendor?ref=scout`)
-- [ ] Automated follow-up emails (5-day reminder)
+- [x] Outreach pipeline dashboard (sent / opened / signed up tracking)
+- [x] Custom signup landing page with referral tracking (`/join/vendor?ref=scout`)
+- [x] Automated follow-up emails (5-day reminder via cron)
 
 ### Search & Discovery
 - [x] Seeker retreat search with filters (mock data)
 - [x] Seeker discovery shows real Firestore retreats (merged with mock data fallback)
 - [x] Location-based search (continent/region dropdown filters against real Firestore data)
-- [ ] Date-based search
+- [x] Date-based search (seeker page start/end date pickers filter retreats by date range)
 - [x] Budget filtering against real pricing (parsePriceRange filters Firestore + mock data)
-- [ ] Sort by AI recommendation score
+- [x] Sort by AI recommendation score
 
 ---
 
@@ -124,18 +124,20 @@ This is a running checklist of everything needed to go from current state to a f
 - [x] Firestore rules for conversations and messages collections
 - [x] Real-time message updates (onSnapshot for conversations and messages)
 - [x] Unread count from real data (lastReadAt per user in Firestore, persists across sessions)
-- [ ] Push/email notifications for new messages
-- [ ] AI message suggestions (flow exists, not wired to UI)
+- [x] Email notifications for new messages (via `/api/notifications` + Resend, with user preference checks + 5-min cooldown)
+- [ ] Push notifications for new messages (requires FCM setup — see notes below)
+- [x] AI message suggestions (flow + UI wired in conversation-view.tsx)
 
 ---
 
 ## 5. PAYMENTS & BILLING (Stripe Integration)
 
 ### Stripe Setup
-- [ ] Create Stripe account for HighVibe (manual — Stripe Dashboard)
+- [x] Create Stripe account for HighVibe (manual — Stripe Dashboard)
 - [x] Install Stripe SDK (`stripe`)
 - [x] Configure Stripe API keys (env vars + Firebase secrets)
 - [x] Set up Stripe webhook endpoint (real, with full event routing)
+- [ ] Add `transfer.failed` and `payout.failed` events to Stripe Dashboard webhook endpoint
 - [x] Webhook signature verification (`stripe.webhooks.constructEvent`)
 - [x] Stripe server singleton + auth helper (`src/lib/stripe.ts`, `src/lib/stripe-auth.ts`)
 
@@ -145,7 +147,12 @@ This is a running checklist of everything needed to go from current state to a f
 - [x] Handle payment success → booking created via webhook + success page
 - [x] Handle payment failure → webhook handler for `payment_intent.payment_failed`
 - [x] Calculate real platform fees per line item (from `app.json` plan rates)
-- [ ] Multi-provider line items (guide + host + vendor in one booking)
+- [x] Multi-provider line items (guide + host + vendor in one booking)
+- [x] Escrow hold pattern (funds held until retreat start + 24h, non-refundable after start)
+- [x] Cancel booking endpoint with refund enforcement (`/api/stripe/cancel-booking`)
+- [x] Release payouts endpoint (`/api/stripe/release-payouts`)
+- [ ] Set `CRON_SECRET` env var (Firebase secret + apphosting.yaml)
+- [ ] Configure daily cron job (Cloud Scheduler) to call `POST /api/stripe/release-payouts`
 
 ### Provider Payouts (Stripe Connect)
 - [x] Stripe Connect onboarding flow for providers (`/api/stripe/connect-onboard`)
@@ -154,11 +161,11 @@ This is a running checklist of everything needed to go from current state to a f
 - [x] Stripe processing fees passed to providers (deducted from their portion)
 - [x] Payout history page (`/payouts` — real Stripe transfer data)
 - [x] Provider agreement + terms updated with fee transparency (Sections 8 & 6)
-- [ ] Handle payout failures
+- [x] Handle payout failures
 
 ### Subscription Billing (Stripe Billing)
 - [x] Billing page UI wired to Stripe APIs (plan selection, invoices, payment method)
-- [ ] Create Stripe Products/Prices for each plan tier (manual — Stripe Dashboard)
+- [x] Create Stripe Products/Prices for each plan tier (manual — Stripe Dashboard)
 - [x] Subscription creation on plan selection (`/api/stripe/create-subscription`)
 - [x] Plan upgrade/downgrade logic via Stripe (`/api/stripe/cancel-subscription`)
 - [x] 90-day Pro commitment enforcement (with downgrade window tracking)
@@ -182,9 +189,9 @@ This is a running checklist of everything needed to go from current state to a f
 - [x] Chargeback email notification template (exists)
 - [x] Admin chargeback page (real Firestore queries, not mock data)
 - [x] Real Stripe webhook integration (dispute events create/update booking records)
-- [ ] Provider evidence submission flow
-- [ ] Chargeback offset against future payouts
-- [ ] Dispute resolution tracking
+- [x] Provider evidence submission flow (`/account/disputes`)
+- [x] Chargeback offset against future payouts (in `release-payouts` endpoint)
+- [x] Dispute resolution tracking (admin page with Active/Resolved tabs)
 
 ---
 
@@ -213,21 +220,21 @@ This is a running checklist of everything needed to go from current state to a f
 
 ### Guide Onboarding
 - [x] Choice page (voice vs classic)
-- [~] Voice onboarding (page exists, functionality TBD)
-- [~] Classic onboarding (placeholder "Coming Soon")
-- [ ] Profile completion wizard (guided form for bio, specialties, photos, etc.)
+- [x] Voice onboarding (speech → AI extracts profile → review → save to Firestore)
+- [x] Classic onboarding (3-step wizard: basics → specialties → photos & location)
+- [x] Profile completion wizard (guided form for bio, specialties, photos, etc.)
 
 ### Host Onboarding
 - [x] Choice page (voice vs classic) — just restored
-- [~] Voice onboarding (placeholder)
-- [~] Classic onboarding (placeholder)
-- [ ] Space listing wizard (property details, photos, amenities, pricing, availability)
+- [x] Voice onboarding (speech → AI extracts host profile → review → save)
+- [x] Classic onboarding (3-step wizard: basics → property details → photos & location)
+- [x] Space listing wizard (property details, photos, amenities, pricing, availability)
 
 ### Vendor Onboarding
 - [x] Choice page (voice vs classic)
-- [~] Voice onboarding (page exists)
-- [~] Classic onboarding (placeholder)
-- [ ] Service listing wizard (service details, pricing, availability, service area)
+- [x] Voice onboarding (speech → AI extracts vendor profile → review → save)
+- [x] Classic onboarding (3-step wizard: basics → services → photos & links)
+- [x] Service listing wizard (service details, pricing, availability, service area)
 
 ---
 
@@ -240,7 +247,7 @@ This is a running checklist of everything needed to go from current state to a f
 - [x] Admin user management (`/admin/users` — list + detail + search/filter/export + `/admin/users/[uid]` detail page)
 - [x] Admin booking/transaction overview (`/admin/bookings` — real Firestore data with pagination)
 - [x] Admin revenue dashboard (revenue cards + monthly chart on `/admin/analytics`)
-- [ ] Admin content moderation (review listings before publishing)
+- [x] Admin content moderation (review listings before publishing)
 
 ---
 

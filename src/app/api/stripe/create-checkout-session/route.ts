@@ -3,17 +3,48 @@ import { getStripe } from '@/lib/stripe';
 import { verifyAuthToken } from '@/lib/stripe-auth';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
 import { allRetreats } from '@/lib/mock-data';
+import appConfig from '@/config/app.json';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://highviberetreats.com';
 
+interface ProviderInfo {
+  id: string;
+  role: string;
+  amount: number;
+  feePercent: number;
+  label: string;
+}
+
+// Resolve a provider's platform fee based on their role and plan tier
+async function getProviderFeePercent(
+  db: FirebaseFirestore.Firestore,
+  providerId: string,
+  role: string,
+): Promise<number> {
+  const plans = (appConfig.plans as Record<string, Record<string, { platformFeePercent: number }>>);
+  const rolePlans = plans[role];
+  const defaultFee = rolePlans?.['pay-as-you-go']?.platformFeePercent ?? 12.5;
+
+  if (!providerId || providerId === 'guide-placeholder-id') return defaultFee;
+
+  try {
+    const providerDoc = await db.collection('users').doc(providerId).get();
+    if (!providerDoc.exists) return defaultFee;
+    const planKey = providerDoc.data()?.[`currentPlanKey_${role}`] || 'pay-as-you-go';
+    return rolePlans?.[planKey]?.platformFeePercent ?? defaultFee;
+  } catch {
+    return defaultFee;
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const uid = await verifyAuthToken(request);
     const body = await request.json();
-    const { retreatId, applyCredit, creditId, liabilityAccepted, medicalDisclosureAccepted } = body;
+    const { retreatId, applyCredit, creditId, liabilityAccepted, medicalDisclosureAccepted, providerLineItems } = body;
 
     if (!retreatId || !liabilityAccepted) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -25,6 +56,7 @@ export async function POST(request: Request) {
     let retreatTitle = '';
     let retreatPrice = 0;
     let retreatProviderId = '';
+    let isMultiProvider = false;
 
     const retreatDoc = await db.collection('retreats').doc(retreatId).get();
     if (retreatDoc.exists) {
@@ -32,6 +64,7 @@ export async function POST(request: Request) {
       retreatTitle = data.title || 'Retreat';
       retreatPrice = data.costPerPerson || data.price || 0;
       retreatProviderId = data.guideId || data.createdBy || '';
+      isMultiProvider = !!(data.spaceId || (data.vendorLineItems && data.vendorLineItems.length > 0));
     } else {
       // Fall back to mock data
       const mockRetreat = allRetreats.find(r => r.id === retreatId);
@@ -57,10 +90,8 @@ export async function POST(request: Request) {
         if (creditData.seeker_id === uid && creditData.status === 'available' && !isExpired) {
           discount = Math.min(creditData.issued_amount || 0, retreatPrice);
           validCreditId = creditId;
-          // Reserve the credit to prevent double-redemption (webhook finalizes to 'redeemed')
           await db.collection('manifest_credits').doc(creditId).update({ status: 'reserved' });
         } else if (creditData.status === 'available' && isExpired) {
-          // Mark expired credit
           await db.collection('manifest_credits').doc(creditId).update({ status: 'expired' });
         }
       }
@@ -75,29 +106,38 @@ export async function POST(request: Request) {
     const userDoc = await db.collection('users').doc(uid).get();
     const userEmail = userDoc.exists ? userDoc.data()?.email : undefined;
 
-    // Determine platform fee percentage based on provider's plan and role
-    let platformFeePercent = 12.5; // default PAYG guide rate
-    let providerConnectAccountId = '';
-    if (retreatProviderId && retreatProviderId !== 'guide-placeholder-id') {
-      const providerDoc = await db.collection('users').doc(retreatProviderId).get();
-      if (providerDoc.exists) {
-        const providerData = providerDoc.data()!;
-        const plan = providerData.currentPlanKey_guide || 'pay-as-you-go';
-        if (plan === 'pro') platformFeePercent = 8;
-        else if (plan === 'starter') platformFeePercent = 10;
-        // Get Connect account for destination charges
-        if (providerData.stripeConnectAccountId && providerData.stripeConnectOnboarded) {
-          providerConnectAccountId = providerData.stripeConnectAccountId;
-        }
-      }
-    }
-
     const stripe = getStripe();
 
-    // Calculate platform fee (application_fee_amount) — this is what HighVibe keeps.
-    // Stripe's processing fee is deducted from the provider's portion automatically
-    // when using destination charges.
-    const applicationFeeInCents = Math.round(totalInCents * (platformFeePercent / 100));
+    // Build provider info for metadata
+    const providers: ProviderInfo[] = [];
+
+    if (isMultiProvider && providerLineItems && providerLineItems.length > 0) {
+      // Multi-provider: build individual fee info for each provider
+      for (const item of providerLineItems as { providerId: string; providerRole: string; label: string; amount: number }[]) {
+        const feePercent = await getProviderFeePercent(db, item.providerId, item.providerRole);
+        providers.push({
+          id: item.providerId,
+          role: item.providerRole,
+          amount: item.amount,
+          feePercent,
+          label: item.label,
+        });
+      }
+    } else {
+      // Single provider (guide only) — use existing logic
+      const feePercent = await getProviderFeePercent(db, retreatProviderId, 'guide');
+      providers.push({
+        id: retreatProviderId,
+        role: 'guide',
+        amount: retreatPrice,
+        feePercent,
+        label: retreatTitle,
+      });
+    }
+
+    // Funds are always held by HighVibe until 24 hours after retreat start date.
+    // No destination charges — all transfers happen via separate stripe.transfers.create()
+    // after the retreat begins. This ensures proper escrow behavior.
 
     const sessionParams: any = {
       mode: 'payment',
@@ -120,11 +160,12 @@ export async function POST(request: Request) {
         creditId: validCreditId,
         discount: String(discount),
         retreatPrice: String(retreatPrice),
-        platformFeePercent: String(platformFeePercent),
         providerId: retreatProviderId,
         liabilityAccepted: String(liabilityAccepted),
         medicalDisclosureAccepted: String(medicalDisclosureAccepted || false),
         retreatTitle,
+        providers: JSON.stringify(providers),
+        isMultiProvider: String(providers.length > 1),
       },
       payment_intent_data: {
         metadata: {
@@ -133,16 +174,6 @@ export async function POST(request: Request) {
           providerId: retreatProviderId,
           bookingSource: 'highvibe',
         },
-        // If provider has a connected Stripe account, use destination charges.
-        // This routes payment to the provider automatically. HighVibe keeps
-        // the application_fee_amount as pure revenue. Stripe's processing fee
-        // (2.9% + $0.30) is deducted from the provider's portion, not HighVibe's.
-        ...(providerConnectAccountId ? {
-          application_fee_amount: applicationFeeInCents,
-          transfer_data: {
-            destination: providerConnectAccountId,
-          },
-        } : {}),
       },
     };
 

@@ -28,9 +28,21 @@ function JoinRoleContent() {
   const user = useUser();
   const role = Array.isArray(params.role) ? params.role[0] : params.role;
   const displayName = roleDisplayNames[role] || 'Member';
+  const ref = searchParams.get('ref');
+  const source = searchParams.get('source');
+  const isScoutReferral = ref === 'scout' && role === 'vendor';
 
   useEffect(() => {
     if (user.status === 'authenticated') {
+        // If this was a scout referral, update outreach record
+        if (isScoutReferral && source) {
+          fetch('/api/scout/signup-complete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: source }),
+          }).catch(() => {});
+        }
+
         const redirect = searchParams.get('redirect');
         if (redirect) {
             router.push(redirect);
@@ -38,14 +50,18 @@ function JoinRoleContent() {
             router.push(`/${role}`);
         }
     }
-  }, [user, router, role, searchParams]);
+  }, [user, router, role, searchParams, isScoutReferral, source]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-secondary p-4">
       <Card className="w-full max-w-md mx-4">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-headline">Create your {displayName} Account</CardTitle>
-          <CardDescription>Welcome! Let's get you set up on HighVibe Retreats.</CardDescription>
+          <CardDescription>
+            {isScoutReferral
+              ? 'A retreat leader found you and thinks you\'d be a great fit! Join HighVibe to connect with retreat leaders looking for your services.'
+              : 'Welcome! Let\'s get you set up on HighVibe Retreats.'}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <AuthForm mode="signup" role={role as 'guide' | 'host' | 'vendor' | 'seeker'}/>
