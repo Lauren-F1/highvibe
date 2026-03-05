@@ -213,8 +213,10 @@ export default function SeekerPage() {
         if (b.type) scoreB += b.type.length * 5;
         // Prefer mid-range pricing (closer to median)
         const median = retreats.reduce((s, r) => s + r.price, 0) / Math.max(retreats.length, 1);
-        scoreA += Math.max(0, 20 - Math.abs(a.price - median) / median * 10);
-        scoreB += Math.max(0, 20 - Math.abs(b.price - median) / median * 10);
+        if (median > 0) {
+          scoreA += Math.max(0, 20 - Math.abs(a.price - median) / median * 10);
+          scoreB += Math.max(0, 20 - Math.abs(b.price - median) / median * 10);
+        }
         return scoreB - scoreA;
       });
     }

@@ -263,12 +263,27 @@ export function AuthForm({ mode, role }: AuthFormProps) {
             console.warn('Failed to send verification email:', e)
           );
           toast({ title: 'Account created!', description: "Check your email to verify your account." });
+          // Redirect after signup
+          const redirect = searchParams.get('redirect');
+          if (redirect) {
+            router.push(redirect);
+          } else if (role) {
+            router.push(`/${role}`);
+          } else {
+            router.push('/');
+          }
+          setLoading(false);
+          return;
         } catch (signupErr: any) {
           if (signupErr.code === 'auth/email-already-in-use') {
             // Account exists (possibly from a previous failed signup). Try signing in instead.
             try {
               await signInWithEmailAndPassword(auth, values.email, values.password);
               toast({ title: 'Welcome back!', description: 'Signed in to your existing account.' });
+              const redirect = searchParams.get('redirect');
+              router.push(redirect || (role ? `/${role}` : '/'));
+              setLoading(false);
+              return;
             } catch {
               setError('An account with this email already exists. Please log in with your password.');
               setLoading(false);
@@ -299,6 +314,13 @@ export function AuthForm({ mode, role }: AuthFormProps) {
               console.warn('Failed to update lastLoginAt:', e);
             }
         }
+
+        // Redirect after login
+        const redirect = searchParams.get('redirect');
+        if (redirect) {
+          router.push(redirect);
+        }
+        // If no redirect, the useUser hook's auth state change will trigger navigation
       }
     } catch (err: any) {
       console.error('Auth error:', err.code, err.message);

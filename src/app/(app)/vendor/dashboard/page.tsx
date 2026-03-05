@@ -235,7 +235,12 @@ export default function VendorDashboardPage() {
 
   const displayedGuides = useMemo(() => {
     let filtered = [...allGuides];
-    // TODO: Add filtering logic based on appliedGuideFilters
+    if (appliedGuideFilters.retreatTypes.length > 0) {
+      filtered = filtered.filter(g => {
+        const guideTypes = g.retreatTypes || [g.specialty?.toLowerCase()];
+        return appliedGuideFilters.retreatTypes.some(t => guideTypes.some(gt => gt?.toLowerCase().includes(t.toLowerCase())));
+      });
+    }
     switch (guideSortOption) {
       case 'rating':
         filtered.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
@@ -249,11 +254,19 @@ export default function VendorDashboardPage() {
         break;
     }
     return filtered;
-  }, [appliedGuideFilters, guideSortOption]);
+  }, [allGuides, appliedGuideFilters, guideSortOption]);
 
   const displayedHosts = useMemo(() => {
     let filtered = [...allHosts];
-    // TODO: Add filtering logic based on appliedHostFilters
+    if (appliedHostFilters.location !== 'any') {
+      filtered = filtered.filter(h => h.location?.toLowerCase().includes(appliedHostFilters.location.toLowerCase()));
+    }
+    if (appliedHostFilters.propertyTypes.length > 0) {
+      filtered = filtered.filter(h => h.propertyType && appliedHostFilters.propertyTypes.some(t => h.propertyType.toLowerCase().includes(t.toLowerCase())));
+    }
+    if (appliedHostFilters.capacity < 100) {
+      filtered = filtered.filter(h => h.capacity <= appliedHostFilters.capacity);
+    }
     switch (hostSortOption) {
       case 'price-asc':
         filtered.sort((a, b) => a.pricePerNight - b.pricePerNight);
@@ -267,7 +280,7 @@ export default function VendorDashboardPage() {
         break;
     }
     return filtered;
-  }, [appliedHostFilters, hostSortOption]);
+  }, [allHosts, appliedHostFilters, hostSortOption]);
 
 
   const handleAddNewService = () => {

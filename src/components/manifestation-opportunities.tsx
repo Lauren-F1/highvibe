@@ -75,6 +75,9 @@ export function ManifestationOpportunities() {
             }
 
             setLoading(false);
+        }, (error) => {
+            console.error('Error listening to match opportunities:', error);
+            setLoading(false);
         });
 
         return () => unsubscribe();

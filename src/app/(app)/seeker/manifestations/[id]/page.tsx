@@ -192,6 +192,9 @@ export default function ManifestationDetailPage() {
                 setManifestation({ id: snap.id, ...snap.data() } as Manifestation);
             }
             setLoading(false);
+        }, (error) => {
+            console.error('Error listening to manifestation:', error);
+            setLoading(false);
         });
 
         return () => unsubscribe();
@@ -225,6 +228,8 @@ export default function ManifestationDetailPage() {
                     });
                 }
             }
+        }, (error) => {
+            console.error('Error listening to matches:', error);
         });
 
         return () => unsubscribe();
@@ -241,6 +246,8 @@ export default function ManifestationDetailPage() {
 
         const unsubscribe = onSnapshot(q, (snap) => {
             setProposals(snap.docs.map(d => ({ id: d.id, ...d.data() } as Proposal)));
+        }, (error) => {
+            console.error('Error listening to proposals:', error);
         });
 
         return () => unsubscribe();

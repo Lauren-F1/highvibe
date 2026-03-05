@@ -76,24 +76,34 @@ export async function POST(request: Request) {
       retreatProviderId = 'guide-placeholder-id';
     }
 
-    // Handle manifest credit discount (with expiry check + atomic reservation)
+    // Handle manifest credit discount (atomic reservation via transaction)
     let discount = 0;
     let validCreditId = '';
     if (applyCredit && creditId) {
-      const creditDoc = await db.collection('manifest_credits').doc(creditId).get();
-      if (creditDoc.exists) {
-        const creditData = creditDoc.data()!;
-        const now = new Date();
-        const expiryDate = creditData.expiry_date?.toDate ? creditData.expiry_date.toDate() : new Date(creditData.expiry_date);
-        const isExpired = expiryDate < now;
+      try {
+        const creditResult = await db.runTransaction(async (transaction) => {
+          const creditRef = db.collection('manifest_credits').doc(creditId);
+          const creditDoc = await transaction.get(creditRef);
+          if (!creditDoc.exists) return { discount: 0, creditId: '' };
 
-        if (creditData.seeker_id === uid && creditData.status === 'available' && !isExpired) {
-          discount = Math.min(creditData.issued_amount || 0, retreatPrice);
-          validCreditId = creditId;
-          await db.collection('manifest_credits').doc(creditId).update({ status: 'reserved' });
-        } else if (creditData.status === 'available' && isExpired) {
-          await db.collection('manifest_credits').doc(creditId).update({ status: 'expired' });
-        }
+          const creditData = creditDoc.data()!;
+          const now = new Date();
+          const expiryDate = creditData.expiry_date?.toDate ? creditData.expiry_date.toDate() : new Date(creditData.expiry_date);
+          const isExpired = expiryDate < now;
+
+          if (creditData.seeker_id === uid && creditData.status === 'available' && !isExpired) {
+            transaction.update(creditRef, { status: 'reserved' });
+            return { discount: Math.min(creditData.issued_amount || 0, retreatPrice), creditId };
+          } else if (creditData.status === 'available' && isExpired) {
+            transaction.update(creditRef, { status: 'expired' });
+          }
+          return { discount: 0, creditId: '' };
+        });
+        discount = creditResult.discount;
+        validCreditId = creditResult.creditId;
+      } catch (txnError) {
+        console.error('[STRIPE_CHECKOUT] Credit reservation transaction failed:', txnError);
+        // Continue without credit — don't block checkout
       }
     }
 

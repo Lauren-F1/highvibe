@@ -243,7 +243,7 @@ export default function CheckoutPage() {
                                                     <HelpCircle className="h-4 w-4 text-muted-foreground" />
                                                 </TooltipTrigger>
                                                 <TooltipContent>
-                                                    <p>Credit is non-transferable and expires on {credit.expiry_date ? format(credit.expiry_date.toDate(), 'PPP') : 'N/A'}.</p>
+                                                    <p>Credit is non-transferable and expires on {credit.expiry_date ? format(credit.expiry_date.toDate ? credit.expiry_date.toDate() : new Date(credit.expiry_date), 'PPP') : 'N/A'}.</p>
                                                     <p>Applies to retreat booking subtotal only.</p>
                                                 </TooltipContent>
                                             </Tooltip>
