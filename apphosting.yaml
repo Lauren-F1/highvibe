@@ -91,6 +91,11 @@ env:
     availability:
       - RUNTIME
 
+  - variable: CRON_SECRET
+    secret: CRON_SECRET
+    availability:
+      - RUNTIME
+
   - variable: STRIPE_PRICE_GUIDE_STARTER
     value: "price_1T6gbJL2cdS3EwJ8p7eKGM3i"
     availability:
