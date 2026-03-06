@@ -29,7 +29,7 @@ import { cn } from '@/lib/utils';
 import { loadUserConnections, createConnection, getDisplayStatus, type Connection } from '@/lib/firestore-connections';
 
 
-const genericImage = '/generic-placeholder.jpg';
+const genericImage = '/generic-placeholder.png';
 
 import { getPlaceholderById } from '@/lib/placeholder-images';
 
@@ -155,7 +155,7 @@ export default function HostDashboardPage() {
   const currentUser = useUser();
   const firestore = useFirestore();
   const [isConnecting, setIsConnecting] = useState(false);
-  const hostHeroImage = '/host-dashboard-hero.jpg';
+  const hostHeroImage = '/host-cabin.png';
 
   // Load spaces from Firestore
   const [firestoreSpaces, setFirestoreSpaces] = useState<HostSpace[]>([]);

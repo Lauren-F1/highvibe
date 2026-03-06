@@ -71,7 +71,7 @@ export default function RetreatDetailPage() {
               location: data.locationDescription || '',
               price: data.costPerPerson || 0,
               rating: 0,
-              image: data.retreatImageUrls?.[0] || '/generic-placeholder.jpg',
+              image: data.retreatImageUrls?.[0] || '/generic-placeholder.png',
               duration: data.startDate && data.endDate
                 ? `${format(parseISO(data.startDate), 'MMM d')} – ${format(parseISO(data.endDate), 'MMM d, yyyy')}`
                 : undefined,

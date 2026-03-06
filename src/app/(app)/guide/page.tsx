@@ -71,7 +71,7 @@ function toDisplayRetreat(r: FirestoreRetreat) {
 }
 
 
-const genericImage = '/generic-placeholder.jpg';
+const genericImage = '/generic-placeholder.png';
 
 const initialHostFilters: HostFiltersState = {
   continent: 'anywhere',
@@ -592,10 +592,6 @@ export default function GuidePage() {
         <div className="flex-grow"></div>
 
         <div className="flex items-center gap-4 mt-4 md:mt-0 flex-shrink-0">
-            <Badge variant={subscriptionBadge.variant} className="h-9">
-                {subscriptionBadge.icon}
-                {subscriptionBadge.label}
-            </Badge>
             <Button size="lg" variant="outline" asChild>
               <Link href="/guide/itinerary-planner"><Sparkles className="mr-2 h-5 w-5" /> AI Itinerary Planner</Link>
             </Button>

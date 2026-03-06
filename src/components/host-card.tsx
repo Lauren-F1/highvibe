@@ -46,7 +46,7 @@ interface HostCardProps {
   connectActionLabel?: string;
 }
 
-const defaultImageUrl = '/generic-placeholder.jpg';
+const defaultImageUrl = '/generic-placeholder.png';
 
 
 export function HostCard({ host, onConnect, onViewMessage, connectionStatus = 'Not Invited', connectActionLabel = "Invite" }: HostCardProps) {

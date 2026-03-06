@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Logo } from '@/components/icons/logo';
 import { cn } from '@/lib/utils';
-import React, { useState, useEffect, CSSProperties } from 'react';
+import React, { useState, useEffect, useMemo, CSSProperties } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { HowItWorksModal } from '@/components/how-it-works-modal';
 import { allRetreats as mockRetreats, continents, destinations, experienceTypes, investmentRanges, timingOptions } from '@/lib/mock-data';
-import { useFirestore } from '@/firebase';
+import { useFirestore, useUser } from '@/firebase';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
@@ -67,9 +67,12 @@ export default function SeekerPage() {
   const [firestoreRetreats, setFirestoreRetreats] = useState<typeof mockRetreats>([]);
   const [retreatsLoaded, setRetreatsLoaded] = useState(false);
 
-  const retreats = retreatsLoaded && firestoreRetreats.length > 0
-    ? [...firestoreRetreats, ...mockRetreats]
-    : mockRetreats;
+  const retreats = useMemo(() =>
+    retreatsLoaded && firestoreRetreats.length > 0
+      ? [...firestoreRetreats, ...mockRetreats]
+      : mockRetreats,
+    [retreatsLoaded, firestoreRetreats]
+  );
 
   const [filteredRetreats, setFilteredRetreats] = useState(mockRetreats);
   const [isHowItWorksOpen, setIsHowItWorksOpen] = useState(false);
@@ -83,11 +86,12 @@ export default function SeekerPage() {
   const [waitlistSmsOptIn, setWaitlistSmsOptIn] = useState(false);
 
   const firestore = useFirestore();
+  const { user } = useUser();
   const { toast } = useToast();
 
   // Load published retreats from Firestore
   useEffect(() => {
-    if (!firestore) return;
+    if (!firestore || !user?.uid) return;
 
     const loadRetreats = async () => {
       try {
@@ -107,7 +111,7 @@ export default function SeekerPage() {
             location: data.locationDescription || '',
             price: data.costPerPerson || 0,
             rating: 0,
-            image: data.retreatImageUrls?.[0] || '/generic-placeholder.jpg',
+            image: data.retreatImageUrls?.[0] || '/generic-placeholder.png',
             type: data.type ? [data.type.toLowerCase().replace(/\s+/g, '-')] : [],
             duration: data.startDate && data.endDate ? `${data.startDate} to ${data.endDate}` : undefined,
             startDate: (data.startDate as string) || undefined,
@@ -126,7 +130,7 @@ export default function SeekerPage() {
     };
 
     loadRetreats();
-  }, [firestore]);
+  }, [firestore, user?.uid]);
 
   useEffect(() => {
     // This effect is only for filtering, not for deciding which state to show

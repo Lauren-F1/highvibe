@@ -10,22 +10,31 @@ export default function AboutPage() {
           </CardHeader>
           <CardContent className="space-y-6 text-lg font-body text-foreground/80">
             <p>
-              HighVibe Retreats is a marketplace built for retreats — not just listings. We connect Seekers with experiences that feel aligned, and we help Guides, Hosts, and Vendors find each other faster, with less friction and more trust.
+              HighVibe Retreats was created with a simple belief: the most meaningful experiences happen when the right people come together in the right place.
             </p>
             <p>
-              We’re building a platform where the right people can meet, plan, and book with confidence — so the logistics don’t dilute the magic. Whether you’re attending a retreat, leading one, offering services, or listing a space, HighVibe Retreats is designed to help you get discovered and get booked.
+              Retreats have the power to change how we see ourselves, each other, and the world. But behind every transformative retreat is a network of people doing the real work: guides shaping the experience, hosts opening their spaces, vendors bringing local flavor and expertise, and seekers showing up ready for something meaningful.
             </p>
-            <div>
-              <h3 className="font-headline text-2xl mt-8 mb-4">What we stand for</h3>
-              <ul className="list-disc list-inside space-y-2">
-                <li>Clarity over clutter</li>
-                <li>Trust over volume</li>
-                <li>Quality connections over endless searching</li>
-                <li>A marketplace that supports the people doing the real work behind the experience</li>
-              </ul>
-            </div>
-            <p className="pt-8 text-center text-muted-foreground italic">
-              HighVibe Retreats is growing, and we’re grateful you’re here. Your participation helps shape what this becomes. Thank you for being part of the community that brings it to life.
+            <p>
+              HighVibe Retreats exists to bring that entire ecosystem together.
+            </p>
+            <p>
+              We’re not just another listing site. We’re building a marketplace designed specifically for retreats, a place where Seekers can discover experiences that truly resonate, and where Guides, Hosts, and Vendors can find each other faster, collaborate more easily, and build retreats with the support they deserve.
+            </p>
+            <p>
+              When the right connections happen, something bigger unfolds. Retreat leaders spend less time chasing logistics and more time crafting meaningful experiences. Local businesses gain access to new opportunities. Communities benefit from thoughtful, place-based gatherings. And the people attending retreats find experiences that feel intentional rather than accidental.
+            </p>
+            <p>
+              That’s the vision behind HighVibe: a network that works together to create something better than any one person could build alone.
+            </p>
+            <p>
+              We believe great retreats aren’t just events, they’re collaborations.
+            </p>
+            <p>
+              HighVibe Retreats is growing, and we’re grateful you’re here. Every person who joins helps strengthen the ecosystem and support the small businesses, local communities, and experience-makers who make these gatherings possible.
+            </p>
+            <p className="pt-4 text-center text-muted-foreground italic">
+              Thank you for being part of what we’re building.
             </p>
           </CardContent>
         </Card>

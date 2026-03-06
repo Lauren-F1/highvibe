@@ -23,7 +23,6 @@ import {
   updateDoc,
   doc,
   serverTimestamp,
-  or,
 } from 'firebase/firestore';
 
 export type ConnectionStatus = 'requested' | 'accepted' | 'declined';
@@ -48,28 +47,37 @@ export async function loadUserConnections(
   userId: string
 ): Promise<Connection[]> {
   const connectionsRef = collection(firestore, 'connections');
-  const q = query(
-    connectionsRef,
-    or(
-      where('initiatorId', '==', userId),
-      where('partnerId', '==', userId)
-    )
-  );
-  const snap = await getDocs(q);
-  return snap.docs.map(d => {
-    const data = d.data();
-    return {
-      id: d.id,
-      initiatorId: data.initiatorId,
-      initiatorRole: data.initiatorRole,
-      partnerId: data.partnerId,
-      partnerRole: data.partnerRole,
-      status: data.status,
-      conversationId: data.conversationId,
-      retreatId: data.retreatId,
-      createdAt: data.createdAt?.toDate?.()?.toISOString() || '',
-    };
-  });
+
+  // Split into two queries to satisfy Firestore security rules
+  // (rules check initiatorId OR partnerId, but or() queries can't be validated at query time)
+  const [initiatorSnap, partnerSnap] = await Promise.all([
+    getDocs(query(connectionsRef, where('initiatorId', '==', userId))),
+    getDocs(query(connectionsRef, where('partnerId', '==', userId))),
+  ]);
+
+  const seen = new Set<string>();
+  const results: Connection[] = [];
+
+  for (const snap of [initiatorSnap, partnerSnap]) {
+    for (const d of snap.docs) {
+      if (seen.has(d.id)) continue;
+      seen.add(d.id);
+      const data = d.data();
+      results.push({
+        id: d.id,
+        initiatorId: data.initiatorId,
+        initiatorRole: data.initiatorRole,
+        partnerId: data.partnerId,
+        partnerRole: data.partnerRole,
+        status: data.status,
+        conversationId: data.conversationId,
+        retreatId: data.retreatId,
+        createdAt: data.createdAt?.toDate?.()?.toISOString() || '',
+      });
+    }
+  }
+
+  return results;
 }
 
 /**

@@ -56,14 +56,15 @@ service cloud.firestore {
     // --- COLLECTION RULES ---
 
     /**
-     * @description Core user account data. Access is strictly limited to the account owner.
+     * @description Core user account data. Readable by any signed-in user (for partner
+     * discovery by role). Writes are strictly limited to the account owner.
+     * Private data (seekerProfile subcollection) remains owner-only.
      * @path /users/{userId}
-     * @allow (get, list, create, update) if auth.uid == userId
-     * @deny Any access where auth.uid != userId
-     * @principle Ownership: Restricts access to a user's own data tree.
+     * @allow (get, list) if signed in (needed for role-based partner queries)
+     * @allow (create, update, delete) if auth.uid == userId
      */
     match /users/{userId} {
-      allow get, list: if isOwner(userId);
+      allow get, list: if isSignedIn();
       allow create: if isOwner(userId) && request.resource.data.id == userId;
       allow update: if isExistingOwner(userId) && request.resource.data.id == userId;
       allow delete: if isExistingOwner(userId);

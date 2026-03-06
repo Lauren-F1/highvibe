@@ -181,7 +181,7 @@ export default function VendorDashboardPage() {
   const [hostFiltersDirty, setHostFiltersDirty] = useState(false);
   const [hostFiltersVisible, setHostFiltersVisible] = useState(false);
   const [hostSortOption, setHostSortOption] = useState('recommended');
-  const vendorHeroImage = '/vendor-dashboard-hero.jpg';
+  const vendorHeroImage = '/vendor-table.png';
 
   const isAgreementAccepted = user.status === 'authenticated' && user.profile?.providerAgreementAccepted === true;
 
