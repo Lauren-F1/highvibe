@@ -3,7 +3,8 @@
 
 import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardFooter, CardTitle } from '@/components/ui/card';
-import { MapPin, Clock, CheckCircle, Bookmark } from 'lucide-react';
+import { MapPin, Clock, CheckCircle, Bookmark, Ban } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { useUser, useFirestore } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
@@ -25,6 +26,7 @@ interface RetreatCardProps {
     image: string;
     duration?: string;
     included?: string;
+    isFullyBooked?: boolean;
   };
   isLux?: boolean;
 }
@@ -113,6 +115,12 @@ export function RetreatCard({ retreat, isLux = false }: RetreatCardProps) {
         <Bookmark className={cn('h-5 w-5', isSaved ? 'fill-primary text-primary' : 'text-foreground/80')} />
       </Button>
       <CardContent className="p-4 flex-grow">
+        {retreat.isFullyBooked && (
+          <Badge variant="secondary" className="mb-3 text-xs font-ui">
+            <Ban className="mr-1 h-3 w-3" />
+            Fully Booked
+          </Badge>
+        )}
         <div className="flex justify-between items-start gap-4 mb-4">
             <div className="flex-1">
                 <CardTitle className="font-headline text-2xl mb-2 pr-10">{retreat.title}</CardTitle>

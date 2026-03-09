@@ -4,7 +4,7 @@
 import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardFooter, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Star, MapPin } from 'lucide-react';
+import { Star, MapPin, CalendarX } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 import type { Vendor } from '@/lib/mock-data';
@@ -19,11 +19,12 @@ export interface VendorCardProps {
   onViewMessage?: (partner: Vendor) => void;
   distance?: number;
   connectionStatus?: ConnectionStatus;
+  bookedUntil?: string;
 }
 
 const defaultAvatarUrl = '/friendly-host-portrait.jpg';
 
-export function VendorCard({ vendor, onConnect, onViewMessage, distance, connectionStatus = 'Not Invited' }: VendorCardProps) {
+export function VendorCard({ vendor, onConnect, onViewMessage, distance, connectionStatus = 'Not Invited', bookedUntil }: VendorCardProps) {
   const avatarUrl = vendor.avatar || defaultAvatarUrl;
 
   const renderActionButton = () => {
@@ -80,6 +81,12 @@ export function VendorCard({ vendor, onConnect, onViewMessage, distance, connect
                 <span>
                   {distance < 10 ? distance.toFixed(1) : Math.round(distance)} miles away
                 </span>
+              </div>
+            )}
+          {bookedUntil && (
+              <div className="flex items-center text-xs text-muted-foreground mt-1">
+                <CalendarX className="mr-1.5 h-3 w-3" />
+                <span>Booked through {new Date(bookedUntil + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
               </div>
             )}
         </div>

@@ -3,7 +3,7 @@
 
 import Image from 'next/image';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { MapPin, Users, Bed, Bath } from 'lucide-react';
+import { MapPin, Users, Bed, Bath, CalendarX } from 'lucide-react';
 import { Button } from './ui/button';
 import Link from 'next/link';
 import { Badge } from './ui/badge';
@@ -44,12 +44,13 @@ interface HostCardProps {
   onViewMessage?: (partner: Host) => void;
   connectionStatus?: ConnectionStatus;
   connectActionLabel?: string;
+  nextAvailableDate?: string;
 }
 
 const defaultImageUrl = '/generic-placeholder.png';
 
 
-export function HostCard({ host, onConnect, onViewMessage, connectionStatus = 'Not Invited', connectActionLabel = "Invite" }: HostCardProps) {
+export function HostCard({ host, onConnect, onViewMessage, connectionStatus = 'Not Invited', connectActionLabel = "Invite", nextAvailableDate }: HostCardProps) {
   const imageUrl = host.image || defaultImageUrl;
 
   const renderActionButton = () => {
@@ -102,6 +103,12 @@ export function HostCard({ host, onConnect, onViewMessage, connectionStatus = 'N
                         <MapPin className="mr-2 h-4 w-4" />
                         {host.location}
                     </div>
+                    {nextAvailableDate && (
+                      <div className="flex items-center text-xs text-muted-foreground mt-1">
+                        <CalendarX className="mr-2 h-3 w-3" />
+                        Booked through {new Date(nextAvailableDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                      </div>
+                    )}
                 </div>
                 <div className="text-right shrink-0">
                     <p className="font-bold text-lg">${host.pricePerNight}</p>

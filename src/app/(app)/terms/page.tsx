@@ -11,7 +11,7 @@ export default function TermsPage() {
           <CardContent className="space-y-6 text-sm font-body text-foreground/80">
             <p className="font-medium">Effective Date: February 1, 2026</p>
             <p>
-              These Terms of Service (“Terms”) govern your access to and use of HighVibe Retreats (“HighVibe,” “we,” “us,” or “our”). By accessing or using the platform, you agree to be bound by these Terms.
+              These Terms of Service (&quot;Terms&quot;) govern your access to and use of HighVibe Retreats, a DBA of New Mindset Foundation LLC (&quot;HighVibe,&quot; &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;). By accessing or using the platform, you agree to be bound by these Terms.
             </p>
             <p className="font-bold">If you do not agree, you may not use the platform.</p>
             

@@ -8,7 +8,7 @@ import { GoogleAnalytics } from '@/components/GoogleAnalytics';
 import { Suspense } from 'react';
 
 export const metadata: Metadata = {
-  title: 'Retreat and Relax',
+  title: 'HighVibe Retreats | The Retreat Marketplace',
   description: 'Find your next escape. Or create one.',
 };
 

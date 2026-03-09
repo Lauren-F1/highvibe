@@ -18,7 +18,7 @@ export function Footer() {
               <Logo className="w-[140px] h-[35px]" />
             </Link>
             <p className="mt-4 text-sm text-muted-foreground sm:mt-0">
-              © {new Date().getFullYear()} HighVibe Retreats Inc. All rights reserved.
+              © {new Date().getFullYear()} New Mindset Foundation LLC. All rights reserved.
             </p>
             <div className="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-2 sm:mt-0 items-center">
               <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground">
@@ -29,6 +29,9 @@ export function Footer() {
               </Link>
               <Link href="/support" className="text-sm text-muted-foreground hover:text-foreground">
                 Support
+              </Link>
+              <Link href="/how-it-works" className="text-sm text-muted-foreground hover:text-foreground">
+                How It Works
               </Link>
               <Link href="/terms" className="text-sm text-muted-foreground hover:text-foreground">
                 Terms of Service

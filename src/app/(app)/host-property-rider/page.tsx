@@ -11,7 +11,7 @@ export default function HostPropertyRiderPage() {
           </CardHeader>
           <CardContent className="space-y-6 text-sm font-body text-foreground/80">
             <p className="font-medium">Effective Date: February 1, 2026</p>
-            <p>This Rider applies to all Hosts listing property on HighVibe.</p>
+            <p>This Rider applies to all Hosts listing property on HighVibe Retreats, a DBA of New Mindset Foundation LLC (&quot;HighVibe&quot;).</p>
             
             <div className="space-y-2">
               <h2 className="font-headline text-xl pt-4 font-bold">1. Premises Responsibility</h2>

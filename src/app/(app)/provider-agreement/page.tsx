@@ -10,7 +10,7 @@ export default function ProviderAgreementPage() {
           </CardHeader>
           <CardContent className="space-y-6 text-sm font-body text-foreground/80">
             <p className="font-medium">Effective Date: February 1, 2026</p>
-            <p>This Provider Agreement (“Agreement”) governs all users operating as a Guide, Host, or Vendor on HighVibe Retreats (“HighVibe,” “we,” “us,” or “our”).</p>
+            <p>This Provider Agreement (&quot;Agreement&quot;) governs all users operating as a Guide, Host, or Vendor on HighVibe Retreats, a DBA of New Mindset Foundation LLC (&quot;HighVibe,&quot; &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;).</p>
             <p className="font-bold">By registering or operating as a Guide, Host, or Vendor, you agree to be legally bound by this Agreement.</p>
             <p>If you do not agree, you may not list, publish, connect Stripe, accept bookings, or operate as a provider on the platform.</p>
             

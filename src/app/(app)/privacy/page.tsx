@@ -10,7 +10,7 @@ export default function PrivacyPage() {
           </CardHeader>
           <CardContent className="space-y-6 text-sm font-body text-foreground/80">
             <p className="font-medium">Effective Date: February 1, 2026</p>
-            <p>HighVibe Retreats (“HighVibe,” “we,” “us,” or “our”) respects your privacy and is committed to protecting your personal information.</p>
+            <p>HighVibe Retreats, a DBA of New Mindset Foundation LLC (&quot;HighVibe,&quot; &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) respects your privacy and is committed to protecting your personal information.</p>
             <p>This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our website, applications, and services.</p>
             <p className="font-bold">If you do not agree with this policy, do not use the platform.</p>
             
@@ -184,7 +184,8 @@ export default function PrivacyPage() {
                 <h2 className="font-headline text-xl pt-4 font-bold">13. Contact Information</h2>
                 <p>For privacy inquiries, contact:</p>
                 <p>
-                    HighVibe Retreats<br />
+                    New Mindset Foundation LLC<br />
+                    DBA HighVibe Retreats<br />
                     Email: <a href="mailto:privacy@highviberetreats.com" className="text-primary hover:underline">privacy@highviberetreats.com</a><br />
                     State of Formation: Nevada, United States
                 </p>

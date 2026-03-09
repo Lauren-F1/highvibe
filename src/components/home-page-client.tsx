@@ -9,6 +9,7 @@ import React, { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { WaitlistModal } from './waitlist-modal';
 import { Button } from './ui/button';
+import { Footer } from './footer';
 import * as analytics from '@/lib/analytics';
 import { HOMEPAGE_PERK_TEASER } from '@/lib/waitlist-constants';
 
@@ -230,6 +231,7 @@ export default function HomePageClient() {
         </div>
       </div>
     </main>
+    <Footer />
     </>
   );
 }

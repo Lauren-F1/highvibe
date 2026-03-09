@@ -1,16 +1,7 @@
-import { Logo } from '@/components/icons/logo';
-import Link from 'next/link';
-
 export default function HowItWorksPage() {
   return (
-    <main className="flex min-h-screen w-full flex-col items-center bg-background p-4 sm:p-6 md:p-8">
-      <div className="w-full max-w-7xl text-center mb-4">
-        <Link href="/">
-          <Logo />
-        </Link>
-      </div>
-
-      <div className="w-full max-w-3xl space-y-16 py-8">
+    <div className="container mx-auto px-4 py-8 md:py-12">
+      <div className="w-full max-w-3xl mx-auto space-y-16">
         {/* Intro */}
         <section className="text-center space-y-4">
           <h1 className="font-headline text-2xl sm:text-3xl md:text-5xl">
@@ -155,6 +146,6 @@ export default function HowItWorksPage() {
           </p>
         </section>
       </div>
-    </main>
+    </div>
   );
 }
