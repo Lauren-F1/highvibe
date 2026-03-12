@@ -386,7 +386,7 @@ export default function GuidePage() {
         participants: [user.data.uid, partner.id],
         participantInfo: {
           [user.data.uid]: { displayName: user.profile?.displayName, avatarUrl: user.profile?.avatarUrl, role: 'Guide' },
-          [partner.id]: { displayName: partner.name, avatarUrl: partner.avatar, role: partnerRole },
+          [partner.id]: { displayName: partner.name, avatarUrl: 'avatar' in partner ? partner.avatar : ('image' in partner ? partner.image : undefined), role: partnerRole },
         },
         createdAt: serverTimestamp(),
         lastMessageAt: serverTimestamp(),

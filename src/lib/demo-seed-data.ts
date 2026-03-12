@@ -346,7 +346,6 @@ const retreatTypeToImages: Record<string, string[][]> = {
   'Mindfulness': [
     [`${R}/womens retreat young beach photo.jpg`],
     [`${R}/young womens retreat drinking rose.jpg`],
-    [`${R}/female retreat guide 20 years old.jpg`],
   ],
 };
 
@@ -362,7 +361,7 @@ interface SpaceImageProfile {
 
 const spaceImageProfiles: SpaceImageProfile[] = [
   // Villas
-  { name: 'XL White Villa', propertyType: 'Villa', images: [`${S}/XL white villa with XL pool/xlarge white villa with xlarge pool.jpg`, `${S}/XL white villa with XL pool/large modern interior for large modern villa.jpg`, `${S}/XL white villa with XL pool/ultra white interior modern .jpg`, `${S}/XL white villa with XL pool/ultra white interior modern 2.jpg`, `${S}/XL white villa with XL pool/ultra white interior modern 3.jpg`, `${S}/XL white villa with XL pool/ultra white interior modern 4.jpg`] },
+  { name: 'XL White Villa', propertyType: 'Villa', images: [`${S}/XL white villa with XL pool/xlarge white villa with xlarge pool.jpg`, `${S}/XL white villa with XL pool/large modern interior for large modern villa.jpg`, `${S}/XL white villa with XL pool/ultra white interior modern  home.jpg`, `${S}/XL white villa with XL pool/ultra white interior modern 2.jpg`, `${S}/XL white villa with XL pool/ultra white interior modern 3.jpg`, `${S}/XL white villa with XL pool/ultra white interior modern 4.jpg`] },
   { name: 'Pink Modern Villa', propertyType: 'Villa', images: [`${S}/Pink modern villa/large modern villa.jpg`, `${S}/Pink modern villa/double sink modern restroom.jpg`] },
   { name: 'California Villa', propertyType: 'Villa', images: [`${S}/california villa/california villa 1.jpg`, `${S}/california villa/California villa 2.jpg`] },
   { name: 'Luxury Villa', propertyType: 'Villa', images: [`${S}/luxury villa/luxury villa ouside gate.jpg`, `${S}/luxury villa/glam livingroom space.jpg`, `${S}/luxury villa/large kitchen.jpg`, `${S}/luxury villa/updated modern restroom.jpg`] },
@@ -553,7 +552,7 @@ const vendorImageProfiles: VendorImageProfile[] = [
   { category: 'Life Coaching / Transformational Coaching', avatar: `${V}/life coach/life coach female profile 1.jpg`, portfolio: [`${V}/life coach/life coach 1.jpg`, `${V}/life coach/life coach 2.jpg`] },
   { category: 'Life Coaching / Transformational Coaching', avatar: `${V}/life coach/male life coach 1.jpg`, portfolio: [`${V}/life coach/image for life coach profile.jpg`] },
   // --- ACUPUNCTURE (1 profile) ---
-  { category: 'Acupuncture / TCM', avatar: `${V}/accupuncture/accupuncture .jpg`, portfolio: [`${V}/accupuncture/accupuncture 1.jpg`, `${V}/accupuncture/accupuncture 2.jpg`] },
+  { category: 'Acupuncture / TCM', avatar: `${V}/accupuncture/acupuncture .jpg`, portfolio: [`${V}/accupuncture/accupuncture 1.jpg`, `${V}/accupuncture/acupuncture 2.jpg`] },
   // --- AYURVEDA (1 profile) ---
   { category: 'Ayurveda', avatar: `${V}/ayurveda/ayurrveda.jpg`, portfolio: [`${V}/ayurveda/ayurveda 2.jpg`, `${V}/ayurveda/traditional Indian ceremony.jpg`, `${V}/ayurveda/life coach female profile 2.jpg`] },
   // --- FITNESS / PERSONAL TRAINING (3 profiles) ---
@@ -668,6 +667,11 @@ export interface DemoUser {
   vendorCategories?: string[];
   guideRetreatTypes?: string[];
   hostAmenities?: string[];
+  hostVibe?: string;
+  typicalCapacity?: number;
+  typicalDailyRate?: number;
+  bedrooms?: number;
+  bathrooms?: number;
   avatarUrl?: string;
   galleryUrls?: string[];
   portfolioUrls?: string[];
@@ -961,7 +965,7 @@ export function generateAllDemoData() {
         startingPrice: price,
         currency: 'USD',
         status: 'active',
-        serviceImageUrls: [],
+        serviceImageUrls: imageProfile.portfolio.length > 0 ? imageProfile.portfolio : (imageProfile.avatar ? [imageProfile.avatar] : []),
         bookedUntil: bookedUntil.toISOString().split('T')[0],
         createdAt: 'SERVER_TIMESTAMP',
         updatedAt: 'SERVER_TIMESTAMP',
@@ -977,27 +981,6 @@ export function generateAllDemoData() {
     const loc = locations[i % locations.length];
     const userId = `demo-host-${i.toString().padStart(3, '0')}`;
 
-    users.push({
-      id: userId,
-      displayName: name.full,
-      email: `${slugify(name.full)}@demo.highviberetreats.com`,
-      roles: ['host'],
-      profileSlug: slugify(name.full),
-      locationLabel: locationDescription(loc),
-      locationLat: loc.lat,
-      locationLng: loc.lng,
-      bio: `Owner of a beautiful ${spaceProfile.propertyType.toLowerCase()} in ${loc.city}, dedicated to hosting transformative retreat experiences.`,
-      hostAmenities: pick(amenitySets, rand),
-      avatarUrl: spaceProfile.images[0],
-      propertyShowcaseUrls: spaceProfile.images,
-      createdAt: 'SERVER_TIMESTAMP',
-      isDemo: true,
-    });
-
-    const adj = pick(spaceAdj, rand);
-    const noun = pick(spaceNoun, rand);
-    const spaceName = `${adj} ${noun} — ${spaceProfile.name}`;
-
     // Most retreat homes house 8-15 guests; a few larger estates accommodate up to 24
     const capacity = [8, 8, 10, 10, 12, 12, 14, 15, 16, 18, 20, 24][Math.floor(rand() * 12)];
     const bedrooms = Math.max(3, Math.floor(capacity / 2.2));
@@ -1012,6 +995,32 @@ export function generateAllDemoData() {
     } else {
       dailyRate = [800, 850, 900, 950, 1000, 1100, 1200, 1300, 1400, 1500][Math.floor(rand() * 10)];
     }
+
+    users.push({
+      id: userId,
+      displayName: name.full,
+      email: `${slugify(name.full)}@demo.highviberetreats.com`,
+      roles: ['host'],
+      profileSlug: slugify(name.full),
+      locationLabel: locationDescription(loc),
+      locationLat: loc.lat,
+      locationLng: loc.lng,
+      bio: `Owner of a beautiful ${spaceProfile.propertyType.toLowerCase()} in ${loc.city}, dedicated to hosting transformative retreat experiences.`,
+      hostAmenities: pick(amenitySets, rand),
+      hostVibe: spaceProfile.propertyType,
+      typicalCapacity: capacity,
+      typicalDailyRate: dailyRate,
+      bedrooms,
+      bathrooms,
+      avatarUrl: spaceProfile.images[0],
+      propertyShowcaseUrls: spaceProfile.images,
+      createdAt: 'SERVER_TIMESTAMP',
+      isDemo: true,
+    });
+
+    const adj = pick(spaceAdj, rand);
+    const noun = pick(spaceNoun, rand);
+    const spaceName = `${adj} ${noun} — ${spaceProfile.name}`;
 
     const bookedMonths = 24 + Math.floor(rand() * 13);
     const nextAvailable = new Date(2026, 2 + bookedMonths, 1);

@@ -55,9 +55,9 @@ export function userProfileToHost(profile: UserProfile): Host {
     name: profile.displayName || 'Anonymous Host',
     location: profile.locationLabel || '',
     capacity: profile.typicalCapacity || 0,
-    bedrooms: 0, // Not on user profile — on Space entity
-    bathrooms: 0,
-    pricePerNight: 0, // Not on user profile — on Space entity
+    bedrooms: profile.bedrooms || 0,
+    bathrooms: profile.bathrooms || 0,
+    pricePerNight: profile.typicalDailyRate || 0,
     propertyType: profile.hostVibe || 'Property',
     image: profile.propertyShowcaseUrls?.[0] || profile.avatarUrl || '',
     luxApproved: false,

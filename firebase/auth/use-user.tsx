@@ -46,6 +46,9 @@ export interface UserProfile extends DocumentData {
   hostAmenities?: string[];
   propertyShowcaseUrls?: string[];
   typicalCapacity?: number;
+  typicalDailyRate?: number;
+  bedrooms?: number;
+  bathrooms?: number;
 
   // Guide fields
   guideRetreatTypes?: string[];
