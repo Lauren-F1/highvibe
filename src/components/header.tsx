@@ -21,6 +21,8 @@ import { useInbox } from '@/context/InboxContext';
 import { NotificationBell } from '@/components/notification-bell';
 import { useEffect, useState } from 'react';
 import { Logo } from './icons/logo';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Menu } from 'lucide-react';
 
 
 export function Header() {
@@ -28,6 +30,7 @@ export function Header() {
   const user = useUser();
   const { unreadCount } = useInbox();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   useEffect(() => {
     if (user.status === 'authenticated') {
@@ -88,6 +91,49 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-24 items-center">
         <div className="mr-auto flex items-center">
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="md:hidden mr-2">
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[280px] pt-12">
+              <nav className="flex flex-col space-y-4 font-ui text-base">
+                <Link href="/seeker" className="py-2 transition-colors hover:text-foreground/80 text-foreground/60" onClick={() => setMobileMenuOpen(false)}>
+                  Seeker
+                </Link>
+                <Link href="/guide" className="py-2 transition-colors hover:text-foreground/80 text-foreground/60" onClick={() => setMobileMenuOpen(false)}>
+                  For Guides
+                </Link>
+                <Link href="/host" className="py-2 transition-colors hover:text-foreground/80 text-foreground/60" onClick={() => setMobileMenuOpen(false)}>
+                  For Hosts
+                </Link>
+                <Link href="/vendor" className="py-2 transition-colors hover:text-foreground/80 text-foreground/60" onClick={() => setMobileMenuOpen(false)}>
+                  For Vendors
+                </Link>
+                <Link href="/inbox" className="relative py-2 transition-colors hover:text-foreground/80 text-foreground/60" onClick={() => setMobileMenuOpen(false)}>
+                  Inbox
+                  {unreadCount > 0 && (
+                    <span className="ml-2 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
+                </Link>
+                {user.status === 'authenticated' && (
+                  <>
+                    <div className="border-t pt-4 mt-2" />
+                    <Link href="/account" className="py-2 transition-colors hover:text-foreground/80 text-foreground/60" onClick={() => setMobileMenuOpen(false)}>
+                      Profile
+                    </Link>
+                    <Link href="/billing" className="py-2 transition-colors hover:text-foreground/80 text-foreground/60" onClick={() => setMobileMenuOpen(false)}>
+                      Billing
+                    </Link>
+                  </>
+                )}
+              </nav>
+            </SheetContent>
+          </Sheet>
           <Link href="/" className="mr-6">
             <Logo className="w-[252px] h-[63px]" />
           </Link>

@@ -35,6 +35,7 @@ import { collection, query, where, getDocs, doc, updateDoc, deleteDoc, serverTim
 import { ScoutVendors } from '@/components/scout-vendors';
 import { ManifestationOpportunities } from '@/components/manifestation-opportunities';
 import { loadUserConnections, createConnection, getDisplayStatus, type Connection } from '@/lib/firestore-connections';
+import { PendingConnectionRequests } from '@/components/pending-connection-requests';
 import { isAvailableForRange } from '@/lib/date-utils';
 
 interface FirestoreRetreat {
@@ -230,6 +231,16 @@ export default function GuidePage() {
 
     load();
   }, [firestore, user.status, user.data?.uid]);
+
+  const reloadConnections = async () => {
+    if (!firestore || user.status !== 'authenticated' || !user.data?.uid) return;
+    try {
+      const conns = await loadUserConnections(firestore, user.data.uid);
+      setConnections(conns);
+    } catch (error) {
+      console.warn('Failed to reload connections:', error);
+    }
+  };
 
   const [showFeatureGate, setShowFeatureGate] = useState(false);
   const guideHeroImage = '/guide-yoga-sunset.png';
@@ -691,6 +702,8 @@ export default function GuidePage() {
           </Table>
         </CardContent>
       </Card>
+
+      <PendingConnectionRequests connections={connections} onConnectionUpdated={reloadConnections} />
 
       <div id="partnership-dashboard">
         <Card>

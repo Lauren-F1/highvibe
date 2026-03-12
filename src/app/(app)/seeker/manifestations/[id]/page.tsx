@@ -87,11 +87,15 @@ function MatchCard({
     provider,
     proposal,
     onStartConversation,
+    onAcceptProposal,
+    onDeclineProposal,
 }: {
     match: Match;
     provider: ProviderProfile | null;
     proposal: Proposal | null;
     onStartConversation: (match: Match) => void;
+    onAcceptProposal: (proposal: Proposal) => void;
+    onDeclineProposal: (proposal: Proposal) => void;
 }) {
     const roleBadgeColor = {
         guide: 'bg-blue-100 text-blue-800',
@@ -146,6 +150,22 @@ function MatchCard({
                                             <Calendar className="h-3.5 w-3.5" />
                                             {proposal.proposed_dates.start_date} — {proposal.proposed_dates.end_date}
                                         </p>
+                                    )}
+                                    {(proposal.status === 'submitted' || proposal.status === 'viewed') && (
+                                        <div className="flex gap-2 mt-3">
+                                            <Button size="sm" onClick={() => onAcceptProposal(proposal)}>
+                                                <Check className="h-4 w-4 mr-1" /> Accept & Book
+                                            </Button>
+                                            <Button size="sm" variant="outline" onClick={() => onDeclineProposal(proposal)}>
+                                                <X className="h-4 w-4 mr-1" /> Decline
+                                            </Button>
+                                        </div>
+                                    )}
+                                    {proposal.status === 'accepted' && (
+                                        <Badge className="mt-2 bg-green-100 text-green-800">Accepted</Badge>
+                                    )}
+                                    {proposal.status === 'declined' && (
+                                        <Badge className="mt-2 bg-red-100 text-red-800">Declined</Badge>
                                     )}
                                 </div>
                             </>
@@ -300,6 +320,51 @@ export default function ManifestationDetailPage() {
         }
     };
 
+    const getAuthHeaders = async () => {
+        if (user.status !== 'authenticated') return {};
+        try {
+            const idToken = await (user.data as any).getIdToken();
+            return { Authorization: `Bearer ${idToken}` };
+        } catch {
+            return {};
+        }
+    };
+
+    const handleAcceptProposal = async (proposal: Proposal) => {
+        try {
+            const authHeaders = await getAuthHeaders();
+            const res = await fetch('/api/proposals/accept', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', ...authHeaders },
+                body: JSON.stringify({ proposalId: proposal.id }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Failed to accept proposal');
+
+            toast({ title: 'Proposal accepted!', description: 'Redirecting to checkout...' });
+            router.push(`/checkout/${data.retreatId}`);
+        } catch (err: any) {
+            toast({ title: 'Error', description: err.message || 'Could not accept proposal.', variant: 'destructive' });
+        }
+    };
+
+    const handleDeclineProposal = async (proposal: Proposal) => {
+        try {
+            const authHeaders = await getAuthHeaders();
+            const res = await fetch('/api/proposals/decline', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', ...authHeaders },
+                body: JSON.stringify({ proposalId: proposal.id }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Failed to decline proposal');
+
+            toast({ title: 'Proposal declined' });
+        } catch (err: any) {
+            toast({ title: 'Error', description: err.message || 'Could not decline proposal.', variant: 'destructive' });
+        }
+    };
+
     if (loading) {
         return (
             <div className="container mx-auto px-4 py-12 text-center">
@@ -400,6 +465,8 @@ export default function ManifestationDetailPage() {
                                             provider={providers[match.provider_id] || null}
                                             proposal={proposalsByMatch.get(match.id) || null}
                                             onStartConversation={handleStartConversation}
+                                            onAcceptProposal={handleAcceptProposal}
+                                            onDeclineProposal={handleDeclineProposal}
                                         />
                                     ))}
                                 </TabsContent>
@@ -419,6 +486,8 @@ export default function ManifestationDetailPage() {
                                                 provider={providers[match.provider_id] || null}
                                                 proposal={proposalsByMatch.get(match.id)!}
                                                 onStartConversation={handleStartConversation}
+                                            onAcceptProposal={handleAcceptProposal}
+                                            onDeclineProposal={handleDeclineProposal}
                                             />
                                         ))
                                     )}

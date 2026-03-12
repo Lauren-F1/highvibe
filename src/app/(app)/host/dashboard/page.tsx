@@ -27,6 +27,7 @@ import { collection, addDoc, query, where, getDocs, limit, serverTimestamp, upda
 import { SpaceReadinessChecklist, type SpaceReadinessProps } from '@/components/space-readiness-checklist';
 import { cn } from '@/lib/utils';
 import { loadUserConnections, createConnection, getDisplayStatus, type Connection } from '@/lib/firestore-connections';
+import { PendingConnectionRequests } from '@/components/pending-connection-requests';
 
 
 const genericImage = '/generic-placeholder.png';
@@ -225,6 +226,16 @@ export default function HostDashboardPage() {
 
     load();
   }, [firestore, currentUser.status]);
+
+  const reloadConnections = async () => {
+    if (!firestore || currentUser.status !== 'authenticated') return;
+    try {
+      const conns = await loadUserConnections(firestore, currentUser.data.uid);
+      setConnections(conns);
+    } catch (error) {
+      console.warn('Failed to reload connections:', error);
+    }
+  };
 
   const allGuides = partnersLoaded && firestoreGuides.length > 0 ? firestoreGuides : mockGuides;
   const allVendors = partnersLoaded && firestoreVendors.length > 0 ? firestoreVendors : mockVendors;
@@ -619,6 +630,8 @@ export default function HostDashboardPage() {
           </div>
         </CardContent>
       </Card>
+       <PendingConnectionRequests connections={connections} onConnectionUpdated={reloadConnections} />
+
        <div id="partnership-dashboard" className="space-y-6">
         <Card>
             <CardHeader className="!pb-2">

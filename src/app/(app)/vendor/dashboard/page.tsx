@@ -25,6 +25,7 @@ import { cn } from '@/lib/utils';
 import { useUser, useFirestore } from '@/firebase';
 import { collection, query, where, getDocs, updateDoc, doc, serverTimestamp, addDoc, limit as firestoreLimit } from 'firebase/firestore';
 import { loadUserConnections, createConnection, getDisplayStatus, type Connection } from '@/lib/firestore-connections';
+import { PendingConnectionRequests } from '@/components/pending-connection-requests';
 
 interface StatCardProps {
   title: string;
@@ -169,6 +170,16 @@ export default function VendorDashboardPage() {
 
     load();
   }, [firestore, user.status]);
+
+  const reloadConnections = async () => {
+    if (!firestore || user.status !== 'authenticated') return;
+    try {
+      const conns = await loadUserConnections(firestore, user.data.uid);
+      setConnections(conns);
+    } catch (error) {
+      console.warn('Failed to reload connections:', error);
+    }
+  };
 
   const [guideFilters, setGuideFilters] = useState<VendorGuideFiltersState>(initialGuideFilters);
   const [appliedGuideFilters, setAppliedGuideFilters] = useState<VendorGuideFiltersState>(initialGuideFilters);
@@ -678,6 +689,8 @@ export default function VendorDashboardPage() {
             </CardContent>
         </Card>
       
+        <PendingConnectionRequests connections={connections} onConnectionUpdated={reloadConnections} />
+
         <Card>
             <CardHeader>
                 <CardTitle>Local Partnerships</CardTitle>
