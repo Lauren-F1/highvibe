@@ -249,7 +249,7 @@ const ProviderBillingTab: FC<ProviderBillingTabProps> = ({ role, userPlans, pend
                     <CardContent className="flex-grow">
                         <div className="flex items-center gap-4 rounded-lg border bg-secondary/30 p-4">
                             <CreditCard className="h-8 w-8 text-muted-foreground" />
-                            <div><p className="font-medium">Visa ending in 1234</p><p className="text-sm text-muted-foreground">On file</p></div>
+                            <div><p className="font-medium">Payment method on file</p><p className="text-sm text-muted-foreground">Manage via billing portal below</p></div>
                         </div>
                     </CardContent>
                     <CardFooter>

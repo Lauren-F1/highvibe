@@ -171,6 +171,7 @@ export async function POST(request: Request) {
         discount: String(discount),
         retreatPrice: String(retreatPrice),
         providerId: retreatProviderId,
+        platformFeePercent: String(providers[0]?.feePercent ?? 12.5),
         liabilityAccepted: String(liabilityAccepted),
         medicalDisclosureAccepted: String(medicalDisclosureAccepted || false),
         retreatTitle,

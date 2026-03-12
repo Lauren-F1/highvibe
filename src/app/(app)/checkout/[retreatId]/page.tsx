@@ -59,7 +59,7 @@ export default function CheckoutPage() {
     const [liabilityAccepted, setLiabilityAccepted] = useState(false);
     const [medicalDisclosureAccepted, setMedicalDisclosureAccepted] = useState(false);
 
-    const retreatId = params.id as string;
+    const retreatId = (params.retreatId || params.id) as string;
 
     useEffect(() => {
         if (user.status === 'authenticated' && user.profile && !user.profile.seekerAgreementAccepted) {

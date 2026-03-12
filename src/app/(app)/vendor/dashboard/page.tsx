@@ -7,7 +7,7 @@ import { ManifestationOpportunities } from '@/components/manifestation-opportuni
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { PlusCircle, Eye, Users, MessageSquare, CheckCircle, DollarSign, MoreHorizontal, Filter } from 'lucide-react';
+import { PlusCircle, Eye, Users, MessageSquare, MoreHorizontal, Filter } from 'lucide-react';
 import { yourServices as mockServices, matchingGuidesForVendor as mockGuides, matchingHostsForVendor as mockHosts, type Guide, type Host } from '@/lib/mock-data';
 import { loadGuides, loadHosts } from '@/lib/firestore-partners';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
@@ -474,11 +474,9 @@ export default function VendorDashboardPage() {
       <div className="mb-12">
         <h2 className="text-2xl font-bold tracking-tight mb-4 font-headline">Your Performance</h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-            <StatCard title="Profile Views" value="1.2k" icon={<Eye className="h-4 w-4 text-muted-foreground" />} description="in the last 30 days" />
-            <StatCard title="Connection Requests" value="+23" icon={<Users className="h-4 w-4 text-muted-foreground" />} description="in the last 30 days" />
-            <StatCard title="Active Conversations" value="8" icon={<MessageSquare className="h-4 w-4 text-muted-foreground" />} description="Awaiting your response" />
-            <StatCard title="Bookings Confirmed" value="5" icon={<CheckCircle className="h-4 w-4 text-muted-foreground" />} description="in the last 90 days" />
-            <StatCard title="Total Earnings" value="$12,845" icon={<DollarSign className="h-4 w-4 text-muted-foreground" />} description="All-time earnings" />
+            <StatCard title="Active Services" value={String(yourServices.filter((s: any) => s.status === 'Active').length)} icon={<Eye className="h-4 w-4 text-muted-foreground" />} description="Published and available" />
+            <StatCard title="Connections" value={String(connections.length)} icon={<Users className="h-4 w-4 text-muted-foreground" />} description="Guides & hosts connected" />
+            <StatCard title="Pending Requests" value={String(connections.filter(c => c.status === 'requested' && c.partnerId === user.data?.uid).length)} icon={<MessageSquare className="h-4 w-4 text-muted-foreground" />} description="Awaiting your response" />
         </div>
       </div>
 

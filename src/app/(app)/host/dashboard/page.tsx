@@ -560,9 +560,9 @@ export default function HostDashboardPage() {
         <h2 className="text-2xl font-bold tracking-tight mb-4 font-headline">Your Performance</h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <StatCard title="Active Spaces" value={String(hostSpaces.filter(s => s.status.toLowerCase() === 'published').length)} icon={<Briefcase className="h-4 w-4 text-muted-foreground" />} description="Published and available" />
-            <StatCard title="Guide Inquiries" value="+12" icon={<Users className="h-4 w-4 text-muted-foreground" />} description="in the last 30 days" />
-            <StatCard title="Bookings" value="3" icon={<BarChart className="h-4 w-4 text-muted-foreground" />} description="in the last 90 days" />
-            <StatCard title="Total Earnings" value="$45,231" icon={<DollarSign className="h-4 w-4 text-muted-foreground" />} description="All-time earnings" />
+            <StatCard title="Connections" value={String(connections.length)} icon={<Users className="h-4 w-4 text-muted-foreground" />} description="Guides & vendors connected" />
+            <StatCard title="Pending Requests" value={String(connections.filter(c => c.status === 'requested' && c.partnerId === currentUser.data?.uid).length)} icon={<BarChart className="h-4 w-4 text-muted-foreground" />} description="Awaiting your response" />
+            <StatCard title="Total Spaces" value={String(hostSpaces.length)} icon={<DollarSign className="h-4 w-4 text-muted-foreground" />} description="Listed properties" />
         </div>
       </div>
       <Card className="mb-12">

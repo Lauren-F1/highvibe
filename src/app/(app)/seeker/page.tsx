@@ -200,6 +200,27 @@ export default function SeekerPage() {
       });
     }
 
+    // Timing filter — narrows by how soon the retreat starts
+    if (timing !== 'exploring') {
+      const now = new Date();
+      const monthsMap: Record<string, number> = {
+        'next-month': 1,
+        'next-3-months': 3,
+        'next-6-months': 6,
+        'next-year': 12,
+      };
+      const months = monthsMap[timing];
+      if (months) {
+        const cutoff = new Date(now.getFullYear(), now.getMonth() + months, now.getDate());
+        newFilteredRetreats = newFilteredRetreats.filter(retreat => {
+          const r = retreat as typeof retreat & { startDate?: string };
+          if (!r.startDate) return true; // Mock retreats without dates pass through
+          const retreatStart = parseISO(r.startDate);
+          return !isAfter(retreatStart, cutoff);
+        });
+      }
+    }
+
     // Apply sorting
     if (sortBy === 'price-low') {
       newFilteredRetreats.sort((a, b) => a.price - b.price);
