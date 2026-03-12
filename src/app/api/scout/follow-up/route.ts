@@ -15,7 +15,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://highviberetreats.c
  */
 export async function POST(request: Request) {
   const authHeader = request.headers.get('authorization');
-  const cronSecret = process.env.CRON_SECRET || process.env.STRIPE_WEBHOOK_SECRET;
+  const cronSecret = process.env.CRON_SECRET;
   if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -60,14 +60,14 @@ export async function POST(request: Request) {
           <p style="color:#333;font-size:16px;line-height:1.6;">Joining HighVibe is free — no monthly fees, no commitments. You only pay a small platform fee when you get booked.</p>
           <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;">
             <tr><td align="center">
-              <a href="${signupUrl}" style="display:inline-block;padding:14px 32px;background:#e85d3a;color:#ffffff;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;">Join HighVibe Free</a>
+              <a href="${signupUrl}" style="display:inline-block;padding:14px 32px;background:#66d320;color:#ffffff;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;">Join HighVibe Free</a>
             </td></tr>
           </table>
           <p style="color:#999;font-size:12px;">If you're not interested, simply ignore this email. You won't receive further messages.</p>
         </td></tr>
         <tr><td style="padding:24px 40px;text-align:center;background:#f5f0eb;font-size:12px;color:#666;">
           <p style="margin:0;">HighVibe Retreats &mdash; Curated experiences for those who choose living well.</p>
-          <p style="margin:8px 0 0;"><a href="${BASE_URL}/unsubscribe?email=${encodeURIComponent(data.vendorEmail)}" style="color:#999;">Unsubscribe</a></p>
+          <p style="margin:8px 0 0;"><a href="${BASE_URL}/api/scout/unsubscribe?email=${encodeURIComponent(data.vendorEmail)}" style="color:#999;">Unsubscribe</a></p>
         </td></tr>
       </table>
     </td></tr>

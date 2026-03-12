@@ -1,31 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendEmail } from '@/lib/email';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
-import { getFirestore } from 'firebase-admin/firestore';
+import { verifyAuthToken } from '@/lib/stripe-auth';
 
 /**
  * POST /api/scout/outreach
  *
  * Sends a CAN-SPAM compliant outreach email to a scouted vendor on behalf of HighVibe Retreats.
  * Does NOT reveal the guide's identity — only says "a retreat leader" is looking for services.
- *
- * Logs the outreach to Firestore for tracking.
+ * Requires authentication — guideUserId must match the authenticated user.
  *
  * Body: {
  *   vendorEmail: string,
  *   vendorName: string,
  *   vendorCategory: string,
  *   location: string,
- *   guideUserId: string,
  *   retreatId?: string,
  * }
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { vendorEmail, vendorName, vendorCategory, location, guideUserId, retreatId } = body;
+    const uid = await verifyAuthToken(request);
 
-    if (!vendorEmail || !vendorName || !vendorCategory || !location || !guideUserId) {
+    const body = await request.json();
+    const { vendorEmail, vendorName, vendorCategory, location, retreatId } = body;
+
+    if (!vendorEmail || !vendorName || !vendorCategory || !location) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
   </ul>
 
   <div style="text-align: center; margin: 32px 0;">
-    <a href="https://highviberetreats.com/join/vendor?ref=scout&source=${encodeURIComponent(vendorEmail)}" style="display: inline-block; padding: 14px 32px; background-color: #e05a33; color: white; text-decoration: none; border-radius: 8px; font-size: 16px;">Join HighVibe — It's Free to Start</a>
+    <a href="https://highviberetreats.com/join/vendor?ref=scout&source=${encodeURIComponent(vendorEmail)}" style="display: inline-block; padding: 14px 32px; background-color: #66d320; color: white; text-decoration: none; border-radius: 8px; font-size: 16px;">Join HighVibe — It's Free to Start</a>
   </div>
 
   <p style="color: #666;">If this isn't a fit right now, no worries at all. We wish you the best with your business.</p>
@@ -104,14 +104,13 @@ HighVibe Retreats · Los Angeles, CA`;
 
     // Log outreach to Firestore
     try {
-      const admin = getFirebaseAdmin();
-      const db = getFirestore(admin);
+      const { db } = await getFirebaseAdmin();
       await db.collection('scout_outreach').add({
         vendorEmail,
         vendorName,
         vendorCategory,
         location,
-        guideUserId,
+        guideUserId: uid,
         retreatId: retreatId || null,
         status: 'sent',
         sentAt: new Date(),
@@ -125,6 +124,9 @@ HighVibe Retreats · Los Angeles, CA`;
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
+    if (error.message === 'Missing authorization header') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     console.error('Outreach email error:', error);
     return NextResponse.json(
       { error: error.message || 'Failed to send outreach email' },

@@ -264,7 +264,7 @@ export const scoutLocalVendors = ai.defineFlow(
         reviewCount: place.user_ratings_total,
         category: input.category,
         photoUrl: place.photos?.[0]?.photo_reference
-          ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${place.photos[0].photo_reference}&key=${apiKey}`
+          ? `/api/scout/photo?ref=${encodeURIComponent(place.photos[0].photo_reference)}`
           : undefined,
       });
     }

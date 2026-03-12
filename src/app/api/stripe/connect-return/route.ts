@@ -29,8 +29,14 @@ export async function GET(request: Request) {
       return NextResponse.redirect(`${BASE_URL}/payouts?error=no_account`);
     }
 
-    // Check account status
+    // Verify the Stripe Connect account actually belongs to this user
     const account = await stripe.accounts.retrieve(accountId);
+    if (account.metadata?.userId !== userId) {
+      console.error(`[CONNECT_RETURN] userId mismatch: query=${userId}, metadata=${account.metadata?.userId}`);
+      return NextResponse.redirect(`${BASE_URL}/payouts?error=unauthorized`);
+    }
+
+    // Check account status
     if (account.charges_enabled && account.payouts_enabled) {
       await db.collection('users').doc(userId).update({
         stripeConnectOnboarded: true,

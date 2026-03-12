@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Search, Send, CheckCircle, MapPin, Star, Globe, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useUser } from '@/firebase';
 import type { ScoutedVendor } from '@/ai/flows/scout-local-vendors';
 
 const vendorCategories = [
@@ -42,6 +43,15 @@ export function ScoutVendors({ retreatLocation, retreatDescription, guideUserId,
   const [sendingTo, setSendingTo] = useState<Set<string>>(new Set());
   const [sentTo, setSentTo] = useState<Set<string>>(new Set());
   const { toast } = useToast();
+  const user = useUser();
+
+  const getAuthHeaders = async (): Promise<Record<string, string>> => {
+    const token = await (user.data as any)?.getIdToken?.();
+    return {
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    };
+  };
 
   const handleSearch = async () => {
     if (!location || !category) {
@@ -54,9 +64,10 @@ export function ScoutVendors({ retreatLocation, retreatDescription, guideUserId,
     setSearchSummary('');
 
     try {
+      const headers = await getAuthHeaders();
       const response = await fetch('/api/scout', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ location, category, retreatDescription }),
       });
 
@@ -80,15 +91,15 @@ export function ScoutVendors({ retreatLocation, retreatDescription, guideUserId,
     setSendingTo(prev => new Set(prev).add(vendor.email));
 
     try {
+      const headers = await getAuthHeaders();
       const response = await fetch('/api/scout/outreach', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           vendorEmail: vendor.email,
           vendorName: vendor.name,
           vendorCategory: category,
           location,
-          guideUserId,
           retreatId,
         }),
       });

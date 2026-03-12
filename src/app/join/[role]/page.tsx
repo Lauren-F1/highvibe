@@ -36,11 +36,19 @@ function JoinRoleContent() {
     if (user.status === 'authenticated') {
         // If this was a scout referral, update outreach record
         if (isScoutReferral && source) {
-          fetch('/api/scout/signup-complete', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: source }),
-          }).catch(() => {});
+          (async () => {
+            try {
+              const token = await (user.data as any)?.getIdToken?.();
+              await fetch('/api/scout/signup-complete', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+                },
+                body: JSON.stringify({ email: source }),
+              });
+            } catch {}
+          })();
         }
 
         const redirect = searchParams.get('redirect');

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
+import { verifyAuthToken } from '@/lib/stripe-auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -8,10 +9,13 @@ export const dynamic = 'force-dynamic';
  * POST /api/scout/signup-complete
  *
  * Called after a scouted vendor signs up to update their outreach record.
+ * Requires authentication.
  * Body: { email: string }
  */
 export async function POST(request: Request) {
   try {
+    await verifyAuthToken(request);
+
     const { email } = await request.json();
 
     if (!email) {
@@ -43,7 +47,10 @@ export async function POST(request: Request) {
     console.log(`[SCOUT] Vendor ${email} signed up, updated ${outreachSnap.size} outreach records`);
 
     return NextResponse.json({ success: true, updated: outreachSnap.size });
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message === 'Missing authorization header') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     console.error('[SCOUT_SIGNUP] Error:', error);
     return NextResponse.json({ error: 'Failed to update outreach' }, { status: 500 });
   }
