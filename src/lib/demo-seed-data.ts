@@ -240,10 +240,6 @@ const vendorDescriptions = [
 
 // --- SPACE DATA ---
 
-const propertyTypes = [
-  'Villa', 'Retreat Center', 'Boutique Hotel', 'Eco-Lodge',
-  'Private Estate', 'Beach House', 'Mountain Lodge', 'Farmhouse',
-];
 
 const spaceNameTemplates = [
   '{adj} {noun} {type}',
@@ -298,31 +294,180 @@ const amenitySets = [
 
 // --- IMAGE PATH MAPPINGS ---
 
-// Maps retreat type to image filenames in /demo/retreats/
-const retreatTypeToImages: Record<string, string[]> = {
-  'Yoga': ['/demo/retreats/yoga-01.jpg', '/demo/retreats/yoga-02.jpg', '/demo/retreats/yoga-03.jpg'],
-  'Meditation': ['/demo/retreats/meditation-01.jpg', '/demo/retreats/meditation-02.jpg', '/demo/retreats/meditation-03.jpg'],
-  'Wellness': ['/demo/retreats/wellness-01.jpg', '/demo/retreats/wellness-02.jpg', '/demo/retreats/wellness-03.jpg'],
-  'Adventure': ['/demo/retreats/adventure-01.jpg', '/demo/retreats/adventure-02.jpg', '/demo/retreats/adventure-03.jpg'],
-  'Creative Arts': ['/demo/retreats/creative-01.jpg', '/demo/retreats/creative-02.jpg', '/demo/retreats/creative-03.jpg'],
-  'Spiritual': ['/demo/retreats/spiritual-01.jpg', '/demo/retreats/spiritual-02.jpg', '/demo/retreats/spiritual-03.jpg'],
-  'Fitness': ['/demo/retreats/fitness-01.jpg', '/demo/retreats/fitness-02.jpg', '/demo/retreats/fitness-03.jpg'],
-  'Nature Immersion': ['/demo/retreats/nature-01.jpg', '/demo/retreats/nature-02.jpg', '/demo/retreats/nature-03.jpg'],
-  'Culinary': ['/demo/retreats/culinary-01.jpg', '/demo/retreats/culinary-02.jpg', '/demo/retreats/culinary-03.jpg'],
-  'Mindfulness': ['/demo/retreats/mindfulness-01.jpg', '/demo/retreats/mindfulness-02.jpg', '/demo/retreats/mindfulness-03.jpg'],
+const R = '/demo/retreats/retreat group images';
+
+// Maps retreat type to real image filenames — numbered sequences stay together (same group of people)
+const retreatTypeToImages: Record<string, string[][]> = {
+  'Yoga': [
+    [`${R}/group yoga retreat.jpg`, `${R}/group yoga retreat on the beach.jpg`],
+    [`${R}/womens yoga group picture.jpg`],
+    [`${R}/mens yoga group image.jpg`],
+    [`${R}/retreat guide yoga on the beach.jpg`],
+  ],
+  'Meditation': [
+    [`${R}/group meditation retreat.jpg`],
+    [`${R}/group spiritual retreat.jpg`],
+    [`${R}/spiritual retreat photo.jpg`, `${R}/spiritual retreat photo 2 female.jpg`],
+  ],
+  'Wellness': [
+    [`${R}/group wellness retreat.jpg`],
+    [`${R}/middle aged womens retreat 1.jpg`, `${R}/middle aged womens retreat 2.jpg`, `${R}/middle aged womens retreat 3.jpg`],
+    [`${R}/womens group rretreat.jpg`],
+  ],
+  'Adventure': [
+    [`${R}/group hike.jpg`],
+    [`${R}/mens hiking retreat.jpg`],
+    [`${R}/young group on hike.jpg`],
+  ],
+  'Creative Arts': [
+    [`${R}/womens art retreat.jpg`],
+    [`${R}/young people group retreat - women 20s .jpg`],
+  ],
+  'Spiritual': [
+    [`${R}/female group spiritual retreat.jpg`],
+    [`${R}/Social Share People on cliff Ceremony.png`],
+  ],
+  'Fitness': [
+    [`${R}/group working out.jpg`],
+    [`${R}/mens group retreat.jpg`, `${R}/mens group retreat copy.jpg`],
+  ],
+  'Nature Immersion': [
+    [`${R}/group retreat sunset.jpg`],
+    [`${R}/young people in their 20s by the fire.jpg`],
+    [`${R}/group photo for retreat.jpg`],
+  ],
+  'Culinary': [
+    [`${R}/group dinner retreat.jpg`],
+    [`${R}/group retreat dinner during holidays.jpg`],
+    [`${R}/young group dinner for group retreat images.jpg`],
+    [`${R}/womens retreat dinner.jpg`],
+    [`${R}/group wine retreat.jpg`],
+  ],
+  'Mindfulness': [
+    [`${R}/womens retreat young beach photo.jpg`],
+    [`${R}/young womens retreat drinking rose.jpg`],
+    [`${R}/female retreat guide 20 years old.jpg`],
+  ],
 };
 
-// Maps property type to image filenames in /demo/spaces/
-const propertyTypeToImages: Record<string, string[]> = {
-  'Villa': ['/demo/spaces/villa-01.jpg', '/demo/spaces/villa-02.jpg', '/demo/spaces/villa-03.jpg', '/demo/spaces/villa-04.jpg'],
-  'Retreat Center': ['/demo/spaces/retreat-center-01.jpg', '/demo/spaces/retreat-center-02.jpg', '/demo/spaces/retreat-center-03.jpg', '/demo/spaces/retreat-center-04.jpg'],
-  'Boutique Hotel': ['/demo/spaces/boutique-hotel-01.jpg', '/demo/spaces/boutique-hotel-02.jpg', '/demo/spaces/boutique-hotel-03.jpg'],
-  'Eco-Lodge': ['/demo/spaces/eco-lodge-01.jpg', '/demo/spaces/eco-lodge-02.jpg', '/demo/spaces/eco-lodge-03.jpg'],
-  'Private Estate': ['/demo/spaces/private-estate-01.jpg', '/demo/spaces/private-estate-02.jpg', '/demo/spaces/private-estate-03.jpg'],
-  'Beach House': ['/demo/spaces/beach-house-01.jpg', '/demo/spaces/beach-house-02.jpg', '/demo/spaces/beach-house-03.jpg'],
-  'Mountain Lodge': ['/demo/spaces/mountain-lodge-01.jpg', '/demo/spaces/mountain-lodge-02.jpg', '/demo/spaces/mountain-lodge-03.jpg'],
-  'Farmhouse': ['/demo/spaces/farmhouse-01.jpg', '/demo/spaces/farmhouse-02.jpg', '/demo/spaces/farmhouse-03.jpg'],
-};
+// --- SPACE / HOST IMAGE PROFILES ---
+// Each entry = one unique property with its showcase images (exterior + interiors)
+const S = '/demo/spaces/HOST SPACES';
+
+interface SpaceImageProfile {
+  name: string;
+  propertyType: string;
+  images: string[]; // first image = main/avatar, rest = showcase
+}
+
+const spaceImageProfiles: SpaceImageProfile[] = [
+  // Villas
+  { name: 'XL White Villa', propertyType: 'Villa', images: [`${S}/XL white villa with XL pool/xlarge white villa with xlarge pool.jpg`, `${S}/XL white villa with XL pool/large modern interior for large modern villa.jpg`, `${S}/XL white villa with XL pool/ultra white interior modern .jpg`, `${S}/XL white villa with XL pool/ultra white interior modern 2.jpg`, `${S}/XL white villa with XL pool/ultra white interior modern 3.jpg`, `${S}/XL white villa with XL pool/ultra white interior modern 4.jpg`] },
+  { name: 'Pink Modern Villa', propertyType: 'Villa', images: [`${S}/Pink modern villa/large modern villa.jpg`, `${S}/Pink modern villa/double sink modern restroom.jpg`] },
+  { name: 'California Villa', propertyType: 'Villa', images: [`${S}/california villa/california villa 1.jpg`, `${S}/california villa/California villa 2.jpg`] },
+  { name: 'Luxury Villa', propertyType: 'Villa', images: [`${S}/luxury villa/luxury villa ouside gate.jpg`, `${S}/luxury villa/glam livingroom space.jpg`, `${S}/luxury villa/large kitchen.jpg`, `${S}/luxury villa/updated modern restroom.jpg`] },
+  { name: 'Modern Smaller Villa', propertyType: 'Villa', images: [`${S}/modern smaller villa/modern villa - smaller size.jpg`, `${S}/modern smaller villa/modern white kitchen.jpg`, `${S}/modern smaller villa/standard updated bathroom.jpg`] },
+  { name: 'Modern Tropical Villa', propertyType: 'Villa', images: [`${S}/modern tropical villa/modern villa tropical location.jpg`, `${S}/modern tropical villa/modern villa tropical location 2.jpg`] },
+  { name: 'XL Modern Tropical Villa', propertyType: 'Villa', images: [`${S}/xl modern tropical villa/xlarge modern villa tropical location.jpg`, `${S}/xl modern tropical villa/large kitchen with bar seating.jpg`, `${S}/xl modern tropical villa/modern gathering space.jpg`, `${S}/xl modern tropical villa/modern home gathering space 2.jpg`, `${S}/xl modern tropical villa/modern restroom.jpg`] },
+  { name: 'XL Modern Villa', propertyType: 'Villa', images: [`${S}/xlarge modern villa with xl pool/xlarge retreat villa with xlarege pool modern style.jpg`, `${S}/xlarge modern villa with xl pool/industrial chefs kitchen for xlarge luxury estate villa.jpg`, `${S}/xlarge modern villa with xl pool/luxury restroom.jpg`, `${S}/xlarge modern villa with xl pool/ultra luxury bathroom for modern xlarge house.jpg`] },
+  { name: 'Spanish Villa', propertyType: 'Villa', images: [`${S}/spanish villa/interior spanish villa.jpg`] },
+  { name: 'Smaller Ultra Modern Villa', propertyType: 'Villa', images: [`${S}/smaller ultra modern villa/ultra modern villa smaller sized.jpg`, `${S}/smaller ultra modern villa/modern bathroom.jpg`, `${S}/smaller ultra modern villa/simple modern restroom.jpg`] },
+  { name: 'Tiny Modern Retreat', propertyType: 'Villa', images: [`${S}/tiny modern retreat/modern villa.jpg`] },
+  { name: 'Cool House with Pool', propertyType: 'Villa', images: [`${S}/cool house with pool/cool house with pool.jpg`] },
+  // Retreat Centers
+  { name: 'Large Retreat Center', propertyType: 'Retreat Center', images: [`${S}/Large retreat center /large retreat center in the woods 1.jpg`] },
+  { name: 'Medium Retreat in Woods', propertyType: 'Retreat Center', images: [`${S}/medium sized retreat in woods/medium sized retreat home in the woods.jpg`, `${S}/medium sized retreat in woods/midium sized home gathering space.jpg`, `${S}/medium sized retreat in woods/interior king room 1.jpg`, `${S}/medium sized retreat in woods/interior king room 2.jpg`] },
+  { name: 'Retreat Cabins', propertyType: 'Retreat Center', images: [`${S}/retreat cabins/retreat cabins.jpg`, `${S}/retreat cabins/cabin interior.jpg`, `${S}/retreat cabins/cabin with woman.jpg`, `${S}/retreat cabins/multiple smaller cabins retreat spaces.jpg`, `${S}/retreat cabins/image of cabin with ice plunge bath.jpg`] },
+  { name: 'Multiple Bungalows', propertyType: 'Retreat Center', images: [`${S}/multiple bungalows in Tropical location/multiple small bungalos for rent in tropical location - thailand?.jpg`] },
+  { name: 'Retreat with Grass', propertyType: 'Retreat Center', images: [`${S}/retreat with grass/large retreat home with grass.jpg`, `${S}/retreat with grass/large white home with grass 2.jpg`, `${S}/retreat with grass/oak interior bedroom 1.jpg`, `${S}/retreat with grass/oak interior bedroom 2.jpg`, `${S}/retreat with grass/oak interior bedroom 3.jpg`] },
+  // Boutique Hotels
+  { name: 'Large European Hotel', propertyType: 'Boutique Hotel', images: [`${S}/Large European hotel : multiple room location/large european home with multiple rooms.jpg`] },
+  { name: 'Bungalow Hostel', propertyType: 'Boutique Hotel', images: [`${S}/bungalo hostel/hotel style bungalo rooms.jpg`, `${S}/bungalo hostel/hostel rooms interior.jpg`, `${S}/bungalo hostel/spanish hostel rooms 1.jpg`, `${S}/bungalo hostel/spanish hostel rooms 2.jpg`] },
+  // Eco-Lodges
+  { name: 'Tropical Huts', propertyType: 'Eco-Lodge', images: [`${S}/tropical huts/tropical hut 3.jpg`, `${S}/tropical huts/tropical huts 2.jpg`, `${S}/tropical huts/tropical huts 4.jpg`] },
+  { name: 'Rustic Cabins', propertyType: 'Eco-Lodge', images: [`${S}/rustic cabins/rustic cabin porch.jpg`] },
+  { name: 'Southeast Asian Retreat', propertyType: 'Eco-Lodge', images: [`${S}/southeast asian retreat house/southeast asian home.jpg`] },
+  { name: 'Lodge by the River', propertyType: 'Eco-Lodge', images: [`${S}/lodge/lodge by the river.jpg`, `${S}/lodge/lodge library.jpg`] },
+  // Private Estates
+  { name: 'Italian Estate', propertyType: 'Private Estate', images: [`${S}/italian estate/Italian estate 1.jpg`, `${S}/italian estate/italian estate 2.jpg`, `${S}/italian estate/italian estate 3.jpg`] },
+  { name: 'Tuscan Estate', propertyType: 'Private Estate', images: [`${S}/tuscan estate/tuscan estate.jpg`, `${S}/tuscan estate/tuscan estate 2.jpg`] },
+  { name: 'Country Estate', propertyType: 'Private Estate', images: [`${S}/country estate/country estate .jpg`, `${S}/country estate/industrial chefs kitchen.jpg`, `${S}/country estate/large retreat hall.jpg`] },
+  { name: 'Large Estate Villa', propertyType: 'Private Estate', images: [`${S}/large estate villa/lsrge estate villa.jpg`] },
+  { name: 'Tropical Estate', propertyType: 'Private Estate', images: [`${S}/tropical estate/interior bedroom for tropical estate .jpg`] },
+  // Beach Houses
+  { name: 'Retreat on the Ocean', propertyType: 'Beach House', images: [`${S}/retreat on the ocean/retreat on the ocean 2.jpg`] },
+  { name: 'Tropical House on Ocean', propertyType: 'Beach House', images: [`${S}/tropical house on the ocean/tropical house on the ocean.jpg`, `${S}/tropical house on the ocean/tropical huts in the jungle.jpg`] },
+  { name: 'Island Retreat Home', propertyType: 'Beach House', images: [`${S}/island retreat home/island retreat home.jpg`] },
+  // Mountain Lodges
+  { name: 'Japan Retreat House', propertyType: 'Mountain Lodge', images: [`${S}/Japan house/japan retreat.jpg`, `${S}/Japan house/japan house pic 2.jpg`, `${S}/Japan house/japan house pic 3.jpg`] },
+  { name: 'Stone Retreat Home', propertyType: 'Mountain Lodge', images: [`${S}/stone retreat home/xl stone retreat home.jpg`] },
+  { name: 'Large Stone Villa', propertyType: 'Mountain Lodge', images: [`${S}/large stone villa/large stone villa.jpg`, `${S}/large stone villa/interior for modern retreat home.jpg`] },
+  // Farmhouses
+  { name: 'Farmhouse Retreat', propertyType: 'Farmhouse', images: [`${S}/farmhouse/farmhouse exterior.jpg`, `${S}/farmhouse/farmhouse porch.jpg`, `${S}/farmhouse/farmhouse kitchen 1.jpg`, `${S}/farmhouse/farmhouse kitchen 2.jpg`, `${S}/farmhouse/farmhouse living room.jpg`, `${S}/farmhouse/farmhouse garden and shed.jpg`, `${S}/farmhouse/farmhouse outside dining.jpg`, `${S}/farmhouse/farmhouse interior.jpg`] },
+  { name: 'Shabby Chic Retreat', propertyType: 'Farmhouse', images: [`${S}/chabby chic retreat/retreat home three stories pink.jpg`, `${S}/chabby chic retreat/shabby chic bedroom.jpg`, `${S}/chabby chic retreat/shabby chic bedrrom 2.jpg`, `${S}/chabby chic retreat/shabby chic restroom.jpg`, `${S}/chabby chic retreat/shabby chic restroom 2 - master suite.jpg`] },
+  // Other
+  { name: 'California Bungalow', propertyType: 'Villa', images: [`${S}/california bungalow/bungalow apartments in southern california?.jpg`, `${S}/california bungalow/boho decor .jpg`, `${S}/california bungalow/small side yard gathering space.jpg`] },
+  { name: 'Southern California Home', propertyType: 'Villa', images: [`${S}/southern california home/southern california home.jpg`] },
+  { name: 'Mid-Large Home', propertyType: 'Villa', images: [`${S}/mid to large sized home/mid-large size home.jpg`] },
+  { name: 'Mid-Large Retreat', propertyType: 'Villa', images: [`${S}/mid to large 8-10/mid to large sized home.jpg`] },
+];
+
+// --- GUIDE PORTRAIT IMAGES ---
+const G = '/demo/guides';
+
+// Female guide portraits (28)
+const femaleGuideAvatars: string[] = [
+  `${G}/blonde beach guide female 20s.jpg`,
+  `${G}/blonde female mid 20's.jpg`,
+  `${G}/female 30 years old guide in tropical location.jpg`,
+  `${G}/female 40ish - 1.jpg`,
+  `${G}/female adventure or hiking guide.jpg`,
+  `${G}/female guide 20s.jpg`,
+  `${G}/female guide 30 years old.jpg`,
+  `${G}/female guide in 50s.jpg`,
+  `${G}/female guide in her 20s traveler.jpg`,
+  `${G}/female guide mid 40s.jpg`,
+  `${G}/female hiking guide in her 30s .jpg`,
+  `${G}/female life coach mid 30.jpg`,
+  `${G}/female mid 20 - 1.jpg`,
+  `${G}/female mid 20 - arts.jpg`,
+  `${G}/female mid 20s spiritual guide.jpg`,
+  `${G}/female mid 30 - 2.jpg`,
+  `${G}/female mid 30 - guide.jpg`,
+  `${G}/female mid 30's 1.jpg`,
+  `${G}/female ocean guide ocean sports retreat.jpg`,
+  `${G}/female retreat guide 20 years old.jpg`,
+  `${G}/female spiritual guide in her 50s.jpg`,
+  `${G}/woman in her 50s guide.jpg`,
+  `${G}/woman in her 60s retreat for older ladies.jpg`,
+  `${G}/woman mid 30s guide.jpg`,
+  `${G}/womens retreat guide in her 40s.jpg`,
+  `${G}/yoga guide in 30s.jpg`,
+  `${G}/50+ guide arts and crafts retreat.jpg`,
+];
+
+// Male guide portraits (13)
+const maleGuideAvatars: string[] = [
+  `${G}/male yoga guide mid 20s.jpg`,
+  `${G}/male guide mid 40s.jpg`,
+  `${G}/male guide mid 50s.jpg`,
+  `${G}/male in 30s guide.jpg`,
+  `${G}/male journaling or writing retreat guide.jpg`,
+  `${G}/male mid 30 music retreat guide.jpg`,
+  `${G}/male mid 30s guide .jpg`,
+  `${G}/male mid 40s south american guide.jpg`,
+  `${G}/man in his 30s guide.jpg`,
+  `${G}/mens travel adventure guide mid 20s.jpg`,
+  `${G}/travel retreat guide male.jpg`,
+  `${G}/male guide art retreat.jpg`,
+  `${G}/executive guide 40s.jpg`,
+];
+
+// Guide names that should get male portraits
+const maleGuideNames = new Set([
+  'Bodhi', 'Ezra', 'Jasper', 'Milo', 'Orion', 'Ravi', 'Kai', 'Nico',
+  'Rowan', 'Uriel', 'Yosef', 'Zion', 'Indra',
+]);
 
 // --- VENDOR IMAGE PROFILES ---
 // Each entry bundles an avatar (face or best work sample) with portfolio images.
@@ -470,18 +615,18 @@ for (const profile of vendorImageProfiles) {
   vendorImagesByCategory[profile.category].push(profile);
 }
 
-// Guide gallery images mapped from their retreat types (reuse vendor work samples)
+// Guide gallery images use retreat group photos (no overlap with vendor images)
 const guideGalleryImages: Record<string, string[]> = {
-  'Yoga': [`${V}/yoga/yoga 1.jpg`, `${V}/yoga/yoga 2.jpg`],
-  'Meditation': [`${V}/yoga/zen 1.jpg`, `${V}/yoga/yoga 16.jpg`],
-  'Wellness': [`${V}/massage therapy/massage 2.jpg`, `${V}/massage therapy/massage 3.jpg`],
-  'Adventure': [`${V}/rock climbing/rock climbing 1.jpg`, `${V}/paragliding/paragliding 2.jpg`],
-  'Creative Arts': [`${V}/watercolor class/watercolor class.jpg`, `${V}/pottery/pottery workshop 1.jpg`],
-  'Spiritual': [`${V}/cacao ceremony/cacao ceremony 1.jpg`, `${V}/sound healing/sound healing.jpg`],
-  'Fitness': [`${V}/yoga/yoga man 1.jpg`, `${V}/breathwork/breathwork 1.jpg`],
-  'Nature Immersion': [`${V}/forest bathing/forest bathing 1.jpg`, `${V}/forest bathing/forest bathing 2.jpg`],
-  'Culinary': [`${V}/catering/fine dining catering.jpg`, `${V}/catering/catering 5.jpg`],
-  'Mindfulness': [`${V}/yoga/Yoga 7.jpg`, `${V}/forest bathing/forest bathing bird in hand.jpg`],
+  'Yoga': [`${R}/group yoga retreat.jpg`, `${R}/group yoga retreat on the beach.jpg`],
+  'Meditation': [`${R}/group meditation retreat.jpg`, `${R}/group spiritual retreat.jpg`],
+  'Wellness': [`${R}/group wellness retreat.jpg`, `${R}/womens group rretreat.jpg`],
+  'Adventure': [`${R}/group hike.jpg`, `${R}/young group on hike.jpg`],
+  'Creative Arts': [`${R}/womens art retreat.jpg`, `${R}/young people group retreat - women 20s .jpg`],
+  'Spiritual': [`${R}/female group spiritual retreat.jpg`, `${R}/spiritual retreat photo.jpg`],
+  'Fitness': [`${R}/group working out.jpg`, `${R}/mens group retreat.jpg`],
+  'Nature Immersion': [`${R}/group retreat sunset.jpg`, `${R}/group photo for retreat.jpg`],
+  'Culinary': [`${R}/group dinner retreat.jpg`, `${R}/group wine retreat.jpg`],
+  'Mindfulness': [`${R}/womens retreat young beach photo.jpg`, `${R}/young people in their 20s by the fire.jpg`],
 };
 
 // --- DETERMINISTIC SEEDED RANDOM ---
@@ -625,11 +770,28 @@ export function generateAllDemoData() {
   }
 
   // --- GUIDES (40 users, ~60 retreats) ---
+  let maleGuideIdx = 0;
+  let femaleGuideIdx = 0;
+
   for (let i = 0; i < 40; i++) {
     const name = nextName();
     const loc = locations[i % locations.length];
     const types = pickN(retreatTypes, 2, rand);
     const userId = `demo-guide-${i.toString().padStart(3, '0')}`;
+
+    // Assign portrait based on name gender
+    const isMale = maleGuideNames.has(name.first);
+    let avatarUrl: string;
+    if (isMale && maleGuideIdx < maleGuideAvatars.length) {
+      avatarUrl = maleGuideAvatars[maleGuideIdx++];
+    } else if (!isMale && femaleGuideIdx < femaleGuideAvatars.length) {
+      avatarUrl = femaleGuideAvatars[femaleGuideIdx++];
+    } else {
+      // Fallback: use whichever pool has remaining
+      avatarUrl = femaleGuideIdx < femaleGuideAvatars.length
+        ? femaleGuideAvatars[femaleGuideIdx++]
+        : maleGuideAvatars[maleGuideIdx++ % maleGuideAvatars.length];
+    }
 
     users.push({
       id: userId,
@@ -642,8 +804,7 @@ export function generateAllDemoData() {
       locationLng: loc.lng,
       bio: `Experienced ${types[0].toLowerCase()} and ${types[1].toLowerCase()} facilitator based in ${loc.city}. Leading transformative retreats for over ${3 + Math.floor(rand() * 12)} years.`,
       guideRetreatTypes: types,
-      // Guides use yoga/breathwork portrait images as avatars when available
-      avatarUrl: (guideGalleryImages[types[0]] || guideGalleryImages['Yoga'])[0],
+      avatarUrl,
       galleryUrls: [
         ...(guideGalleryImages[types[0]] || []),
         ...(guideGalleryImages[types[1]] || []),
@@ -686,9 +847,10 @@ export function generateAllDemoData() {
         price = [1500, 1800, 2000, 2200, 2500, 2800, 3000, 3200, 3500, 3800, 4000, 4200, 4500, 4800, 5000][Math.floor(rand() * 15)];
       }
 
-      // Pick an image from the retreat type's pool, rotating through them
-      const typeImages = retreatTypeToImages[type] || retreatTypeToImages['Wellness'];
-      const retreatImage = typeImages[(i * retreatCount + r) % typeImages.length];
+      // Pick an image group from the retreat type's pool, rotating through them
+      // Each group is a set of images showing the same people
+      const typeImageGroups = retreatTypeToImages[type] || retreatTypeToImages['Wellness'];
+      const imageGroup = typeImageGroups[(i * retreatCount + r) % typeImageGroups.length];
 
       retreats.push({
         hostId: userId,
@@ -706,7 +868,7 @@ export function generateAllDemoData() {
         lng: retreatLoc.lng + (rand() - 0.5) * 0.05,
         included: pick(includedOptions, rand),
         status: 'published',
-        retreatImageUrls: [retreatImage],
+        retreatImageUrls: imageGroup,
         createdAt: 'SERVER_TIMESTAMP',
         updatedAt: 'SERVER_TIMESTAMP',
         isDemo: true,
@@ -808,12 +970,12 @@ export function generateAllDemoData() {
     }
   }
 
-  // --- HOSTS (70 users, ~75 spaces) ---
-  for (let i = 0; i < 70; i++) {
+  // --- HOSTS (40 users, 1 space each — one per spaceImageProfile) ---
+  for (let i = 0; i < spaceImageProfiles.length; i++) {
+    const spaceProfile = spaceImageProfiles[i];
     const name = nextName();
     const loc = locations[i % locations.length];
     const userId = `demo-host-${i.toString().padStart(3, '0')}`;
-    const propType = propertyTypes[i % propertyTypes.length];
 
     users.push({
       id: userId,
@@ -824,76 +986,61 @@ export function generateAllDemoData() {
       locationLabel: locationDescription(loc),
       locationLat: loc.lat,
       locationLng: loc.lng,
-      bio: `Owner of a beautiful ${propType.toLowerCase()} in ${loc.city}, dedicated to hosting transformative retreat experiences.`,
+      bio: `Owner of a beautiful ${spaceProfile.propertyType.toLowerCase()} in ${loc.city}, dedicated to hosting transformative retreat experiences.`,
       hostAmenities: pick(amenitySets, rand),
-      avatarUrl: (propertyTypeToImages[propType] || ['/demo/spaces/generic-01.jpg'])[0],
-      propertyShowcaseUrls: propertyTypeToImages[propType] ? [propertyTypeToImages[propType][0]] : ['/demo/spaces/generic-01.jpg'],
+      avatarUrl: spaceProfile.images[0],
+      propertyShowcaseUrls: spaceProfile.images,
       createdAt: 'SERVER_TIMESTAMP',
       isDemo: true,
     });
 
-    // Each host gets 1 space (first 5 get 2 to reach ~75)
-    const spaceCount = i < 5 ? 2 : 1;
-    for (let s = 0; s < spaceCount; s++) {
-      const spaceLoc = s === 0 ? loc : locations[(i * 5 + s) % locations.length];
-      const type = s === 0 ? propType : propertyTypes[(i + 3) % propertyTypes.length];
-      const adj = pick(spaceAdj, rand);
-      const noun = pick(spaceNoun, rand);
-      const spaceName = `${adj} ${noun} ${type}`;
+    const adj = pick(spaceAdj, rand);
+    const noun = pick(spaceNoun, rand);
+    const spaceName = `${adj} ${noun} — ${spaceProfile.name}`;
 
-      // Most retreat homes house 8-15 guests; a few larger estates accommodate up to 24
-      const capacity = [8, 8, 10, 10, 12, 12, 14, 15, 16, 18, 20, 24][Math.floor(rand() * 12)];
-      const bedrooms = Math.max(3, Math.floor(capacity / 2.2));
-      const bathrooms = Math.max(2, Math.floor(bedrooms * 0.85));
-      // Realistic nightly rates for retreat-suitable properties (8-15 person capacity)
-      // Based on averages: $500-$800/night budget, $800-$1500 mid-range, $1500-$3500 luxury
-      let dailyRate: number;
-      const rateTier = rand();
-      if (rateTier < 0.15) {
-        // Budget tier
-        dailyRate = [500, 550, 600, 650, 700, 750, 800][Math.floor(rand() * 7)];
-      } else if (rateTier > 0.8) {
-        // Luxury tier
-        dailyRate = [1500, 1800, 2000, 2200, 2500, 2800, 3000, 3500][Math.floor(rand() * 8)];
-      } else {
-        // Mid-range (most common)
-        dailyRate = [800, 850, 900, 950, 1000, 1100, 1200, 1300, 1400, 1500][Math.floor(rand() * 10)];
-      }
+    // Most retreat homes house 8-15 guests; a few larger estates accommodate up to 24
+    const capacity = [8, 8, 10, 10, 12, 12, 14, 15, 16, 18, 20, 24][Math.floor(rand() * 12)];
+    const bedrooms = Math.max(3, Math.floor(capacity / 2.2));
+    const bathrooms = Math.max(2, Math.floor(bedrooms * 0.85));
 
-      // Booked until 24-36 months from now
-      const bookedMonths = 24 + Math.floor(rand() * 13);
-      const nextAvailable = new Date(2026, 2 + bookedMonths, 1);
-
-      // Pick a space image from the property type's pool, rotating through them
-      const typeSpaceImages = propertyTypeToImages[type] || ['/demo/spaces/generic-01.jpg', '/demo/spaces/generic-02.jpg', '/demo/spaces/generic-03.jpg', '/demo/spaces/generic-04.jpg'];
-      const spaceImage = typeSpaceImages[(i * spaceCount + s) % typeSpaceImages.length];
-
-      spaces.push({
-        spaceOwnerId: userId,
-        name: spaceName,
-        description: pick(spaceDescriptions, rand),
-        propertyType: type,
-        city: spaceLoc.city,
-        stateProvince: spaceLoc.region,
-        country: spaceLoc.country,
-        locationDescription: locationDescription(spaceLoc),
-        lat: spaceLoc.lat + (rand() - 0.5) * 0.05,
-        lng: spaceLoc.lng + (rand() - 0.5) * 0.05,
-        capacity,
-        bedrooms,
-        bathrooms,
-        dailyRate,
-        currency: 'USD',
-        amenities: pick(amenitySets, rand),
-        hostVibe: pick(hostVibes, rand),
-        status: 'published',
-        spaceImageUrls: [spaceImage],
-        nextAvailableDate: nextAvailable.toISOString().split('T')[0],
-        createdAt: 'SERVER_TIMESTAMP',
-        updatedAt: 'SERVER_TIMESTAMP',
-        isDemo: true,
-      });
+    let dailyRate: number;
+    const rateTier = rand();
+    if (rateTier < 0.15) {
+      dailyRate = [500, 550, 600, 650, 700, 750, 800][Math.floor(rand() * 7)];
+    } else if (rateTier > 0.8) {
+      dailyRate = [1500, 1800, 2000, 2200, 2500, 2800, 3000, 3500][Math.floor(rand() * 8)];
+    } else {
+      dailyRate = [800, 850, 900, 950, 1000, 1100, 1200, 1300, 1400, 1500][Math.floor(rand() * 10)];
     }
+
+    const bookedMonths = 24 + Math.floor(rand() * 13);
+    const nextAvailable = new Date(2026, 2 + bookedMonths, 1);
+
+    spaces.push({
+      spaceOwnerId: userId,
+      name: spaceName,
+      description: pick(spaceDescriptions, rand),
+      propertyType: spaceProfile.propertyType,
+      city: loc.city,
+      stateProvince: loc.region,
+      country: loc.country,
+      locationDescription: locationDescription(loc),
+      lat: loc.lat + (rand() - 0.5) * 0.05,
+      lng: loc.lng + (rand() - 0.5) * 0.05,
+      capacity,
+      bedrooms,
+      bathrooms,
+      dailyRate,
+      currency: 'USD',
+      amenities: pick(amenitySets, rand),
+      hostVibe: pick(hostVibes, rand),
+      status: 'published',
+      spaceImageUrls: spaceProfile.images,
+      nextAvailableDate: nextAvailable.toISOString().split('T')[0],
+      createdAt: 'SERVER_TIMESTAMP',
+      updatedAt: 'SERVER_TIMESTAMP',
+      isDemo: true,
+    });
   }
 
   return { users, retreats, services, spaces };
