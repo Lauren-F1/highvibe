@@ -10,7 +10,7 @@ import { Button } from './ui/button';
 import type { Vendor } from '@/lib/mock-data';
 import { Badge } from './ui/badge';
 import Link from 'next/link';
-import { type ConnectionStatus } from './host-card';
+import { type ConnectionStatus } from './guide-card';
 
 
 export interface VendorCardProps {

@@ -512,13 +512,14 @@ async function handleDisputeCreated(dispute: Stripe.Dispute, db: FirebaseFiresto
       const providerData = providerSnap.data()!;
       if (providerData.email) {
         const dueBy = dispute.evidence_details?.due_by;
-        await sendEmail(buildChargebackNotificationEmail({
+        const chargebackEmail = buildChargebackNotificationEmail({
           providerName: providerData.displayName || 'Provider',
           bookingId: targetBookingId,
           amount: dispute.amount / 100,
           currency: (dispute.currency || 'usd').toUpperCase(),
           evidenceDeadline: dueBy ? format(new Date(dueBy * 1000), 'PPP') : 'TBD',
-        }));
+        });
+        await sendEmail({ to: providerData.email, ...chargebackEmail });
       }
     }
   }

@@ -26,7 +26,7 @@ function JoinRoleContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const user = useUser();
-  const role = Array.isArray(params.role) ? params.role[0] : params.role;
+  const role = Array.isArray(params.role) ? params.role[0] : (params.role || 'seeker');
   const displayName = roleDisplayNames[role] || 'Member';
   const ref = searchParams.get('ref');
   const source = searchParams.get('source');
