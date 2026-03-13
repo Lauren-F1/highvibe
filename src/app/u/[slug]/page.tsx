@@ -12,6 +12,7 @@ import { useFirestore } from '@/firebase';
 import { collection, query, where, getDocs, limit, addDoc, serverTimestamp } from 'firebase/firestore';
 import { notFound, useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
+import { hosts, vendors, matchingGuidesForVendor } from '@/lib/mock-data';
 
 async function getProfileBySlug(db: any, slug: string): Promise<UserProfile | null> {
   if (!db) return null;
@@ -41,7 +42,20 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
     async function fetchProfile() {
       setIsLoading(true);
       try {
-        const profileData = await getProfileBySlug(firestore, slug);
+        let profileData = await getProfileBySlug(firestore, slug);
+        if (!profileData) {
+          // Fall back to mock data for demo profiles
+          const mockHost = hosts.find(h => h.profileSlug === slug);
+          const mockVendor = vendors.find(v => v.profileSlug === slug);
+          const mockGuide = matchingGuidesForVendor.find(g => g.profileSlug === slug);
+          if (mockHost) {
+            profileData = { uid: mockHost.id, displayName: mockHost.name, locationLabel: mockHost.location, roles: ['host'], typicalCapacity: mockHost.capacity, avatarUrl: mockHost.image } as UserProfile;
+          } else if (mockVendor) {
+            profileData = { uid: mockVendor.id, displayName: mockVendor.name, locationLabel: mockVendor.location, roles: ['vendor'], avatarUrl: mockVendor.avatar, vendorCategories: [mockVendor.category] } as UserProfile;
+          } else if (mockGuide) {
+            profileData = { uid: mockGuide.id, displayName: mockGuide.name, roles: ['guide'], avatarUrl: mockGuide.avatar, headline: mockGuide.specialty } as UserProfile;
+          }
+        }
         setProfile(profileData);
       } catch (err) {
         console.error('Failed to fetch profile:', err);
@@ -53,8 +67,20 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
     if (firestore) {
       fetchProfile();
     } else {
+      // Fall back to mock data when Firestore isn't available
+      const mockHost = hosts.find(h => h.profileSlug === slug);
+      const mockVendor = vendors.find(v => v.profileSlug === slug);
+      const mockGuide = matchingGuidesForVendor.find(g => g.profileSlug === slug);
+      if (mockHost) {
+        setProfile({ uid: mockHost.id, displayName: mockHost.name, locationLabel: mockHost.location, roles: ['host'], typicalCapacity: mockHost.capacity, avatarUrl: mockHost.image } as UserProfile);
+      } else if (mockVendor) {
+        setProfile({ uid: mockVendor.id, displayName: mockVendor.name, locationLabel: mockVendor.location, roles: ['vendor'], avatarUrl: mockVendor.avatar, vendorCategories: [mockVendor.category] } as UserProfile);
+      } else if (mockGuide) {
+        setProfile({ uid: mockGuide.id, displayName: mockGuide.name, roles: ['guide'], avatarUrl: mockGuide.avatar, headline: mockGuide.specialty } as UserProfile);
+      } else {
+        setProfile(null);
+      }
       setIsLoading(false);
-      setProfile(null);
     }
   }, [firestore, slug]);
   

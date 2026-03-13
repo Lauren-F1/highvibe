@@ -2,63 +2,63 @@
   "placeholderImages": [
     {
       "id": "yoga-beach",
-      "description": "A group of people doing yoga on a serene beach at sunrise.",
-      "imageUrl": "/yoga-beach.jpg",
+      "description": "Yoga on a serene beach at sunrise.",
+      "imageUrl": "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1200&h=800&fit=crop",
       "imageHint": "yoga beach"
     },
     {
       "id": "meditation-forest",
       "description": "A person meditating in a lush, green forest with sunlight filtering through the trees.",
-      "imageUrl": "/meditation-forest.jpg",
+      "imageUrl": "https://images.unsplash.com/photo-1448375240586-882707db888b?w=1200&h=800&fit=crop",
       "imageHint": "meditation forest"
     },
     {
       "id": "mountain-hike",
       "description": "A hiker looking out over a vast mountain range.",
-      "imageUrl": "/mountain-hike.jpg",
+      "imageUrl": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&h=800&fit=crop",
       "imageHint": "mountain landscape"
     },
     {
       "id": "cozy-cabin",
-      "description": "The warm and inviting interior of a rustic cabin with a fireplace.",
-      "imageUrl": "/cozy-cabin.jpg",
-      "imageHint": "cabin interior"
+      "description": "A rustic cabin retreat in the woods.",
+      "imageUrl": "https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=1200&h=800&fit=crop",
+      "imageHint": "cabin retreat"
     },
     {
       "id": "healthy-food-chef",
       "description": "A chef artfully plating a colorful, healthy meal.",
-      "imageUrl": "/healthy-food-chef.jpg",
+      "imageUrl": "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=1200&h=800&fit=crop",
       "imageHint": "healthy food"
     },
     {
       "id": "spa-massage",
       "description": "A person receiving a relaxing massage at a spa.",
-      "imageUrl": "/spa-massage.jpg",
+      "imageUrl": "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=1200&h=800&fit=crop",
       "imageHint": "spa massage"
     },
     {
       "id": "modern-event-space",
       "description": "A bright and modern event space with large windows, suitable for a retreat.",
-      "imageUrl": "/modern-event-space.jpg",
-      "imageHint": "event space"
+      "imageUrl": "https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&h=800&fit=crop",
+      "imageHint": "modern event space"
     },
     {
       "id": "friendly-host-portrait",
       "description": "A welcoming portrait of a retreat host.",
-      "imageUrl": "/friendly-host-portrait.jpg",
+      "imageUrl": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop",
       "imageHint": "woman portrait"
     },
     {
       "id": "vendor-photographer",
       "description": "A friendly male photographer with a camera.",
-      "imageUrl": "/vendor-photographer.jpg",
+      "imageUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
       "imageHint": "photographer portrait"
     },
     {
       "id": "space-owner-villa",
-      "description": "A luxurious villa with a pool, owned by a space owner.",
-      "imageUrl": "/space-owner-villa.jpg",
-      "imageHint": "luxury villa"
+      "description": "A luxurious modern villa with infinity pool.",
+      "imageUrl": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&h=800&fit=crop",
+      "imageHint": "luxury villa pool"
     },
     {
       "id": "resort-hero",
@@ -69,43 +69,43 @@
     {
       "id": "seeker-hero-panoramic",
       "description": "A person on a boat on a serene lake, representing seeking a retreat.",
-      "imageUrl": "/seeker-hero-panoramic.jpg",
+      "imageUrl": "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1920&h=1080&fit=crop",
       "imageHint": "serene lake"
     },
     {
       "id": "host-bali-villa",
-      "description": "An open-air luxury villa in Bali with a pool and jungle view.",
-      "imageUrl": "/host-bali-villa.jpg",
-      "imageHint": "bali villa"
+      "description": "An open-air tropical luxury villa in Bali with a pool and lush jungle surroundings.",
+      "imageUrl": "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=1200&h=800&fit=crop",
+      "imageHint": "bali villa pool"
     },
     {
       "id": "host-kyoto-ryokan",
-      "description": "A traditional Japanese ryokan with a serene garden in Kyoto.",
-      "imageUrl": "/host-kyoto-ryokan.jpg",
-      "imageHint": "japan interior"
+      "description": "A traditional Japanese ryokan with tatami rooms and a serene zen garden in Kyoto.",
+      "imageUrl": "https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=1200&h=800&fit=crop",
+      "imageHint": "japanese ryokan"
     },
     {
       "id": "hacienda-leather-interior",
-      "description": "A beautiful desert retreat.",
-      "imageUrl": "/hacienda-leather-interior.jpg",
+      "description": "A beautiful desert retreat hacienda with warm interiors.",
+      "imageUrl": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&h=800&fit=crop",
       "imageHint": "desert retreat"
     },
     {
       "id": "host-tuscany-winery-sunset",
       "description": "A rustic but charming winery in Tuscany at sunset, with warm light over the vineyards.",
-      "imageUrl": "/host-tuscany-winery-sunset.jpg",
+      "imageUrl": "https://images.unsplash.com/photo-1523531294919-4bcd7c65e216?w=1200&h=800&fit=crop",
       "imageHint": "tuscan winery sunset"
     },
     {
       "id": "vendor-chef-profile",
       "description": "A smiling female chef in a professional kitchen.",
-      "imageUrl": "/vendor-chef-profile.jpg",
+      "imageUrl": "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=400&h=400&fit=crop",
       "imageHint": "female chef"
     },
     {
       "id": "vendor-yoga-teacher-profile",
       "description": "A male yoga teacher smiling.",
-      "imageUrl": "/vendor-yoga-teacher-profile.jpg",
+      "imageUrl": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop",
       "imageHint": "man portrait"
     },
     {
@@ -117,31 +117,31 @@
     {
       "id": "profile-avatar-placeholder",
       "description": "A placeholder image for a user's profile avatar.",
-      "imageUrl": "/profile-avatar-placeholder.jpg",
+      "imageUrl": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
       "imageHint": "woman portrait"
     },
     {
       "id": "spanish-villa-sunset",
-      "description": "Hot air balloons over a unique landscape, representing manifesting a dream retreat.",
-      "imageUrl": "/spanish-villa-sunset.jpg",
-      "imageHint": "dream destination"
+      "description": "A Mediterranean villa with terrace at sunset.",
+      "imageUrl": "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=1200&h=800&fit=crop",
+      "imageHint": "luxury villa exterior"
     },
     {
       "id": "guide-dashboard-hero",
       "description": "Guide leading yoga at sunset.",
-      "imageUrl": "/guide-dashboard-hero.jpg",
+      "imageUrl": "https://images.unsplash.com/photo-1545389336-cf090694435e?w=1200&h=400&fit=crop",
       "imageHint": "yoga sunset"
     },
     {
       "id": "host-dashboard-hero",
-      "description": "A cozy cabin in a forest setting.",
-      "imageUrl": "/host-dashboard-hero.jpg",
-      "imageHint": "cabin forest"
+      "description": "A beautiful retreat property with mountain views.",
+      "imageUrl": "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1200&h=400&fit=crop",
+      "imageHint": "modern home exterior"
     },
     {
       "id": "vendor-dashboard-hero",
       "description": "A table with vendor offerings.",
-      "imageUrl": "/vendor-dashboard-hero.jpg",
+      "imageUrl": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&h=400&fit=crop",
       "imageHint": "vendor offerings"
     }
   ]

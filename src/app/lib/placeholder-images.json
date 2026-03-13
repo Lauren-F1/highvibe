@@ -1,112 +1,147 @@
-
 {
   "placeholderImages": [
     {
       "id": "yoga-beach",
       "description": "Yoga on a serene beach at sunrise.",
-      "imageUrl": "https://picsum.photos/seed/yoga1/1200/800",
+      "imageUrl": "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1200&h=800&fit=crop",
       "imageHint": "yoga beach"
     },
     {
       "id": "meditation-forest",
-      "description": "Person meditating in a lush forest.",
-      "imageUrl": "https://picsum.photos/seed/med1/1200/800",
+      "description": "A person meditating in a lush, green forest with sunlight filtering through the trees.",
+      "imageUrl": "https://images.unsplash.com/photo-1448375240586-882707db888b?w=1200&h=800&fit=crop",
       "imageHint": "meditation forest"
     },
     {
       "id": "mountain-hike",
-      "description": "Hiker looking over mountain range.",
-      "imageUrl": "https://picsum.photos/seed/hike1/1200/800",
+      "description": "A hiker looking out over a vast mountain range.",
+      "imageUrl": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&h=800&fit=crop",
       "imageHint": "mountain landscape"
     },
     {
       "id": "cozy-cabin",
-      "description": "Rustic cabin retreat in the woods.",
+      "description": "A rustic cabin retreat in the woods.",
       "imageUrl": "https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=1200&h=800&fit=crop",
       "imageHint": "cabin retreat"
     },
     {
       "id": "healthy-food-chef",
-      "description": "Chef plating a healthy meal.",
-      "imageUrl": "https://picsum.photos/seed/chef1/1200/800",
+      "description": "A chef artfully plating a colorful, healthy meal.",
+      "imageUrl": "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=1200&h=800&fit=crop",
       "imageHint": "healthy food"
     },
     {
       "id": "spa-massage",
-      "description": "Relaxing massage at a spa.",
-      "imageUrl": "https://picsum.photos/seed/spa1/1200/800",
+      "description": "A person receiving a relaxing massage at a spa.",
+      "imageUrl": "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=1200&h=800&fit=crop",
       "imageHint": "spa massage"
     },
     {
       "id": "modern-event-space",
-      "description": "Bright and modern retreat gathering space.",
+      "description": "A bright and modern event space with large windows, suitable for a retreat.",
       "imageUrl": "https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&h=800&fit=crop",
       "imageHint": "modern event space"
     },
     {
       "id": "friendly-host-portrait",
-      "description": "Welcoming portrait of a host.",
-      "imageUrl": "https://picsum.photos/seed/host1/400/400",
+      "description": "A welcoming portrait of a retreat host.",
+      "imageUrl": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop",
       "imageHint": "woman portrait"
     },
     {
       "id": "vendor-photographer",
-      "description": "Professional photographer.",
-      "imageUrl": "https://picsum.photos/seed/photo1/400/400",
+      "description": "A friendly male photographer with a camera.",
+      "imageUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
       "imageHint": "photographer portrait"
     },
     {
       "id": "space-owner-villa",
-      "description": "Luxurious modern villa with infinity pool.",
+      "description": "A luxurious modern villa with infinity pool.",
       "imageUrl": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&h=800&fit=crop",
       "imageHint": "luxury villa pool"
     },
     {
       "id": "resort-hero",
-      "description": "Beautiful retreat resort overlooking the ocean.",
-      "imageUrl": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1920&h=1080&fit=crop",
-      "imageHint": "resort ocean view"
+      "description": "A beautiful resort view to be displayed on the homepage.",
+      "imageUrl": "/resort-image.png",
+      "imageHint": "resort view"
     },
     {
       "id": "seeker-hero-panoramic",
-      "description": "Person on a boat on a serene lake.",
-      "imageUrl": "https://picsum.photos/seed/lake1/1920/1080",
+      "description": "A person on a boat on a serene lake, representing seeking a retreat.",
+      "imageUrl": "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1920&h=1080&fit=crop",
       "imageHint": "serene lake"
     },
     {
       "id": "host-bali-villa",
-      "description": "Open-air luxury villa in Bali with tropical pool.",
-      "imageUrl": "https://images.unsplash.com/photo-1602002418816-5c0aeef426aa?w=1200&h=800&fit=crop",
+      "description": "An open-air tropical luxury villa in Bali with a pool and lush jungle surroundings.",
+      "imageUrl": "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=1200&h=800&fit=crop",
       "imageHint": "bali villa pool"
     },
     {
       "id": "host-kyoto-ryokan",
-      "description": "Traditional Japanese ryokan with garden view.",
-      "imageUrl": "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=1200&h=800&fit=crop",
-      "imageHint": "japanese style home"
+      "description": "A traditional Japanese ryokan with tatami rooms and a serene zen garden in Kyoto.",
+      "imageUrl": "https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=1200&h=800&fit=crop",
+      "imageHint": "japanese ryokan"
+    },
+    {
+      "id": "hacienda-leather-interior",
+      "description": "A beautiful desert retreat hacienda with warm interiors.",
+      "imageUrl": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&h=800&fit=crop",
+      "imageHint": "desert retreat"
+    },
+    {
+      "id": "host-tuscany-winery-sunset",
+      "description": "A rustic but charming winery in Tuscany at sunset, with warm light over the vineyards.",
+      "imageUrl": "https://images.unsplash.com/photo-1523531294919-4bcd7c65e216?w=1200&h=800&fit=crop",
+      "imageHint": "tuscan winery sunset"
+    },
+    {
+      "id": "vendor-chef-profile",
+      "description": "A smiling female chef in a professional kitchen.",
+      "imageUrl": "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=400&h=400&fit=crop",
+      "imageHint": "female chef"
+    },
+    {
+      "id": "vendor-yoga-teacher-profile",
+      "description": "A male yoga teacher smiling.",
+      "imageUrl": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop",
+      "imageHint": "man portrait"
+    },
+    {
+      "id": "generic-placeholder",
+      "description": "A High Vibe Retreats placeholder image.",
+      "imageUrl": "/generic-placeholder.png",
+      "imageHint": "retreat space"
+    },
+    {
+      "id": "profile-avatar-placeholder",
+      "description": "A placeholder image for a user's profile avatar.",
+      "imageUrl": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
+      "imageHint": "woman portrait"
     },
     {
       "id": "spanish-villa-sunset",
-      "description": "Mediterranean villa with terrace at sunset.",
+      "description": "A Mediterranean villa with terrace at sunset.",
       "imageUrl": "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=1200&h=800&fit=crop",
       "imageHint": "luxury villa exterior"
     },
     {
       "id": "guide-dashboard-hero",
       "description": "Guide leading yoga at sunset.",
-      "imageUrl": "https://picsum.photos/seed/guide1/1200/400",
+      "imageUrl": "https://images.unsplash.com/photo-1545389336-cf090694435e?w=1200&h=400&fit=crop",
       "imageHint": "yoga sunset"
     },
     {
       "id": "host-dashboard-hero",
-      "description": "Beautiful retreat property with mountain views.",
+      "description": "A beautiful retreat property with mountain views.",
       "imageUrl": "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1200&h=400&fit=crop",
       "imageHint": "modern home exterior"
     },
     {
       "id": "vendor-dashboard-hero",
-      "description": "Table with vendor offerings.",
-      "imageUrl": "https://picsum.photos/seed/vendor1/1200/400",
+      "description": "A table with vendor offerings.",
+      "imageUrl": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&h=400&fit=crop",
       "imageHint": "vendor offerings"
     }
   ]

@@ -67,12 +67,12 @@ export interface Vendor {
 }
 
 export const vendors: Vendor[] = [
-  { id: 'v1', uid: 'v1', name: 'Elena Ray', category: 'Catering', rating: 4.9, reviewCount: 88, avatar: getPlaceholderById('vendor-chef-profile'), luxApproved: true, premiumMembership: true, location: 'Bali, Indonesia', vendorLat: -8.5, vendorLng: 115.26, startingPrice: 2000, profileSlug: 'elena-ray' },
+  { id: 'v1', uid: 'v1', name: 'Marco DeLuca', category: 'Catering', rating: 4.9, reviewCount: 88, avatar: getPlaceholderById('vendor-chef-profile'), luxApproved: true, premiumMembership: true, location: 'Bali, Indonesia', vendorLat: -8.5, vendorLng: 115.26, startingPrice: 2000, profileSlug: 'marco-deluca' },
   { id: 'v2', uid: 'v2', name: 'Sam Kolder', category: 'Photography', rating: 5.0, reviewCount: 120, avatar: getPlaceholderById('vendor-photographer'), luxApproved: true, premiumMembership: true, location: 'Global', startingPrice: 4500, profileSlug: 'sam-kolder' },
 ];
 
 export const matchingGuidesForVendor: GuideType[] = [
-  { id: 'g1', uid: 'g1', name: 'Asha Sharma', specialty: 'Yoga & Meditation', rating: 4.9, reviewCount: 45, upcomingRetreatsCount: 3, avatar: getPlaceholderById('vendor-yoga-teacher-profile'), premiumMembership: true, profileSlug: 'asha-sharma' },
+  { id: 'g1', uid: 'g1', name: 'Ravi Sharma', specialty: 'Yoga & Meditation', rating: 4.9, reviewCount: 45, upcomingRetreatsCount: 3, avatar: getPlaceholderById('vendor-yoga-teacher-profile'), premiumMembership: true, profileSlug: 'ravi-sharma' },
 ];
 
 export const yourServices = [
