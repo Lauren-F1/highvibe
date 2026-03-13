@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
-import { Loader2, MapPin, Users, Sparkles, MessageSquare, Check, X, ChevronLeft, Calendar } from 'lucide-react';
+import { Loader2, MapPin, Users, Sparkles, MessageSquare, Check, X, ChevronLeft, Calendar, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { isFirebaseEnabled } from '@/firebase/config';
@@ -493,6 +493,22 @@ export default function ManifestationDetailPage() {
                                     )}
                                 </TabsContent>
                             </Tabs>
+
+                            {/* Refine preferences prompt — shown when matches exist but none accepted */}
+                            {proposals.every(p => p.status !== 'accepted') && (
+                              <Card className="mt-6 border-dashed">
+                                <CardContent className="flex flex-col sm:flex-row items-center gap-4 py-6">
+                                  <RefreshCw className="h-8 w-8 text-muted-foreground shrink-0" />
+                                  <div className="flex-1 text-center sm:text-left">
+                                    <p className="font-medium">Not quite what you're looking for?</p>
+                                    <p className="text-sm text-muted-foreground">Update your preferences to get better matches. You can adjust your destination, budget, group size, and more.</p>
+                                  </div>
+                                  <Button variant="outline" asChild className="shrink-0">
+                                    <Link href="/seeker/manifest/new">Update Preferences</Link>
+                                  </Button>
+                                </CardContent>
+                              </Card>
+                            )}
                         </>
                     ) : (
                         <Card>

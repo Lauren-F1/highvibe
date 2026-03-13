@@ -25,6 +25,17 @@ import { Calendar } from '@/components/ui/calendar';
 import { format, parseISO, isAfter, isBefore } from 'date-fns';
 import { RetreatMap } from '@/components/retreat-map-wrapper';
 import { getCoordinatesForLocation } from '@/lib/geocode';
+import { scoreRetreatMatch, type RetreatForScoring, type ManifestationForScoring } from '@/lib/retreat-relevance';
+
+// Parse manifestation budget_range string (e.g., "$2,000 - $5,000") into {min, max}
+const parseBudgetRange = (rangeStr: string): { min?: number; max?: number } | undefined => {
+    if (!rangeStr) return undefined;
+    const nums = rangeStr.replace(/[,$]/g, '').match(/\d+/g);
+    if (!nums) return undefined;
+    if (nums.length >= 2) return { min: parseInt(nums[0], 10), max: parseInt(nums[1], 10) };
+    if (nums.length === 1) return { min: 0, max: parseInt(nums[0], 10) };
+    return undefined;
+};
 
 const parsePriceRange = (rangeValue: string) => {
     if (rangeValue === 'any') return { min: 0, max: Infinity };
@@ -135,6 +146,38 @@ export default function SeekerPage() {
     loadRetreats();
   }, [firestore, user?.uid]);
 
+  // Load seeker's most recent open manifestation for Best Match scoring
+  const [seekerManifestation, setSeekerManifestation] = useState<ManifestationForScoring | null>(null);
+  useEffect(() => {
+    if (!firestore || !user?.uid) return;
+    (async () => {
+      try {
+        const { getDocs, query, where, orderBy: fsOrderBy, limit } = await import('firebase/firestore');
+        const q = query(
+          collection(firestore, 'manifestations'),
+          where('seeker_id', '==', user.uid),
+          where('status', 'in', ['submitted', 'matching', 'proposals_open']),
+          fsOrderBy('created_at', 'desc'),
+          limit(1)
+        );
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+          const data = snap.docs[0].data();
+          setSeekerManifestation({
+            retreat_types: data.retreat_types,
+            destination: data.destination,
+            budget_range: data.budget_range ? parseBudgetRange(data.budget_range) : undefined,
+            group_size: data.group_size,
+            luxury_tier: data.luxury_tier,
+            lodging_preference: data.lodging_preference,
+          });
+        }
+      } catch (e) {
+        console.error('Error loading seeker manifestation for matching:', e);
+      }
+    })();
+  }, [firestore, user?.uid]);
+
   useEffect(() => {
     // This effect is only for filtering, not for deciding which state to show
     if (!searchInitiated) {
@@ -229,28 +272,41 @@ export default function SeekerPage() {
     } else if (sortBy === 'price-high') {
       newFilteredRetreats.sort((a, b) => b.price - a.price);
     } else if (sortBy === 'best-match') {
-      // Simple relevance: retreats matching more selected filters score higher
-      newFilteredRetreats.sort((a, b) => {
-        let scoreA = 0, scoreB = 0;
-        if (experienceType !== 'all-experiences') {
-          if (a.type?.includes(experienceType)) scoreA += 30;
-          if (b.type?.includes(experienceType)) scoreB += 30;
-        }
-        // Prefer retreats with more type overlap
-        if (a.type) scoreA += a.type.length * 5;
-        if (b.type) scoreB += b.type.length * 5;
-        // Prefer mid-range pricing (closer to median)
-        const median = retreats.reduce((s, r) => s + r.price, 0) / Math.max(retreats.length, 1);
-        if (median > 0) {
-          scoreA += Math.max(0, 20 - Math.abs(a.price - median) / median * 10);
-          scoreB += Math.max(0, 20 - Math.abs(b.price - median) / median * 10);
-        }
-        return scoreB - scoreA;
-      });
+      if (seekerManifestation) {
+        // Score each retreat against the seeker's manifestation using the deterministic scoring utility
+        const scored = newFilteredRetreats.map(r => {
+          const retreatForScoring: RetreatForScoring = {
+            type: r.type?.[0]?.replace(/-/g, ' '),
+            locationDescription: r.location,
+            costPerPerson: r.price,
+            capacity: (r as any).capacity,
+          };
+          return { retreat: r, score: scoreRetreatMatch(retreatForScoring, seekerManifestation) };
+        });
+        scored.sort((a, b) => b.score - a.score);
+        newFilteredRetreats = scored.map(s => s.retreat);
+      } else {
+        // Fallback: simple type + price relevance when no manifestation exists
+        newFilteredRetreats.sort((a, b) => {
+          let scoreA = 0, scoreB = 0;
+          if (experienceType !== 'all-experiences') {
+            if (a.type?.includes(experienceType)) scoreA += 30;
+            if (b.type?.includes(experienceType)) scoreB += 30;
+          }
+          if (a.type) scoreA += a.type.length * 5;
+          if (b.type) scoreB += b.type.length * 5;
+          const median = retreats.reduce((s, r) => s + r.price, 0) / Math.max(retreats.length, 1);
+          if (median > 0) {
+            scoreA += Math.max(0, 20 - Math.abs(a.price - median) / median * 10);
+            scoreB += Math.max(0, 20 - Math.abs(b.price - median) / median * 10);
+          }
+          return scoreB - scoreA;
+        });
+      }
     }
 
     setFilteredRetreats(newFilteredRetreats);
-  }, [experienceType, selectedContinent, selectedRegion, investmentRange, timing, searchInitiated, searchQuery, retreats, filterStartDate, filterEndDate, sortBy]);
+  }, [experienceType, selectedContinent, selectedRegion, investmentRange, timing, searchInitiated, searchQuery, retreats, filterStartDate, filterEndDate, sortBy, seekerManifestation]);
 
   const handleWaitlistSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
