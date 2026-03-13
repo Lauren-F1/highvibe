@@ -150,3 +150,65 @@ export function buildNewProposalEmail(params: {
   const text = `${params.providerName} submitted a proposal for your ${params.destination} retreat. Price: $${params.proposedPrice}. View at ${BASE_URL}/seeker/manifestations/${params.manifestationId}`;
   return { html, text };
 }
+
+export function buildRetreatAvailableEmail(params: {
+  recipientName: string;
+  retreatTitle: string;
+  destination: string;
+  price: number;
+  spotsRemaining?: number;
+  retreatId: string;
+}) {
+  const spotsLine = params.spotsRemaining != null
+    ? `<p style="color:#333;font-size:14px;margin:0;"><strong>Spots Remaining:</strong> ${params.spotsRemaining}</p>`
+    : '';
+  const html = wrapEmail(`
+    <h2 style="margin:0 0 16px;color:#1a1a1a;font-size:22px;">A Retreat Match Has Been Found</h2>
+    <p style="color:#333;font-size:16px;line-height:1.6;">Hi ${params.recipientName},</p>
+    <p style="color:#333;font-size:16px;line-height:1.6;">A retreat matching your preferences is now available:</p>
+    <div style="background:#f5f0eb;padding:16px;border-radius:6px;margin:16px 0;">
+      <p style="color:#333;font-size:14px;margin:0 0 8px;"><strong>${params.retreatTitle}</strong></p>
+      ${params.destination ? `<p style="color:#333;font-size:14px;margin:0 0 8px;"><strong>Destination:</strong> ${params.destination}</p>` : ''}
+      <p style="color:#333;font-size:14px;margin:0 0 8px;"><strong>Price:</strong> $${params.price.toLocaleString()} per person</p>
+      ${spotsLine}
+    </div>
+    ${ctaButton('View Retreat', `${BASE_URL}/retreats/${params.retreatId}`)}
+    <p style="color:#999;font-size:14px;">You can manage your notification preferences in your account settings.</p>
+  `);
+  const text = `A retreat match has been found: ${params.retreatTitle} in ${params.destination}. $${params.price}/person. View at ${BASE_URL}/retreats/${params.retreatId}`;
+  return { html, text };
+}
+
+export function buildRetreatFullyBookedEmail(params: {
+  recipientName: string;
+  retreatTitle: string;
+  waitlistCount: number;
+}) {
+  const html = wrapEmail(`
+    <h2 style="margin:0 0 16px;color:#1a1a1a;font-size:22px;">Your Retreat Is Fully Booked!</h2>
+    <p style="color:#333;font-size:16px;line-height:1.6;">Hi ${params.recipientName},</p>
+    <p style="color:#333;font-size:16px;line-height:1.6;"><strong>${params.retreatTitle}</strong> has reached full capacity.</p>
+    ${params.waitlistCount > 0 ? `<div style="background:#f5f0eb;padding:16px;border-radius:6px;margin:16px 0;">
+      <p style="color:#333;font-size:14px;margin:0;">${params.waitlistCount} seeker${params.waitlistCount === 1 ? '' : 's'} ${params.waitlistCount === 1 ? 'is' : 'are'} on the waitlist — consider creating another session.</p>
+    </div>` : ''}
+    ${ctaButton('View Dashboard', `${BASE_URL}/guide`)}
+  `);
+  const text = `Your retreat "${params.retreatTitle}" is fully booked! ${params.waitlistCount > 0 ? `${params.waitlistCount} seekers on waitlist.` : ''} View at ${BASE_URL}/guide`;
+  return { html, text };
+}
+
+export function buildWaitlistSpotOpenEmail(params: {
+  recipientName: string;
+  retreatTitle: string;
+  retreatId: string;
+}) {
+  const html = wrapEmail(`
+    <h2 style="margin:0 0 16px;color:#1a1a1a;font-size:22px;">A Spot Just Opened Up!</h2>
+    <p style="color:#333;font-size:16px;line-height:1.6;">Hi ${params.recipientName},</p>
+    <p style="color:#333;font-size:16px;line-height:1.6;">A spot has opened up for <strong>${params.retreatTitle}</strong>.</p>
+    ${ctaButton('Book Now', `${BASE_URL}/retreats/${params.retreatId}`)}
+    <p style="color:#999;font-size:14px;">Spots are first-come, first-served.</p>
+  `);
+  const text = `A spot opened up for "${params.retreatTitle}". Book now at ${BASE_URL}/retreats/${params.retreatId}`;
+  return { html, text };
+}

@@ -44,11 +44,13 @@ export async function POST(request: Request) {
   try {
     const uid = await verifyAuthToken(request);
     const body = await request.json();
-    const { retreatId, applyCredit, creditId, liabilityAccepted, medicalDisclosureAccepted, providerLineItems } = body;
+    const { retreatId, applyCredit, creditId, liabilityAccepted, medicalDisclosureAccepted, providerLineItems, quantity: rawQuantity } = body;
 
     if (!retreatId || !liabilityAccepted) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
+
+    const quantity = Math.max(1, Math.min(10, parseInt(rawQuantity || '1', 10) || 1));
 
     const { db } = await getFirebaseAdmin();
 
@@ -65,6 +67,16 @@ export async function POST(request: Request) {
       retreatPrice = data.costPerPerson || data.price || 0;
       retreatProviderId = data.guideId || data.createdBy || '';
       isMultiProvider = !!(data.spaceId || (data.vendorLineItems && data.vendorLineItems.length > 0));
+
+      // Overbooking prevention
+      if (data.isFullyBooked) {
+        return NextResponse.json({ error: 'This retreat is fully booked.' }, { status: 409 });
+      }
+      if (data.spotsRemaining != null && data.spotsRemaining < quantity) {
+        return NextResponse.json({
+          error: `Not enough spots available. Only ${data.spotsRemaining} spot${data.spotsRemaining === 1 ? '' : 's'} remaining.`,
+        }, { status: 409 });
+      }
     } else {
       // Fall back to mock data
       const mockRetreat = allRetreats.find(r => r.id === retreatId);
@@ -107,7 +119,7 @@ export async function POST(request: Request) {
       }
     }
 
-    const totalInCents = Math.round((retreatPrice - discount) * 100);
+    const totalInCents = Math.round((retreatPrice - discount) * 100 * quantity);
     if (totalInCents <= 0) {
       return NextResponse.json({ error: 'Invalid total amount' }, { status: 400 });
     }
@@ -155,10 +167,10 @@ export async function POST(request: Request) {
         {
           price_data: {
             currency: 'usd',
-            product_data: { name: retreatTitle },
-            unit_amount: totalInCents,
+            product_data: { name: quantity > 1 ? `${retreatTitle} (x${quantity} spots)` : retreatTitle },
+            unit_amount: Math.round((retreatPrice - discount) * 100),
           },
-          quantity: 1,
+          quantity,
         },
       ],
       ...(userEmail ? { customer_email: userEmail } : {}),
@@ -177,6 +189,7 @@ export async function POST(request: Request) {
         retreatTitle,
         providers: JSON.stringify(providers),
         isMultiProvider: String(providers.length > 1),
+        quantity: String(quantity),
       },
       payment_intent_data: {
         metadata: {

@@ -625,7 +625,7 @@ export default function GuidePage() {
                 <TableHead className="w-[80px]"></TableHead>
                 <TableHead>Retreat</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead className="text-right">Bookings</TableHead>
+                <TableHead className="text-right">Bookings / Capacity</TableHead>
                 <TableHead className="text-right">Total Income</TableHead>
                 <TableHead className="w-[200px] text-center">Actions</TableHead>
               </TableRow>
@@ -647,7 +647,7 @@ export default function GuidePage() {
                   <TableCell>
                     <Badge variant={retreat.status === 'Published' ? 'default' : 'secondary'}>{retreat.status}</Badge>
                   </TableCell>
-                  <TableCell className="text-right">{retreat.bookings}</TableCell>
+                  <TableCell className="text-right">{retreat.bookings}{retreat.capacity ? ` / ${retreat.capacity}` : ''}</TableCell>
                   <TableCell className="text-right">${retreat.income.toLocaleString()}</TableCell>
                   <TableCell className="text-center space-x-2">
                     <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); handleViewPartnersClick(retreat.id); }}>Find Partners</Button>

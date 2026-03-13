@@ -271,6 +271,65 @@ async function handleCheckoutCompleted(
   await batch.commit();
   console.log(`[WEBHOOK] Created booking ${bookingRef.id} for session ${session.id} (credit: $${creditAmount}, providers: ${providers.length})`);
 
+  // --- Capacity tracking + publish-on-first-booking ---
+  const quantity = parseInt(meta.quantity || '1', 10) || 1;
+  let justPublished = false;
+  try {
+    const retreatRef = db.collection('retreats').doc(retreatId);
+    await db.runTransaction(async (txn) => {
+      const snap = await txn.get(retreatRef);
+      if (!snap.exists) return;
+      const data = snap.data()!;
+      const newAttendees = (data.currentAttendees || 0) + quantity;
+      const capacity = data.capacity || 0;
+      const spotsRemaining = Math.max(0, capacity > 0 ? capacity - newAttendees : 0);
+      const updates: Record<string, any> = {
+        currentAttendees: newAttendees,
+        spotsRemaining,
+        isFullyBooked: capacity > 0 && spotsRemaining <= 0,
+      };
+      if (data.status === 'pending_payment') {
+        updates.status = 'published';
+        updates.publishedAt = FieldValue.serverTimestamp();
+        justPublished = true;
+      }
+      txn.update(retreatRef, updates);
+    });
+    console.log(`[WEBHOOK] Retreat ${retreatId}: +${quantity} attendees${justPublished ? ', now published' : ''}`);
+
+    // Fire-and-forget: trigger reverse matching when retreat just published
+    if (justPublished) {
+      fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://highviberetreats.com'}/api/match-retreat-to-seekers`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.CRON_SECRET || ''}` },
+        body: JSON.stringify({ retreatId }),
+      }).catch(e => console.error('[WEBHOOK] Reverse match trigger failed:', e));
+    }
+
+    // Notify guide when retreat is fully booked
+    const retreatSnap = await db.collection('retreats').doc(retreatId).get();
+    const retreatData = retreatSnap.exists ? retreatSnap.data()! : null;
+    if (retreatData?.isFullyBooked) {
+      const guideId = retreatData.guideId || retreatData.createdBy;
+      if (guideId) {
+        fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://highviberetreats.com'}/api/notifications`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: guideId,
+            type: 'retreat_fully_booked',
+            title: 'Your retreat is fully booked!',
+            body: `"${retreatData.title || 'Your retreat'}" has reached full capacity. Consider creating another session if there's more interest.`,
+            linkUrl: '/guide',
+            metadata: { retreatId, retreatTitle: retreatData.title },
+          }),
+        }).catch(e => console.error('[WEBHOOK] Fully-booked notification failed:', e));
+      }
+    }
+  } catch (e) {
+    console.error('[WEBHOOK] Capacity update failed:', e);
+  }
+
   // Fire-and-forget: send booking confirmation notification
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://highviberetreats.com';
   fetch(`${baseUrl}/api/notifications`, {

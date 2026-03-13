@@ -101,6 +101,50 @@ export async function POST(request: Request) {
       }
     }
 
+    // Decrement capacity on the retreat
+    const retreatId = booking.retreatId;
+    if (retreatId) {
+      try {
+        const retreatRef = db.collection('retreats').doc(retreatId);
+        await db.runTransaction(async (txn) => {
+          const snap = await txn.get(retreatRef);
+          if (!snap.exists) return;
+          const data = snap.data()!;
+          const newAttendees = Math.max(0, (data.currentAttendees || 0) - 1);
+          const capacity = data.capacity || 0;
+          const spotsRemaining = capacity > 0 ? capacity - newAttendees : 0;
+          txn.update(retreatRef, {
+            currentAttendees: newAttendees,
+            spotsRemaining,
+            isFullyBooked: capacity > 0 && spotsRemaining <= 0,
+          });
+        });
+
+        // Notify waitlisted seekers that a spot opened up
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://highviberetreats.com';
+        const waitlistSnap = await db.collection('retreat_interest')
+          .where('retreatId', '==', retreatId)
+          .get();
+        for (const wDoc of waitlistSnap.docs) {
+          const wData = wDoc.data();
+          fetch(`${baseUrl}/api/notifications`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: wData.seekerId,
+              type: 'waitlist_spot_open',
+              title: 'A spot just opened up!',
+              body: `A spot is now available for a retreat you were interested in.`,
+              linkUrl: `/retreats/${retreatId}`,
+              metadata: { retreatId },
+            }),
+          }).catch(e => console.error('[CANCEL] Waitlist notification failed:', e));
+        }
+      } catch (e) {
+        console.error('[CANCEL] Capacity update failed:', e);
+      }
+    }
+
     console.log(`[CANCEL] Booking ${bookingId} cancelled and refunded by seeker ${uid}`);
 
     return NextResponse.json({ success: true, message: 'Booking cancelled and refund issued.' });

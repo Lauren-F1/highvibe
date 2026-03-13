@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useFirestore, useUser } from '@/firebase';
 import { allRetreats as mockRetreats } from '@/lib/mock-data';
 import { Button } from '@/components/ui/button';
@@ -35,12 +35,16 @@ interface RetreatDetail {
   guideName?: string;
   guideAvatar?: string;
   capacity?: number;
+  currentAttendees?: number;
+  spotsRemaining?: number;
+  isFullyBooked?: boolean;
   startDate?: string;
   endDate?: string;
   currency?: string;
   retreatImageUrls?: string[];
   locationDescription?: string;
   costPerPerson?: number;
+  guideId?: string;
 }
 
 export default function RetreatDetailPage() {
@@ -53,6 +57,8 @@ export default function RetreatDetailPage() {
   const [retreat, setRetreat] = useState<RetreatDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [savingBookmark, setSavingBookmark] = useState(false);
+  const [joiningWaitlist, setJoiningWaitlist] = useState(false);
+  const [waitlistJoined, setWaitlistJoined] = useState(false);
 
   const isSaved = user.status === 'authenticated' && user.profile?.savedRetreatIds?.includes(retreatId) || false;
 
@@ -78,7 +84,11 @@ export default function RetreatDetailPage() {
               included: data.included || '',
               type: data.type ? [data.type] : [],
               hostId: data.hostId,
+              guideId: data.guideId,
               capacity: data.capacity,
+              currentAttendees: data.currentAttendees || 0,
+              spotsRemaining: data.spotsRemaining,
+              isFullyBooked: data.isFullyBooked || false,
               startDate: data.startDate,
               endDate: data.endDate,
               currency: data.currency || 'USD',
@@ -280,16 +290,50 @@ export default function RetreatDetailPage() {
                   {retreat.duration}
                 </div>
               )}
-              {retreat.capacity && (
+              {retreat.capacity != null && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Users className="h-4 w-4" />
-                  {retreat.capacity} spots available
+                  {retreat.isFullyBooked
+                    ? 'Fully booked'
+                    : retreat.spotsRemaining != null
+                      ? `${retreat.spotsRemaining} of ${retreat.capacity} spots remaining`
+                      : `Up to ${retreat.capacity} guests`
+                  }
                 </div>
               )}
               <Separator />
-              <Button asChild className="w-full" size="lg">
-                <Link href={`/checkout/${retreat.id}`}>Book This Retreat</Link>
-              </Button>
+              {retreat.isFullyBooked ? (
+                <Button
+                  className="w-full"
+                  size="lg"
+                  variant="outline"
+                  disabled={joiningWaitlist || waitlistJoined || user.status !== 'authenticated'}
+                  onClick={async () => {
+                    if (!firestore || user.status !== 'authenticated') return;
+                    setJoiningWaitlist(true);
+                    try {
+                      await addDoc(collection(firestore, 'retreat_interest'), {
+                        retreatId: retreat.id,
+                        seekerId: user.data.uid,
+                        guideId: retreat.guideId || retreat.hostId || '',
+                        createdAt: serverTimestamp(),
+                      });
+                      setWaitlistJoined(true);
+                      toast({ title: 'Added to waitlist', description: "We'll notify you if a spot opens up." });
+                    } catch {
+                      toast({ variant: 'destructive', title: 'Could not join waitlist' });
+                    } finally {
+                      setJoiningWaitlist(false);
+                    }
+                  }}
+                >
+                  {waitlistJoined ? 'On Waitlist' : joiningWaitlist ? 'Joining...' : 'Join Waitlist'}
+                </Button>
+              ) : (
+                <Button asChild className="w-full" size="lg">
+                  <Link href={`/checkout/${retreat.id}`}>Book This Retreat</Link>
+                </Button>
+              )}
               <Button
                 variant="outline"
                 className="w-full"

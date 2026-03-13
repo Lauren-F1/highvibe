@@ -21,6 +21,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { HelpCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -58,6 +59,7 @@ export default function CheckoutPage() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [liabilityAccepted, setLiabilityAccepted] = useState(false);
     const [medicalDisclosureAccepted, setMedicalDisclosureAccepted] = useState(false);
+    const [quantity, setQuantity] = useState(1);
 
     const retreatId = (params.retreatId || params.id) as string;
 
@@ -154,9 +156,12 @@ export default function CheckoutPage() {
     
     const creditAmount = credit?.issued_amount || 0;
     const retreatPackagePrice = firestoreRetreat ? (firestoreRetreat.costPerPerson || 0) : retreat.price * 5;
-    const discount = applyCredit && credit ? Math.min(creditAmount, retreatPackagePrice) : 0;
-    const total = retreatPackagePrice - discount;
+    const discount = applyCredit && credit ? Math.min(creditAmount, retreatPackagePrice * quantity) : 0;
+    const total = (retreatPackagePrice * quantity) - discount;
     const hasMultipleProviders = providerLineItems.length > 1;
+    const spotsRemaining = firestoreRetreat?.spotsRemaining;
+    const maxQuantity = Math.min(10, spotsRemaining != null ? spotsRemaining : 10);
+    const isFullyBooked = firestoreRetreat?.isFullyBooked === true;
 
     const handleConfirmBooking = async () => {
         if (user.status !== 'authenticated') {
@@ -186,6 +191,7 @@ export default function CheckoutPage() {
                     liabilityAccepted,
                     medicalDisclosureAccepted: requiresMedicalDisclosure ? medicalDisclosureAccepted : false,
                     providerLineItems: hasMultipleProviders ? providerLineItems : undefined,
+                    quantity,
                 }),
             });
 
@@ -216,19 +222,44 @@ export default function CheckoutPage() {
                     <CardDescription>You're booking a spot for "{retreat.title}".</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                    {isFullyBooked && (
+                        <div className="rounded-md bg-destructive/10 p-3 text-center text-destructive font-medium">
+                            This retreat is fully booked.
+                        </div>
+                    )}
                     <div className="space-y-4">
                         <h3 className="font-semibold">Order Summary</h3>
+                        {maxQuantity > 1 && !isFullyBooked && (
+                            <div className="flex items-center justify-between">
+                                <Label htmlFor="quantity">Number of Spots</Label>
+                                <Select value={String(quantity)} onValueChange={(v) => setQuantity(parseInt(v, 10))}>
+                                    <SelectTrigger id="quantity" className="w-24">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {Array.from({ length: maxQuantity }, (_, i) => i + 1).map(n => (
+                                            <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
                         {hasMultipleProviders ? (
                             providerLineItems.map((item, i) => (
                                 <div key={i} className="flex justify-between">
-                                    <span>{item.label}</span>
-                                    <span>${item.amount.toFixed(2)}</span>
+                                    <span>{item.label}{quantity > 1 ? ` x${quantity}` : ''}</span>
+                                    <span>${(item.amount * quantity).toFixed(2)}</span>
                                 </div>
                             ))
                         ) : (
                             <div className="flex justify-between">
-                                <span>Retreat Package</span>
-                                <span>${retreatPackagePrice.toFixed(2)}</span>
+                                <span>Retreat Package{quantity > 1 ? ` (${quantity} spots)` : ''}</span>
+                                <span>${(retreatPackagePrice * quantity).toFixed(2)}</span>
+                            </div>
+                        )}
+                        {quantity > 1 && (
+                            <div className="text-sm text-muted-foreground">
+                                ${retreatPackagePrice.toFixed(2)} per person
                             </div>
                         )}
                         {credit && (
@@ -308,7 +339,7 @@ export default function CheckoutPage() {
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <Button className="w-full" size="lg" onClick={handleConfirmBooking} disabled={isProcessing || !liabilityAccepted || (requiresMedicalDisclosure && !medicalDisclosureAccepted)}>
+                    <Button className="w-full" size="lg" onClick={handleConfirmBooking} disabled={isProcessing || isFullyBooked || !liabilityAccepted || (requiresMedicalDisclosure && !medicalDisclosureAccepted)}>
                         {isProcessing ? 'Processing...' : 'Confirm & Pay'}
                     </Button>
                 </CardFooter>

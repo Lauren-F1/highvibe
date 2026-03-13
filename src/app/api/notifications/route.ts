@@ -6,6 +6,8 @@ import {
   buildNewMessageEmail,
   buildBookingConfirmationEmail,
   buildManifestationMatchEmail,
+  buildRetreatFullyBookedEmail,
+  buildWaitlistSpotOpenEmail,
 } from '@/lib/notification-emails';
 
 /**
@@ -122,6 +124,20 @@ export async function POST(request: NextRequest) {
                 emailContent = buildManifestationMatchEmail({
                   recipientName: name,
                   matchDescription: notifBody,
+                });
+                break;
+              case 'retreat_fully_booked':
+                emailContent = buildRetreatFullyBookedEmail({
+                  recipientName: name,
+                  retreatTitle: metadata?.retreatTitle || 'your retreat',
+                  waitlistCount: metadata?.waitlistCount || 0,
+                });
+                break;
+              case 'waitlist_spot_open':
+                emailContent = buildWaitlistSpotOpenEmail({
+                  recipientName: name,
+                  retreatTitle: metadata?.retreatTitle || 'a retreat',
+                  retreatId: metadata?.retreatId || '',
                 });
                 break;
             }

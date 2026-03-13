@@ -119,7 +119,9 @@ export default function SeekerPage() {
             included: data.included || undefined,
             lat: coords?.lat,
             lng: coords?.lng,
-            isFullyBooked: data.currentAttendees != null && data.capacity != null && data.currentAttendees >= data.capacity,
+            spotsRemaining: data.spotsRemaining ?? (data.capacity != null ? Math.max(0, (data.capacity || 0) - (data.currentAttendees || 0)) : undefined),
+            capacity: data.capacity,
+            isFullyBooked: data.isFullyBooked || (data.currentAttendees != null && data.capacity != null && data.currentAttendees >= data.capacity),
           };
         });
         setFirestoreRetreats(loaded);

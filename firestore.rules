@@ -379,5 +379,19 @@ service cloud.firestore {
             || request.auth.uid == resource.data.provider_id);
       allow delete: if false;
     }
+
+    /**
+     * @description Waitlist / interest for fully-booked retreats.
+     * Seekers can create interest entries and read their own.
+     * Guides can read interest for their retreats (via guideId field).
+     * @path /retreat_interest/{interestId}
+     */
+    match /retreat_interest/{interestId} {
+      allow create: if isSignedIn() && request.auth.uid == request.resource.data.seekerId;
+      allow get, list: if isSignedIn()
+        && (request.auth.uid == resource.data.seekerId || request.auth.uid == resource.data.guideId);
+      allow delete: if isSignedIn() && request.auth.uid == resource.data.seekerId;
+      allow update: if false;
+    }
   }
 }

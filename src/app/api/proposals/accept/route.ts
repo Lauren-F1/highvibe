@@ -61,8 +61,13 @@ export async function POST(request: Request) {
     const destination = manifestation.destination || {};
     const retreatTitle = `${manifestation.retreat_types?.join(' & ') || 'Custom'} Retreat in ${destination.region || destination.country || 'TBD'}`;
 
+    const capacity = manifestation.group_size || 10;
+    const locationDescription = [destination.region, destination.country].filter(Boolean).join(', ');
+    const description = proposal.message || manifestation.notes_text || `A ${manifestation.retreat_types?.join(' & ') || 'custom'} retreat experience in ${locationDescription || 'a beautiful destination'}.`;
+
     const retreatData: Record<string, any> = {
       title: retreatTitle,
+      description,
       costPerPerson: proposal.proposed_price,
       type: manifestation.retreat_types?.[0] || 'Custom',
       status: 'pending_payment',
@@ -71,7 +76,12 @@ export async function POST(request: Request) {
       manifestationId: proposal.manifestation_id,
       seekerId: uid,
       destination: destination,
+      locationDescription,
       groupSize: manifestation.group_size || 1,
+      capacity,
+      currentAttendees: 0,
+      spotsRemaining: capacity,
+      isFullyBooked: false,
       luxuryTier: manifestation.luxury_tier || '',
       lodgingPreference: manifestation.lodging_preference || '',
       createdAt: FieldValue.serverTimestamp(),
