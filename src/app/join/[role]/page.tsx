@@ -30,7 +30,7 @@ function JoinRoleContent() {
   const displayName = roleDisplayNames[role] || 'Member';
   const ref = searchParams.get('ref');
   const source = searchParams.get('source');
-  const isScoutReferral = ref === 'scout' && role === 'vendor';
+  const isScoutReferral = ref === 'scout' && (role === 'vendor' || role === 'host');
 
   useEffect(() => {
     if (user.status === 'authenticated') {
@@ -66,7 +66,9 @@ function JoinRoleContent() {
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-headline">Create your {displayName} Account</CardTitle>
           <CardDescription>
-            {isScoutReferral
+            {isScoutReferral && role === 'host'
+              ? 'A retreat leader is interested in hosting a retreat at your property! Join HighVibe to connect with retreat leaders looking for venues like yours.'
+              : isScoutReferral
               ? 'A retreat leader found you and thinks you\'d be a great fit! Join HighVibe to connect with retreat leaders looking for your services.'
               : 'Welcome! Let\'s get you set up on HighVibe Retreats.'}
           </CardDescription>

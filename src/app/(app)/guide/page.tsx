@@ -33,6 +33,7 @@ import { VibeMatchModal } from '@/components/vibe-match-modal';
 import { useUser, useFirestore } from '@/firebase';
 import { collection, query, where, getDocs, doc, updateDoc, deleteDoc, serverTimestamp, addDoc, limit as firestoreLimit } from 'firebase/firestore';
 import { ScoutVendors } from '@/components/scout-vendors';
+import { ScoutHosts } from '@/components/scout-hosts';
 import { ManifestationOpportunities } from '@/components/manifestation-opportunities';
 import { loadUserConnections, createConnection, getDisplayStatus, type Connection } from '@/lib/firestore-connections';
 import { PendingConnectionRequests } from '@/components/pending-connection-requests';
@@ -940,6 +941,16 @@ export default function GuidePage() {
 
         {/* Seeker Opportunities */}
         <ManifestationOpportunities />
+
+        {/* Scout Host Properties */}
+        {user.status === 'authenticated' && user.data?.uid && (
+          <ScoutHosts
+            retreatLocation={activeRetreat?.location}
+            retreatDescription={activeRetreat?.name}
+            guideUserId={user.data.uid}
+            retreatId={activeRetreatId || undefined}
+          />
+        )}
 
         {/* Scout Local Vendors */}
         {user.status === 'authenticated' && user.data?.uid && (

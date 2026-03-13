@@ -10,7 +10,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://highviberetreats.c
 /**
  * POST /api/scout/follow-up
  *
- * Sends follow-up emails to scouted vendors who haven't responded after 5 days.
+ * Sends follow-up emails to scouted vendors AND hosts who haven't responded after 5 days.
  * Protected by CRON_SECRET. Should be called by a daily cron job.
  */
 export async function POST(request: Request) {
@@ -41,7 +41,18 @@ export async function POST(request: Request) {
     for (const doc of eligibleSnap.docs) {
       const data = doc.data();
       try {
-        const signupUrl = `${BASE_URL}/join/vendor?ref=scout&source=${encodeURIComponent(data.vendorEmail)}`;
+        const isHost = data.outreachType === 'host';
+        const joinRole = isHost ? 'host' : 'vendor';
+        const signupUrl = `${BASE_URL}/join/${joinRole}?ref=scout&source=${encodeURIComponent(data.vendorEmail)}`;
+
+        // Host follow-up emphasizes recurring group bookings; vendor follow-up emphasizes service opportunity
+        const followUpBody = isHost
+          ? `<p style="color:#333;font-size:16px;line-height:1.6;">A retreat leader recently reached out about hosting a retreat at your property in <strong>${data.location}</strong>. We wanted to make sure you saw their inquiry.</p>
+          <p style="color:#333;font-size:16px;line-height:1.6;">Listing your property is free — you set your own rates and availability. Retreat leaders handle all programming while you provide the space and hospitality. Many properties see 2-4 recurring bookings per year.</p>`
+          : `<p style="color:#333;font-size:16px;line-height:1.6;">A retreat leader recently reached out about <strong>${data.vendorCategory}</strong> services in <strong>${data.location}</strong>. We wanted to make sure you saw their request.</p>
+          <p style="color:#333;font-size:16px;line-height:1.6;">Joining HighVibe is free — no monthly fees, no commitments. You only pay a small platform fee when you get booked.</p>`;
+
+        const ctaText = isHost ? 'List Your Property Free' : 'Join HighVibe Free';
 
         const html = `<!DOCTYPE html>
 <html>
@@ -56,11 +67,10 @@ export async function POST(request: Request) {
         <tr><td style="padding:40px;">
           <h2 style="margin:0 0 16px;color:#1a1a1a;font-size:22px;">Following Up</h2>
           <p style="color:#333;font-size:16px;line-height:1.6;">Hi ${data.vendorName},</p>
-          <p style="color:#333;font-size:16px;line-height:1.6;">A retreat leader recently reached out about <strong>${data.vendorCategory}</strong> services in <strong>${data.location}</strong>. We wanted to make sure you saw their request.</p>
-          <p style="color:#333;font-size:16px;line-height:1.6;">Joining HighVibe is free — no monthly fees, no commitments. You only pay a small platform fee when you get booked.</p>
+          ${followUpBody}
           <table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;">
             <tr><td align="center">
-              <a href="${signupUrl}" style="display:inline-block;padding:14px 32px;background:#66d320;color:#ffffff;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;">Join HighVibe Free</a>
+              <a href="${signupUrl}" style="display:inline-block;padding:14px 32px;background:#66d320;color:#ffffff;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;">${ctaText}</a>
             </td></tr>
           </table>
           <p style="color:#999;font-size:12px;">If you're not interested, simply ignore this email. You won't receive further messages.</p>
@@ -75,11 +85,17 @@ export async function POST(request: Request) {
 </body>
 </html>`;
 
+        const subject = isHost
+          ? `Following up: Retreat hosting opportunity at ${data.vendorName}`
+          : `Following up: ${data.vendorCategory} opportunity in ${data.location}`;
+
         await sendEmail({
           to: data.vendorEmail,
-          subject: `Following up: ${data.vendorCategory} opportunity in ${data.location}`,
+          subject,
           html,
-          text: `Hi ${data.vendorName}, a retreat leader is still looking for ${data.vendorCategory} services in ${data.location}. Join free at ${signupUrl}`,
+          text: isHost
+            ? `Hi ${data.vendorName}, a retreat leader is still interested in hosting a retreat at your property in ${data.location}. List free at ${signupUrl}`
+            : `Hi ${data.vendorName}, a retreat leader is still looking for ${data.vendorCategory} services in ${data.location}. Join free at ${signupUrl}`,
         });
 
         await doc.ref.update({
