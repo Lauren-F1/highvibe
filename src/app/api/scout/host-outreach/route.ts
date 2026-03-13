@@ -56,9 +56,9 @@ export async function POST(request: NextRequest) {
     const signupUrl = `https://highviberetreats.com/join/host?ref=scout&source=${encodeURIComponent(hostEmail)}`;
     const unsubscribeUrl = `https://highviberetreats.com/api/scout/unsubscribe?email=${encodeURIComponent(hostEmail)}`;
 
-    const groupSizeLine = groupSize
-      ? `<li><strong>Group size</strong> — Typical retreats bring ${groupSize}+ guests for multi-night stays, often booking your entire property or a dedicated wing.</li>`
-      : `<li><strong>Group bookings</strong> — Retreat leaders book blocks of rooms for multi-night stays, often reserving your entire property or a dedicated wing.</li>`;
+    const groupSizeNote = groupSize
+      ? `This particular retreat would bring approximately <strong>${groupSize} guests</strong> for a multi-night stay.`
+      : `Retreat leaders typically book blocks of rooms for multi-night group stays.`;
 
     const subject = `Partnership opportunity: Wellness retreats at ${hostName}`;
 
@@ -76,27 +76,33 @@ export async function POST(request: NextRequest) {
         <tr><td style="padding:40px;">
           <p style="color:#333;font-size:16px;line-height:1.6;">Hi ${hostName},</p>
 
-          <p style="color:#333;font-size:16px;line-height:1.6;">We're reaching out from <strong>HighVibe Retreats</strong>, a curated marketplace connecting wellness retreat leaders with exceptional properties like yours.</p>
+          <p style="color:#333;font-size:16px;line-height:1.6;">We're reaching out from <strong>HighVibe Retreats</strong>. A retreat leader on our platform is planning a wellness retreat in <strong>${location}</strong> and is looking for a <strong>${accommodationType.toLowerCase()}</strong> to host their group. We came across <strong>${hostName}</strong> and think it could be a beautiful fit.</p>
 
-          <p style="color:#333;font-size:16px;line-height:1.6;">A retreat leader on our platform is planning a retreat in <strong>${location}</strong> and is looking for a <strong>${accommodationType.toLowerCase()}</strong> to host their group. We think <strong>${hostName}</strong> could be the perfect fit.</p>
+          <p style="color:#333;font-size:16px;line-height:1.6;">We wanted to take a moment to introduce ourselves and share a bit about what we do.</p>
 
-          <h3 style="color:#1a1a1a;margin-top:28px;margin-bottom:12px;">Why host retreats through HighVibe?</h3>
-          <ul style="line-height:2;color:#333;font-size:15px;padding-left:20px;">
-            ${groupSizeLine}
-            <li><strong>Fill off-season gaps</strong> — Retreats often run during quieter periods (midweek, shoulder season), turning empty rooms into guaranteed revenue.</li>
-            <li><strong>Hands-off operation</strong> — The retreat leader handles all programming, activities, and guest coordination. You provide the space and hospitality you're already known for.</li>
-            <li><strong>Premium clientele</strong> — Wellness seekers are high-intent travelers willing to invest in meaningful experiences. They tend to be respectful, health-conscious guests.</li>
-            <li><strong>Recurring revenue</strong> — Successful retreats come back. Many retreat leaders run the same program 2-4 times per year and prefer to return to properties they love.</li>
-            <li><strong>No upfront cost</strong> — Listing your property is free. You set your own nightly rates and availability. We only charge a small platform fee when a booking is confirmed.</li>
-          </ul>
+          <h3 style="color:#1a1a1a;margin-top:28px;margin-bottom:12px;">Who we are</h3>
+          <p style="color:#333;font-size:16px;line-height:1.6;">HighVibe Retreats is a curated marketplace for wellness retreats. We connect retreat leaders — yoga teachers, wellness coaches, meditation guides — with exceptional properties where they can host their experiences. The retreat leader brings the programming, the participants, and the vision. The property provides the space, the atmosphere, and the hospitality. We bring them together.</p>
+
+          <h3 style="color:#1a1a1a;margin-top:28px;margin-bottom:12px;">How it works for properties</h3>
+          <p style="color:#333;font-size:16px;line-height:1.6;">When a retreat leader is planning an experience, they tell us about the kind of property they're looking for — location, style, capacity, and dates. We search for properties that fit and make an introduction through the platform. From there, you and the retreat leader can connect, discuss availability and rates, and decide together if it's the right fit. You stay in complete control of your pricing, your calendar, and your property.</p>
+
+          <h3 style="color:#1a1a1a;margin-top:28px;margin-bottom:12px;">Why we're reaching out to you</h3>
+          <p style="color:#333;font-size:16px;line-height:1.6;">A retreat leader on our platform is actively looking for a ${accommodationType.toLowerCase()} in <strong>${location}</strong> to host their upcoming retreat. ${groupSizeNote} We'd love to introduce you to them through the platform so you can learn more about the opportunity and see if it works with your schedule.</p>
+
+          <h3 style="color:#1a1a1a;margin-top:28px;margin-bottom:12px;">There's zero risk</h3>
+          <p style="color:#333;font-size:16px;line-height:1.6;">Listing your property on HighVibe is completely free — no monthly fees, no exclusivity agreements, no commitments. You set your own nightly rates and only make your property available when it works for you. The retreat leader handles all programming, activities, and guest coordination. Your role is simply doing what you already do best — providing a beautiful space and great hospitality. If you find the platform valuable over time, there's an option to become a member for additional features — but there's no obligation whatsoever.</p>
+
+          <p style="color:#333;font-size:16px;line-height:1.6;">Many properties find that retreat bookings become a welcome source of recurring revenue — retreat leaders who have a great experience often come back 2-4 times per year. But there's absolutely no pressure. We'd just love for you to take a look and see if it's something that interests you.</p>
 
           <table width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0;">
             <tr><td align="center">
-              <a href="${signupUrl}" style="display:inline-block;padding:14px 32px;background:#66d320;color:#ffffff;text-decoration:none;border-radius:8px;font-size:16px;font-weight:bold;">List Your Property — It's Free</a>
+              <a href="${signupUrl}" style="display:inline-block;padding:14px 32px;background:#66d320;color:#ffffff;text-decoration:none;border-radius:8px;font-size:16px;font-weight:bold;">Check Out HighVibe Retreats</a>
             </td></tr>
           </table>
 
-          <p style="color:#666;font-size:14px;">If this isn't a fit right now, no worries at all. We wish you continued success with ${hostName}.</p>
+          <p style="color:#666;font-size:14px;">No pressure at all — if this isn't the right time, we completely understand. We wish you continued success with ${hostName}.</p>
+
+          <p style="color:#333;font-size:16px;line-height:1.6;margin-top:24px;">Warm regards,<br><strong>The HighVibe Retreats Team</strong></p>
         </td></tr>
         <tr><td style="padding:24px 40px;text-align:center;background:#f5f0eb;font-size:12px;color:#666;">
           <p style="margin:0;">HighVibe Retreats &mdash; Curated experiences for those who choose living well.</p>
@@ -112,22 +118,30 @@ export async function POST(request: NextRequest) {
 
     const text = `Hi ${hostName},
 
-We're reaching out from HighVibe Retreats, a curated marketplace connecting wellness retreat leaders with exceptional properties like yours.
+We're reaching out from HighVibe Retreats. A retreat leader on our platform is planning a wellness retreat in ${location} and is looking for a ${accommodationType.toLowerCase()} to host their group. We came across ${hostName} and think it could be a beautiful fit.
 
-A retreat leader on our platform is planning a retreat in ${location} and is looking for a ${accommodationType.toLowerCase()} to host their group. We think ${hostName} could be the perfect fit.
+We wanted to take a moment to introduce ourselves and share a bit about what we do.
 
-Why host retreats through HighVibe?
+WHO WE ARE
+HighVibe Retreats is a curated marketplace for wellness retreats. We connect retreat leaders — yoga teachers, wellness coaches, meditation guides — with exceptional properties where they can host their experiences. The retreat leader brings the programming, the participants, and the vision. The property provides the space, the atmosphere, and the hospitality. We bring them together.
 
-- Group bookings: Retreat leaders book blocks of rooms for multi-night stays.
-- Fill off-season gaps: Retreats often run during quieter periods, turning empty rooms into revenue.
-- Hands-off operation: The retreat leader handles all programming. You provide the space.
-- Premium clientele: Wellness seekers are high-intent travelers willing to invest.
-- Recurring revenue: Successful retreats come back 2-4 times per year.
-- No upfront cost: Listing is free. You set your own rates. Small platform fee on confirmed bookings.
+HOW IT WORKS FOR PROPERTIES
+When a retreat leader is planning an experience, they tell us about the kind of property they're looking for — location, style, capacity, and dates. We search for properties that fit and make an introduction through the platform. From there, you and the retreat leader can connect, discuss availability and rates, and decide together if it's the right fit. You stay in complete control of your pricing, your calendar, and your property.
 
-List your property (it's free): ${signupUrl}
+WHY WE'RE REACHING OUT TO YOU
+A retreat leader on our platform is actively looking for a ${accommodationType.toLowerCase()} in ${location} to host their upcoming retreat. ${groupSize ? `This particular retreat would bring approximately ${groupSize} guests for a multi-night stay.` : 'Retreat leaders typically book blocks of rooms for multi-night group stays.'} We'd love to introduce you to them through the platform so you can learn more about the opportunity and see if it works with your schedule.
 
-If this isn't a fit right now, no worries at all.
+THERE'S ZERO RISK
+Listing your property on HighVibe is completely free — no monthly fees, no exclusivity agreements, no commitments. You set your own nightly rates and only make your property available when it works for you. The retreat leader handles all programming, activities, and guest coordination. Your role is simply doing what you already do best — providing a beautiful space and great hospitality. If you find the platform valuable over time, there's an option to become a member for additional features — but there's no obligation whatsoever.
+
+Many properties find that retreat bookings become a welcome source of recurring revenue — retreat leaders who have a great experience often come back 2-4 times per year. But there's absolutely no pressure. We'd just love for you to take a look and see if it's something that interests you.
+
+Check it out: ${signupUrl}
+
+No pressure at all — if this isn't the right time, we completely understand. We wish you continued success with ${hostName}.
+
+Warm regards,
+The HighVibe Retreats Team
 
 ---
 This is a one-time partnership inquiry from HighVibe Retreats.
