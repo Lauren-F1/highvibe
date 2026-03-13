@@ -589,7 +589,7 @@ export default function BillingPage() {
                         'grid-cols-1': !user.profile?.roles || user.profile.roles.length <= 1,
                         'grid-cols-2': user.profile?.roles?.length === 2,
                         'grid-cols-3': user.profile?.roles?.length === 3,
-                        'grid-cols-4': user.profile?.roles?.length >= 4,
+                        'grid-cols-4': (user.profile?.roles?.length ?? 0) >= 4,
                     }
                 )}>
                     {user.profile?.roles.includes('seeker') && <TabsTrigger value="seeker">Seeker</TabsTrigger>}

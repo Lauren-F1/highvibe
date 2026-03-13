@@ -320,7 +320,7 @@ export default function ManifestationDetailPage() {
         }
     };
 
-    const getAuthHeaders = async () => {
+    const getAuthHeaders = async (): Promise<Record<string, string>> => {
         if (user.status !== 'authenticated') return {};
         try {
             const idToken = await (user.data as any).getIdToken();

@@ -49,7 +49,7 @@ export default function AdminUsersPage() {
     else setLoadingMore(true);
 
     try {
-      const token = await currentUser.data?.getIdToken();
+      const token = await (currentUser.data as any)?.getIdToken();
       const params = new URLSearchParams();
       if (search) params.set('search', search);
       if (roleFilter) params.set('role', roleFilter);

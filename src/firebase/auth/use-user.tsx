@@ -219,5 +219,5 @@ export function useUser(): AuthState {
 
   }, [auth, firestore]);
 
-  return { ...userState, app };
+  return { ...userState, app } as AuthState;
 }

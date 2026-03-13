@@ -6,7 +6,7 @@ export default function TermsPage() {
       <div className="max-w-3xl mx-auto">
         <Card>
           <CardHeader>
-            <CardTitle as="h1" className="font-headline text-4xl">HighVibe Retreats – Terms of Service</CardTitle>
+            <CardTitle className="font-headline text-4xl">HighVibe Retreats – Terms of Service</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6 text-sm font-body text-foreground/80">
             <p className="font-medium">Effective Date: February 1, 2026</p>

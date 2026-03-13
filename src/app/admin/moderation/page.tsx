@@ -56,7 +56,7 @@ export default function AdminModerationPage() {
     if (currentUser.status !== 'authenticated') return;
     setLoading(true);
     try {
-      const token = await currentUser.data?.getIdToken();
+      const token = await (currentUser.data as any)?.getIdToken();
       const params = new URLSearchParams({ type: typeFilter, status: statusFilter });
       const res = await fetch(`/api/admin/moderation?${params}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -78,7 +78,7 @@ export default function AdminModerationPage() {
   const handleAction = async (itemId: string, itemType: string, action: 'approve' | 'flag' | 'unpublish') => {
     setActionLoading(`${itemId}-${action}`);
     try {
-      const token = await currentUser.data?.getIdToken();
+      const token = await (currentUser.data as any)?.getIdToken();
       const res = await fetch('/api/admin/moderation', {
         method: 'PATCH',
         headers: {

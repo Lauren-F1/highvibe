@@ -2,6 +2,8 @@
 import type { Guide as GuideType } from '@/components/guide-card';
 import { getPlaceholderById } from './placeholder-images';
 
+export type UserSubscriptionStatus = 'active' | 'inactive' | 'past_due' | 'trial';
+
 export interface Host {
   id: string;
   name: string;

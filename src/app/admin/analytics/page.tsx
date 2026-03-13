@@ -56,7 +56,7 @@ export default function AdminAnalyticsPage() {
 
     const fetchAnalytics = async () => {
       try {
-        const token = await currentUser.data?.getIdToken();
+        const token = await (currentUser.data as any)?.getIdToken();
         const res = await fetch('/api/admin/analytics', {
           headers: { Authorization: `Bearer ${token}` },
         });

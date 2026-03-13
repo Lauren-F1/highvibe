@@ -17,7 +17,7 @@ import {
   type RoleBucket,
 } from "@/lib/waitlist-constants";
 
-type RoleShort = "Seeker" | "Guide" | "Host" | "Vendor" | "";
+type RoleShort = "Seeker" | "Guide" | "Host" | "Vendor";
 
 interface WaitlistModalProps {
   isOpen: boolean;
@@ -27,7 +27,7 @@ interface WaitlistModalProps {
 }
 
 const getRoleValue = (role?: RoleShort) => {
-    if (!role || role === "") return undefined;
+    if (!role) return undefined;
     switch(role) {
         case "Seeker": return "Seeker (I want to find/book retreats)";
         case "Guide": return "Guide (I want to lead retreats)";

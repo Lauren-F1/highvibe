@@ -31,3 +31,10 @@ export async function getFirebaseAdmin() {
     FieldValue: admin.firestore.FieldValue,
   };
 }
+
+export function getResolvedProjectId() {
+  return {
+    projectId: 'studio-634317332-6568b',
+    keyUsed: 'hardcoded',
+  };
+}

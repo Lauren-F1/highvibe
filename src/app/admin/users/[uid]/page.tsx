@@ -24,7 +24,7 @@ export default function AdminUserDetailPage() {
 
     const fetchUser = async () => {
       try {
-        const token = await currentUser.data?.getIdToken();
+        const token = await (currentUser.data as any)?.getIdToken();
         const res = await fetch(`/api/admin/users/${uid}`, {
           headers: { Authorization: `Bearer ${token}` },
         });

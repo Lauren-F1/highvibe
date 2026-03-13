@@ -8,6 +8,7 @@ import { Button } from './ui/button';
 import Link from 'next/link';
 import { Badge } from './ui/badge';
 import { type ConnectionStatus } from './guide-card';
+export type { ConnectionStatus };
 
 export interface Host {
   id: string;

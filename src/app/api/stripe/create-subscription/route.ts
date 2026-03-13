@@ -49,7 +49,7 @@ export async function POST(request: Request) {
         if (daysSince <= 60) {
           const reactivationPriceId = process.env.STRIPE_PRICE_PRO_REACTIVATION_FEE;
           if (reactivationPriceId) {
-            await stripe.invoiceItems.create({
+            await (stripe.invoiceItems as any).create({
               customer: customerId,
               price: reactivationPriceId,
               description: 'Pro Plan Reactivation Fee',

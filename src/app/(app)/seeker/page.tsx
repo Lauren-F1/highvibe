@@ -27,6 +27,27 @@ import { RetreatMap } from '@/components/retreat-map-wrapper';
 import { getCoordinatesForLocation } from '@/lib/geocode';
 import { scoreRetreatMatch, type RetreatForScoring, type ManifestationForScoring } from '@/lib/retreat-relevance';
 
+// Extended retreat type that covers both mock retreats and Firestore retreats
+type Retreat = {
+  id: string;
+  title: string;
+  description: string;
+  location: string;
+  price: number;
+  rating: number;
+  image: string;
+  type: string[];
+  duration?: string;
+  included?: string;
+  lat?: number;
+  lng?: number;
+  startDate?: string;
+  endDate?: string;
+  spotsRemaining?: number;
+  capacity?: number;
+  isFullyBooked?: boolean;
+};
+
 // Parse manifestation budget_range string (e.g., "$2,000 - $5,000") into {min, max}
 const parseBudgetRange = (rangeStr: string): { min?: number; max?: number } | undefined => {
     if (!rangeStr) return undefined;
@@ -75,7 +96,7 @@ export default function SeekerPage() {
   const [sortBy, setSortBy] = useState<'default' | 'price-low' | 'price-high' | 'best-match'>('default');
 
   // Firestore retreats loading
-  const [firestoreRetreats, setFirestoreRetreats] = useState<typeof mockRetreats>([]);
+  const [firestoreRetreats, setFirestoreRetreats] = useState<Retreat[]>([]);
   const [retreatsLoaded, setRetreatsLoaded] = useState(false);
 
   const retreats = useMemo(() =>
@@ -85,7 +106,7 @@ export default function SeekerPage() {
     [retreatsLoaded, firestoreRetreats]
   );
 
-  const [filteredRetreats, setFilteredRetreats] = useState(mockRetreats);
+  const [filteredRetreats, setFilteredRetreats] = useState<Retreat[]>(mockRetreats);
   const [isHowItWorksOpen, setIsHowItWorksOpen] = useState(false);
 
   const mostExpensiveRetreatId = retreats.length > 0 ? retreats.reduce((prev, current) => (prev.price > current.price) ? prev : current).id : '';
@@ -97,7 +118,7 @@ export default function SeekerPage() {
   const [waitlistSmsOptIn, setWaitlistSmsOptIn] = useState(false);
 
   const firestore = useFirestore();
-  const { user } = useUser();
+  const { data: user } = useUser();
   const { toast } = useToast();
 
   // Load published retreats from Firestore
@@ -110,7 +131,7 @@ export default function SeekerPage() {
         const retreatsRef = collection(firestore, 'retreats');
         const q = query(retreatsRef, where('status', '==', 'published'));
         const snapshot = await getDocs(q);
-        const loaded = snapshot.docs.map(d => {
+        const loaded: Retreat[] = snapshot.docs.map(d => {
           const data = d.data();
           const coords = (data.lat && data.lng)
             ? { lat: data.lat as number, lng: data.lng as number }

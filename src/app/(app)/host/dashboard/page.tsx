@@ -117,7 +117,7 @@ const initialVendorFilters: VendorFiltersState = {
   radius: 50,
 };
 
-export type ConnectionStatus = 'Not Connected' | 'Connection Requested' | 'New Request' | 'In Conversation' | 'Confirmed' | 'Booked' | 'Declined';
+export type ConnectionStatus = 'Not Connected' | 'Connection Requested' | 'New Request' | 'In Conversation' | 'Confirmed' | 'Booked' | 'Declined' | 'Invite Sent';
 
 
 function StatCard({ title, value, icon, description }: StatCardProps) {
@@ -412,7 +412,8 @@ export default function HostDashboardPage() {
       if (activeSpace?.hostLat && activeSpace.hostLng) {
         if (vendor.distance === Infinity) return false;
         const isInRadius = vendor.distance <= appliedVendorFilters.radius;
-        const canService = !vendor.vendorServiceRadiusMiles || vendor.distance <= vendor.vendorServiceRadiusMiles;
+        const serviceRadius = (vendor as any).vendorServiceRadiusMiles as number | undefined;
+        const canService = !serviceRadius || vendor.distance <= serviceRadius;
         if (!isInRadius || !canService) return false;
       }
       if (appliedVendorFilters.categories.length > 0 && !appliedVendorFilters.categories.some(cat => vendor.category.includes(cat))) {

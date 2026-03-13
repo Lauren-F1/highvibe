@@ -98,7 +98,7 @@ export function VendorFilters({ filters, onFiltersChange, onApply, onReset, isDi
             <CardContent>
                  <Accordion type="multiple" defaultValue={["Vendor Category", "Location", "Budget Range", "Availability"]} className="w-full">
                     <FilterGroup title="Vendor Category">
-                        {vendorCategories.map(category => <CheckboxFilter key={category.name} item={category.name} description={category.description} />)}
+                        {vendorCategories.map(category => <CheckboxFilter key={category.name} item={category.name} />)}
                     </FilterGroup>
 
                     <FilterGroup title="Location">

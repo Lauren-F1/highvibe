@@ -72,7 +72,7 @@ export default function HomePageClient() {
   const heroImageSrc = '/resort-image.png';
 
   const [isWaitlistModalOpen, setIsWaitlistModalOpen] = useState(false);
-  const [defaultRole, setDefaultRole] = useState<"Seeker" | "Guide" | "Host" | "Vendor" | "">("");
+  const [defaultRole, setDefaultRole] = useState<"Seeker" | "Guide" | "Host" | "Vendor" | undefined>(undefined);
   const [modalSource, setModalSource] = useState("homepage-role-card");
 
   const isLaunchMode = process.env.NEXT_PUBLIC_LAUNCH_MODE === 'true';
@@ -222,7 +222,7 @@ export default function HomePageClient() {
                 </CardHeader>
                 <CardContent className="flex justify-center">
                   <Button size="lg" onClick={() => {
-                      setDefaultRole("");
+                      setDefaultRole(undefined);
                       setModalSource("landing-card");
                       setIsWaitlistModalOpen(true);
                   }}>Join the Waitlist</Button>

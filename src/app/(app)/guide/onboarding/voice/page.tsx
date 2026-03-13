@@ -41,12 +41,12 @@ export default function VoiceOnboardingPage() {
             setProcessingState('processing');
           }
       };
-      rec.onerror = (event) => {
+      rec.onerror = (event: SpeechRecognitionErrorEvent) => {
         toast({ variant: 'destructive', title: 'Speech recognition error', description: event.error });
         setIsRecording(false);
         setProcessingState('idle');
       };
-      rec.onresult = (event) => {
+      rec.onresult = (event: SpeechRecognitionEvent) => {
         let final = '';
         let interim = '';
         for (let i = 0; i < event.results.length; i++) {
@@ -229,10 +229,3 @@ export default function VoiceOnboardingPage() {
   );
 }
 
-// Add a declaration for webkitSpeechRecognition
-declare global {
-    interface Window {
-        SpeechRecognition: typeof SpeechRecognition;
-        webkitSpeechRecognition: typeof SpeechRecognition;
-    }
-}
