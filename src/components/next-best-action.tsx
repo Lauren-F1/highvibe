@@ -49,11 +49,13 @@ export function NextBestAction({ stage }: NextBestActionProps) {
   if (!action) {
     return null;
   }
-  
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (action.href.startsWith('#')) {
-      e.preventDefault();
-      document.querySelector(action.href)?.scrollIntoView({ behavior: 'smooth' });
+
+  const isAnchor = action.href.startsWith('#');
+
+  const handleScrollClick = () => {
+    const target = document.querySelector(action.href);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -66,9 +68,15 @@ export function NextBestAction({ stage }: NextBestActionProps) {
       <CardContent className="p-4 pt-0">
         <div className="flex items-center justify-between">
             <p className="text-muted-foreground max-w-lg">{action.title}</p>
-            <Button asChild className="bg-beige text-primary-foreground hover:bg-beige/90">
-              <Link href={action.href} onClick={handleClick}>{action.cta}</Link>
-            </Button>
+            {isAnchor ? (
+              <Button onClick={handleScrollClick} className="bg-beige text-primary-foreground hover:bg-beige/90">
+                {action.cta}
+              </Button>
+            ) : (
+              <Button asChild className="bg-beige text-primary-foreground hover:bg-beige/90">
+                <Link href={action.href}>{action.cta}</Link>
+              </Button>
+            )}
         </div>
       </CardContent>
     </Card>

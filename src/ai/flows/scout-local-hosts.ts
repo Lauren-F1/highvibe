@@ -125,7 +125,7 @@ async function extractEmailFromWebsite(websiteUrl: string): Promise<string | nul
   for (const url of pagesToTry) {
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 5000);
+      const timeout = setTimeout(() => controller.abort(), 10000);
       const response = await fetch(url, {
         signal: controller.signal,
         headers: { 'User-Agent': 'HighVibeRetreats/1.0 (host-partnership-inquiry)' },

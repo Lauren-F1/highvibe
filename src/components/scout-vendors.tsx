@@ -261,7 +261,7 @@ export function ScoutVendors({ retreatLocation, retreatDescription, guideUserId,
         {/* Empty state */}
         {hasSearched && results.length === 0 && !isSearching && (
           <div className="text-center py-8 rounded-lg bg-secondary/50">
-            <p className="text-muted-foreground">No vendors found with contact info in this area. Try a different location or category.</p>
+            <p className="text-muted-foreground">No vendors found with a publicly listed email in this area. Many businesses use contact forms instead. Try a more specific location or a different service category.</p>
           </div>
         )}
       </CardContent>

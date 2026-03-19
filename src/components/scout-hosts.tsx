@@ -268,7 +268,7 @@ export function ScoutHosts({ retreatLocation, retreatDescription, guideUserId, r
         {/* Empty state */}
         {hasSearched && results.length === 0 && !isSearching && (
           <div className="text-center py-8 rounded-lg bg-secondary/50">
-            <p className="text-muted-foreground">No properties found with contact info in this area. Try a different location or property type.</p>
+            <p className="text-muted-foreground">No properties found with a publicly listed email in this area. Many properties use booking platforms instead. Try a more specific location (e.g., &quot;Ubud, Bali&quot; instead of &quot;Bali, Indonesia&quot;) or a different property type.</p>
           </div>
         )}
       </CardContent>

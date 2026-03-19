@@ -50,9 +50,9 @@ interface HostFiltersProps {
 function FilterGroup({ title, children }: { title: string, children: React.ReactNode }) {
     return (
         <AccordionItem value={title}>
-            <AccordionTrigger className="text-base font-semibold py-3">{title}</AccordionTrigger>
+            <AccordionTrigger className="text-sm font-semibold py-2">{title}</AccordionTrigger>
             <AccordionContent>
-                <div className="space-y-4 pt-2">
+                <div className="space-y-2.5 pt-1">
                     {children}
                 </div>
             </AccordionContent>
@@ -109,11 +109,11 @@ export function HostFilters({ filters, onFiltersChange }: HostFiltersProps) {
 
     return (
         <Card className="lg:sticky lg:top-24">
-            <CardHeader>
-                <CardTitle className="text-xl font-headline font-bold">Filter Spaces</CardTitle>
+            <CardHeader className="pb-2">
+                <CardTitle className="text-lg font-headline font-bold">Filter Spaces</CardTitle>
             </CardHeader>
-            <CardContent>
-                <Accordion type="multiple" defaultValue={["Location", "Availability", "Capacity & Layout", "Nightly Rate", "Amenities", "Retreat Suitability", "Vibe"]} className="w-full">
+            <CardContent className="pt-0">
+                <Accordion type="multiple" defaultValue={["Location", "Availability"]} className="w-full">
                     
                     <FilterGroup title="Location">
                         <div className="space-y-2">
@@ -249,7 +249,7 @@ export function HostFilters({ filters, onFiltersChange }: HostFiltersProps) {
                     </FilterGroup>
 
                     <FilterGroup title="Capacity & Layout">
-                        <div className="space-y-4">
+                        <div className="space-y-2.5">
                             <p className="text-xs text-muted-foreground">Some spaces sleep fewer than they can host for daytime sessions.</p>
                             <div className="space-y-2">
                                 <Label>Sleeping capacity (guests)</Label>
@@ -353,7 +353,7 @@ export function HostFilters({ filters, onFiltersChange }: HostFiltersProps) {
                     </FilterGroup>
                     
                     <FilterGroup title="Retreat Suitability">
-                        <div className="space-y-4">
+                        <div className="space-y-2.5">
                              <div className="flex items-start space-x-3">
                                 <Checkbox id="retreat-ready" className="mt-0.5" checked={filters.retreatReady} onCheckedChange={(checked) => onFiltersChange({ retreatReady: !!checked })}/>
                                 <div className="grid gap-1.5 leading-none">
@@ -399,7 +399,7 @@ export function HostFilters({ filters, onFiltersChange }: HostFiltersProps) {
                     </FilterGroup>
 
                     <FilterGroup title="Vibe">
-                        <div className="space-y-4">
+                        <div className="space-y-2.5">
                             {hostVibes.map(vibe => <CheckboxFilter key={vibe.name} item={vibe.name} description={vibe.description} group="vibes" />)}
                             <p className="text-xs text-muted-foreground pt-1">Vibe helps us match aesthetics and energy—select all that fit.</p>
                         </div>
