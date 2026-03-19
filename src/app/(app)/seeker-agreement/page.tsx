@@ -57,37 +57,35 @@ function SeekerAgreementContent() {
         </CardHeader>
         <CardContent className="space-y-6 text-sm font-body text-foreground/80">
             <p className="font-medium">Effective Date: February 1, 2026</p>
-            <p>This Seeker Participation Agreement & Liability Waiver (“Agreement”) governs your participation in any retreat or service booked through HighVibe Retreats (“HighVibe”).</p>
-            <p className="font-bold">By booking a retreat or service, you agree to be legally bound by this Agreement.</p>
+            <p>This Seeker Participation Agreement & Liability Waiver (&quot;Agreement&quot;) governs your participation in any retreat or service booked through HighVibe Retreats, a DBA of New Mindset Foundation LLC (&quot;HighVibe,&quot; &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;).</p>
+            <p className="font-semibold">By booking a retreat or service, you agree to be legally bound by this Agreement.</p>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">1. Platform Role</h2>
-                <p>HighVibe is a technology marketplace that connects you with independent Guides, Hosts, and Vendors. HighVibe does not organize, operate, or control retreats. Your contract for any retreat is with the Provider, not HighVibe.</p>
-            </div>
-            
-            <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">2. Employer or Corporate Participation</h2>
-                <p>If your participation is sponsored, reimbursed, or encouraged by an employer or organization, HighVibe does not assume any employer-related duty of care, supervision, or compliance obligations.</p>
-                <p>HighVibe does not provide workplace training, professional development services, or corporate event management.</p>
-                <p>Participation remains voluntary and at your own risk.</p>
+                <h2 className="font-headline text-lg pt-4 font-semibold">1. Platform Role</h2>
+                <p>HighVibe is a technology marketplace operated by New Mindset Foundation LLC that connects you with independent Guides, Hosts, and Vendors (&quot;Providers&quot;). HighVibe does not organize, operate, supervise, or control retreats. Your contract for any retreat experience is with the Provider, not with HighVibe or New Mindset Foundation LLC. Providers are independent contractors and are not employees, agents, or partners of HighVibe.</p>
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">3. Assumption of Risk</h2>
-                <p>You understand and acknowledge that participation in retreats involves inherent risks, including but not limited to physical activity, travel, exposure to outdoor elements, and interaction with third parties. You voluntarily assume all risks associated with your participation.</p>
+                <h2 className="font-headline text-lg pt-4 font-semibold">2. Employer or Corporate Participation</h2>
+                <p>If your participation is sponsored, reimbursed, or encouraged by an employer or organization, HighVibe does not assume any employer-related duty of care, supervision, or compliance obligations. HighVibe does not provide workplace training, professional development services, or corporate event management. Participation remains voluntary and at your own risk.</p>
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">4. Release of Liability</h2>
-                <p>To the fullest extent permitted by law, you release HighVibe from all claims, liabilities, and damages arising out of or in connection with your participation in any retreat, including claims of negligence, personal injury, property damage, or death.</p>
+                <h2 className="font-headline text-lg pt-4 font-semibold">3. Assumption of Risk</h2>
+                <p>You understand and acknowledge that participation in retreats involves inherent risks, including but not limited to physical activity, travel, exposure to outdoor elements, dietary changes, emotional experiences, and interaction with third parties. You voluntarily assume all risks associated with your participation, whether known or unknown, foreseeable or unforeseeable.</p>
             </div>
 
             <div className="space-y-2">
-                <h2 className="font-headline text-xl pt-4 font-bold">5. Medical Acknowledgment</h2>
+                <h2 className="font-headline text-lg pt-4 font-semibold">4. Release of Liability</h2>
+                <p>To the fullest extent permitted by law, you release and hold harmless New Mindset Foundation LLC, its officers, directors, members, employees, and agents (collectively, &quot;Released Parties&quot;) from all claims, liabilities, demands, causes of action, and damages arising out of or in connection with your participation in any retreat or use of any service booked through the platform, including claims of negligence, personal injury, property damage, emotional distress, or death.</p>
+            </div>
+
+            <div className="space-y-2">
+                <h2 className="font-headline text-lg pt-4 font-semibold">5. Medical Acknowledgment</h2>
                 <p>You confirm that you are physically and mentally fit to participate. You are responsible for consulting with a medical professional regarding your suitability for any retreat activities.</p>
             </div>
 
-            <p className="font-bold pt-4">By clicking "Accept and Continue", you acknowledge that you have read, understood, and agreed to be bound by these terms.</p>
+            <p className="font-semibold pt-4">By clicking &quot;Accept and Continue&quot;, you acknowledge that you have read, understood, and agreed to be bound by these terms.</p>
         </CardContent>
         <CardFooter>
           <Button onClick={handleAccept} disabled={isSubmitting}>

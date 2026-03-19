@@ -17,9 +17,10 @@ export function buildChargebackNotificationEmail({ providerName, bookingId, amou
             <p>Please log in to your HighVibe dashboard to upload relevant documents, such as your signed contract, refund policy, and communication logs.</p>
             <br/>
             <p>The HighVibe Team</p>
+            <p style="font-size:12px;color:#888;margin-top:16px;">HighVibe Retreats is a service of New Mindset Foundation LLC.</p>
         </div>
     `;
-    const text = `Hi ${providerName},\n\nA chargeback has been filed for booking #${bookingId} for ${amount} ${currency}. You must provide evidence by ${evidenceDeadline}. Please log in to your dashboard to upload evidence.\n\nThe HighVibe Team`;
+    const text = `Hi ${providerName},\n\nA chargeback has been filed for booking #${bookingId} for ${amount} ${currency}. You must provide evidence by ${evidenceDeadline}. Please log in to your dashboard to upload evidence.\n\nThe HighVibe Team\n\nHighVibe Retreats is a service of New Mindset Foundation LLC.`;
     
     return { subject, html, text };
 }

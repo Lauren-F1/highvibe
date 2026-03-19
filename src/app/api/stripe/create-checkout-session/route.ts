@@ -205,10 +205,16 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ url: session.url });
   } catch (error: any) {
-    console.error('[STRIPE_CHECKOUT] Error:', error);
+    console.error('[STRIPE_CHECKOUT] Error:', error?.message || error, error?.stack);
     if (error.message === 'Missing authorization header') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'You must be logged in to checkout.' }, { status: 401 });
     }
-    return NextResponse.json({ error: 'Failed to create checkout session' }, { status: 500 });
+    if (error.message?.includes('STRIPE_SECRET_KEY')) {
+      return NextResponse.json({ error: 'Payment system is not configured. Please contact support.' }, { status: 503 });
+    }
+    if (error.type === 'StripeAuthenticationError') {
+      return NextResponse.json({ error: 'Payment system configuration error. Please contact support.' }, { status: 503 });
+    }
+    return NextResponse.json({ error: error.message || 'Failed to create checkout session' }, { status: 500 });
   }
 }

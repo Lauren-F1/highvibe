@@ -53,6 +53,14 @@ export function ContactForm() {
         userId: user.status === 'authenticated' ? user.data.uid : null,
         pageContext: pathname,
       });
+
+      // Send email notification to admin (fire-and-forget — don't block success)
+      fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: data.name, email: data.email.toLowerCase(), role: data.role, message: data.message }),
+      }).catch((err) => console.error('Contact email notification failed:', err));
+
       setFormState('submitted');
       reset();
     } catch (error) {
