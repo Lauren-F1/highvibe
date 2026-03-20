@@ -559,7 +559,10 @@ export default function GuidePage() {
     let filtered = [...vendors];
 
     if (appliedVendorFilters.categories.length > 0) {
-      filtered = filtered.filter(vendor => appliedVendorFilters.categories.includes(vendor.category));
+      filtered = filtered.filter(vendor => {
+        const vendorCats = vendor.category.split(', ').map(c => c.trim());
+        return appliedVendorFilters.categories.some(c => vendorCats.includes(c));
+      });
     }
     
     if (appliedVendorFilters.budget < 5000) {

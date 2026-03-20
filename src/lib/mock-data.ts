@@ -67,7 +67,7 @@ export interface Vendor {
 }
 
 export const vendors: Vendor[] = [
-  { id: 'v1', uid: 'v1', name: 'Marco DeLuca', category: 'Catering', rating: 4.9, reviewCount: 88, avatar: getPlaceholderById('vendor-chef-profile'), luxApproved: true, premiumMembership: true, location: 'Bali, Indonesia', vendorLat: -8.5, vendorLng: 115.26, startingPrice: 2000, profileSlug: 'marco-deluca' },
+  { id: 'v1', uid: 'v1', name: 'Marco DeLuca', category: 'Catering / Private Chef', rating: 4.9, reviewCount: 88, avatar: getPlaceholderById('vendor-chef-profile'), luxApproved: true, premiumMembership: true, location: 'Bali, Indonesia', vendorLat: -8.5, vendorLng: 115.26, startingPrice: 2000, profileSlug: 'marco-deluca' },
   { id: 'v2', uid: 'v2', name: 'Sam Kolder', category: 'Photography', rating: 5.0, reviewCount: 120, avatar: getPlaceholderById('vendor-photographer'), luxApproved: true, premiumMembership: true, location: 'Global', startingPrice: 4500, profileSlug: 'sam-kolder' },
 ];
 

@@ -23,6 +23,7 @@ import { GuideFilters, type GuideFiltersState } from '@/components/guide-filters
 import { getDistanceInMiles } from '@/lib/geo';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore } from '@/firebase';
+import { isFirebaseEnabled } from '@/firebase/config';
 import { collection, addDoc, query, where, getDocs, limit, serverTimestamp, updateDoc, doc } from 'firebase/firestore';
 import { SpaceReadinessChecklist, type SpaceReadinessProps } from '@/components/space-readiness-checklist';
 import { cn } from '@/lib/utils';
@@ -182,7 +183,10 @@ export default function HostDashboardPage() {
     loadSpaces();
   }, [firestore, currentUser.status]);
 
-  const hostSpaces = spacesLoaded && firestoreSpaces.length > 0 ? firestoreSpaces : mockHostSpaces;
+  // Only show mock spaces for local dev without Firebase. With Firebase enabled, show real spaces or empty state.
+  const hostSpaces = isFirebaseEnabled
+    ? firestoreSpaces
+    : (firestoreSpaces.length > 0 ? firestoreSpaces : mockHostSpaces);
   const [activeSpaceId, setActiveSpaceId] = useState<string | null>(null);
 
   // Load real guides and vendors from Firestore
@@ -595,6 +599,15 @@ export default function HostDashboardPage() {
           <CardDescription>Manage your property listings and availability.</CardDescription>
         </CardHeader>
         <CardContent>
+          {hostSpaces.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground mb-4">You haven&apos;t listed any spaces yet.</p>
+              <Button size="lg" onClick={handleAddNewSpace} disabled={!isAgreementAccepted}>
+                <PlusCircle className="mr-2 h-5 w-5" />
+                Add Your First Space
+              </Button>
+            </div>
+          ) : (
           <div className="overflow-x-auto">
           <Table>
             <TableHeader>
@@ -641,6 +654,7 @@ export default function HostDashboardPage() {
             </TableBody>
           </Table>
           </div>
+          )}
         </CardContent>
       </Card>
        <PendingConnectionRequests connections={connections} onConnectionUpdated={reloadConnections} />
