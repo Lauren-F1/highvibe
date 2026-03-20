@@ -63,9 +63,13 @@ function PayoutsContent() {
         if (res.ok) {
           const data = await res.json();
           setTransfers(data.transfers || []);
+        } else {
+          console.error('Failed to fetch payout history:', res.status);
+          toast({ title: 'Error', description: 'Could not load your payout history. Please refresh to try again.', variant: 'destructive' });
         }
       } catch (e) {
         console.error('Error fetching payout history:', e);
+        toast({ title: 'Error', description: 'Something went wrong loading your payout history. Please refresh to try again.', variant: 'destructive' });
       } finally {
         setLoading(false);
       }

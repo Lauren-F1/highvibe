@@ -94,6 +94,7 @@ export default function EditRetreatPage() {
   const [spaceRate, setSpaceRate] = useState<number>(0);
   const [vendorLineItems, setVendorLineItems] = useState<VendorLineItem[]>([]);
 
+  const userId = user.data?.uid;
   const effectiveSpaceId = selectedSpaceId === 'none' ? '' : selectedSpaceId;
   const selectedSpace = spaces.find(s => s.id === effectiveSpaceId);
 
@@ -178,7 +179,7 @@ export default function EditRetreatPage() {
 
         const data = snap.data() as RetreatDoc;
 
-        if (data.hostId !== user.data!.uid) {
+        if (data.hostId !== userId) {
           toast({ title: 'Unauthorized', description: 'You can only edit your own retreats.', variant: 'destructive' });
           router.replace('/guide');
           return;
@@ -210,7 +211,7 @@ export default function EditRetreatPage() {
     };
 
     loadRetreat();
-  }, [firestore, retreatId, user.status]);
+  }, [firestore, retreatId, user.status, userId, router, toast, reset]);
 
   const handleGenerateDescription = async () => {
     const title = watch('title');

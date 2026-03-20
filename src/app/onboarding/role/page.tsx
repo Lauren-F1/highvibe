@@ -6,8 +6,9 @@ import { useUser, useFirestore } from '@/firebase';
 import { doc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import React from 'react';
+import React, { useState } from 'react';
 import { RoleIcon } from '@/components/icons/role-icon';
+import { useToast } from '@/hooks/use-toast';
 
 type Role = 'seeker' | 'guide' | 'host' | 'vendor';
 
@@ -38,6 +39,8 @@ export default function RoleOnboardingPage() {
   const user = useUser();
   const firestore = useFirestore();
   const router = useRouter();
+  const { toast } = useToast();
+  const [savingRole, setSavingRole] = useState<Role | null>(null);
 
   const handleRoleSelection = async (role: Role) => {
     if (user.status !== 'authenticated' || !firestore) {
@@ -46,6 +49,7 @@ export default function RoleOnboardingPage() {
       return;
     }
 
+    setSavingRole(role);
     const userRef = doc(firestore, 'users', user.data.uid);
 
     try {
@@ -59,7 +63,8 @@ export default function RoleOnboardingPage() {
       router.push(`/${role}`);
     } catch (error) {
       console.error("Error updating user role: ", error);
-      // Handle error, maybe show a toast
+      toast({ variant: 'destructive', title: 'Failed to set role', description: 'Something went wrong. Please try again.' });
+      setSavingRole(null);
     }
   };
 

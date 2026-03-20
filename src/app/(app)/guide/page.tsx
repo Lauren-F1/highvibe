@@ -31,6 +31,7 @@ import { RetreatReadinessChecklist, type RetreatReadinessProps } from '@/compone
 import { WaitlistModal } from '@/components/waitlist-modal';
 import { VibeMatchModal } from '@/components/vibe-match-modal';
 import { useUser, useFirestore } from '@/firebase';
+import { useMockData } from '@/firebase/config';
 import { collection, query, where, getDocs, doc, updateDoc, deleteDoc, serverTimestamp, addDoc, limit as firestoreLimit } from 'firebase/firestore';
 import { ScoutVendors } from '@/components/scout-vendors';
 import { ScoutHosts } from '@/components/scout-hosts';
@@ -115,6 +116,8 @@ export default function GuidePage() {
   const firestore = useFirestore();
   const [firestoreRetreats, setFirestoreRetreats] = useState<ReturnType<typeof toDisplayRetreat>[]>([]);
   const [retreatsLoaded, setRetreatsLoaded] = useState(false);
+  const [retreatLoadError, setRetreatLoadError] = useState(false);
+  const [partnerLoadError, setPartnerLoadError] = useState(false);
 
   // Load retreats from Firestore
   useEffect(() => {
@@ -127,7 +130,8 @@ export default function GuidePage() {
         const retreats = snap.docs.map(d => toDisplayRetreat(d.data() as FirestoreRetreat));
         setFirestoreRetreats(retreats);
       } catch (error) {
-        console.warn('Failed to load retreats from Firestore, using mock data:', error);
+        console.warn('[HighVibe] Failed to load retreats from Firestore, falling back to mock data:', error);
+        setRetreatLoadError(true);
       } finally {
         setRetreatsLoaded(true);
       }
@@ -156,7 +160,8 @@ export default function GuidePage() {
         setFirestoreHosts(hostsResult);
         setFirestoreVendors(vendorsResult);
       } catch (error) {
-        console.error('Error loading partners:', error);
+        console.warn('[HighVibe] Failed to load partners from Firestore, falling back to mock data:', error);
+        setPartnerLoadError(true);
       } finally {
         setPartnersLoaded(true);
       }
@@ -575,8 +580,38 @@ export default function GuidePage() {
   const noHostsFound = displayHosts.length === 0;
   const noVendorsFound = displayVendors.length === 0;
 
+  // Detect mock data usage: either explicitly configured, or Firestore returned empty/errored
+  const usingMockRetreats = useMockData || (retreatsLoaded && firestoreRetreats.length === 0);
+  const usingMockPartners = useMockData || (partnersLoaded && firestoreHosts.length === 0 && firestoreVendors.length === 0);
+  const showMockBanner = usingMockRetreats || usingMockPartners;
+
+  // Show error toast when Firestore fetch actually fails
+  useEffect(() => {
+    if (retreatLoadError) {
+      toast({ title: 'Firestore error', description: 'Could not load retreats. Showing sample data.', variant: 'destructive' });
+    }
+  }, [retreatLoadError, toast]);
+
+  useEffect(() => {
+    if (partnerLoadError) {
+      toast({ title: 'Firestore error', description: 'Could not load partners. Showing sample data.', variant: 'destructive' });
+    }
+  }, [partnerLoadError, toast]);
+
+  // Console warning for developers
+  useEffect(() => {
+    if (showMockBanner && retreatsLoaded && partnersLoaded) {
+      console.warn('[HighVibe] Guide dashboard is displaying mock/sample data. Connect Firestore or add real data to dismiss this warning.');
+    }
+  }, [showMockBanner, retreatsLoaded, partnersLoaded]);
+
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
+      {showMockBanner && retreatsLoaded && partnersLoaded && (
+        <div className="mb-4 rounded-md border border-yellow-300 bg-yellow-50 px-4 py-2 text-sm text-yellow-800">
+          Showing sample data{usingMockRetreats && usingMockPartners ? '' : usingMockRetreats ? ' for retreats' : ' for partners'}. Connect Firestore and add real data to see live information.
+        </div>
+      )}
       <VibeMatchModal
         isOpen={isVibeModalOpen}
         onOpenChange={setIsVibeModalOpen}

@@ -379,14 +379,21 @@ export default function BillingPage() {
                         host: status.currentPlanKey_host || 'pay-as-you-go',
                         vendor: status.currentPlanKey_vendor || 'pay-as-you-go',
                     });
+                } else {
+                    console.error('Failed to fetch subscription status:', statusRes.status);
+                    toast({ title: 'Error', description: 'Could not load your subscription status. Please refresh to try again.', variant: 'destructive' });
                 }
 
                 if (invoicesRes.ok) {
                     const data = await invoicesRes.json();
                     setInvoices(data.invoices || []);
+                } else {
+                    console.error('Failed to fetch invoices:', invoicesRes.status);
+                    toast({ title: 'Error', description: 'Could not load your invoice history.', variant: 'destructive' });
                 }
             } catch (e) {
                 console.error('Error fetching Stripe data:', e);
+                toast({ title: 'Error', description: 'Something went wrong loading your billing data. Please refresh to try again.', variant: 'destructive' });
             }
         };
 

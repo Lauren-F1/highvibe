@@ -116,7 +116,9 @@ export function AuthForm({ mode, role }: AuthFormProps) {
 
 
   const createUserProfileDocument = async (user: import('firebase/auth').User, data: SignupFormValues) => {
-    if (!firestore) return;
+    if (!firestore) {
+      throw new Error('Database connection unavailable. Your account was created but your profile could not be saved. Please log in to complete setup.');
+    }
     const userRef = doc(firestore, 'users', user.uid);
     
     const displayName = [data.firstName, data.lastName].filter(Boolean).join(' ');
@@ -257,7 +259,16 @@ export function AuthForm({ mode, role }: AuthFormProps) {
       if (mode === 'signup') {
         try {
           const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
-          await createUserProfileDocument(userCredential.user, values);
+          try {
+            await createUserProfileDocument(userCredential.user, values);
+          } catch (profileErr) {
+            console.error('Profile creation failed:', profileErr);
+            toast({
+              variant: 'destructive',
+              title: 'Profile setup incomplete',
+              description: 'Your account was created but your profile could not be saved. Please complete your profile after logging in.',
+            });
+          }
           // Send verification email (non-blocking)
           sendEmailVerification(userCredential.user).catch((e) =>
             console.warn('Failed to send verification email:', e)
