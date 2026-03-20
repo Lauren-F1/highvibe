@@ -22,7 +22,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
-import { manifestRetreatTypes, manifestMustHaves, manifestNiceToHaves, lodgingPreferences, luxuryTiers, dietaryPreferences, destinations } from '@/lib/mock-data';
+import { manifestRetreatTypes, manifestAmenities, lodgingPreferences, luxuryTiers, dietaryPreferences, destinations } from '@/lib/mock-data';
 import appConfig from '@/config/app.json';
 
 const countries = Object.keys(destinations).flatMap(continent => destinations[continent as keyof typeof destinations]);
@@ -39,8 +39,7 @@ const manifestSchema = z.object({
   date_range: z.object({ from: z.date().optional(), to: z.date().optional() }).optional(),
   group_size: z.coerce.number().min(1, "Group size must be at least 1"),
   retreat_types: z.array(z.string()).optional(),
-  must_haves: z.array(z.string()).optional(),
-  nice_to_haves: z.array(z.string()).optional(),
+  amenities: z.array(z.string()).optional(),
   lodging_preference: z.string().optional(),
   luxury_tier: z.string().min(1, "Luxury tier is required"),
   budget_range: z.string().optional(),
@@ -53,7 +52,7 @@ type ManifestFormValues = z.infer<typeof manifestSchema>;
 const steps = [
   { id: 1, title: "Who's guiding?", fields: ['guidingPreference'] },
   { id: 2, title: 'Destination & Timing', fields: ['destination_country', 'group_size', 'date_type', 'date_range', 'date_month', 'date_season'] },
-  { id: 3, title: 'Retreat Vision', fields: ['retreat_types', 'must_haves', 'nice_to_haves', 'lodging_preference'] },
+  { id: 3, title: 'Retreat Vision', fields: ['retreat_types', 'amenities', 'lodging_preference'] },
   { id: 4, title: 'Budget & Vibe', fields: ['luxury_tier', 'budget_range', 'dietary_preference', 'notes_text'] },
   { id: 5, title: 'Review & Submit' },
 ];
@@ -128,8 +127,7 @@ export default function NewManifestationPage() {
       },
       group_size: data.group_size,
       retreat_types: data.retreat_types,
-      must_haves: data.must_haves,
-      nice_to_haves: data.nice_to_haves,
+      amenities: data.amenities,
       lodging_preference: data.lodging_preference,
       luxury_tier: data.luxury_tier,
       budget_range: data.budget_range,
@@ -353,8 +351,7 @@ const Step3Vision = ({ control }: { control: any }) => {
     return (
         <div className="space-y-6">
             <CheckboxGroup name="retreat_types" label="Retreat Type" options={manifestRetreatTypes} />
-            <CheckboxGroup name="must_haves" label="Must-Haves" options={manifestMustHaves} />
-            <CheckboxGroup name="nice_to_haves" label="Nice-to-Haves" options={manifestNiceToHaves} />
+            <CheckboxGroup name="amenities" label="Amenities & Experiences" options={manifestAmenities} />
             <Controller name="lodging_preference" control={control} render={({ field }) => (
                 <div className="space-y-2">
                     <Label>Lodging Preference (optional)</Label>
@@ -412,8 +409,7 @@ const Step5Review = ({ values }: { values: ManifestFormValues }) => (
       <div className="space-y-1"><span className="font-semibold">Group Size:</span> {values.group_size} people</div>
       <div className="space-y-1"><span className="font-semibold">Dates:</span> {values.date_type === 'exact' ? `${values.date_range?.from ? format(values.date_range.from, 'PP') : ''} to ${values.date_range?.to ? format(values.date_range.to, 'PP') : ''}` : `Flexible (${values.date_month || ''} ${values.date_season || ''})`}</div>
       <div className="space-y-1"><span className="font-semibold">Retreat Types:</span> {values.retreat_types?.join(', ') || 'Any'}</div>
-      <div className="space-y-1"><span className="font-semibold">Must-Haves:</span> {values.must_haves?.join(', ') || 'None'}</div>
-      <div className="space-y-1"><span className="font-semibold">Nice-to-Haves:</span> {values.nice_to_haves?.join(', ') || 'None'}</div>
+      <div className="space-y-1"><span className="font-semibold">Amenities & Experiences:</span> {values.amenities?.join(', ') || 'None selected'}</div>
       <div className="space-y-1"><span className="font-semibold">Lodging:</span> {values.lodging_preference || 'Any'}</div>
       <div className="space-y-1"><span className="font-semibold">Luxury Tier:</span> {values.luxury_tier}</div>
       <div className="space-y-1"><span className="font-semibold">Budget:</span> {values.budget_range || 'Not specified'}</div>

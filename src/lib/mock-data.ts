@@ -198,19 +198,20 @@ export const manifestRetreatTypes = [
   'Surf & Yoga', 'Couples Retreat', 'Women\'s Retreat', 'Men\'s Retreat',
   'Corporate / Team Building', 'Detox & Cleanse', 'Plant Medicine',
 ];
-export const manifestMustHaves = [
-  'Yoga', 'Meditation', 'High-end chef', 'Private pool', 'Ocean view',
-  'Mountain view', 'Airport transport', 'Spa / massage', 'Sound healing',
-  'Breathwork sessions', 'Hiking / nature walks', 'Surfing',
-  'Photography / videography', 'Live music', 'Fire ceremony',
-  'Journal / reflection time', 'Fitness training', 'Cold plunge / ice bath',
+export const manifestAmenities = [
+  'High-end chef', 'Private pool', 'Ocean view', 'Mountain view',
+  'Airport transport', 'Spa / massage', 'Sound healing', 'Breathwork sessions',
+  'Hiking / nature walks', 'Surfing', 'Photography / videography',
+  'Live music', 'Fire ceremony', 'Journal / reflection time',
+  'Fitness training', 'Cold plunge / ice bath', 'Private room',
+  'Rooftop terrace', 'Hot tub / jacuzzi', 'Organic meals',
+  'Wine / cocktail tasting', 'Cultural excursion', 'Welcome gift bag',
+  'On-site sauna', 'Stargazing', 'Bonfire nights', 'Art supplies',
+  'Library / reading nook', 'Pet-friendly',
 ];
-export const manifestNiceToHaves = [
-  'Spa', 'Ocean view', 'Private room', 'Rooftop terrace', 'Hot tub / jacuzzi',
-  'Organic meals', 'Wine / cocktail tasting', 'Cultural excursion',
-  'Airport pickup', 'Welcome gift bag', 'On-site sauna', 'Stargazing',
-  'Bonfire nights', 'Art supplies', 'Library / reading nook', 'Pet-friendly',
-];
+// Keep old exports for backward compatibility
+export const manifestMustHaves = manifestAmenities;
+export const manifestNiceToHaves = manifestAmenities;
 export const lodgingPreferences = [
   'Villa', 'Retreat Center', 'Boutique Hotel', 'Eco-Lodge', 'Glamping',
   'Cabin / Chalet', 'Beachfront Bungalow', 'Castle / Estate', 'Treehouse',
