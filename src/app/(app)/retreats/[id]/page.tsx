@@ -17,7 +17,8 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { isFirebaseEnabled } from '@/firebase/config';
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
+import { toSafeDate } from '@/lib/date-utils';
 
 interface RetreatDetail {
   id: string;
@@ -79,7 +80,7 @@ export default function RetreatDetailPage() {
               rating: 0,
               image: data.retreatImageUrls?.[0] || '/generic-placeholder.png',
               duration: data.startDate && data.endDate
-                ? `${format(parseISO(data.startDate), 'MMM d')} – ${format(parseISO(data.endDate), 'MMM d, yyyy')}`
+                ? `${format(toSafeDate(data.startDate), 'MMM d')} – ${format(toSafeDate(data.endDate), 'MMM d, yyyy')}`
                 : undefined,
               included: data.included || '',
               type: data.type ? [data.type] : [],
@@ -265,7 +266,7 @@ export default function RetreatDetailPage() {
                 <h2 className="font-headline text-xl font-semibold mb-3">Dates</h2>
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <CalendarDays className="h-4 w-4" />
-                  <span>{format(parseISO(retreat.startDate), 'MMMM d, yyyy')} – {format(parseISO(retreat.endDate), 'MMMM d, yyyy')}</span>
+                  <span>{format(toSafeDate(retreat.startDate), 'MMMM d, yyyy')} – {format(toSafeDate(retreat.endDate), 'MMMM d, yyyy')}</span>
                 </div>
               </div>
             </>

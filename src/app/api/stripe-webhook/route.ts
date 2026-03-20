@@ -249,23 +249,34 @@ async function handleCheckoutCompleted(
   }
 
   // Issue manifest credit to seeker (3% of total, capped at $500)
+  // Guard against duplicate credits on webhook retries by checking if one already exists
   const creditPercent = 0.03;
   const creditCap = 500;
   const creditAmount = Math.min(Math.round(totalAmount * creditPercent * 100) / 100, creditCap);
   if (creditAmount > 0) {
-    const creditRef = db.collection('manifest_credits').doc();
-    const now = new Date();
-    const expiryDate = new Date(now);
-    expiryDate.setDate(expiryDate.getDate() + 365);
-    batch.set(creditRef, {
-      seeker_id: userId,
-      booking_id: bookingRef.id,
-      issued_amount: creditAmount,
-      currency: 'usd',
-      issue_date: now,
-      expiry_date: expiryDate,
-      status: 'available',
-    });
+    const existingCredit = await db.collection('manifest_credits')
+      .where('seeker_id', '==', userId)
+      .where('booking_id', '==', bookingRef.id)
+      .limit(1)
+      .get();
+
+    if (existingCredit.empty) {
+      const creditRef = db.collection('manifest_credits').doc();
+      const now = new Date();
+      const expiryDate = new Date(now);
+      expiryDate.setDate(expiryDate.getDate() + 365);
+      batch.set(creditRef, {
+        seeker_id: userId,
+        booking_id: bookingRef.id,
+        issued_amount: creditAmount,
+        currency: 'usd',
+        issue_date: now,
+        expiry_date: expiryDate,
+        status: 'available',
+      });
+    } else {
+      console.log(`[WEBHOOK] Manifest credit already exists for booking ${bookingRef.id}, skipping`);
+    }
   }
 
   await batch.commit();

@@ -378,6 +378,19 @@ export default function ManifestationDetailPage() {
         notFound();
     }
 
+    // Ownership check: only the seeker who created this manifestation can view it
+    if (user.status === 'authenticated' && manifestation.seeker_id !== user.data.uid) {
+        return (
+            <div className="container mx-auto px-4 py-12 text-center">
+                <h2 className="font-headline text-xl mb-2">Access Denied</h2>
+                <p className="text-muted-foreground mb-4">You don&apos;t have permission to view this manifestation.</p>
+                <Button variant="outline" asChild>
+                    <Link href="/seeker/manifestations">Back to Manifestations</Link>
+                </Button>
+            </div>
+        );
+    }
+
     const isMatching = manifestation.status === 'submitted' || manifestation.status === 'matching';
     const hasMatches = matches.length > 0;
     const proposalsByMatch = new Map(proposals.map(p => [p.match_id, p]));

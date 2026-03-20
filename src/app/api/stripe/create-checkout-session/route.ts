@@ -139,6 +139,26 @@ export async function POST(request: Request) {
     const providers: ProviderInfo[] = [];
 
     if (isMultiProvider && providerLineItems && providerLineItems.length > 0) {
+      // Validate provider line items: amounts must be positive and sum to retreat price
+      const lineItemSum = (providerLineItems as { amount: number }[]).reduce(
+        (sum: number, item: { amount: number }) => sum + (item.amount || 0), 0
+      );
+      const tolerance = 0.01; // allow 1 cent rounding difference
+      if (Math.abs(lineItemSum - retreatPrice) > tolerance) {
+        return NextResponse.json(
+          { error: 'Provider line items do not match the retreat price.' },
+          { status: 400 },
+        );
+      }
+      for (const item of providerLineItems as { providerId: string; providerRole: string; label: string; amount: number }[]) {
+        if (!item.amount || item.amount <= 0) {
+          return NextResponse.json(
+            { error: 'Each provider line item must have a positive amount.' },
+            { status: 400 },
+          );
+        }
+      }
+
       // Multi-provider: build individual fee info for each provider
       for (const item of providerLineItems as { providerId: string; providerRole: string; label: string; amount: number }[]) {
         const feePercent = await getProviderFeePercent(db, item.providerId, item.providerRole);

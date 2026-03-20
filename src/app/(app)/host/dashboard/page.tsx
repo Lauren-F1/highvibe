@@ -542,9 +542,21 @@ export default function HostDashboardPage() {
         createdAt: new Date().toISOString(),
       }]);
       toast({ title: 'Connection Started!', description: `You can now message ${targetProfile.name}.` });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error requesting connection:", error);
-      toast({ title: "Could not start connection", description: "Please try again later.", variant: "destructive" });
+      let description = 'Something went wrong. Please try again.';
+      if (error?.code === 'permission-denied') {
+        description = 'You do not have permission to send this request. Please check your account status.';
+      } else if (error?.code === 'not-found') {
+        description = 'This partner profile could not be found. They may have deactivated their account.';
+      } else if (error?.code === 'already-exists') {
+        description = 'A connection with this partner already exists.';
+      } else if (error?.message?.includes('network') || error?.code === 'unavailable') {
+        description = 'Network error. Please check your connection and try again.';
+      } else if (error?.message) {
+        description = error.message;
+      }
+      toast({ title: "Connection Request Failed", description, variant: "destructive" });
     } finally {
       setIsConnecting(false);
     }

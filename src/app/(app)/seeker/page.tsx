@@ -22,7 +22,8 @@ import Link from 'next/link';
 import { Search, Map, LayoutGrid, Calendar as CalendarIcon } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { format, parseISO, isAfter, isBefore } from 'date-fns';
+import { format, isAfter, isBefore } from 'date-fns';
+import { toSafeDate } from '@/lib/date-utils';
 import { RetreatMap } from '@/components/retreat-map-wrapper';
 import { getCoordinatesForLocation } from '@/lib/geocode';
 import { scoreRetreatMatch, type RetreatForScoring, type ManifestationForScoring } from '@/lib/retreat-relevance';
@@ -251,7 +252,7 @@ export default function SeekerPage() {
       newFilteredRetreats = newFilteredRetreats.filter(retreat => {
         const r = retreat as typeof retreat & { startDate?: string; endDate?: string };
         if (!r.startDate) return true; // Mock retreats without dates pass through
-        const retreatStart = parseISO(r.startDate);
+        const retreatStart = toSafeDate(r.startDate);
         // Retreat must start on or after the filter start date
         return !isBefore(retreatStart, filterStartDate);
       });
@@ -260,7 +261,7 @@ export default function SeekerPage() {
       newFilteredRetreats = newFilteredRetreats.filter(retreat => {
         const r = retreat as typeof retreat & { startDate?: string; endDate?: string };
         if (!r.endDate) return true; // Mock retreats without dates pass through
-        const retreatEnd = parseISO(r.endDate);
+        const retreatEnd = toSafeDate(r.endDate);
         // Retreat must end on or before the filter end date
         return !isAfter(retreatEnd, filterEndDate);
       });
@@ -281,7 +282,7 @@ export default function SeekerPage() {
         newFilteredRetreats = newFilteredRetreats.filter(retreat => {
           const r = retreat as typeof retreat & { startDate?: string };
           if (!r.startDate) return true; // Mock retreats without dates pass through
-          const retreatStart = parseISO(r.startDate);
+          const retreatStart = toSafeDate(r.startDate);
           return !isAfter(retreatStart, cutoff);
         });
       }
