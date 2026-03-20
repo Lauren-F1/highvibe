@@ -66,13 +66,14 @@ function LoginPageContent() {
                     return;
                 }
 
-                if (user.profile && user.profile.onboardingComplete) {
-                    const primaryRole = user.profile.primaryRole;
-                    if (primaryRole) {
-                        router.push(`/${primaryRole}`);
-                    } else {
-                        router.push('/onboarding/role');
-                    }
+                // profile === undefined means still loading; wait for it
+                if (user.profile === undefined) {
+                    return;
+                }
+
+                if (user.profile && user.profile.roles && user.profile.roles.length > 0) {
+                    const primaryRole = user.profile.primaryRole || user.profile.roles[0];
+                    router.push(`/${primaryRole}`);
                 } else {
                     router.push('/onboarding/role');
                 }

@@ -41,13 +41,16 @@ async function getProviderFeePercent(
 }
 
 export async function POST(request: Request) {
+  // Declared outside try/catch so the catch block can roll back a reserved credit
+  let validCreditId = '';
+
   try {
     const uid = await verifyAuthToken(request);
     const body = await request.json();
     const { retreatId, applyCredit, creditId, liabilityAccepted, medicalDisclosureAccepted, providerLineItems, quantity: rawQuantity } = body;
 
     if (!retreatId || !liabilityAccepted) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+      return NextResponse.json({ error: 'Retreat ID and liability waiver acceptance are required' }, { status: 400 });
     }
 
     const quantity = Math.max(1, Math.min(10, parseInt(rawQuantity || '1', 10) || 1));
@@ -84,13 +87,15 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Retreat not found' }, { status: 404 });
       }
       retreatTitle = mockRetreat.title;
-      retreatPrice = mockRetreat.price * 5; // mock package price (matches checkout page)
+      // Mock data `price` is the per-night rate; multiply by 5 to approximate a
+      // full retreat package price (5-night stay). This keeps the checkout preview
+      // consistent with the mock retreat detail page.
+      retreatPrice = mockRetreat.price * 5;
       retreatProviderId = 'guide-placeholder-id';
     }
 
     // Handle manifest credit discount (atomic reservation via transaction)
     let discount = 0;
-    let validCreditId = '';
     if (applyCredit && creditId) {
       try {
         const creditResult = await db.runTransaction(async (transaction) => {
@@ -206,6 +211,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ url: session.url });
   } catch (error: any) {
     console.error('[STRIPE_CHECKOUT] Error:', error?.message || error, error?.stack);
+
+    // Rollback: if a manifest credit was reserved but Stripe session creation
+    // failed, reset it back to "available" so the credit isn't stuck forever.
+    if (validCreditId) {
+      try {
+        const { db: rollbackDb } = await getFirebaseAdmin();
+        await rollbackDb.collection('manifest_credits').doc(validCreditId).update({ status: 'available' });
+        console.log(`[STRIPE_CHECKOUT] Rolled back credit ${validCreditId} to "available"`);
+      } catch (rollbackError) {
+        console.error(`[STRIPE_CHECKOUT] Failed to rollback credit ${validCreditId}:`, rollbackError);
+      }
+    }
+
     if (error.message === 'Missing authorization header') {
       return NextResponse.json({ error: 'You must be logged in to checkout.' }, { status: 401 });
     }

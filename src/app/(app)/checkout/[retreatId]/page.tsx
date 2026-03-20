@@ -338,9 +338,12 @@ export default function CheckoutPage() {
                         </p>
                     </div>
                 </CardContent>
-                <CardFooter>
+                <CardFooter className="flex flex-col gap-2">
+                    {isFullyBooked && (
+                        <p className="text-sm text-destructive font-medium">This retreat is fully booked.</p>
+                    )}
                     <Button className="w-full" size="lg" onClick={handleConfirmBooking} disabled={isProcessing || isFullyBooked || !liabilityAccepted || (requiresMedicalDisclosure && !medicalDisclosureAccepted)}>
-                        {isProcessing ? 'Processing...' : 'Confirm & Pay'}
+                        {isProcessing ? 'Processing...' : isFullyBooked ? 'Fully Booked' : 'Confirm & Pay'}
                     </Button>
                 </CardFooter>
             </Card>

@@ -33,6 +33,11 @@ export default function HostLayout({ children }: { children: ReactNode }) {
     return <div className="container mx-auto px-4 py-12 text-center">Loading...</div>;
   }
 
+  // profile === undefined means still loading; wait before showing AddRolePrompt
+  if (user.profile === undefined) {
+    return <div className="container mx-auto px-4 py-12 text-center">Loading...</div>;
+  }
+
   if (!user.profile?.roles?.includes('host')) {
     return <AddRolePrompt role="host" />;
   }

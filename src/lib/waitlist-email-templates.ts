@@ -26,7 +26,7 @@ const nextStepsHtml = `
 
 const nextStepsText = `\nWhat happens next:\n${NEXT_STEPS.map(s => `- ${s}`).join('\n')}`;
 
-const howItWorksLink = `<p style="margin-top:24px;"><a href="${BASE_URL}/how-it-works" style="color:#c45d3e; font-weight:600;">Preview how HighVibe works &rarr;</a></p>`;
+const howItWorksLink = `<p style="margin-top:24px;"><a href="${BASE_URL}/how-it-works" style="color:#66d320; font-weight:600;">Preview how HighVibe works &rarr;</a></p>`;
 const howItWorksLinkText = `\nPreview how HighVibe works: ${BASE_URL}/how-it-works`;
 
 const closingHtml = `<p style="margin-top:24px;">Thank you for being early — we're genuinely excited to build this with you.</p>`;

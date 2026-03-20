@@ -18,7 +18,7 @@ export function buildCircumventionWarningEmail({ userName, conversationId, messa
       <p style="background: #FFF3CD; border-left: 4px solid #FFC107; padding: 12px 16px; border-radius: 4px;">
         <strong>Reminder:</strong> All bookings made through HighVibe must be processed through the platform's payment system. This protects both Seekers and Providers with our cancellation policy, dispute resolution, and fraud protection.
       </p>
-      <p>Off-platform payment arrangements violate our <a href="${BASE_URL}/terms" style="color: #c45d3e;">Terms of Service</a> and <a href="${BASE_URL}/provider-agreement" style="color: #c45d3e;">Provider Agreement</a>, and may result in:</p>
+      <p>Off-platform payment arrangements violate our <a href="${BASE_URL}/terms" style="color: #66d320;">Terms of Service</a> and <a href="${BASE_URL}/provider-agreement" style="color: #66d320;">Provider Agreement</a>, and may result in:</p>
       <ul>
         <li>Account suspension or termination</li>
         <li>Withholding of pending payouts</li>
@@ -64,7 +64,7 @@ export function buildCircumventionAdminAlertEmail({ flaggedUserName, flaggedUser
       <blockquote style="background: #F3F4F6; padding: 12px 16px; border-left: 4px solid #DC2626; border-radius: 4px; margin: 8px 0;">
         "${messageSnippet.substring(0, 300)}${messageSnippet.length > 300 ? '...' : ''}"
       </blockquote>
-      <p>Review this conversation in the <a href="${BASE_URL}/admin/flagged-conversations" style="color: #c45d3e;">Admin Dashboard</a>.</p>
+      <p>Review this conversation in the <a href="${BASE_URL}/admin/flagged-conversations" style="color: #66d320;">Admin Dashboard</a>.</p>
     </div>
   `;
   const text = `CIRCUMVENTION FLAG\n\nFlagged User: ${flaggedUserName} (${flaggedUserId})\nOther Party: ${otherUserName} (${otherUserId})\nConversation: ${conversationId}\nRisk Score: ${riskScore}\nReasons: ${reasons.join(', ')}\n\nMessage: "${messageSnippet.substring(0, 300)}"\n\nReview at ${BASE_URL}/admin/flagged-conversations`;
