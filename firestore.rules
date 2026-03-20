@@ -302,9 +302,9 @@ service cloud.firestore {
      */
     match /manifestations/{manifestationId} {
       allow get, list: if isSignedIn();
-      allow create: if isSignedIn() && request.auth.uid == request.resource.data.seekerId;
-      allow update: if isSignedIn() && request.auth.uid == resource.data.seekerId;
-      allow delete: if isSignedIn() && request.auth.uid == resource.data.seekerId;
+      allow create: if isSignedIn() && request.auth.uid == request.resource.data.seeker_id;
+      allow update: if isSignedIn() && request.auth.uid == resource.data.seeker_id;
+      allow delete: if isSignedIn() && request.auth.uid == resource.data.seeker_id;
     }
 
     /**
