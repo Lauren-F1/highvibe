@@ -191,12 +191,36 @@ export const timingOptions = [
   { value: 'next-year', label: 'Within a year' },
 ];
 
-export const manifestRetreatTypes = ['Yoga', 'Meditation', 'Wellness'];
-export const manifestMustHaves = ['Yoga', 'High-end chef', 'Transport'];
-export const manifestNiceToHaves = ['Spa', 'Ocean view'];
-export const lodgingPreferences = ['Villa', 'Retreat Center'];
+export const manifestRetreatTypes = [
+  'Yoga', 'Meditation', 'Wellness', 'Adventure', 'Fitness',
+  'Nature Immersion', 'Creative Arts', 'Spiritual', 'Culinary',
+  'Mindfulness', 'Breathwork', 'Sound Healing', 'Silent Retreat',
+  'Surf & Yoga', 'Couples Retreat', 'Women\'s Retreat', 'Men\'s Retreat',
+  'Corporate / Team Building', 'Detox & Cleanse', 'Plant Medicine',
+];
+export const manifestMustHaves = [
+  'Yoga', 'Meditation', 'High-end chef', 'Private pool', 'Ocean view',
+  'Mountain view', 'Airport transport', 'Spa / massage', 'Sound healing',
+  'Breathwork sessions', 'Hiking / nature walks', 'Surfing',
+  'Photography / videography', 'Live music', 'Fire ceremony',
+  'Journal / reflection time', 'Fitness training', 'Cold plunge / ice bath',
+];
+export const manifestNiceToHaves = [
+  'Spa', 'Ocean view', 'Private room', 'Rooftop terrace', 'Hot tub / jacuzzi',
+  'Organic meals', 'Wine / cocktail tasting', 'Cultural excursion',
+  'Airport pickup', 'Welcome gift bag', 'On-site sauna', 'Stargazing',
+  'Bonfire nights', 'Art supplies', 'Library / reading nook', 'Pet-friendly',
+];
+export const lodgingPreferences = [
+  'Villa', 'Retreat Center', 'Boutique Hotel', 'Eco-Lodge', 'Glamping',
+  'Cabin / Chalet', 'Beachfront Bungalow', 'Castle / Estate', 'Treehouse',
+  'Farm / Ranch Stay', 'No preference',
+];
 export const luxuryTiers = ['Essentials', 'Elevated', 'Luxury', 'Ultra-Luxury'];
-export const dietaryPreferences = ['Vegetarian', 'Vegan', 'No preference'];
+export const dietaryPreferences = [
+  'Vegetarian', 'Vegan', 'Gluten-free', 'Keto / Low-carb', 'Paleo',
+  'Halal', 'Kosher', 'Raw food', 'Ayurvedic', 'No preference',
+];
 
 /**
  * Back-compat exports used by various pages/components.
