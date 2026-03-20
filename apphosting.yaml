@@ -91,6 +91,11 @@ env:
     availability:
       - RUNTIME
 
+  - variable: ADMIN_SEED_SECRET
+    secret: ADMIN_SEED_SECRET
+    availability:
+      - RUNTIME
+
   - variable: CRON_SECRET
     secret: CRON_SECRET
     availability:
