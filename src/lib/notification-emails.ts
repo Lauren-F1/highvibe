@@ -32,7 +32,7 @@ function wrapEmail(content: string): string {
 function ctaButton(text: string, url: string): string {
   return `<table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;">
     <tr><td align="center">
-      <a href="${url}" style="display:inline-block;padding:14px 32px;background:#e85d3a;color:#ffffff;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;">${text}</a>
+      <a href="${url}" style="display:inline-block;padding:14px 32px;background:#66d320;color:#ffffff;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;">${text}</a>
     </td></tr>
   </table>`;
 }
@@ -116,7 +116,7 @@ export function buildProviderOpportunityEmail(params: {
   const html = wrapEmail(`
     <h2 style="margin:0 0 16px;color:#1a1a1a;font-size:22px;">New Retreat Opportunity!</h2>
     <p style="color:#333;font-size:16px;line-height:1.6;">Hi ${params.recipientName},</p>
-    <p style="color:#333;font-size:16px;line-height:1.6;">A seeker is looking for a <strong>${params.retreatTypes}</strong> experience in <strong>${params.destination}</strong> and you're a <strong>${params.matchScore}% match</strong>.</p>
+    <p style="color:#333;font-size:16px;line-height:1.6;">We'd like to introduce you to a potential opportunity. A retreat seeker is looking for a <strong>${params.retreatTypes}</strong> experience in <strong>${params.destination}</strong> and you're a <strong>${params.matchScore}% match</strong>.</p>
     <div style="background:#f5f0eb;padding:16px;border-radius:6px;margin:16px 0;">
       <p style="color:#333;font-size:14px;margin:0 0 8px;"><strong>Destination:</strong> ${params.destination}</p>
       <p style="color:#333;font-size:14px;margin:0 0 8px;"><strong>Retreat Type:</strong> ${params.retreatTypes}</p>

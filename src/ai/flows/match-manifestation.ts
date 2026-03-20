@@ -27,7 +27,8 @@ const ManifestationInputSchema = z.object({
   destination_region: z.string().optional().describe('Seeker desired region'),
   retreat_types: z.array(z.string()).describe('Desired retreat types'),
   must_haves: z.array(z.string()).describe('Must-have features'),
-  nice_to_haves: z.array(z.string()).describe('Nice-to-have features'),
+  nice_to_haves: z.array(z.string()).describe('Nice-to-have features (legacy)'),
+  amenities: z.array(z.string()).optional().describe('Desired amenities'),
   group_size: z.number().describe('Expected group size'),
   lodging_preference: z.string().optional().describe('Lodging preference'),
   luxury_tier: z.string().optional().describe('Luxury tier preference'),
@@ -81,6 +82,7 @@ A seeker has submitted a manifestation (dream retreat request). Your job is to s
 - **Retreat Types:** {{#each manifestation.retreat_types}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
 - **Must-Haves:** {{#each manifestation.must_haves}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
 - **Nice-to-Haves:** {{#each manifestation.nice_to_haves}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+{{#if manifestation.amenities}}- **Amenities:** {{#each manifestation.amenities}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}{{/if}}
 - **Group Size:** {{manifestation.group_size}}
 {{#if manifestation.lodging_preference}}- **Lodging:** {{manifestation.lodging_preference}}{{/if}}
 {{#if manifestation.luxury_tier}}- **Luxury Tier:** {{manifestation.luxury_tier}}{{/if}}
