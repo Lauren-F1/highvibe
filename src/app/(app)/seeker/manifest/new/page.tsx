@@ -107,35 +107,35 @@ export default function NewManifestationPage() {
       return;
     }
 
-    const payload = {
+    // Build payload — Firestore rejects undefined values, so only include defined fields
+    const destination: Record<string, string> = { country: data.destination_country };
+    if (data.destination_region) destination.region = data.destination_region;
+
+    const datePref: Record<string, unknown> = { type: data.date_type };
+    if (data.date_range?.from) datePref.start_date = data.date_range.from;
+    if (data.date_range?.to) datePref.end_date = data.date_range.to;
+    if (data.date_month) datePref.month = data.date_month;
+    if (data.date_season) datePref.season = data.date_season;
+
+    const payload: Record<string, unknown> = {
       seeker_id: user.data.uid,
       created_at: serverTimestamp(),
       updated_at: serverTimestamp(),
       status: 'submitted',
       guidingPreference: "match_guide",
-      destination: {
-        country: data.destination_country,
-        region: data.destination_region,
-        city: '', // Not in form
-      },
-      date_pref: {
-        type: data.date_type,
-        start_date: data.date_range?.from,
-        end_date: data.date_range?.to,
-        month: data.date_month,
-        season: data.date_season,
-      },
+      destination,
+      date_pref: datePref,
       group_size: data.group_size,
       retreat_types: data.retreat_types,
       amenities: data.amenities,
       lodging_preference: data.lodging_preference,
       luxury_tier: data.luxury_tier,
       budget_range: data.budget_range,
-      dietary_preference: data.dietary_preference,
-      notes_text: data.notes_text,
       credit_policy: appConfig.manifestCredit,
       matched_summary_counts: { hosts: 0, guides: 0, vendors: 0 },
     };
+    if (data.dietary_preference) payload.dietary_preference = data.dietary_preference;
+    if (data.notes_text) payload.notes_text = data.notes_text;
 
     try {
       const docRef = await addDoc(collection(firestore, 'manifestations'), payload);
