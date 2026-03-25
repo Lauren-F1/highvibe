@@ -1,44 +1,134 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useState, useEffect, useCallback } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import { useUser } from '@/firebase';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { ArrowLeft, Loader2, Save, Shield, ShieldOff, UserX, Ban, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
+
+const ALL_ROLES = ['seeker', 'guide', 'host', 'vendor'] as const;
 
 export default function AdminUserDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const uid = params.uid as string;
   const currentUser = useUser();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [profileFields, setProfileFields] = useState({ displayName: '', email: '', bio: '', locationLabel: '' });
+
+  const getToken = useCallback(async () => {
+    return await (currentUser.data as any)?.getIdToken();
+  }, [currentUser.data]);
+
+  const fetchUser = useCallback(async () => {
+    if (currentUser.status !== 'authenticated') return;
+    try {
+      const token = await getToken();
+      const res = await fetch(`/api/admin/users/${uid}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Failed to fetch');
+      const result = await res.json();
+      setData(result);
+      setProfileFields({
+        displayName: result.user.displayName || '',
+        email: result.user.email || '',
+        bio: result.user.bio || '',
+        locationLabel: result.user.locationLabel || '',
+      });
+    } catch (error) {
+      console.error('Error fetching user:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [currentUser.status, uid, getToken]);
 
   useEffect(() => {
-    if (currentUser.status !== 'authenticated') return;
-
-    const fetchUser = async () => {
-      try {
-        const token = await (currentUser.data as any)?.getIdToken();
-        const res = await fetch(`/api/admin/users/${uid}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) throw new Error('Failed to fetch');
-        setData(await res.json());
-      } catch (error) {
-        console.error('Error fetching user:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchUser();
-  }, [currentUser.status, uid]);
+  }, [fetchUser]);
+
+  const performAction = async (body: Record<string, unknown>) => {
+    const actionName = body.action as string;
+    setActionLoading(actionName);
+    try {
+      const token = await getToken();
+      const res = await fetch(`/api/admin/users/${uid}`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        alert(`Error: ${err.error || 'Action failed'}`);
+        return;
+      }
+      await fetchUser();
+    } catch (error) {
+      console.error('Action failed:', error);
+      alert('Action failed');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleDeleteUser = async (deleteContent: boolean) => {
+    setActionLoading('delete');
+    try {
+      const token = await getToken();
+      const res = await fetch(`/api/admin/users/${uid}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deleteContent }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        alert(`Error: ${err.error || 'Delete failed'}`);
+        return;
+      }
+      router.push('/admin/users');
+    } catch (error) {
+      console.error('Delete failed:', error);
+      alert('Delete failed');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleToggleRole = (role: string) => {
+    const currentRoles: string[] = data.user.roles || [];
+    const newRoles = currentRoles.includes(role)
+      ? currentRoles.filter((r: string) => r !== role)
+      : [...currentRoles, role];
+    if (newRoles.length === 0) return; // Must have at least one role
+    performAction({ action: 'updateRoles', roles: newRoles });
+  };
+
+  const handleSaveProfile = () => {
+    performAction({ action: 'updateProfile', fields: profileFields });
+    setEditingProfile(false);
+  };
 
   if (loading) {
     return (
@@ -57,7 +147,7 @@ export default function AdminUserDetailPage() {
   }
 
   const { user, retreats, spaces, bookings } = data;
-  const roles = user.roles || [];
+  const roles: string[] = user.roles || [];
 
   const formatDate = (iso: string) => {
     if (!iso) return '-';
@@ -89,11 +179,174 @@ export default function AdminUserDetailPage() {
               <div className="grid grid-cols-2 gap-4 mt-4 text-sm">
                 <div><span className="text-muted-foreground">Signed up:</span> {formatDate(user.createdAt)}</div>
                 <div><span className="text-muted-foreground">Last login:</span> {formatDate(user.lastLoginAt)}</div>
-                {user.location && <div><span className="text-muted-foreground">Location:</span> {user.location}</div>}
+                {user.locationLabel && <div><span className="text-muted-foreground">Location:</span> {user.locationLabel}</div>}
                 {user.bio && <div className="col-span-2"><span className="text-muted-foreground">Bio:</span> {user.bio}</div>}
               </div>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Admin Actions */}
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle className="text-lg">Admin Actions</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Roles */}
+          <div>
+            <Label className="text-sm font-medium mb-2 block">Roles</Label>
+            <div className="flex gap-2">
+              {ALL_ROLES.map(role => (
+                <Button
+                  key={role}
+                  variant={roles.includes(role) ? 'default' : 'outline'}
+                  size="sm"
+                  className="capitalize"
+                  disabled={actionLoading === 'updateRoles'}
+                  onClick={() => handleToggleRole(role)}
+                >
+                  {actionLoading === 'updateRoles' ? (
+                    <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                  ) : null}
+                  {role}
+                </Button>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">Click to toggle roles on/off. At least one role is required.</p>
+          </div>
+
+          {/* Account actions */}
+          <div className="flex flex-wrap gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!!actionLoading}
+              onClick={() => performAction({ action: 'setAdmin', admin: true })}
+            >
+              {actionLoading === 'setAdmin' ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Shield className="h-3 w-3 mr-1" />}
+              Grant Admin
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!!actionLoading}
+              onClick={() => performAction({ action: 'setAdmin', admin: false })}
+            >
+              <ShieldOff className="h-3 w-3 mr-1" />
+              Remove Admin
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!!actionLoading}
+              onClick={() => performAction({ action: 'toggleDisabled', disabled: true })}
+            >
+              <Ban className="h-3 w-3 mr-1" />
+              Disable Account
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!!actionLoading}
+              onClick={() => performAction({ action: 'toggleDisabled', disabled: false })}
+            >
+              <CheckCircle className="h-3 w-3 mr-1" />
+              Enable Account
+            </Button>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="sm" disabled={!!actionLoading}>
+                  <UserX className="h-3 w-3 mr-1" />
+                  Delete User
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete User</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently delete {user.displayName || user.email}&apos;s account. This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => handleDeleteUser(false)}>
+                    Delete Account Only
+                  </AlertDialogAction>
+                  <AlertDialogAction
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    onClick={() => handleDeleteUser(true)}
+                  >
+                    Delete Account + Content
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Edit Profile */}
+      <Card className="mb-8">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-lg">Edit Profile</CardTitle>
+          {!editingProfile ? (
+            <Button variant="outline" size="sm" onClick={() => setEditingProfile(true)}>Edit</Button>
+          ) : (
+            <div className="flex gap-2">
+              <Button variant="ghost" size="sm" onClick={() => setEditingProfile(false)}>Cancel</Button>
+              <Button size="sm" onClick={handleSaveProfile} disabled={actionLoading === 'updateProfile'}>
+                {actionLoading === 'updateProfile' ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Save className="h-3 w-3 mr-1" />}
+                Save
+              </Button>
+            </div>
+          )}
+        </CardHeader>
+        <CardContent>
+          {editingProfile ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="displayName">Display Name</Label>
+                <Input
+                  id="displayName"
+                  value={profileFields.displayName}
+                  onChange={e => setProfileFields(prev => ({ ...prev, displayName: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  value={profileFields.email}
+                  onChange={e => setProfileFields(prev => ({ ...prev, email: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="locationLabel">Location</Label>
+                <Input
+                  id="locationLabel"
+                  value={profileFields.locationLabel}
+                  onChange={e => setProfileFields(prev => ({ ...prev, locationLabel: e.target.value }))}
+                />
+              </div>
+              <div className="md:col-span-2">
+                <Label htmlFor="bio">Bio</Label>
+                <Input
+                  id="bio"
+                  value={profileFields.bio}
+                  onChange={e => setProfileFields(prev => ({ ...prev, bio: e.target.value }))}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div><span className="text-muted-foreground">Name:</span> {user.displayName || '-'}</div>
+              <div><span className="text-muted-foreground">Email:</span> {user.email || '-'}</div>
+              <div><span className="text-muted-foreground">Location:</span> {user.locationLabel || '-'}</div>
+              <div className="md:col-span-2"><span className="text-muted-foreground">Bio:</span> {user.bio || '-'}</div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

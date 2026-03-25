@@ -11,13 +11,16 @@ import { cn } from '@/lib/utils';
 const adminNavLinks = [
   { href: '/admin/analytics', label: 'Analytics' },
   { href: '/admin/users', label: 'Users' },
+  { href: '/admin/retreats', label: 'Retreats' },
+  { href: '/admin/spaces', label: 'Spaces' },
+  { href: '/admin/services', label: 'Services' },
   { href: '/admin/bookings', label: 'Bookings' },
+  { href: '/admin/moderation', label: 'Moderation' },
+  { href: '/admin/flagged-conversations', label: 'Flagged Messages' },
+  { href: '/admin/chargebacks', label: 'Chargebacks' },
   { href: '/admin/waitlist', label: 'Waitlist' },
   { href: '/admin/contact', label: 'Contact' },
   { href: '/admin/founder-codes', label: 'Founder Codes' },
-  { href: '/admin/chargebacks', label: 'Chargebacks' },
-  { href: '/admin/moderation', label: 'Moderation' },
-  { href: '/admin/flagged-conversations', label: 'Flagged Messages' },
 ];
 
 function AdminNav() {

@@ -129,6 +129,11 @@ export function Header() {
                     <Link href="/billing" className="py-2 transition-colors hover:text-foreground/80 text-foreground/60" onClick={() => setMobileMenuOpen(false)}>
                       Billing
                     </Link>
+                    {isAdmin && (
+                      <Link href="/admin" className="py-2 transition-colors hover:text-foreground/80 text-foreground/60" onClick={() => setMobileMenuOpen(false)}>
+                        Admin Dashboard
+                      </Link>
+                    )}
                   </>
                 )}
               </nav>
@@ -186,14 +191,10 @@ export function Header() {
                         <DropdownMenuItem asChild><Link href="/account">Profile</Link></DropdownMenuItem>
                         <DropdownMenuItem asChild><Link href="/billing">Billing</Link></DropdownMenuItem>
                         {isAdmin && (
-                          <DropdownMenuGroup>
+                          <>
                               <DropdownMenuSeparator />
-                              <DropdownMenuLabel>Admin</DropdownMenuLabel>
-                              <DropdownMenuItem asChild><Link href="/admin/waitlist">Waitlist</Link></DropdownMenuItem>
-                              <DropdownMenuItem asChild><Link href="/admin/contact">Contact Submissions</Link></DropdownMenuItem>
-                              <DropdownMenuItem asChild><Link href="/admin/founder-codes">Founder Codes</Link></DropdownMenuItem>
-                              <DropdownMenuItem asChild><Link href="/admin/chargebacks">Chargebacks</Link></DropdownMenuItem>
-                          </DropdownMenuGroup>
+                              <DropdownMenuItem asChild><Link href="/admin">Admin Dashboard</Link></DropdownMenuItem>
+                          </>
                         )}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={handleLogout}>
