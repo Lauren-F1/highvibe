@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { WaitlistModal } from './waitlist-modal';
 import { Button } from './ui/button';
 import { Footer } from './footer';
+import Link from 'next/link';
 import * as analytics from '@/lib/analytics';
 import { HOMEPAGE_PERK_TEASER } from '@/lib/waitlist-constants';
 
@@ -220,12 +221,15 @@ export default function HomePageClient() {
                         {HOMEPAGE_PERK_TEASER}
                     </p>
                 </CardHeader>
-                <CardContent className="flex justify-center">
+                <CardContent className="flex justify-center gap-4">
                   <Button size="lg" onClick={() => {
                       setDefaultRole(undefined);
                       setModalSource("landing-card");
                       setIsWaitlistModalOpen(true);
                   }}>Join the Waitlist</Button>
+                  <Button asChild size="lg" variant="outline">
+                    <Link href="/login">Member Login</Link>
+                  </Button>
                 </CardContent>
             </Card>
         </div>

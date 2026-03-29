@@ -357,7 +357,11 @@ export function AuthForm({ mode, role }: AuthFormProps) {
     }
     
     const auth = getAuth(app!);
-    sendPasswordResetEmail(auth, email)
+    const actionCodeSettings = {
+      url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://highviberetreats.com'}/login`,
+      handleCodeInApp: false,
+    };
+    sendPasswordResetEmail(auth, email, actionCodeSettings)
         .then(() => {
             toast({ title: 'Password Reset Email Sent', description: 'Check your inbox for a link to reset your password.' });
         })
