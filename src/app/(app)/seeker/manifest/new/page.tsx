@@ -140,19 +140,23 @@ export default function NewManifestationPage() {
     try {
       const docRef = await addDoc(collection(firestore, 'manifestations'), payload);
 
-      // Fire-and-forget notification
+      // Send confirmation notification + email
       if (user.status === 'authenticated') {
+        const destination = [data.destination_country, data.destination_region].filter(Boolean).join(', ');
+        const retreatTypes = (data.retreat_types || []).join(', ');
+
         fetch('/api/notifications', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             userId: user.data.uid,
-            type: 'manifestation_match',
-            title: 'Manifestation Submitted!',
-            body: `Your dream retreat manifestation is being matched with providers.`,
+            type: 'manifestation_submitted',
+            title: 'Your Retreat Vision is Live!',
+            body: `Your manifestation for a ${retreatTypes || 'wellness'} retreat in ${destination || 'your dream destination'} has been submitted. We're searching for the perfect matches now.`,
             linkUrl: `/seeker/manifestations/${docRef.id}`,
-            metadata: { manifestationId: docRef.id },
-            sendEmailNotif: false,
+            metadata: { manifestationId: docRef.id, destination, retreatTypes, groupSize: data.group_size },
+            sendEmailNotif: true,
+            emailTemplate: 'manifestation_submitted',
           }),
         }).catch(() => {});
 
@@ -166,12 +170,16 @@ export default function NewManifestationPage() {
                 Authorization: `Bearer ${idToken}`,
               },
               body: JSON.stringify({ manifestationId: docRef.id }),
-            }).catch(() => {});
-          }).catch(() => {});
+            }).catch((err: unknown) => {
+              console.error('[MANIFEST] AI matching call failed:', err);
+            });
+          }).catch((err: unknown) => {
+            console.error('[MANIFEST] Failed to get auth token for matching:', err);
+          });
         }
       }
 
-      toast({ title: "Manifestation Submitted!", description: "We're matching you with providers." });
+      toast({ title: "Your Retreat Vision is Live!", description: "We're searching for the perfect matches. You'll get notified as they come in." });
       router.push(`/seeker/manifestations/${docRef.id}`);
     } catch (error) {
       console.error("Error submitting manifestation:", error);

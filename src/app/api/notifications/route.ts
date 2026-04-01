@@ -6,6 +6,7 @@ import {
   buildNewMessageEmail,
   buildBookingConfirmationEmail,
   buildManifestationMatchEmail,
+  buildManifestationSubmittedEmail,
   buildRetreatFullyBookedEmail,
   buildWaitlistSpotOpenEmail,
 } from '@/lib/notification-emails';
@@ -138,6 +139,15 @@ export async function POST(request: NextRequest) {
                   recipientName: name,
                   retreatTitle: metadata?.retreatTitle || 'a retreat',
                   retreatId: metadata?.retreatId || '',
+                });
+                break;
+              case 'manifestation_submitted':
+                emailContent = buildManifestationSubmittedEmail({
+                  recipientName: name,
+                  destination: metadata?.destination || 'your dream destination',
+                  retreatTypes: metadata?.retreatTypes || 'wellness',
+                  groupSize: metadata?.groupSize || 0,
+                  manifestationId: metadata?.manifestationId || '',
                 });
                 break;
             }

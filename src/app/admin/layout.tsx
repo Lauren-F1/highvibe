@@ -17,6 +17,7 @@ const adminNavLinks = [
   { href: '/admin/bookings', label: 'Bookings' },
   { href: '/admin/moderation', label: 'Moderation' },
   { href: '/admin/flagged-conversations', label: 'Flagged Messages' },
+  { href: '/admin/scout', label: 'Scout Outreach' },
   { href: '/admin/chargebacks', label: 'Chargebacks' },
   { href: '/admin/waitlist', label: 'Waitlist' },
   { href: '/admin/contact', label: 'Contact' },

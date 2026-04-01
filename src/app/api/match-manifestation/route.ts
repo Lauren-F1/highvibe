@@ -6,6 +6,7 @@ import { sendEmail } from '@/lib/email';
 import { buildProviderOpportunityEmail, buildManifestationMatchEmail } from '@/lib/notification-emails';
 import { scoutLocalVendors } from '@/ai/flows/scout-local-vendors';
 import { scoutLocalHosts } from '@/ai/flows/scout-local-hosts';
+import { submitContactForm } from '@/ai/flows/submit-contact-form';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -373,51 +374,101 @@ export async function POST(request: Request) {
             });
 
             for (const host of hostResults.hosts) {
-              if (!host.email) continue;
               try {
-                // Check if already contacted
-                const existingSnap = await db.collection('scout_outreach')
-                  .where('vendorEmail', '==', host.email.toLowerCase())
-                  .where('status', 'in', ['sent', 'followed_up', 'signed_up'])
-                  .limit(1)
-                  .get();
-                if (!existingSnap.empty) continue;
+                if (host.email) {
+                  // Check if already contacted
+                  const existingSnap = await db.collection('scout_outreach')
+                    .where('vendorEmail', '==', host.email.toLowerCase())
+                    .where('status', 'in', ['sent', 'followed_up', 'signed_up'])
+                    .limit(1)
+                    .get();
+                  if (!existingSnap.empty) continue;
 
-                // Build and send host outreach email
-                const signupUrl = `https://highviberetreats.com/join/host?ref=scout&source=${encodeURIComponent(host.email)}`;
-                const unsubscribeUrl = `https://highviberetreats.com/api/scout/unsubscribe?email=${encodeURIComponent(host.email)}`;
-                const groupSizeNote = manifestation.group_size
-                  ? `This particular retreat would bring approximately <strong>${manifestation.group_size} guests</strong> for a multi-night stay.`
-                  : 'Retreat leaders typically book blocks of rooms for multi-night group stays.';
+                  // Build and send host outreach email
+                  const signupUrl = `https://highviberetreats.com/join/host?ref=scout&source=${encodeURIComponent(host.email)}`;
+                  const unsubscribeUrl = `https://highviberetreats.com/api/scout/unsubscribe?email=${encodeURIComponent(host.email)}`;
+                  const groupSizeNote = manifestation.group_size
+                    ? `This particular retreat would bring approximately <strong>${manifestation.group_size} guests</strong> for a multi-night stay.`
+                    : 'Retreat leaders typically book blocks of rooms for multi-night group stays.';
 
-                const subject = `Partnership opportunity: Wellness retreats at ${host.name}`;
-                const emailHtml = buildHostOutreachHtml(host.name, scoutLocation, lodgingType, groupSizeNote, signupUrl, unsubscribeUrl);
-                const emailText = buildHostOutreachText(host.name, scoutLocation, lodgingType, manifestation.group_size, signupUrl, unsubscribeUrl);
+                  const subject = `Partnership opportunity: Wellness retreats at ${host.name}`;
+                  const emailHtml = buildHostOutreachHtml(host.name, scoutLocation, lodgingType, groupSizeNote, signupUrl, unsubscribeUrl);
+                  const emailText = buildHostOutreachText(host.name, scoutLocation, lodgingType, manifestation.group_size, signupUrl, unsubscribeUrl);
 
-                await sendEmail({ to: host.email, subject, html: emailHtml, text: emailText });
+                  await sendEmail({ to: host.email, subject, html: emailHtml, text: emailText });
 
-                // Log to scout_outreach
-                await db.collection('scout_outreach').add({
-                  vendorEmail: host.email.toLowerCase(),
-                  vendorName: host.name,
-                  vendorCategory: lodgingType,
-                  location: scoutLocation,
-                  guideUserId: null,
-                  retreatId: null,
-                  manifestationId,
-                  outreachType: 'host',
-                  source: 'auto_manifestation',
-                  groupSize: manifestation.group_size || null,
-                  status: 'sent',
-                  sentAt: new Date(),
-                  openedAt: null,
-                  signedUpAt: null,
-                });
+                  await db.collection('scout_outreach').add({
+                    vendorEmail: host.email.toLowerCase(),
+                    vendorName: host.name,
+                    vendorCategory: lodgingType,
+                    location: scoutLocation,
+                    guideUserId: null,
+                    retreatId: null,
+                    manifestationId,
+                    outreachType: 'host',
+                    source: 'auto_manifestation',
+                    groupSize: manifestation.group_size || null,
+                    status: 'sent',
+                    sentAt: new Date(),
+                    openedAt: null,
+                    signedUpAt: null,
+                  });
 
-                hostsContacted++;
-                console.log(`[AUTO-SCOUT] Sent host outreach to ${host.name} (${host.email})`);
+                  hostsContacted++;
+                  console.log(`[AUTO-SCOUT] Sent host outreach to ${host.name} (${host.email})`);
+                } else if (host.website) {
+                  // No email found — try contact form submission
+                  console.log(`[AUTO-SCOUT] No email for ${host.name}, trying contact form at ${host.website}`);
+                  const formResult = await submitContactForm({
+                    websiteUrl: host.website,
+                    businessName: host.name,
+                    businessCategory: lodgingType,
+                    location: scoutLocation,
+                    outreachType: 'host',
+                  });
+
+                  if (formResult.submitted) {
+                    await db.collection('scout_outreach').add({
+                      vendorEmail: '',
+                      vendorName: host.name,
+                      vendorCategory: lodgingType,
+                      location: scoutLocation,
+                      manifestationId,
+                      outreachType: 'host',
+                      source: 'auto_manifestation',
+                      contactMethod: 'form',
+                      contactPageUrl: formResult.contactPageUrl,
+                      website: host.website,
+                      status: 'sent',
+                      sentAt: new Date(),
+                    });
+                    hostsContacted++;
+                    console.log(`[AUTO-SCOUT] Submitted contact form for host ${host.name}`);
+                  } else {
+                    // Log as manual_needed so admin can follow up
+                    await db.collection('scout_outreach').add({
+                      vendorEmail: '',
+                      vendorName: host.name,
+                      vendorCategory: lodgingType,
+                      location: scoutLocation,
+                      manifestationId,
+                      outreachType: 'host',
+                      source: 'auto_manifestation',
+                      contactMethod: 'none',
+                      website: host.website,
+                      phone: host.phone,
+                      rating: host.rating,
+                      relevanceScore: host.relevanceScore,
+                      relevanceReason: host.relevanceReason,
+                      status: 'manual_needed',
+                      sentAt: new Date(),
+                      failReason: formResult.reason,
+                    });
+                    console.log(`[AUTO-SCOUT] Manual follow-up needed for host ${host.name} — ${formResult.reason}`);
+                  }
+                }
               } catch (hostEmailErr) {
-                console.error(`[AUTO-SCOUT] Failed to email host ${host.name}:`, hostEmailErr);
+                console.error(`[AUTO-SCOUT] Failed to contact host ${host.name}:`, hostEmailErr);
               }
             }
           } catch (hostScoutErr) {
@@ -442,47 +493,95 @@ export async function POST(request: Request) {
                 });
 
                 for (const vendor of vendorResults.vendors) {
-                  if (!vendor.email) continue;
                   try {
-                    // Check if already contacted
-                    const existingSnap = await db.collection('scout_outreach')
-                      .where('vendorEmail', '==', vendor.email.toLowerCase())
-                      .where('status', 'in', ['sent', 'followed_up', 'signed_up'])
-                      .limit(1)
-                      .get();
-                    if (!existingSnap.empty) continue;
+                    if (vendor.email) {
+                      // Check if already contacted
+                      const existingSnap = await db.collection('scout_outreach')
+                        .where('vendorEmail', '==', vendor.email.toLowerCase())
+                        .where('status', 'in', ['sent', 'followed_up', 'signed_up'])
+                        .limit(1)
+                        .get();
+                      if (!existingSnap.empty) continue;
 
-                    // Build and send vendor outreach email
-                    const signupUrl = `https://highviberetreats.com/join/vendor?ref=scout&source=${encodeURIComponent(vendor.email)}`;
-                    const unsubscribeUrl = `https://highviberetreats.com/api/scout/unsubscribe?email=${encodeURIComponent(vendor.email)}`;
+                      const signupUrl = `https://highviberetreats.com/join/vendor?ref=scout&source=${encodeURIComponent(vendor.email)}`;
+                      const unsubscribeUrl = `https://highviberetreats.com/api/scout/unsubscribe?email=${encodeURIComponent(vendor.email)}`;
 
-                    const subject = `A retreat leader is looking for ${category} services in ${scoutLocation}`;
-                    const emailHtml = buildVendorOutreachHtml(vendor.name, scoutLocation, category, signupUrl, unsubscribeUrl);
-                    const emailText = buildVendorOutreachText(vendor.name, scoutLocation, category, signupUrl, unsubscribeUrl);
+                      const subject = `A retreat leader is looking for ${category} services in ${scoutLocation}`;
+                      const emailHtml = buildVendorOutreachHtml(vendor.name, scoutLocation, category, signupUrl, unsubscribeUrl);
+                      const emailText = buildVendorOutreachText(vendor.name, scoutLocation, category, signupUrl, unsubscribeUrl);
 
-                    await sendEmail({ to: vendor.email, subject, html: emailHtml, text: emailText });
+                      await sendEmail({ to: vendor.email, subject, html: emailHtml, text: emailText });
 
-                    // Log to scout_outreach
-                    await db.collection('scout_outreach').add({
-                      vendorEmail: vendor.email.toLowerCase(),
-                      vendorName: vendor.name,
-                      vendorCategory: category,
-                      location: scoutLocation,
-                      guideUserId: null,
-                      retreatId: null,
-                      manifestationId,
-                      outreachType: 'vendor',
-                      source: 'auto_manifestation',
-                      status: 'sent',
-                      sentAt: new Date(),
-                      openedAt: null,
-                      signedUpAt: null,
-                    });
+                      await db.collection('scout_outreach').add({
+                        vendorEmail: vendor.email.toLowerCase(),
+                        vendorName: vendor.name,
+                        vendorCategory: category,
+                        location: scoutLocation,
+                        guideUserId: null,
+                        retreatId: null,
+                        manifestationId,
+                        outreachType: 'vendor',
+                        source: 'auto_manifestation',
+                        status: 'sent',
+                        sentAt: new Date(),
+                        openedAt: null,
+                        signedUpAt: null,
+                      });
 
-                    vendorsContacted++;
-                    console.log(`[AUTO-SCOUT] Sent vendor outreach to ${vendor.name} (${vendor.email})`);
+                      vendorsContacted++;
+                      console.log(`[AUTO-SCOUT] Sent vendor outreach to ${vendor.name} (${vendor.email})`);
+                    } else if (vendor.website) {
+                      // No email — try contact form
+                      console.log(`[AUTO-SCOUT] No email for ${vendor.name}, trying contact form at ${vendor.website}`);
+                      const formResult = await submitContactForm({
+                        websiteUrl: vendor.website,
+                        businessName: vendor.name,
+                        businessCategory: category,
+                        location: scoutLocation,
+                        outreachType: 'vendor',
+                      });
+
+                      if (formResult.submitted) {
+                        await db.collection('scout_outreach').add({
+                          vendorEmail: '',
+                          vendorName: vendor.name,
+                          vendorCategory: category,
+                          location: scoutLocation,
+                          manifestationId,
+                          outreachType: 'vendor',
+                          source: 'auto_manifestation',
+                          contactMethod: 'form',
+                          contactPageUrl: formResult.contactPageUrl,
+                          website: vendor.website,
+                          status: 'sent',
+                          sentAt: new Date(),
+                        });
+                        vendorsContacted++;
+                        console.log(`[AUTO-SCOUT] Submitted contact form for vendor ${vendor.name}`);
+                      } else {
+                        await db.collection('scout_outreach').add({
+                          vendorEmail: '',
+                          vendorName: vendor.name,
+                          vendorCategory: category,
+                          location: scoutLocation,
+                          manifestationId,
+                          outreachType: 'vendor',
+                          source: 'auto_manifestation',
+                          contactMethod: 'none',
+                          website: vendor.website,
+                          phone: vendor.phone,
+                          rating: vendor.rating,
+                          relevanceScore: vendor.relevanceScore,
+                          relevanceReason: vendor.relevanceReason,
+                          status: 'manual_needed',
+                          sentAt: new Date(),
+                          failReason: formResult.reason,
+                        });
+                        console.log(`[AUTO-SCOUT] Manual follow-up needed for vendor ${vendor.name} — ${formResult.reason}`);
+                      }
+                    }
                   } catch (vendorEmailErr) {
-                    console.error(`[AUTO-SCOUT] Failed to email vendor ${vendor.name}:`, vendorEmailErr);
+                    console.error(`[AUTO-SCOUT] Failed to contact vendor ${vendor.name}:`, vendorEmailErr);
                   }
                 }
               } catch (catScoutErr) {
@@ -540,6 +639,31 @@ export async function POST(request: Request) {
           } catch (seekerNotifErr) {
             console.error(`[AUTO-SCOUT] Failed to notify seeker:`, seekerNotifErr);
           }
+        }
+
+        // Check for manual-needed records and notify admin
+        try {
+          const manualSnap = await db.collection('scout_outreach')
+            .where('manifestationId', '==', manifestationId)
+            .where('status', '==', 'manual_needed')
+            .get();
+
+          if (!manualSnap.empty) {
+            const manualNames = manualSnap.docs.map(d => d.data().vendorName).join(', ');
+            const adminEmail = process.env.ADMIN_EMAIL_ALLOWLIST?.split(',')[0]?.trim();
+
+            if (adminEmail) {
+              await sendEmail({
+                to: adminEmail,
+                subject: `[Scout] ${manualSnap.size} provider${manualSnap.size === 1 ? '' : 's'} need manual outreach`,
+                html: `<p>The auto-scout for manifestation <strong>${manifestationId}</strong> found ${manualSnap.size} provider${manualSnap.size === 1 ? '' : 's'} that couldn't be contacted automatically:</p><p><strong>${manualNames}</strong></p><p>These businesses had no public email and no accessible contact form. You can review them and reach out manually.</p><p><a href="https://highviberetreats.com/admin/scout?status=manual_needed">View in Admin Dashboard</a></p>`,
+                text: `Auto-scout found ${manualSnap.size} providers needing manual outreach: ${manualNames}. View at https://highviberetreats.com/admin/scout?status=manual_needed`,
+              });
+              console.log(`[AUTO-SCOUT] Sent admin notification for ${manualSnap.size} manual-needed contacts`);
+            }
+          }
+        } catch (adminNotifErr) {
+          console.error(`[AUTO-SCOUT] Failed to notify admin of manual-needed:`, adminNotifErr);
         }
 
         console.log(`[AUTO-SCOUT] Complete for ${manifestationId}: ${hostsContacted} hosts, ${vendorsContacted} vendors contacted`);

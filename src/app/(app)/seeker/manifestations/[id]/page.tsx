@@ -23,12 +23,17 @@ type Manifestation = {
     retreat_types: string[];
     must_haves: string[];
     nice_to_haves: string[];
+    amenities: string[];
     group_size: number;
     budget_range: string;
     luxury_tier: string;
     lodging_preference: string;
     notes_text: string;
     matched_summary_counts: { guides: number; hosts: number; vendors: number };
+    auto_scout_triggered?: boolean;
+    auto_scout_results?: { vendors_contacted: number; hosts_contacted: number };
+    retreat_matches?: Array<{ retreatId: string; title: string; score: number; destination: string; price: number }>;
+    created_at?: any;
 };
 
 type Match = {
@@ -433,15 +438,66 @@ export default function ManifestationDetailPage() {
                 )}
             </Card>
 
+            {/* Auto-scout banner */}
+            {manifestation.auto_scout_triggered && manifestation.auto_scout_results && (
+                <Card className="mb-6 border-primary/30 bg-primary/5">
+                    <CardContent className="py-6">
+                        <div className="flex items-start gap-3">
+                            <Sparkles className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                            <div>
+                                <h3 className="font-bold mb-1">Expanding Your Search</h3>
+                                <p className="text-sm text-muted-foreground">
+                                    Our AI scout is reaching out to{' '}
+                                    {[
+                                        manifestation.auto_scout_results.hosts_contacted > 0 && `${manifestation.auto_scout_results.hosts_contacted} venue${manifestation.auto_scout_results.hosts_contacted !== 1 ? 's' : ''}`,
+                                        manifestation.auto_scout_results.vendors_contacted > 0 && `${manifestation.auto_scout_results.vendors_contacted} service provider${manifestation.auto_scout_results.vendors_contacted !== 1 ? 's' : ''}`,
+                                    ].filter(Boolean).join(' and ')}{' '}
+                                    in {destination} to invite them to the platform. You'll be notified as they respond.
+                                </p>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
+
+            {/* Retreat matches */}
+            {manifestation.retreat_matches && manifestation.retreat_matches.length > 0 && (
+                <Card className="mb-6">
+                    <CardHeader>
+                        <CardTitle className="text-lg">Existing Retreats That Match</CardTitle>
+                        <CardDescription>These retreats are already listed and may fit your vision.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                        {manifestation.retreat_matches.map(rm => (
+                            <div key={rm.retreatId} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/30">
+                                <div>
+                                    <p className="font-medium">{rm.title}</p>
+                                    <p className="text-sm text-muted-foreground">{rm.destination} {rm.price > 0 && `· $${rm.price.toLocaleString()}/person`}</p>
+                                </div>
+                                <Button size="sm" variant="outline" asChild>
+                                    <Link href={`/retreats/${rm.retreatId}`}>View</Link>
+                                </Button>
+                            </div>
+                        ))}
+                    </CardContent>
+                </Card>
+            )}
+
             {/* Matching Status */}
             {isMatching && (
                 <Card className="mb-6">
                     <CardContent className="text-center py-16">
                         <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
                         <h3 className="font-bold text-xl mb-2">Matching in progress</h3>
-                        <p className="text-muted-foreground max-w-md mx-auto">
+                        <p className="text-muted-foreground max-w-md mx-auto mb-4">
                             Our AI is analyzing provider profiles to find the best matches for your dream retreat. This usually takes less than a minute.
                         </p>
+                        <div className="text-sm text-muted-foreground space-y-1 max-w-sm mx-auto text-left">
+                            <p className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Manifestation submitted</p>
+                            <p className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Scanning provider network</p>
+                            <p className="flex items-center gap-2 opacity-50"><Users className="h-4 w-4" /> Scoring and ranking matches</p>
+                            <p className="flex items-center gap-2 opacity-50"><MapPin className="h-4 w-4" /> Scouting external providers</p>
+                        </div>
                     </CardContent>
                 </Card>
             )}
@@ -526,12 +582,21 @@ export default function ManifestationDetailPage() {
                     ) : (
                         <Card>
                             <CardContent className="text-center py-16">
-                                <h3 className="font-bold text-xl mb-2">No matches yet</h3>
-                                <p className="text-muted-foreground max-w-md mx-auto">
-                                    {manifestation.status === 'proposals_open'
-                                        ? 'No providers matched your criteria at this time. Try broadening your requirements or check back later.'
+                                <h3 className="font-bold text-xl mb-2">
+                                    {manifestation.auto_scout_triggered ? 'Scouting in progress' : 'No matches yet'}
+                                </h3>
+                                <p className="text-muted-foreground max-w-md mx-auto mb-4">
+                                    {manifestation.auto_scout_triggered
+                                        ? `We didn't find enough matches in our current network, so our AI scout is actively reaching out to providers in ${destination || 'your area'}. You'll be notified as new providers join and respond to your request.`
+                                        : manifestation.status === 'proposals_open'
+                                        ? `No providers matched your criteria yet, but your manifestation is still active. As new providers join HighVibe, they'll be matched against your request automatically.`
                                         : 'Matching has not started yet for this manifestation.'}
                                 </p>
+                                {manifestation.status === 'proposals_open' && (
+                                    <Button variant="outline" asChild>
+                                        <Link href="/seeker/manifest/new">Refine Your Vision</Link>
+                                    </Button>
+                                )}
                             </CardContent>
                         </Card>
                     )}

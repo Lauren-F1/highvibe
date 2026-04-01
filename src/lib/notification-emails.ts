@@ -212,3 +212,28 @@ export function buildWaitlistSpotOpenEmail(params: {
   const text = `A spot opened up for "${params.retreatTitle}". Book now at ${BASE_URL}/retreats/${params.retreatId}`;
   return { html, text };
 }
+
+export function buildManifestationSubmittedEmail(params: {
+  recipientName: string;
+  destination: string;
+  retreatTypes: string;
+  groupSize: number;
+  manifestationId: string;
+}) {
+  const html = wrapEmail(`
+    <h2 style="margin:0 0 16px;color:#1a1a1a;font-size:22px;">Your Retreat Vision is Live</h2>
+    <p style="color:#333;font-size:16px;line-height:1.6;">Hi ${params.recipientName},</p>
+    <p style="color:#333;font-size:16px;line-height:1.6;">Your manifestation for a <strong>${params.retreatTypes || 'wellness'}</strong> retreat in <strong>${params.destination || 'your dream destination'}</strong> for <strong>${params.groupSize} guests</strong> has been submitted.</p>
+    <p style="color:#333;font-size:16px;line-height:1.6;">Here's what happens next:</p>
+    <ol style="color:#333;font-size:16px;line-height:1.8;padding-left:20px;">
+      <li><strong>AI Matching</strong> — We're scanning our network of guides, hosts, and vendors to find providers who align with your vision.</li>
+      <li><strong>Scout Expansion</strong> — If we don't find enough matches internally, our AI scout will search for new providers in ${params.destination || 'your area'} and invite them to the platform on your behalf.</li>
+      <li><strong>Provider Proposals</strong> — Matched providers will be notified and can send you proposals with pricing, dates, and details.</li>
+    </ol>
+    <p style="color:#333;font-size:16px;line-height:1.6;">You'll receive notifications as matches come in. In the meantime, you can track your manifestation's progress anytime.</p>
+    ${ctaButton('View Your Manifestation', `${BASE_URL}/seeker/manifestations/${params.manifestationId}`)}
+    <p style="color:#999;font-size:14px;">We're working behind the scenes to bring your retreat vision to life. Sit back — we've got this.</p>
+  `);
+  const text = `Your manifestation for a ${params.retreatTypes || 'wellness'} retreat in ${params.destination || 'your dream destination'} has been submitted. We're matching you with providers now. Track progress at ${BASE_URL}/seeker/manifestations/${params.manifestationId}`;
+  return { html, text };
+}
