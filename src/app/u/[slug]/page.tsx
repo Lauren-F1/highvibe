@@ -47,7 +47,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
         if (!profileData) {
           // Fall back to mock data for demo profiles (only in dev mode)
           if (!useMockData) {
-            setLoading(false);
+            setIsLoading(false);
             return;
           }
           const mockHost = hosts.find(h => h.profileSlug === slug);
