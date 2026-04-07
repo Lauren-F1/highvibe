@@ -15,6 +15,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Separator } from '@/components/ui/separator';
 
 import { vendors as mockVendors, type Vendor, matchingGuidesForVendor as mockGuides } from '@/lib/mock-data';
+import { useMockData } from '@/firebase/config';
 import { loadGuides, loadVendors } from '@/lib/firestore-partners';
 import { VendorCard } from '@/components/vendor-card';
 import { VendorFilters, type VendorFiltersState } from '@/components/vendor-filters';
@@ -241,8 +242,8 @@ export default function HostDashboardPage() {
     }
   };
 
-  const allGuides = partnersLoaded && firestoreGuides.length > 0 ? firestoreGuides : mockGuides;
-  const allVendors = partnersLoaded && firestoreVendors.length > 0 ? firestoreVendors : mockVendors;
+  const allGuides = useMockData ? mockGuides : (partnersLoaded ? firestoreGuides : []);
+  const allVendors = useMockData ? mockVendors : (partnersLoaded ? firestoreVendors : []);
 
   // Set initial active space once loaded
   useEffect(() => {

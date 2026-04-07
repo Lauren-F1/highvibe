@@ -16,7 +16,7 @@ import { MapPin, Clock, CheckCircle, Users, DollarSign, Bookmark, CalendarDays }
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
-import { isFirebaseEnabled } from '@/firebase/config';
+import { isFirebaseEnabled, useMockData } from '@/firebase/config';
 import { format } from 'date-fns';
 import { toSafeDate } from '@/lib/date-utils';
 
@@ -105,13 +105,15 @@ export default function RetreatDetailPage() {
         }
       }
 
-      // Fallback to mock data
-      const mock = mockRetreats.find(r => r.id === retreatId);
-      if (mock) {
-        setRetreat({
-          ...mock,
-          type: mock.type || [],
-        });
+      // Fallback to mock data only in dev mode
+      if (useMockData) {
+        const mock = mockRetreats.find(r => r.id === retreatId);
+        if (mock) {
+          setRetreat({
+            ...mock,
+            type: mock.type || [],
+          });
+        }
       }
       setLoading(false);
     };

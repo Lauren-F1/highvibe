@@ -13,6 +13,7 @@ import { collection, query, where, getDocs, limit, addDoc, serverTimestamp } fro
 import { notFound, useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { hosts, vendors, matchingGuidesForVendor } from '@/lib/mock-data';
+import { useMockData } from '@/firebase/config';
 
 async function getProfileBySlug(db: any, slug: string): Promise<UserProfile | null> {
   if (!db) return null;
@@ -44,7 +45,11 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
       try {
         let profileData = await getProfileBySlug(firestore, slug);
         if (!profileData) {
-          // Fall back to mock data for demo profiles
+          // Fall back to mock data for demo profiles (only in dev mode)
+          if (!useMockData) {
+            setLoading(false);
+            return;
+          }
           const mockHost = hosts.find(h => h.profileSlug === slug);
           const mockVendor = vendors.find(v => v.profileSlug === slug);
           const mockGuide = matchingGuidesForVendor.find(g => g.profileSlug === slug);

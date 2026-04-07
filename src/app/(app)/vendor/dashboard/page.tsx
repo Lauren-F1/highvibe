@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { PlusCircle, Eye, Users, MessageSquare, MoreHorizontal, Filter } from 'lucide-react';
 import { yourServices as mockServices, matchingGuidesForVendor as mockGuides, matchingHostsForVendor as mockHosts, type Guide, type Host } from '@/lib/mock-data';
+import { useMockData } from '@/firebase/config';
 import { loadGuides, loadHosts } from '@/lib/firestore-partners';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -122,7 +123,7 @@ export default function VendorDashboardPage() {
     loadServices();
   }, [firestore, user.status]);
 
-  const yourServices = servicesLoaded && firestoreServices.length > 0 ? firestoreServices : mockServices.map(s => ({ ...s, isFirestore: false }));
+  const yourServices = useMockData ? mockServices.map(s => ({ ...s, isFirestore: false })) : (servicesLoaded ? firestoreServices : []);
 
   // Load real guides and hosts from Firestore
   const [firestoreGuides, setFirestoreGuides] = useState<Guide[]>([]);
@@ -150,8 +151,8 @@ export default function VendorDashboardPage() {
     loadPartners();
   }, [firestore, user.status]);
 
-  const allGuides = partnersLoaded && firestoreGuides.length > 0 ? firestoreGuides : mockGuides;
-  const allHosts = partnersLoaded && firestoreHosts.length > 0 ? firestoreHosts : mockHosts;
+  const allGuides = useMockData ? mockGuides : (partnersLoaded ? firestoreGuides : []);
+  const allHosts = useMockData ? mockHosts : (partnersLoaded ? firestoreHosts : []);
 
   // Track connections via Firestore conversations
   const [connections, setConnections] = useState<Connection[]>([]);

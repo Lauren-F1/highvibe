@@ -141,7 +141,7 @@ export default function GuidePage() {
   }, [firestore, user.status, user.data?.uid]);
 
   // Use Firestore retreats if available, fall back to mock
-  const yourRetreats = retreatsLoaded && firestoreRetreats.length > 0 ? firestoreRetreats : mockRetreats;
+  const yourRetreats = useMockData ? mockRetreats : (retreatsLoaded ? firestoreRetreats : []);
 
   // Load real hosts and vendors from Firestore
   const [firestoreHosts, setFirestoreHosts] = useState<Host[]>([]);
@@ -170,8 +170,8 @@ export default function GuidePage() {
     loadPartners();
   }, [firestore, user.status, user.data?.uid]);
 
-  const hosts = partnersLoaded && firestoreHosts.length > 0 ? firestoreHosts : mockHosts;
-  const vendors = partnersLoaded && firestoreVendors.length > 0 ? firestoreVendors : mockVendors;
+  const hosts = useMockData ? mockHosts : (partnersLoaded ? firestoreHosts : []);
+  const vendors = useMockData ? mockVendors : (partnersLoaded ? firestoreVendors : []);
 
   // Load published spaces for date-based availability filtering
   const [spacesForFiltering, setSpacesForFiltering] = useState<{ spaceOwnerId: string; blockedDates: string[] }[]>([]);

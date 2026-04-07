@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useUser, useFirestore } from '@/firebase';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { allRetreats } from '@/lib/mock-data';
+import { useMockData } from '@/firebase/config';
 import { notFound } from 'next/navigation';
 import { isFirebaseEnabled } from '@/firebase/config';
 
@@ -109,7 +110,7 @@ export default function CheckoutPage() {
                 }
             }
 
-            if (!foundRetreat) {
+            if (!foundRetreat && useMockData) {
                 const retreatData = allRetreats.find(r => r.id === retreatId);
                 if (retreatData) {
                     setRetreat(retreatData);

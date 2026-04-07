@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { HowItWorksModal } from '@/components/how-it-works-modal';
 import { allRetreats as mockRetreats, continents, destinations, experienceTypes, investmentRanges, timingOptions } from '@/lib/mock-data';
+import { useMockData } from '@/firebase/config';
 import { useFirestore, useUser } from '@/firebase';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
@@ -100,14 +101,13 @@ export default function SeekerPage() {
   const [firestoreRetreats, setFirestoreRetreats] = useState<Retreat[]>([]);
   const [retreatsLoaded, setRetreatsLoaded] = useState(false);
 
-  const retreats = useMemo(() =>
-    retreatsLoaded && firestoreRetreats.length > 0
-      ? [...firestoreRetreats, ...mockRetreats]
-      : mockRetreats,
-    [retreatsLoaded, firestoreRetreats]
-  );
+  const retreats = useMemo(() => {
+    if (useMockData) return mockRetreats;
+    if (retreatsLoaded) return firestoreRetreats;
+    return []; // Still loading from Firestore
+  }, [retreatsLoaded, firestoreRetreats]);
 
-  const [filteredRetreats, setFilteredRetreats] = useState<Retreat[]>(mockRetreats);
+  const [filteredRetreats, setFilteredRetreats] = useState<Retreat[]>([]);
   const [isHowItWorksOpen, setIsHowItWorksOpen] = useState(false);
 
   const mostExpensiveRetreatId = retreats.length > 0 ? retreats.reduce((prev, current) => (prev.price > current.price) ? prev : current).id : '';

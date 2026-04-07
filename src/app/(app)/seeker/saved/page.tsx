@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useUser, useFirestore } from '@/firebase';
-import { isFirebaseEnabled } from '@/firebase/config';
+import { isFirebaseEnabled, useMockData } from '@/firebase/config';
 import { doc, getDoc } from 'firebase/firestore';
 import { RetreatCard } from '@/components/retreat-card';
 import { Button } from '@/components/ui/button';
@@ -36,8 +36,8 @@ export default function SavedRetreatsPage() {
     ? user.profile.savedRetreatIds
     : [];
 
-  // Find retreats from mock data
-  const mockRetreats = allRetreats.filter(r => savedRetreatIds.includes(r.id));
+  // Find retreats from mock data (only in dev mode)
+  const mockRetreats = useMockData ? allRetreats.filter(r => savedRetreatIds.includes(r.id)) : [];
   const mockRetreatIds = new Set(mockRetreats.map(r => r.id));
 
   // Fetch any saved retreat IDs not found in mock data from Firestore
